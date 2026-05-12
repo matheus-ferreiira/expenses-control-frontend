@@ -1,70 +1,91 @@
-# .
+# Productivity Control — Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+SPA Vue 3 para controle financeiro, tarefas, hábitos, metas e produtividade pessoal.
 
-## Recommended IDE Setup
+## Stack
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+| Tecnologia | Versão |
+|-----------|--------|
+| Vue | ^3.5 |
+| TypeScript | ~5.9 |
+| Vite | ^7.3 |
+| Pinia | ^3.0 |
+| Vue Router | ^4.6 |
+| Vitest | ^4.0 |
+| Cypress | ^15.8 |
 
-## Recommended Browser Setup
+## Pré-requisitos
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- Node.js 20+
+- Backend rodando em `http://localhost:8000`
 
-## Type Support for `.vue` Imports in TS
+## Instalação
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+cp .env.example .env   # configurar VITE_API_URL
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Variáveis de Ambiente
 
-```sh
-npm run build
+```env
+VITE_API_URL=http://localhost:8000/api
+VITE_APP_NAME=Productivity Control
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## Comandos
 
-```sh
-npm run test:unit
+```bash
+npm run dev            # Servidor de desenvolvimento (Vite)
+npm run build          # Build para produção
+npm run preview        # Preview do build
+npm run test:unit      # Testes unitários (Vitest)
+npm run test:e2e       # Testes E2E (Cypress + build)
+npm run test:e2e:dev   # Testes E2E em desenvolvimento
+npm run type-check     # Verificação de tipos (vue-tsc)
+npm run lint           # ESLint com auto-fix
+npm run format         # Prettier
 ```
 
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
+## Arquitetura
 
-```sh
-npm run test:e2e:dev
+```
+src/
+├── assets/            Imagens, fontes, estilos globais
+├── components/
+│   ├── ui/            Componentes base reutilizáveis
+│   └── [domain]/      Componentes específicos de cada módulo
+├── composables/       Lógica reutilizável com Composition API
+├── layouts/           AppLayout, AuthLayout
+├── pages/             Views por rota (espelham os módulos do backend)
+├── router/            Vue Router + navigation guards
+├── services/api/      Camada de integração com o backend
+├── stores/            Pinia stores por domínio
+├── types/             TypeScript interfaces e tipos
+└── utils/             Helpers e formatadores
 ```
 
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
+## Módulos
 
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
+| Módulo | Rota | Descrição |
+|--------|------|-----------|
+| Auth | `/login`, `/register` | Autenticação |
+| Dashboard | `/` | Visão geral consolidada |
+| Tasks | `/tasks` | Gerenciamento de tarefas |
+| Habits | `/habits` | Tracking de hábitos + heatmap |
+| Finance | `/finance` | Controle financeiro + gráficos |
+| Goals | `/goals` | Metas e progresso |
+| Calendar | `/calendar` | Agenda de eventos |
 
-```sh
-npm run build
-npm run test:e2e
-```
+## Backend
 
-### Lint with [ESLint](https://eslint.org/)
+A API está em `back/`. Documentação completa em [`back/README.md`](../back/README.md).
 
-```sh
-npm run lint
-```
+## Padrões de Código
+
+- `<script setup lang="ts">` em todos os componentes
+- Composition API + Composables para lógica reutilizável
+- Pinia stores com Setup API (não Options API)
+- Tipagem estrita — evitar `any`
+- Prettier: single quotes, 100 chars, sem ponto e vírgula
