@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, watch } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
 import { Inbox } from 'lucide-vue-next'
 import { EmptyState } from '@/components/shared'
 import TaskCard from './TaskCard.vue'
@@ -22,11 +23,13 @@ const emit = defineEmits<{
   reorder: [ids: string[]]
 }>()
 
-// Expose tasks as a writable model for vue-draggable-plus (installed in Sprint 6)
-const model = computed({
-  get: () => props.tasks,
-  set: (val) => emit('reorder', val.map((t) => t.id)),
-})
+// Local copy for VueDraggable v-model
+const localTasks = ref<Task[]>([...props.tasks])
+watch(() => props.tasks, (v) => { localTasks.value = [...v] })
+
+function onUpdate() {
+  emit('reorder', localTasks.value.map((t) => t.id))
+}
 </script>
 
 <template>
@@ -52,10 +55,18 @@ const model = computed({
       </template>
     </EmptyState>
 
-    <!-- Task rows -->
-    <template v-else>
+    <!-- Draggable task rows -->
+    <VueDraggable
+      v-else
+      v-model="localTasks"
+      :animation="150"
+      ghost-class="opacity-40"
+      drag-class="shadow-xl"
+      handle=".drag-handle"
+      @update="onUpdate"
+    >
       <TaskCard
-        v-for="task in model"
+        v-for="task in localTasks"
         :key="task.id"
         :task="task"
         :draggable="draggable"
@@ -65,6 +76,6 @@ const model = computed({
         @archive="emit('archive', $event)"
         @open="emit('open', $event)"
       />
-    </template>
+    </VueDraggable>
   </div>
 </template>
