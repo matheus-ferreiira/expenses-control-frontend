@@ -40,10 +40,11 @@ onMounted(() => {
   <AppPageContainer>
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-foreground tracking-tight capitalize">
-        {{ greeting }},&nbsp;👋
+      <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-1.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">Hoje</p>
+      <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight capitalize">
+        {{ today }}
       </h1>
-      <p class="mt-0.5 text-sm text-muted-foreground capitalize">{{ today }}</p>
+      <p class="mt-1 text-[13px] text-muted-foreground/60 capitalize">{{ greeting }}</p>
     </div>
 
     <!-- Summary cards -->

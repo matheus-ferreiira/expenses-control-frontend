@@ -106,7 +106,11 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
-    <PageHeader title="Finanças">
+    <PageHeader
+      category="FINANÇAS"
+      title="Finanças"
+      subtitle="Transações e receitas em uma visão única funcional."
+    >
       <template #actions>
         <span class="text-xs text-muted-foreground hidden sm:inline">
           {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }}

@@ -69,10 +69,13 @@ function handleKeydown(e: KeyboardEvent) {
 <template>
   <div class="p-6 max-w-2xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="flex items-center gap-3">
-      <ShoppingCart :size="22" class="text-primary" />
-      <h1 class="text-2xl font-semibold">Lista de Compras</h1>
-      <Badge variant="secondary" class="ml-auto">
+    <div class="flex items-start justify-between gap-4 mb-6">
+      <div>
+        <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-1.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">PESSOAL</p>
+        <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">Compras</h1>
+        <p class="mt-1 text-[13px] text-muted-foreground/60">Organize sua lista de compras e desejos.</p>
+      </div>
+      <Badge variant="secondary" class="mt-1 shrink-0">
         {{ pendingItems.length }} pendente{{ pendingItems.length !== 1 ? 's' : '' }}
       </Badge>
     </div>

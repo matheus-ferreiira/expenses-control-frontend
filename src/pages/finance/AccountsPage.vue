@@ -68,7 +68,7 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
-    <PageHeader title="Contas">
+    <PageHeader category="FINANÇAS" title="Contas" subtitle="Gerencie suas contas bancárias e saldos.">
       <template #actions>
         <span v-if="!loading" class="text-xs text-muted-foreground hidden sm:inline">
           Total: {{ formatCurrency(totalBalance) }}

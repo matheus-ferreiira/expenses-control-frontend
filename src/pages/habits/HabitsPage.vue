@@ -139,7 +139,11 @@ onUnmounted(() => {
 <template>
   <AppPageContainer>
     <!-- Header -->
-    <PageHeader title="Hábitos">
+    <PageHeader
+      category="PRODUTIVIDADE"
+      title="Hábitos"
+      subtitle="Construa consistência diária com acompanhamento visual e streaks."
+    >
       <template #actions>
         <span class="text-xs text-muted-foreground hidden sm:inline">
           {{ store.habits.filter(h => h.is_active).length }} ativo{{ store.habits.filter(h => h.is_active).length !== 1 ? 's' : '' }}

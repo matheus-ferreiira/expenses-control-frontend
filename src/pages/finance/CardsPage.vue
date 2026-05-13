@@ -63,7 +63,7 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
-    <PageHeader title="Cartões">
+    <PageHeader category="FINANÇAS" title="Cartões" subtitle="Controle limites, faturas e vencimentos.">
       <template #actions>
         <Button size="sm" class="h-8 gap-1.5" @click="openCreate">
           <Plus :size="14" />

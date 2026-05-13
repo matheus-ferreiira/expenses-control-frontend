@@ -153,7 +153,11 @@ onUnmounted(() => {
 <template>
   <AppPageContainer>
     <!-- Header -->
-    <PageHeader title="Tarefas">
+    <PageHeader
+      category="PRODUTIVIDADE"
+      title="Tarefas"
+      subtitle="Organize seu fluxo de trabalho com listas e kanban."
+    >
       <template #actions>
         <span class="text-xs text-muted-foreground hidden sm:inline">
           {{ store.tasks.length }} tarefa{{ store.tasks.length !== 1 ? 's' : '' }}
