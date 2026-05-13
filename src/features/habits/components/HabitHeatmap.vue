@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Skeleton } from '@ui/skeleton'
 import type { HabitHeatmapEntry } from '@/types/habits'
 import { buildHeatmapGrid, heatmapColorClass } from '../utils/habitHelpers'
 import { WEEKDAY_LABELS } from '../types'
