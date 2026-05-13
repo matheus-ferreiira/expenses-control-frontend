@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Input } from '@ui/input'
-import { Button } from '@ui/button'
 import { Eye, EyeOff } from 'lucide-vue-next'
 
 withDefaults(
@@ -29,19 +28,18 @@ const visible = ref(false)
       :value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
-      class="pr-10"
+      class="h-10 pr-10 transition-colors"
       @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
-    <Button
+    <button
       type="button"
-      variant="ghost"
-      size="icon"
       tabindex="-1"
-      class="absolute right-0 top-0 h-full w-10 text-muted-foreground hover:text-foreground hover:bg-transparent"
+      :disabled="disabled"
+      class="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground/50 hover:text-muted-foreground transition-colors duration-150 disabled:pointer-events-none"
       @click="visible = !visible"
     >
       <EyeOff v-if="visible" :size="15" />
       <Eye v-else :size="15" />
-    </Button>
+    </button>
   </div>
 </template>

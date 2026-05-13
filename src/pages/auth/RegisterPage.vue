@@ -30,18 +30,24 @@ async function handleRegister() {
     })
     router.push({ name: ROUTES.DASHBOARD })
   } catch {
-    // error already set by store
+    // error set by store
   }
 }
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="space-y-1">
-      <h1 class="text-xl font-semibold text-foreground tracking-tight">Criar conta</h1>
-      <p class="text-sm text-muted-foreground">Comece a organizar sua produtividade</p>
+  <div class="space-y-7">
+    <!-- Header -->
+    <div>
+      <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+        Criar conta
+      </h1>
+      <p class="mt-1 text-[13px] leading-normal text-muted-foreground/70">
+        Comece a organizar sua produtividade
+      </p>
     </div>
 
+    <!-- Form -->
     <form class="space-y-4" novalidate @submit.prevent="handleRegister">
       <AppFormField label="Nome" :error="errors.name" required html-for="name">
         <Input
@@ -52,6 +58,7 @@ async function handleRegister() {
           placeholder="Seu nome"
           autocomplete="name"
           :disabled="auth.loading"
+          class="h-10 transition-colors"
           @input="errors.name = undefined"
         />
       </AppFormField>
@@ -64,6 +71,7 @@ async function handleRegister() {
           placeholder="voce@exemplo.com"
           autocomplete="email"
           :disabled="auth.loading"
+          class="h-10 transition-colors"
           @input="errors.email = undefined"
         />
       </AppFormField>
@@ -88,24 +96,27 @@ async function handleRegister() {
         />
       </AppFormField>
 
+      <!-- Backend error -->
       <div
         v-if="auth.error"
-        class="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2.5 text-sm text-destructive"
+        class="rounded-lg border border-destructive/20 bg-destructive/[0.08] px-3.5 py-3 text-[13px] leading-snug text-destructive"
       >
         {{ auth.error }}
       </div>
 
-      <Button type="submit" class="w-full" :disabled="auth.loading">
-        <Loader2 v-if="auth.loading" :size="15" class="mr-2 animate-spin" />
+      <!-- Submit -->
+      <Button type="submit" class="w-full h-10 mt-1 font-medium" :disabled="auth.loading">
+        <Loader2 v-if="auth.loading" :size="14" class="mr-2 animate-spin" />
         {{ auth.loading ? 'Criando conta...' : 'Criar conta' }}
       </Button>
     </form>
 
-    <p class="text-center text-sm text-muted-foreground">
+    <!-- Login link -->
+    <p class="text-center text-[13px] text-muted-foreground/60">
       Já tem conta?
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="text-foreground font-medium hover:underline underline-offset-4"
+        class="font-medium text-foreground/80 underline underline-offset-4 decoration-border hover:text-foreground transition-colors duration-150"
       >
         Entrar
       </RouterLink>

@@ -37,12 +37,18 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="space-y-1">
-      <h1 class="text-xl font-semibold text-foreground tracking-tight">Redefinir senha</h1>
-      <p class="text-sm text-muted-foreground">Escolha uma senha forte para sua conta</p>
+  <div class="space-y-7">
+    <!-- Header -->
+    <div>
+      <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+        Redefinir senha
+      </h1>
+      <p class="mt-1 text-[13px] leading-normal text-muted-foreground/70">
+        Escolha uma senha forte para sua conta
+      </p>
     </div>
 
+    <!-- Form -->
     <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
       <AppFormField label="Nova senha" :error="errors.password" required html-for="password">
         <PasswordField
@@ -64,22 +70,24 @@ async function handleSubmit() {
         />
       </AppFormField>
 
+      <!-- API error -->
       <div
         v-if="apiError"
-        class="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2.5 text-sm text-destructive"
+        class="rounded-lg border border-destructive/20 bg-destructive/[0.08] px-3.5 py-3 text-[13px] leading-snug text-destructive"
       >
         {{ apiError }}
       </div>
 
-      <Button type="submit" class="w-full" :disabled="loading">
-        <Loader2 v-if="loading" :size="15" class="mr-2 animate-spin" />
+      <!-- Submit -->
+      <Button type="submit" class="w-full h-10 mt-1 font-medium" :disabled="loading">
+        <Loader2 v-if="loading" :size="14" class="mr-2 animate-spin" />
         {{ loading ? 'Salvando...' : 'Redefinir senha' }}
       </Button>
     </form>
 
     <RouterLink
       :to="{ name: ROUTES.LOGIN }"
-      class="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+      class="block text-center text-[13px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
     >
       ← Voltar ao login
     </RouterLink>

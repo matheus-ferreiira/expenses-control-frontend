@@ -20,7 +20,7 @@ async function handleSubmit() {
     await authApi.forgotPassword({ email: form.email })
     sent.value = true
   } catch {
-    errors.email = 'Não foi possível enviar o email. Tente novamente.'
+    errors.email = 'Não foi possível enviar. Tente novamente.'
   } finally {
     loading.value = false
   }
@@ -28,26 +28,28 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-7">
     <!-- Success state -->
     <template v-if="sent">
-      <div class="flex flex-col items-center gap-4 py-4 text-center">
-        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-          <MailCheck :size="22" class="text-emerald-400" />
+      <div class="flex flex-col items-center gap-5 py-3 text-center">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 ring-1 ring-success/20">
+          <MailCheck :size="22" class="text-success" />
         </div>
-        <div class="space-y-1">
-          <h1 class="text-xl font-semibold text-foreground tracking-tight">Email enviado</h1>
-          <p class="text-sm text-muted-foreground">
+        <div class="space-y-1.5">
+          <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+            Email enviado
+          </h1>
+          <p class="text-[13px] leading-relaxed text-muted-foreground/70">
             Enviamos um link de redefinição para<br />
-            <span class="text-foreground font-medium">{{ form.email }}</span>
+            <span class="font-medium text-foreground/80">{{ form.email }}</span>
           </p>
         </div>
-        <p class="text-xs text-muted-foreground">Verifique também a pasta de spam</p>
+        <p class="text-[12px] text-muted-foreground/40">Verifique também a pasta de spam</p>
       </div>
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        class="block text-center text-[13px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
       >
         ← Voltar ao login
       </RouterLink>
@@ -55,10 +57,12 @@ async function handleSubmit() {
 
     <!-- Form state -->
     <template v-else>
-      <div class="space-y-1">
-        <h1 class="text-xl font-semibold text-foreground tracking-tight">Esqueceu a senha?</h1>
-        <p class="text-sm text-muted-foreground">
-          Insira seu email para receber um link de redefinição
+      <div>
+        <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+          Esqueceu a senha?
+        </h1>
+        <p class="mt-1 text-[13px] leading-normal text-muted-foreground/70">
+          Insira seu email e enviamos um link de acesso
         </p>
       </div>
 
@@ -72,19 +76,20 @@ async function handleSubmit() {
             placeholder="voce@exemplo.com"
             autocomplete="email"
             :disabled="loading"
+            class="h-10 transition-colors"
             @input="errors.email = undefined"
           />
         </AppFormField>
 
-        <Button type="submit" class="w-full" :disabled="loading">
-          <Loader2 v-if="loading" :size="15" class="mr-2 animate-spin" />
+        <Button type="submit" class="w-full h-10 mt-1 font-medium" :disabled="loading">
+          <Loader2 v-if="loading" :size="14" class="mr-2 animate-spin" />
           {{ loading ? 'Enviando...' : 'Enviar link' }}
         </Button>
       </form>
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        class="block text-center text-[13px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
       >
         ← Voltar ao login
       </RouterLink>

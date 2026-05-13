@@ -27,19 +27,26 @@ async function handleLogin() {
     const redirect = route.query.redirect as string | undefined
     router.push(redirect && redirect.startsWith('/') ? redirect : { name: ROUTES.DASHBOARD })
   } catch {
-    // error already set by store
+    // error set by store
   }
 }
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="space-y-1">
-      <h1 class="text-xl font-semibold text-foreground tracking-tight">Bem-vindo de volta</h1>
-      <p class="text-sm text-muted-foreground">Entre na sua conta para continuar</p>
+  <div class="space-y-7">
+    <!-- Header -->
+    <div>
+      <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+        Bem-vindo de volta
+      </h1>
+      <p class="mt-1 text-[13px] leading-normal text-muted-foreground/70">
+        Entre na sua conta para continuar
+      </p>
     </div>
 
+    <!-- Form -->
     <form class="space-y-4" novalidate @submit.prevent="handleLogin">
+      <!-- Email -->
       <AppFormField label="Email" :error="errors.email" required html-for="email">
         <Input
           id="email"
@@ -49,11 +56,24 @@ async function handleLogin() {
           placeholder="voce@exemplo.com"
           autocomplete="email"
           :disabled="auth.loading"
+          class="h-10 transition-colors"
           @input="errors.email = undefined"
         />
       </AppFormField>
 
-      <AppFormField label="Senha" :error="errors.password" required html-for="password">
+      <!-- Password — inline label + forgot link -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <label for="password" class="text-sm font-medium text-foreground leading-none">
+            Senha <span class="text-destructive ml-0.5">*</span>
+          </label>
+          <RouterLink
+            :to="{ name: ROUTES.FORGOT_PASSWORD }"
+            class="text-[12px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
+          >
+            Esqueceu a senha?
+          </RouterLink>
+        </div>
         <PasswordField
           id="password"
           v-model="form.password"
@@ -61,34 +81,30 @@ async function handleLogin() {
           :disabled="auth.loading"
           @input="errors.password = undefined"
         />
-        <div class="flex justify-end mt-1">
-          <RouterLink
-            :to="{ name: ROUTES.FORGOT_PASSWORD }"
-            class="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Esqueceu a senha?
-          </RouterLink>
-        </div>
-      </AppFormField>
+        <p v-if="errors.password" class="text-xs text-destructive">{{ errors.password }}</p>
+      </div>
 
+      <!-- Backend error -->
       <div
         v-if="auth.error"
-        class="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2.5 text-sm text-destructive"
+        class="rounded-lg border border-destructive/20 bg-destructive/[0.08] px-3.5 py-3 text-[13px] leading-snug text-destructive"
       >
         {{ auth.error }}
       </div>
 
-      <Button type="submit" class="w-full" :disabled="auth.loading">
-        <Loader2 v-if="auth.loading" :size="15" class="mr-2 animate-spin" />
+      <!-- Submit -->
+      <Button type="submit" class="w-full h-10 mt-1 font-medium" :disabled="auth.loading">
+        <Loader2 v-if="auth.loading" :size="14" class="mr-2 animate-spin" />
         {{ auth.loading ? 'Entrando...' : 'Entrar' }}
       </Button>
     </form>
 
-    <p class="text-center text-sm text-muted-foreground">
+    <!-- Sign up -->
+    <p class="text-center text-[13px] text-muted-foreground/60">
       Não tem conta?
       <RouterLink
         :to="{ name: ROUTES.REGISTER }"
-        class="text-foreground font-medium hover:underline underline-offset-4"
+        class="font-medium text-foreground/80 underline underline-offset-4 decoration-border hover:text-foreground transition-colors duration-150"
       >
         Criar conta
       </RouterLink>
