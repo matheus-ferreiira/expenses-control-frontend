@@ -1,66 +1,88 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Skeleton } from '@ui/skeleton'
-import { TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
   income: number
   expenses: number
+  totalBalance: number
   loading?: boolean
 }>()
 
-const balance = () => props.income - props.expenses
-
-const cards = [
-  {
-    label: 'Receitas',
-    icon: TrendingUp,
-    iconClass: 'text-emerald-400',
-    bgClass: 'bg-emerald-400/10',
-    getValue: () => props.income,
-    amountClass: () => 'text-emerald-400',
-  },
-  {
-    label: 'Despesas',
-    icon: TrendingDown,
-    iconClass: 'text-red-400',
-    bgClass: 'bg-red-400/10',
-    getValue: () => props.expenses,
-    amountClass: () => 'text-red-400',
-  },
-  {
-    label: 'Saldo',
-    icon: Wallet,
-    iconClass: 'text-muted-foreground',
-    bgClass: 'bg-muted/60',
-    getValue: () => balance(),
-    amountClass: () =>
-      balance() >= 0 ? 'text-emerald-400' : 'text-red-400',
-  },
-]
+const monthNet = computed(() => props.income - props.expenses)
 </script>
 
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-    <div
-      v-for="card in cards"
-      :key="card.label"
-      class="rounded-lg border border-border bg-card p-4"
-    >
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+
+    <!-- Saldo total -->
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
-        <Skeleton class="h-8 w-8 rounded-lg mb-3" />
-        <Skeleton class="h-5 w-28 mb-1.5" />
-        <Skeleton class="h-3 w-16" />
+        <Skeleton class="h-3 w-16 mb-3" />
+        <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <div :class="['inline-flex p-2 rounded-lg mb-3', card.bgClass]">
-          <component :is="card.icon" :size="16" :class="card.iconClass" />
-        </div>
-        <p :class="['text-lg font-semibold tabular-nums leading-none mb-1', card.amountClass()]">
-          {{ formatCurrency(Math.abs(card.getValue())) }}
+        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
+          Saldo total
         </p>
-        <p class="text-xs text-muted-foreground">{{ card.label }}</p>
+        <p :class="['text-xl font-semibold tabular-nums leading-none', totalBalance < 0 ? 'text-destructive/80' : 'text-foreground']">
+          {{ formatCurrency(totalBalance) }}
+        </p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">em contas ativas</p>
       </template>
     </div>
+
+    <!-- Receitas do mês -->
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+      <template v-if="loading">
+        <Skeleton class="h-3 w-16 mb-3" />
+        <Skeleton class="h-6 w-24" />
+      </template>
+      <template v-else>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
+          Receitas
+        </p>
+        <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
+          {{ formatCurrency(income) }}
+        </p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">este mês</p>
+      </template>
+    </div>
+
+    <!-- Despesas do mês -->
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+      <template v-if="loading">
+        <Skeleton class="h-3 w-16 mb-3" />
+        <Skeleton class="h-6 w-24" />
+      </template>
+      <template v-else>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
+          Despesas
+        </p>
+        <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
+          {{ formatCurrency(expenses) }}
+        </p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">este mês</p>
+      </template>
+    </div>
+
+    <!-- Fluxo do mês -->
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+      <template v-if="loading">
+        <Skeleton class="h-3 w-16 mb-3" />
+        <Skeleton class="h-6 w-24" />
+      </template>
+      <template v-else>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
+          Fluxo do mês
+        </p>
+        <p :class="['text-xl font-semibold tabular-nums leading-none', monthNet >= 0 ? 'text-success' : 'text-destructive/80']">
+          {{ monthNet >= 0 ? '+' : '' }}{{ formatCurrency(monthNet) }}
+        </p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">receitas − despesas</p>
+      </template>
+    </div>
+
   </div>
 </template>
