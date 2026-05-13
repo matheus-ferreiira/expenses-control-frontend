@@ -1,6 +1,7 @@
 // App shell
 export { default as AppSidebar } from './AppSidebar.vue'
-export { default as AppHeader } from './AppHeader.vue'
+export { default as CommandPalette } from './CommandPalette.vue'
+export { default as QuickAddDialog } from './QuickAddDialog.vue'
 
 // Layout
 export { default as AppPageContainer } from './AppPageContainer.vue'
