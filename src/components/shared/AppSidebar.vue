@@ -13,6 +13,7 @@ import {
   Wallet,
   Target,
   BarChart3,
+  ShoppingCart,
   PanelLeftClose,
   PanelLeftOpen,
   LogOut,
@@ -33,6 +34,7 @@ const navItems = [
   { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F' },
   { label: 'Metas', icon: Target, route: ROUTES.GOALS, shortcut: 'G M' },
   { label: 'Relatórios', icon: BarChart3, route: ROUTES.REPORTS, shortcut: 'G R' },
+  { label: 'Compras', icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G P' },
 ]
 
 function isActive(routeName: string): boolean {

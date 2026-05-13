@@ -10,6 +10,7 @@ const SHORTCUT_MAP: Record<string, string> = {
   f: ROUTES.FINANCE,
   m: ROUTES.GOALS,
   r: ROUTES.REPORTS,
+  p: ROUTES.PURCHASES,
 }
 
 export function useKeyboardShortcut() {
