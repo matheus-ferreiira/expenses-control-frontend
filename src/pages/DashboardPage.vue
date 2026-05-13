@@ -4,16 +4,23 @@ import { AppPageContainer } from '@/components/shared'
 import DashboardSummaryCards from '@/features/dashboard/components/DashboardSummaryCards.vue'
 import TodayTasksCard from '@/features/dashboard/components/TodayTasksCard.vue'
 import HabitsOverviewCard from '@/features/dashboard/components/HabitsOverviewCard.vue'
-import QuickActionsCard from '@/features/dashboard/components/QuickActionsCard.vue'
+import DashboardCashflowCard from '@/features/dashboard/components/DashboardCashflowCard.vue'
+import DashboardTransactionsCard from '@/features/dashboard/components/DashboardTransactionsCard.vue'
+import DashboardCalendarCard from '@/features/dashboard/components/DashboardCalendarCard.vue'
+import DashboardBillsCard from '@/features/dashboard/components/DashboardBillsCard.vue'
 import { useDashboard } from '@/features/dashboard/composables/useDashboard'
+import { useUiStore } from '@/stores/ui'
 import { useToast } from '@/composables/useToast'
 import { formatDate } from '@/utils/date'
 
 const dashboard = useDashboard()
+const ui = useUiStore()
 const toast = useToast()
 
 const today = formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })
 const greeting = computed(() => dashboard.greeting())
+const greetingContext = computed(() => dashboard.greetingContext())
+const userName = computed(() => dashboard.userName.value)
 
 async function handleToggleTask(id: string) {
   try {
@@ -39,12 +46,46 @@ onMounted(() => {
 <template>
   <AppPageContainer>
     <!-- Header -->
-    <div class="mb-6">
-      <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-1.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">Hoje</p>
-      <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight capitalize">
-        {{ today }}
-      </h1>
-      <p class="mt-1 text-[13px] text-muted-foreground/60 capitalize">{{ greeting }}</p>
+    <div class="mb-5">
+      <p
+        class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-1.5 select-none"
+        style="color: hsl(var(--muted-foreground) / 0.4)"
+      >
+        Hoje
+      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight capitalize">
+            {{ today }}
+          </h1>
+          <p class="mt-0.5 text-[13px] text-muted-foreground/60">
+            <span class="capitalize">{{ greeting }}, {{ userName || 'Olá' }}.</span>
+            {{ greetingContext }}
+          </p>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="flex items-center gap-1.5 shrink-0 mt-0.5">
+          <button
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
+            @click="ui.quickAddOpen = true"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Nova tarefa
+          </button>
+          <button
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
+            @click="ui.quickAddOpen = true"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Transação
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Summary cards -->
@@ -54,32 +95,54 @@ onMounted(() => {
       :habits-completed="dashboard.completedHabitsToday.value.length"
       :habits-total="dashboard.activeHabits.value.length"
       :best-streak="dashboard.bestStreak.value"
+      :best-streak-habit-name="dashboard.bestStreakHabit.value?.name"
+      :total-balance="dashboard.totalBalance.value"
+      :month-expenses="dashboard.monthExpenses.value"
+      :month-income="dashboard.monthIncome.value"
       :loading="dashboard.loading.value"
-      class="mb-4"
+      class="mb-5"
     />
 
-    <!-- Main grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-      <!-- Today's tasks — takes 2 cols on desktop -->
-      <div class="lg:col-span-2">
+    <!-- Main grid: 2/3 main + 1/3 sidebar -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+      <!-- Main column -->
+      <div class="xl:col-span-2 flex flex-col gap-4">
         <TodayTasksCard
           :tasks="dashboard.todayTasks.value"
           :loading="dashboard.loading.value"
           @toggle="handleToggleTask"
         />
+
+        <DashboardCashflowCard
+          :transactions="dashboard.recentTransactions.value"
+          :compute-cashflow="dashboard.computeCashflow"
+          :loading="dashboard.loading.value"
+        />
+
+        <DashboardTransactionsCard
+          :transactions="dashboard.recentTransactions.value"
+          :loading="dashboard.loading.value"
+        />
       </div>
 
-      <!-- Habits overview -->
-      <div>
+      <!-- Right sidebar -->
+      <div class="flex flex-col gap-4">
+        <DashboardCalendarCard
+          :events="dashboard.todayEvents.value"
+          :loading="dashboard.loading.value"
+        />
+
         <HabitsOverviewCard
           :habits="dashboard.activeHabits.value"
           :loading="dashboard.loading.value"
           @log="handleLogHabit"
         />
+
+        <DashboardBillsCard
+          :bills="dashboard.upcomingBills.value"
+          :loading="dashboard.loading.value"
+        />
       </div>
     </div>
-
-    <!-- Quick actions -->
-    <QuickActionsCard />
   </AppPageContainer>
 </template>
