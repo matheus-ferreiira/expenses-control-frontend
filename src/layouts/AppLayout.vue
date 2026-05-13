@@ -55,9 +55,7 @@ function openQuickAdd() {
     <!-- ─── Main area ─────────────────────────────────────────── -->
     <div
       class="flex flex-col flex-1 min-w-0 min-h-screen transition-[margin] duration-300 ease-in-out"
-      :class="[
-        'md:' + (ui.sidebarOpen ? 'ml-[220px]' : 'ml-[52px]'),
-      ]"
+      :class="ui.sidebarOpen ? 'md:ml-[220px]' : 'md:ml-[52px]'"
     >
       <!-- Mobile top bar (only on small screens) -->
       <div
