@@ -1,29 +1,84 @@
 <script setup lang="ts">
+import { onMounted, computed } from 'vue'
+import { AppPageContainer } from '@/components/shared'
+import DashboardSummaryCards from '@/features/dashboard/components/DashboardSummaryCards.vue'
+import TodayTasksCard from '@/features/dashboard/components/TodayTasksCard.vue'
+import HabitsOverviewCard from '@/features/dashboard/components/HabitsOverviewCard.vue'
+import QuickActionsCard from '@/features/dashboard/components/QuickActionsCard.vue'
+import { useDashboard } from '@/features/dashboard/composables/useDashboard'
+import { useToast } from '@/composables/useToast'
 import { formatDate } from '@/utils/date'
 
+const dashboard = useDashboard()
+const toast = useToast()
+
 const today = formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })
+const greeting = computed(() => dashboard.greeting())
+
+async function handleToggleTask(id: string) {
+  try {
+    await dashboard.taskStore.toggleComplete(id)
+  } catch {
+    toast.error('Erro ao atualizar tarefa')
+  }
+}
+
+async function handleLogHabit(id: string) {
+  try {
+    await dashboard.habitStore.optimisticLog(id)
+  } catch {
+    toast.error('Erro ao registrar hábito')
+  }
+}
+
+onMounted(() => {
+  dashboard.load()
+})
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div>
-      <h1 class="text-2xl font-bold text-foreground capitalize">{{ today }}</h1>
-      <p class="text-muted-foreground mt-1">Seu painel de controle</p>
+  <AppPageContainer>
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold text-foreground tracking-tight capitalize">
+        {{ greeting }},&nbsp;👋
+      </h1>
+      <p class="mt-0.5 text-sm text-muted-foreground capitalize">{{ today }}</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div class="rounded-lg border border-border bg-card p-6">
-        <p class="text-sm text-muted-foreground">Tarefas hoje</p>
-        <p class="text-3xl font-bold text-foreground mt-1">—</p>
+    <!-- Summary cards -->
+    <DashboardSummaryCards
+      :pending-today="dashboard.pendingToday.value.length"
+      :completed-today="dashboard.completedToday.value.length"
+      :habits-completed="dashboard.completedHabitsToday.value.length"
+      :habits-total="dashboard.activeHabits.value.length"
+      :best-streak="dashboard.bestStreak.value"
+      :loading="dashboard.loading.value"
+      class="mb-4"
+    />
+
+    <!-- Main grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      <!-- Today's tasks — takes 2 cols on desktop -->
+      <div class="lg:col-span-2">
+        <TodayTasksCard
+          :tasks="dashboard.todayTasks.value"
+          :loading="dashboard.loading.value"
+          @toggle="handleToggleTask"
+        />
       </div>
-      <div class="rounded-lg border border-border bg-card p-6">
-        <p class="text-sm text-muted-foreground">Hábitos concluídos</p>
-        <p class="text-3xl font-bold text-foreground mt-1">—</p>
-      </div>
-      <div class="rounded-lg border border-border bg-card p-6">
-        <p class="text-sm text-muted-foreground">Saldo atual</p>
-        <p class="text-3xl font-bold text-foreground mt-1">—</p>
+
+      <!-- Habits overview -->
+      <div>
+        <HabitsOverviewCard
+          :habits="dashboard.activeHabits.value"
+          :loading="dashboard.loading.value"
+          @log="handleLogHabit"
+        />
       </div>
     </div>
-  </div>
+
+    <!-- Quick actions -->
+    <QuickActionsCard />
+  </AppPageContainer>
 </template>
