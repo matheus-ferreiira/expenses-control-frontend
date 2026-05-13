@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import { Input } from '@ui/input'
@@ -14,9 +14,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const { form, errors, validate } = useRegisterForm()
 
-const nameInput = ref<HTMLInputElement | null>(null)
-
-onMounted(() => nameInput.value?.focus())
+onMounted(() => nextTick(() => (document.getElementById('name') as HTMLInputElement)?.focus()))
 
 async function handleRegister() {
   if (!validate()) return
@@ -52,7 +50,6 @@ async function handleRegister() {
       <AppFormField label="Nome" :error="errors.name" required html-for="name">
         <Input
           id="name"
-          ref="nameInput"
           v-model="form.name"
           type="text"
           placeholder="Seu nome"

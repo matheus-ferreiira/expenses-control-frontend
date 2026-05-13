@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import { Input } from '@ui/input'
@@ -15,9 +15,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const { form, errors, validate } = useLoginForm()
 
-const emailInput = ref<HTMLInputElement | null>(null)
-
-onMounted(() => emailInput.value?.focus())
+onMounted(() => nextTick(() => (document.getElementById('email') as HTMLInputElement)?.focus()))
 
 async function handleLogin() {
   if (!validate()) return
@@ -50,7 +48,6 @@ async function handleLogin() {
       <AppFormField label="Email" :error="errors.email" required html-for="email">
         <Input
           id="email"
-          ref="emailInput"
           v-model="form.email"
           type="email"
           placeholder="voce@exemplo.com"
