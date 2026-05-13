@@ -40,6 +40,40 @@ const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
 
+const today = new Date().getDate()
+
+// Top 5 expense categories this month with percentage
+const topCategories = computed(() => {
+  const totalExpenses = store.transactions
+    .filter((t) => t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0)
+
+  const map = new Map<string, { name: string; color: string; total: number }>()
+  store.transactions
+    .filter((t) => t.type === 'expense' && t.category)
+    .forEach((t) => {
+      const cat = t.category!
+      const entry = map.get(cat.id)
+      if (entry) entry.total += t.amount
+      else map.set(cat.id, { name: cat.name, color: cat.color, total: t.amount })
+    })
+
+  return Array.from(map.values())
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5)
+    .map((c) => ({
+      ...c,
+      percent: totalExpenses > 0 ? Math.round((c.total / totalExpenses) * 100) : 0,
+    }))
+})
+
+// Cards with due_day within the next 10 days
+const upcomingBills = computed(() =>
+  store.activeCards
+    .filter((c) => c.due_day >= today && c.due_day - today <= 10)
+    .sort((a, b) => a.due_day - b.due_day),
+)
+
 async function loadTransactions() {
   await store.fetchTransactions(filterState.toApiFilters())
 }
@@ -255,6 +289,76 @@ onMounted(async () => {
                   :style="{ width: utilizationPercent(card.current_balance, card.credit_limit) + '%' }"
                 />
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category spending — top 5 -->
+        <div class="rounded-lg border border-border/50 bg-card p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
+            Gastos por categoria
+          </p>
+          <div v-if="store.loading" class="space-y-2.5">
+            <div v-for="i in 5" :key="i" class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="h-2.5 w-24 rounded bg-muted/60 animate-pulse" />
+                <div class="h-2.5 w-8 rounded bg-muted/60 animate-pulse" />
+              </div>
+              <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
+            </div>
+          </div>
+          <div v-else-if="topCategories.length === 0" class="text-[12px] text-muted-foreground/40 py-2">
+            Sem despesas este mês
+          </div>
+          <div v-else class="space-y-2.5">
+            <div v-for="cat in topCategories" :key="cat.name">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="h-1.5 w-1.5 rounded-full shrink-0" :style="{ background: cat.color }" />
+                  <span class="text-[12px] text-foreground/70 truncate">{{ cat.name }}</span>
+                </div>
+                <span class="text-[11px] text-muted-foreground/50 shrink-0 ml-2">{{ cat.percent }}%</span>
+              </div>
+              <div class="h-1 rounded-full overflow-hidden bg-muted/40">
+                <div
+                  class="h-full rounded-full transition-all"
+                  :style="{ width: cat.percent + '%', background: cat.color + '99' }"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming bills — cards due within 10 days -->
+        <div v-if="!store.loading && upcomingBills.length > 0" class="rounded-lg border border-border/50 bg-card p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
+            Próximos vencimentos
+          </p>
+          <div class="space-y-2.5">
+            <div
+              v-for="card in upcomingBills"
+              :key="card.id"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <div
+                  class="h-2 w-2 rounded-full shrink-0"
+                  :style="{ background: card.color || 'hsl(var(--muted-foreground))' }"
+                />
+                <span class="text-[12px] text-foreground/80 truncate">{{ card.name }}</span>
+              </div>
+              <span
+                :class="[
+                  'text-[11px] shrink-0 ml-2 font-medium',
+                  card.due_day - today === 0
+                    ? 'text-destructive/80'
+                    : card.due_day - today <= 3
+                      ? 'text-warning/80'
+                      : 'text-muted-foreground/50',
+                ]"
+              >
+                {{ card.due_day - today === 0 ? 'vence hoje' : `dia ${card.due_day}` }}
+              </span>
             </div>
           </div>
         </div>
