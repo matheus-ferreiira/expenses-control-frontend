@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useUiStore } from '@/stores/ui'
+import { useKeyboardShortcut } from '@/composables/useKeyboardShortcut'
 import AppSidebar from '@/components/shared/AppSidebar.vue'
 import AppHeader from '@/components/shared/AppHeader.vue'
 
 const ui = useUiStore()
+useKeyboardShortcut()
 </script>
 
 <template>
