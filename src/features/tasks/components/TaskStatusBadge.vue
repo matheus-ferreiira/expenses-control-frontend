@@ -9,8 +9,8 @@ const props = defineProps<{
   status: TaskStatus
 }>()
 
-const style = computed(() => STATUS_STYLE[props.status])
-const label = computed(() => TASK_STATUS_LABELS[props.status])
+const style = computed(() => STATUS_STYLE[props.status] ?? STATUS_STYLE.pending)
+const label = computed(() => TASK_STATUS_LABELS[props.status] ?? TASK_STATUS_LABELS.pending)
 </script>
 
 <template>

@@ -67,8 +67,8 @@ export function useTaskForm() {
       title: form.title.trim(),
     }
     if (form.description.trim()) payload.description = form.description.trim()
-    if (form.status !== 'pending') payload.status = form.status
-    if (form.priority !== 'normal') payload.priority = form.priority
+    payload.status = form.status
+    payload.priority = form.priority
     if (form.due_date) payload.due_date = form.due_date
     if (form.due_time) payload.due_time = form.due_time
     if (form.label_ids.length) payload.label_ids = form.label_ids

@@ -17,8 +17,8 @@ export const API_ENDPOINTS = {
     SUBTASKS: (taskId: string) => `${API_BASE}/tasks/${taskId}/subtasks`,
     SUBTASK_DETAIL: (taskId: string, id: string) =>
       `${API_BASE}/tasks/${taskId}/subtasks/${id}`,
-    LABELS: `${API_BASE}/tasks/labels`,
-    LABEL_DETAIL: (id: string) => `${API_BASE}/tasks/labels/${id}`,
+    LABELS: `${API_BASE}/task-labels`,
+    LABEL_DETAIL: (id: string) => `${API_BASE}/task-labels/${id}`,
   },
   HABITS: {
     BASE: `${API_BASE}/habits`,

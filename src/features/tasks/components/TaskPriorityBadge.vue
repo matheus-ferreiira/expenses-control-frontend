@@ -10,8 +10,8 @@ const props = defineProps<{
   dot?: boolean
 }>()
 
-const style = computed(() => PRIORITY_STYLE[props.priority])
-const label = computed(() => TASK_PRIORITY_LABELS[props.priority])
+const style = computed(() => PRIORITY_STYLE[props.priority] ?? PRIORITY_STYLE.normal)
+const label = computed(() => TASK_PRIORITY_LABELS[props.priority] ?? TASK_PRIORITY_LABELS.normal)
 </script>
 
 <template>
