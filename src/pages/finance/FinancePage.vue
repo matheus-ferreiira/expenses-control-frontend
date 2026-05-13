@@ -5,6 +5,7 @@ import { Button } from '@ui/button'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
+import FinanceCashflowChart from '@/features/finance/components/FinanceCashflowChart.vue'
 import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
@@ -130,6 +131,9 @@ onMounted(async () => {
 
       <!-- Main column -->
       <div class="xl:col-span-2 space-y-6">
+
+        <!-- Cashflow chart -->
+        <FinanceCashflowChart />
 
         <!-- Month navigator + transactions -->
         <div>
