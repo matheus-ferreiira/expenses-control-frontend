@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { AppPageContainer, PageHeader, ConfirmDialog } from '@/components/shared'
+import { AppPageContainer, ConfirmDialog } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
@@ -68,31 +68,39 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
-    <PageHeader category="FINANÇAS" title="Contas" subtitle="Gerencie suas contas bancárias e saldos.">
-      <template #actions>
-        <span v-if="!loading" class="text-xs text-muted-foreground hidden sm:inline">
-          Total: {{ formatCurrency(totalBalance) }}
-        </span>
-        <Button size="sm" class="h-8 gap-1.5" @click="openCreate">
-          <Plus :size="14" />
-          Nova conta
-        </Button>
-      </template>
-    </PageHeader>
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+          Finanças
+        </p>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+          Contas
+        </h1>
+        <p class="text-[13px] text-muted-foreground/50">
+          <span v-if="!loading">Total: {{ formatCurrency(totalBalance) }} · </span>
+          {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
+        </p>
+      </div>
+      <Button size="sm" class="h-8 text-[12px] mt-1" @click="openCreate">
+        <Plus :size="12" class="mr-1.5" />
+        Nova conta
+      </Button>
+    </div>
 
     <FinanceSubNav />
 
     <!-- Loading -->
-    <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div v-for="i in 3" :key="i" class="rounded-lg border border-border bg-card p-4 space-y-3">
-        <div class="flex items-center gap-3">
-          <Skeleton class="h-9 w-9 rounded-lg" />
-          <div class="space-y-1.5">
-            <Skeleton class="h-4 w-24" />
-            <Skeleton class="h-3 w-16" />
+    <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+      <div v-for="i in 3" :key="i" class="rounded-lg border border-border/50 bg-card p-3.5 space-y-2.5">
+        <div class="flex items-center gap-2.5">
+          <Skeleton class="h-4 w-4 rounded shrink-0" />
+          <div class="space-y-1.5 flex-1">
+            <Skeleton class="h-3.5 w-24" />
+            <Skeleton class="h-2.5 w-14" />
           </div>
         </div>
-        <Skeleton class="h-6 w-28" />
+        <Skeleton class="h-5 w-28 mt-2" />
       </div>
     </div>
 
@@ -115,7 +123,7 @@ onMounted(async () => {
     </div>
 
     <!-- Grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
       <AccountCard
         v-for="account in store.activeAccounts"
         :key="account.id"

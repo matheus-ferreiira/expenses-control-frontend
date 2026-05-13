@@ -24,32 +24,29 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="rounded-lg border border-border bg-card p-4 flex flex-col gap-3">
+  <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2.5">
     <!-- Header -->
     <div class="flex items-start justify-between">
-      <div class="flex items-center gap-3">
-        <!-- Icon with account color -->
-        <div
-          class="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
-          :style="{ backgroundColor: account.color + '20' }"
-        >
-          <component
-            :is="ACCOUNT_TYPE_ICONS[account.type]"
-            :size="18"
-            :style="{ color: account.color }"
-          />
-        </div>
-
+      <div class="flex items-center gap-2.5 min-w-0">
+        <!-- Icon with color only, no background box -->
+        <component
+          :is="ACCOUNT_TYPE_ICONS[account.type]"
+          :size="15"
+          :style="{ color: account.color }"
+          class="shrink-0"
+        />
         <div class="min-w-0">
-          <p class="text-sm font-semibold text-foreground truncate">{{ account.name }}</p>
-          <p class="text-xs text-muted-foreground">{{ ACCOUNT_TYPE_LABELS[account.type] }}</p>
+          <p class="text-[13px] font-medium text-foreground truncate">{{ account.name }}</p>
+          <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5">
+            {{ ACCOUNT_TYPE_LABELS[account.type] }}
+          </p>
         </div>
       </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon" class="h-7 w-7 shrink-0">
-            <MoreHorizontal :size="14" />
+          <Button variant="ghost" size="icon" class="h-6 w-6 shrink-0 -mr-1 -mt-0.5">
+            <MoreHorizontal :size="13" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="w-32">
@@ -70,12 +67,12 @@ const emit = defineEmits<{
     </div>
 
     <!-- Balance -->
-    <div class="pt-1 border-t border-border/50">
-      <p class="text-xs text-muted-foreground mb-0.5">Saldo atual</p>
+    <div class="pt-2 border-t border-border/40">
+      <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-1">Saldo</p>
       <p
         :class="[
-          'text-lg font-semibold tabular-nums',
-          account.balance >= 0 ? 'text-foreground' : 'text-red-400',
+          'text-[18px] font-semibold tabular-nums leading-none',
+          account.balance >= 0 ? 'text-foreground' : 'text-destructive/80',
         ]"
       >
         {{ formatCurrency(account.balance) }}
