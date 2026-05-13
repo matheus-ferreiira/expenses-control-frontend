@@ -1,32 +1,25 @@
-import { ref } from 'vue'
-
-export type ToastVariant = 'default' | 'success' | 'destructive'
-
-export interface Toast {
-  id: string
-  title: string
-  description?: string
-  variant?: ToastVariant
-  duration?: number
-}
-
-const toasts = ref<Toast[]>([])
+import { toast as sonnerToast } from 'vue-sonner'
 
 export function useToast() {
-  function toast(options: Omit<Toast, 'id'>) {
-    const id = crypto.randomUUID()
-    const duration = options.duration ?? 4000
-
-    toasts.value.push({ ...options, id })
-
-    setTimeout(() => {
-      toasts.value = toasts.value.filter((t) => t.id !== id)
-    }, duration)
+  function success(message: string, description?: string) {
+    sonnerToast.success(message, { description })
   }
 
-  function dismiss(id: string) {
-    toasts.value = toasts.value.filter((t) => t.id !== id)
+  function error(message: string, description?: string) {
+    sonnerToast.error(message, { description })
   }
 
-  return { toasts, toast, dismiss }
+  function info(message: string, description?: string) {
+    sonnerToast.info(message, { description })
+  }
+
+  function warning(message: string, description?: string) {
+    sonnerToast.warning(message, { description })
+  }
+
+  function toast(message: string, description?: string) {
+    sonnerToast(message, { description })
+  }
+
+  return { toast, success, error, info, warning }
 }

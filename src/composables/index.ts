@@ -1,5 +1,4 @@
 export { useToast } from './useToast'
-export type { Toast, ToastVariant } from './useToast'
 export { useDebounce } from './useDebounce'
 export { usePagination } from './usePagination'
 export { useKeyboardShortcut } from './useKeyboardShortcut'
