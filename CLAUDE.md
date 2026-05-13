@@ -203,3 +203,17 @@ Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve 
 - Emits: `defineEmits<{ event: [payload: Type] }>()`
 - Barrel exports em todos os diretórios com múltiplos arquivos
 - `npm run type-check` + `npm run build` antes de commitar
+
+## Credenciais de Teste (Playwright)
+
+Conta criada no banco local para validação visual com Playwright:
+
+```
+Email:  dev@vault.test
+Senha:  VaultDev2026!
+Nome:   Playwright Dev
+```
+
+Usar quando precisar acessar páginas protegidas (`requiresAuth`) no Playwright.
+O `App.vue` chama `fetchMe()` no mount — token fake é limpo ao receber 401.
+Com essa conta, o login via formulário funciona normalmente.
