@@ -1,17 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { Loader2, MailCheck } from 'lucide-vue-next'
+import { Input } from '@ui/input'
+import { Button } from '@ui/button'
 import { authApi } from '@/services/api/auth'
 import { ROUTES } from '@/constants/routes'
+import { AppFormField } from '@/components/shared'
+import { useForgotPasswordForm } from '@/features/auth/composables/useForgotPasswordForm'
 
-const email = ref('')
-const sent = ref(false)
-const loading = ref(false)
+const { form, errors, sent, loading, validate } = useForgotPasswordForm()
+const emailInput = ref<HTMLInputElement | null>(null)
+
+onMounted(() => emailInput.value?.focus())
 
 async function handleSubmit() {
+  if (!validate()) return
   loading.value = true
   try {
-    await authApi.forgotPassword({ email: email.value })
+    await authApi.forgotPassword({ email: form.email })
     sent.value = true
+  } catch {
+    errors.email = 'Não foi possível enviar o email. Tente novamente.'
   } finally {
     loading.value = false
   }
@@ -20,36 +29,65 @@ async function handleSubmit() {
 
 <template>
   <div class="space-y-6">
-    <div class="text-center">
-      <h1 class="text-2xl font-bold text-foreground">Esqueceu a senha?</h1>
-      <p class="text-muted-foreground mt-1">Enviaremos um link de redefinição</p>
-    </div>
+    <!-- Success state -->
+    <template v-if="sent">
+      <div class="flex flex-col items-center gap-4 py-4 text-center">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+          <MailCheck :size="22" class="text-emerald-400" />
+        </div>
+        <div class="space-y-1">
+          <h1 class="text-xl font-semibold text-foreground tracking-tight">Email enviado</h1>
+          <p class="text-sm text-muted-foreground">
+            Enviamos um link de redefinição para<br />
+            <span class="text-foreground font-medium">{{ form.email }}</span>
+          </p>
+        </div>
+        <p class="text-xs text-muted-foreground">Verifique também a pasta de spam</p>
+      </div>
 
-    <div v-if="sent" class="p-4 bg-accent rounded-md text-sm text-foreground">
-      Email enviado! Verifique sua caixa de entrada.
-    </div>
-
-    <form v-else class="space-y-4" @submit.prevent="handleSubmit">
-      <input
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        class="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        required
-      />
-      <button
-        type="submit"
-        :disabled="loading"
-        class="w-full py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
+      <RouterLink
+        :to="{ name: ROUTES.LOGIN }"
+        class="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        {{ loading ? 'Enviando...' : 'Enviar link' }}
-      </button>
-    </form>
-
-    <p class="text-center text-sm text-muted-foreground">
-      <RouterLink :to="{ name: ROUTES.LOGIN }" class="text-primary hover:underline">
-        Voltar ao login
+        ← Voltar ao login
       </RouterLink>
-    </p>
+    </template>
+
+    <!-- Form state -->
+    <template v-else>
+      <div class="space-y-1">
+        <h1 class="text-xl font-semibold text-foreground tracking-tight">Esqueceu a senha?</h1>
+        <p class="text-sm text-muted-foreground">
+          Insira seu email para receber um link de redefinição
+        </p>
+      </div>
+
+      <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
+        <AppFormField label="Email" :error="errors.email" required html-for="email">
+          <Input
+            id="email"
+            ref="emailInput"
+            v-model="form.email"
+            type="email"
+            placeholder="voce@exemplo.com"
+            autocomplete="email"
+            :disabled="loading"
+            @input="errors.email = undefined"
+          />
+        </AppFormField>
+
+        <Button type="submit" class="w-full" :disabled="loading">
+          <Loader2 v-if="loading" :size="15" class="mr-2 animate-spin" />
+          {{ loading ? 'Enviando...' : 'Enviar link' }}
+        </Button>
+      </form>
+
+      <RouterLink
+        :to="{ name: ROUTES.LOGIN }"
+        class="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        ← Voltar ao login
+      </RouterLink>
+    </template>
   </div>
 </template>

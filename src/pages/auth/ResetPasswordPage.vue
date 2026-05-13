@@ -1,30 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Loader2 } from 'lucide-vue-next'
+import { Button } from '@ui/button'
 import { authApi } from '@/services/api/auth'
 import { ROUTES } from '@/constants/routes'
+import { AppFormField } from '@/components/shared'
+import { PasswordField } from '@/features/auth/components'
+import { useResetPasswordForm } from '@/features/auth/composables/useResetPasswordForm'
 
 const route = useRoute()
 const router = useRouter()
+const { form, errors, validate } = useResetPasswordForm()
 
-const password = ref('')
-const passwordConfirmation = ref('')
 const loading = ref(false)
-const error = ref<string | null>(null)
+const apiError = ref<string | null>(null)
 
 async function handleSubmit() {
+  if (!validate()) return
   loading.value = true
-  error.value = null
+  apiError.value = null
   try {
     await authApi.resetPassword({
       token: route.query.token as string,
       email: route.query.email as string,
-      password: password.value,
-      password_confirmation: passwordConfirmation.value,
+      password: form.password,
+      password_confirmation: form.password_confirmation,
     })
     router.push({ name: ROUTES.LOGIN })
   } catch {
-    error.value = 'Erro ao redefinir senha. Tente novamente.'
+    apiError.value = 'Link inválido ou expirado. Solicite um novo.'
   } finally {
     loading.value = false
   }
@@ -33,33 +38,50 @@ async function handleSubmit() {
 
 <template>
   <div class="space-y-6">
-    <div class="text-center">
-      <h1 class="text-2xl font-bold text-foreground">Nova senha</h1>
+    <div class="space-y-1">
+      <h1 class="text-xl font-semibold text-foreground tracking-tight">Redefinir senha</h1>
+      <p class="text-sm text-muted-foreground">Escolha uma senha forte para sua conta</p>
     </div>
 
-    <form class="space-y-4" @submit.prevent="handleSubmit">
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Nova senha"
-        class="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        required
-      />
-      <input
-        v-model="passwordConfirmation"
-        type="password"
-        placeholder="Confirmar nova senha"
-        class="w-full px-3 py-2 bg-input border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        required
-      />
-      <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
-      <button
-        type="submit"
-        :disabled="loading"
-        class="w-full py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
+    <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
+      <AppFormField label="Nova senha" :error="errors.password" required html-for="password">
+        <PasswordField
+          id="password"
+          v-model="form.password"
+          placeholder="Mínimo 8 caracteres"
+          :disabled="loading"
+          @input="errors.password = undefined"
+        />
+      </AppFormField>
+
+      <AppFormField label="Confirmar senha" :error="errors.password_confirmation" required html-for="password_confirmation">
+        <PasswordField
+          id="password_confirmation"
+          v-model="form.password_confirmation"
+          placeholder="••••••••"
+          :disabled="loading"
+          @input="errors.password_confirmation = undefined"
+        />
+      </AppFormField>
+
+      <div
+        v-if="apiError"
+        class="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2.5 text-sm text-destructive"
       >
+        {{ apiError }}
+      </div>
+
+      <Button type="submit" class="w-full" :disabled="loading">
+        <Loader2 v-if="loading" :size="15" class="mr-2 animate-spin" />
         {{ loading ? 'Salvando...' : 'Redefinir senha' }}
-      </button>
+      </Button>
     </form>
+
+    <RouterLink
+      :to="{ name: ROUTES.LOGIN }"
+      class="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+    >
+      ← Voltar ao login
+    </RouterLink>
   </div>
 </template>
