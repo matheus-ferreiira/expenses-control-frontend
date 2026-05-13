@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, nextTick } from 'vue'
 import { Loader2, MailCheck } from 'lucide-vue-next'
 import { Input } from '@ui/input'
 import { Button } from '@ui/button'
 import { authApi } from '@/services/api/auth'
 import { ROUTES } from '@/constants/routes'
-import { AppFormField } from '@/components/shared'
 import { useForgotPasswordForm } from '@/features/auth/composables/useForgotPasswordForm'
 
 const { form, errors, sent, loading, validate } = useForgotPasswordForm()
-const emailInput = ref<HTMLInputElement | null>(null)
 
-onMounted(() => emailInput.value?.focus())
+onMounted(() => nextTick(() => (document.getElementById('email') as HTMLInputElement)?.focus()))
 
 async function handleSubmit() {
   if (!validate()) return
@@ -28,28 +26,32 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="space-y-7">
+  <div class="space-y-6">
+
     <!-- Success state -->
     <template v-if="sent">
-      <div class="flex flex-col items-center gap-5 py-3 text-center">
-        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 ring-1 ring-success/20">
-          <MailCheck :size="22" class="text-success" />
+      <div class="flex flex-col items-center gap-6 py-4 text-center">
+        <!-- Icon -->
+        <div class="flex h-11 w-11 items-center justify-center rounded-full"
+          style="background: hsl(var(--success) / 0.08); border: 1px solid hsl(var(--success) / 0.2);">
+          <MailCheck :size="20" class="text-success" />
         </div>
+        <!-- Text -->
         <div class="space-y-1.5">
-          <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
-            Email enviado
+          <h1 class="text-xl font-semibold tracking-tight text-foreground">
+            Verifique seu email
           </h1>
-          <p class="text-[13px] leading-relaxed text-muted-foreground/70">
-            Enviamos um link de redefinição para<br />
-            <span class="font-medium text-foreground/80">{{ form.email }}</span>
+          <p class="text-[13px] leading-relaxed text-muted-foreground/60">
+            Enviamos um link de acesso para<br />
+            <span class="font-medium text-foreground/70">{{ form.email }}</span>
           </p>
         </div>
-        <p class="text-[12px] text-muted-foreground/40">Verifique também a pasta de spam</p>
+        <p class="text-[11px] text-muted-foreground/35 select-none">Verifique também a pasta de spam</p>
       </div>
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[13px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
+        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
       >
         ← Voltar ao login
       </RouterLink>
@@ -57,42 +59,49 @@ async function handleSubmit() {
 
     <!-- Form state -->
     <template v-else>
-      <div>
-        <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+      <!-- Header -->
+      <div class="space-y-1">
+        <h1 class="text-xl font-semibold tracking-tight text-foreground">
           Esqueceu a senha?
         </h1>
-        <p class="mt-1 text-[13px] leading-normal text-muted-foreground/70">
-          Insira seu email e enviamos um link de acesso
+        <p class="text-[13px] text-muted-foreground/60">
+          Informe seu email e enviamos um link de acesso
         </p>
       </div>
 
+      <!-- Form -->
       <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
-        <AppFormField label="Email" :error="errors.email" required html-for="email">
+
+        <div class="space-y-1.5">
+          <label for="email" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+            Email
+          </label>
           <Input
             id="email"
-            ref="emailInput"
             v-model="form.email"
             type="email"
             placeholder="voce@exemplo.com"
             autocomplete="email"
             :disabled="loading"
-            class="h-10 transition-colors"
+            :class="['h-10 transition-colors', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
             @input="errors.email = undefined"
           />
-        </AppFormField>
+          <p v-if="errors.email" class="text-[11px] text-destructive/80">{{ errors.email }}</p>
+        </div>
 
-        <Button type="submit" class="w-full h-10 mt-1 font-medium" :disabled="loading">
-          <Loader2 v-if="loading" :size="14" class="mr-2 animate-spin" />
+        <Button type="submit" class="w-full h-10 font-medium transition-opacity" :disabled="loading">
+          <Loader2 v-if="loading" :size="13" class="mr-2 animate-spin" />
           {{ loading ? 'Enviando...' : 'Enviar link' }}
         </Button>
       </form>
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[13px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
+        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
       >
         ← Voltar ao login
       </RouterLink>
     </template>
+
   </div>
 </template>

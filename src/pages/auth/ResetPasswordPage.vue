@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { authApi } from '@/services/api/auth'
 import { ROUTES } from '@/constants/routes'
-import { AppFormField } from '@/components/shared'
 import { PasswordField } from '@/features/auth/components'
 import { useResetPasswordForm } from '@/features/auth/composables/useResetPasswordForm'
 
@@ -15,6 +14,28 @@ const { form, errors, validate } = useResetPasswordForm()
 
 const loading = ref(false)
 const apiError = ref<string | null>(null)
+
+// Password strength: 0–4
+const passwordStrength = computed(() => {
+  const p = form.password
+  if (!p) return 0
+  let score = 0
+  if (p.length >= 8) score++
+  if (p.length >= 12) score++
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++
+  if (/[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p)) score++
+  return score
+})
+
+const strengthLabel = computed(() => {
+  const labels = ['', 'Fraca', 'Razoável', 'Boa', 'Forte']
+  return labels[passwordStrength.value] ?? ''
+})
+
+const strengthColor = computed(() => {
+  const colors = ['', 'bg-destructive/70', 'bg-warning/80', 'bg-success/60', 'bg-success']
+  return colors[passwordStrength.value] ?? ''
+})
 
 async function handleSubmit() {
   if (!validate()) return
@@ -37,59 +58,88 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="space-y-7">
+  <div class="space-y-6">
+
     <!-- Header -->
-    <div>
-      <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-snug">
+    <div class="space-y-1">
+      <h1 class="text-xl font-semibold tracking-tight text-foreground">
         Redefinir senha
       </h1>
-      <p class="mt-1 text-[13px] leading-normal text-muted-foreground/70">
+      <p class="text-[13px] text-muted-foreground/60">
         Escolha uma senha forte para sua conta
       </p>
     </div>
 
     <!-- Form -->
     <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
-      <AppFormField label="Nova senha" :error="errors.password" required html-for="password">
+
+      <!-- New password -->
+      <div class="space-y-1.5">
+        <label for="password" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          Nova senha
+        </label>
         <PasswordField
           id="password"
           v-model="form.password"
           placeholder="Mínimo 8 caracteres"
+          autocomplete="new-password"
           :disabled="loading"
-          @input="errors.password = undefined"
+          :error="!!errors.password"
+          @update:model-value="errors.password = undefined"
         />
-      </AppFormField>
+        <!-- Strength bars -->
+        <div v-if="form.password" class="flex items-center gap-2 pt-0.5">
+          <div class="flex gap-1 flex-1">
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="h-0.5 flex-1 rounded-full transition-all duration-300"
+              :class="i <= passwordStrength ? strengthColor : 'bg-muted-foreground/15'"
+            />
+          </div>
+          <span class="text-[10px] text-muted-foreground/50 shrink-0">{{ strengthLabel }}</span>
+        </div>
+        <p v-if="errors.password" class="text-[11px] text-destructive/80">{{ errors.password }}</p>
+      </div>
 
-      <AppFormField label="Confirmar senha" :error="errors.password_confirmation" required html-for="password_confirmation">
+      <!-- Confirm password -->
+      <div class="space-y-1.5">
+        <label for="password_confirmation" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          Confirmar senha
+        </label>
         <PasswordField
           id="password_confirmation"
           v-model="form.password_confirmation"
           placeholder="••••••••"
+          autocomplete="new-password"
           :disabled="loading"
-          @input="errors.password_confirmation = undefined"
+          :error="!!errors.password_confirmation"
+          @update:model-value="errors.password_confirmation = undefined"
         />
-      </AppFormField>
+        <p v-if="errors.password_confirmation" class="text-[11px] text-destructive/80">{{ errors.password_confirmation }}</p>
+      </div>
 
       <!-- API error -->
       <div
         v-if="apiError"
-        class="rounded-lg border border-destructive/20 bg-destructive/[0.08] px-3.5 py-3 text-[13px] leading-snug text-destructive"
+        class="rounded-md border border-destructive/20 bg-destructive/[0.07] px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
       >
         {{ apiError }}
       </div>
 
       <!-- Submit -->
-      <Button type="submit" class="w-full h-10 mt-1 font-medium" :disabled="loading">
-        <Loader2 v-if="loading" :size="14" class="mr-2 animate-spin" />
+      <Button type="submit" class="w-full h-10 font-medium transition-opacity" :disabled="loading">
+        <Loader2 v-if="loading" :size="13" class="mr-2 animate-spin" />
         {{ loading ? 'Salvando...' : 'Redefinir senha' }}
       </Button>
     </form>
 
     <RouterLink
       :to="{ name: ROUTES.LOGIN }"
-      class="block text-center text-[13px] text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150"
+      class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
     >
       ← Voltar ao login
     </RouterLink>
+
   </div>
 </template>
