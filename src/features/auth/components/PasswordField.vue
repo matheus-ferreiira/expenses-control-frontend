@@ -25,11 +25,11 @@ const visible = ref(false)
     <Input
       :id="id"
       :type="visible ? 'text' : 'password'"
-      :value="modelValue"
+      :model-value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
       class="h-10 pr-10 transition-colors"
-      @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+      @update:model-value="emit('update:modelValue', String($event))"
     />
     <button
       type="button"
