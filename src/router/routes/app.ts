@@ -16,6 +16,7 @@ export const appRoutes: RouteRecordRaw[] = [
         name: ROUTES.DASHBOARD,
         component: () => import('@/pages/DashboardPage.vue'),
       },
+      // Produtividade
       {
         path: 'tasks',
         name: ROUTES.TASKS,
@@ -37,21 +38,6 @@ export const appRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/habits/HabitDetailPage.vue'),
       },
       {
-        path: 'finance',
-        name: ROUTES.FINANCE,
-        component: () => import('@/pages/finance/FinancePage.vue'),
-      },
-      {
-        path: 'finance/accounts',
-        name: ROUTES.FINANCE_ACCOUNTS,
-        component: () => import('@/pages/finance/AccountsPage.vue'),
-      },
-      {
-        path: 'finance/cards',
-        name: ROUTES.FINANCE_CARDS,
-        component: () => import('@/pages/finance/CardsPage.vue'),
-      },
-      {
         path: 'goals',
         name: ROUTES.GOALS,
         component: () => import('@/pages/goals/GoalsPage.vue'),
@@ -67,14 +53,56 @@ export const appRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/calendar/CalendarPage.vue'),
       },
       {
+        path: 'finance',
+        name: ROUTES.FINANCE,
+        component: () => import('@/pages/finance/FinancePage.vue'),
+      },
+      {
+        path: 'finance/accounts',
+        name: ROUTES.FINANCE_ACCOUNTS,
+        component: () => import('@/pages/finance/AccountsPage.vue'),
+      },
+      {
+        path: 'finance/cards',
+        name: ROUTES.FINANCE_CARDS,
+        component: () => import('@/pages/finance/CardsPage.vue'),
+      },
+      {
         path: 'reports',
         name: ROUTES.REPORTS,
         component: () => import('@/pages/ReportsPage.vue'),
       },
+      // Pessoal
       {
         path: 'purchases',
         name: ROUTES.PURCHASES,
         component: () => import('@/pages/purchases/PurchasesPage.vue'),
+      },
+      {
+        path: 'notes',
+        name: ROUTES.NOTES,
+        component: () => import('@/pages/NotesPage.vue'),
+      },
+      {
+        path: 'daily-log',
+        name: ROUTES.DAILY_LOG,
+        component: () => import('@/pages/DailyLogPage.vue'),
+      },
+      {
+        path: 'bookmarks',
+        name: ROUTES.BOOKMARKS,
+        component: () => import('@/pages/BookmarksPage.vue'),
+      },
+      {
+        path: 'vault',
+        name: ROUTES.VAULT,
+        component: () => import('@/pages/VaultPage.vue'),
+      },
+      // Sistema
+      {
+        path: 'settings',
+        name: ROUTES.SETTINGS,
+        component: () => import('@/pages/SettingsPage.vue'),
       },
     ],
   },

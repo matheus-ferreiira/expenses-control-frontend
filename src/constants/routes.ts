@@ -26,6 +26,11 @@ export const ROUTES = {
 
   PURCHASES: 'purchases',
 
+  NOTES: 'notes',
+  DAILY_LOG: 'daily-log',
+  BOOKMARKS: 'bookmarks',
+  VAULT: 'vault',
+
   SETTINGS: 'settings',
 } as const
 
