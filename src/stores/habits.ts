@@ -112,9 +112,8 @@ export const useHabitStore = defineStore('habits', () => {
   }
 
   async function archiveHabit(id: string): Promise<Habit> {
-    const updated = await habitsApi.update(id, { is_active: false } as unknown as UpdateHabitPayload)
-    const idx = habits.value.findIndex((h) => h.id === id)
-    if (idx !== -1) habits.value[idx] = updated
+    const updated = await habitsApi.archive(id)
+    habits.value = habits.value.filter((h) => h.id !== id)
     return updated
   }
 
