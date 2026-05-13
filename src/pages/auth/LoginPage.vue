@@ -126,11 +126,10 @@ async function handleLogin() {
 
       <!-- Remember me -->
       <label class="flex cursor-pointer items-center gap-2.5 select-none">
+        <input type="checkbox" v-model="rememberMe" class="sr-only" />
         <div
-          class="relative flex h-4 w-4 shrink-0 items-center justify-center rounded"
-          style="border: 1px solid hsl(var(--border))"
-          :style="rememberMe ? { background: 'hsl(var(--primary))', border: '1px solid hsl(var(--primary))' } : {}"
-          @click="rememberMe = !rememberMe"
+          class="relative flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors"
+          :style="rememberMe ? { background: 'hsl(var(--primary))', border: '1px solid hsl(var(--primary))' } : { border: '1px solid hsl(var(--border))' }"
         >
           <svg v-if="rememberMe" width="9" height="9" viewBox="0 0 12 12" fill="none">
             <path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
