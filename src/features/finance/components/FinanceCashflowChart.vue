@@ -222,8 +222,8 @@ onBeforeUnmount(() => {
 <template>
   <div class="rounded-lg border border-border/50 bg-card">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/50">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b border-border/50 gap-2 sm:gap-0">
+      <div class="flex items-center gap-4 flex-wrap">
         <span class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
           Fluxo de caixa
         </span>
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Period toggle -->
-      <div class="flex items-center gap-0.5 bg-muted/40 rounded-md p-0.5">
+      <div class="flex items-center gap-0.5 bg-muted/40 rounded-md p-0.5 self-start sm:self-auto">
         <button
           v-for="p in PERIODS"
           :key="p"

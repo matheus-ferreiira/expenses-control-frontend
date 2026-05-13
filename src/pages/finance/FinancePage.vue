@@ -85,7 +85,7 @@ onMounted(async () => {
   <AppPageContainer>
 
     <!-- Header -->
-    <div class="flex items-start justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-3 sm:gap-0">
       <div>
         <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
           Finanças
@@ -97,7 +97,7 @@ onMounted(async () => {
           Fluxo de caixa, contas e transações do mês
         </p>
       </div>
-      <div class="flex items-center gap-2 mt-1">
+      <div class="flex items-center gap-2 sm:mt-1 shrink-0">
         <Button
           variant="outline"
           size="sm"

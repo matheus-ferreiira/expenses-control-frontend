@@ -73,7 +73,7 @@ onMounted(async () => {
           Cartões
         </h1>
         <p class="text-[13px] text-muted-foreground/50">
-          {{ store.activeCards.length }} cartão{{ store.activeCards.length !== 1 ? 'ões' : '' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
+          {{ store.activeCards.length }} cartã{{ store.activeCards.length !== 1 ? 'ões' : 'o' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
         </p>
       </div>
       <Button size="sm" class="h-8 text-[12px] mt-1" @click="openCreate">
