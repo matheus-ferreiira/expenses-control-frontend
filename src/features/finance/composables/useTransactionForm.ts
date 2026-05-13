@@ -1,0 +1,111 @@
+import { reactive, ref } from 'vue'
+import type { Transaction, TransactionType, CreateTransactionPayload } from '@/types/finance'
+import { toISODate } from '@/utils/date'
+
+export interface TransactionFormData {
+  type: TransactionType
+  description: string
+  amount: string
+  date: string
+  category_id: string
+  account_id: string
+  credit_card_id: string
+  notes: string
+  is_recurring: boolean
+  recurrence_pattern: string
+}
+
+export interface TransactionFormErrors {
+  description?: string
+  amount?: string
+  date?: string
+}
+
+const DEFAULTS: TransactionFormData = {
+  type: 'expense',
+  description: '',
+  amount: '',
+  date: '',
+  category_id: '',
+  account_id: '',
+  credit_card_id: '',
+  notes: '',
+  is_recurring: false,
+  recurrence_pattern: '',
+}
+
+export function useTransactionForm() {
+  const form = reactive<TransactionFormData>({ ...DEFAULTS })
+  const errors = reactive<TransactionFormErrors>({})
+  const submitting = ref(false)
+
+  function fromTransaction(t: Transaction) {
+    form.type = t.type
+    form.description = t.description
+    form.amount = t.amount.toString()
+    form.date = t.date
+    form.category_id = t.category_id ?? ''
+    form.account_id = t.account_id ?? ''
+    form.credit_card_id = t.credit_card_id ?? ''
+    form.notes = t.notes ?? ''
+    form.is_recurring = t.is_recurring
+    form.recurrence_pattern = t.recurrence_pattern ?? ''
+    Object.assign(errors, {})
+  }
+
+  function reset() {
+    Object.assign(form, { ...DEFAULTS, date: toISODate(new Date()) })
+    Object.assign(errors, {})
+    submitting.value = false
+  }
+
+  function validate(): boolean {
+    Object.assign(errors, {})
+    let valid = true
+    if (!form.description.trim()) {
+      errors.description = 'Descrição é obrigatória'
+      valid = false
+    }
+    const parsed = parseFloat(form.amount.replace(',', '.'))
+    if (!form.amount || isNaN(parsed) || parsed <= 0) {
+      errors.amount = 'Valor deve ser maior que zero'
+      valid = false
+    }
+    if (!form.date) {
+      errors.date = 'Data é obrigatória'
+      valid = false
+    }
+    return valid
+  }
+
+  function toPayload(): CreateTransactionPayload {
+    const amount = parseFloat(form.amount.replace(',', '.'))
+    const payload: CreateTransactionPayload = {
+      type: form.type,
+      description: form.description.trim(),
+      amount,
+      date: form.date,
+    }
+    if (form.category_id) payload.category_id = form.category_id
+    if (form.account_id) payload.account_id = form.account_id
+    if (form.credit_card_id) payload.credit_card_id = form.credit_card_id
+    if (form.notes.trim()) payload.notes = form.notes.trim()
+    if (form.is_recurring) {
+      payload.is_recurring = true
+      if (form.recurrence_pattern.trim()) {
+        payload.recurrence_pattern = form.recurrence_pattern.trim()
+      }
+    }
+    return payload
+  }
+
+  return {
+    form,
+    errors,
+    submitting,
+    fromTransaction,
+    reset,
+    validate,
+    toPayload,
+  }
+}
