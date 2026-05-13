@@ -3,7 +3,7 @@ import { Button } from '@ui/button'
 import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-vue-next'
 import { monthLabel } from '../utils/financeHelpers'
 
-const props = defineProps<{
+defineProps<{
   month: string
   isCurrentMonth: boolean
 }>()

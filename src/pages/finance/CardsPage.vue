@@ -1,9 +1,136 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { AppPageContainer, PageHeader, ConfirmDialog } from '@/components/shared'
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
+import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
+import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
+import { Button } from '@ui/button'
+import { Skeleton } from '@ui/skeleton'
+import { Plus, CreditCard } from 'lucide-vue-next'
+import { useFinanceStore } from '@/stores/finance'
+import { useToast } from '@/composables/useToast'
+import type { CreditCard as CreditCardType } from '@/types/finance'
+
+const store = useFinanceStore()
+const toast = useToast()
+
+const formOpen = ref(false)
+const editingCard = ref<CreditCardType | null>(null)
+const deleteOpen = ref(false)
+const deletingId = ref<string | null>(null)
+const deleting = ref(false)
+const loading = ref(false)
+
+function openCreate() {
+  editingCard.value = null
+  formOpen.value = true
+}
+
+function openEdit(card: CreditCardType) {
+  editingCard.value = card
+  formOpen.value = true
+}
+
+function openDelete(id: string) {
+  deletingId.value = id
+  deleteOpen.value = true
+}
+
+async function confirmDelete() {
+  if (!deletingId.value) return
+  deleting.value = true
+  try {
+    await store.deleteCard(deletingId.value)
+    toast.success('Cartão excluído')
+    deleteOpen.value = false
+    deletingId.value = null
+  } catch {
+    toast.error('Erro ao excluir cartão')
+  } finally {
+    deleting.value = false
+  }
+}
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    await store.fetchCards()
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
-  <div class="space-y-6">
-    <h1 class="text-2xl font-bold text-foreground">PAGENAME</h1>
-    <p class="text-muted-foreground">Em construção</p>
-  </div>
+  <AppPageContainer>
+    <PageHeader title="Cartões">
+      <template #actions>
+        <Button size="sm" class="h-8 gap-1.5" @click="openCreate">
+          <Plus :size="14" />
+          Novo cartão
+        </Button>
+      </template>
+    </PageHeader>
+
+    <FinanceSubNav />
+
+    <!-- Loading -->
+    <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-for="i in 3" :key="i" class="rounded-lg border border-border bg-card p-4 space-y-3">
+        <div class="flex items-center gap-3">
+          <Skeleton class="h-9 w-9 rounded-lg" />
+          <div class="space-y-1.5">
+            <Skeleton class="h-4 w-20" />
+            <Skeleton class="h-3 w-28" />
+          </div>
+        </div>
+        <Skeleton class="h-6 w-32" />
+        <Skeleton class="h-2 w-full rounded-full" />
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div
+      v-else-if="store.cards.length === 0"
+      class="flex flex-col items-center justify-center py-16 text-center"
+    >
+      <div class="p-3 rounded-lg bg-muted mb-3">
+        <CreditCard :size="22" class="text-muted-foreground" />
+      </div>
+      <p class="text-sm font-medium text-foreground">Nenhum cartão cadastrado</p>
+      <p class="text-xs text-muted-foreground mt-0.5 mb-4">
+        Adicione seus cartões de crédito para acompanhar a fatura.
+      </p>
+      <Button size="sm" @click="openCreate">
+        <Plus :size="14" class="mr-1.5" />
+        Novo cartão
+      </Button>
+    </div>
+
+    <!-- Grid -->
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <CreditCardCard
+        v-for="card in store.activeCards"
+        :key="card.id"
+        :card="card"
+        @edit="openEdit"
+        @delete="openDelete"
+      />
+    </div>
+  </AppPageContainer>
+
+  <CreditCardFormDialog
+    v-model:open="formOpen"
+    :card="editingCard"
+  />
+
+  <ConfirmDialog
+    v-model:open="deleteOpen"
+    title="Excluir cartão"
+    description="Todos os dados deste cartão serão removidos."
+    confirm-label="Excluir"
+    variant="destructive"
+    :loading="deleting"
+    @confirm="confirmDelete"
+  />
 </template>

@@ -33,9 +33,7 @@ const TYPE_STYLE: Record<TransactionType, { text: string; bg: string }> = {
 }
 
 function toggleType(t: TransactionType) {
-  props.filterState.type.value = props.filterState.type.value === t ? undefined : t
-  // Reset category when type changes
-  props.filterState.category_id.value = undefined
+  props.filterState.setType(props.filterState.type.value === t ? undefined : t)
 }
 </script>
 
@@ -82,7 +80,7 @@ function toggleType(t: TransactionType) {
         <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Categoria</p>
         <Select
           :model-value="filterState.category_id.value ?? ''"
-          @update:model-value="filterState.category_id.value = ($event as string) || undefined"
+          @update:model-value="filterState.setCategoryId(($event as string) || undefined)"
         >
           <SelectTrigger class="h-7 text-xs">
             <SelectValue placeholder="Todas" />
@@ -107,7 +105,7 @@ function toggleType(t: TransactionType) {
         <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Conta</p>
         <Select
           :model-value="filterState.account_id.value ?? ''"
-          @update:model-value="filterState.account_id.value = ($event as string) || undefined"
+          @update:model-value="filterState.setAccountId(($event as string) || undefined)"
         >
           <SelectTrigger class="h-7 text-xs">
             <SelectValue placeholder="Todas" />

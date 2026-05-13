@@ -22,7 +22,7 @@ import {
 import { Loader2 } from 'lucide-vue-next'
 import { AppFormField } from '@/components/shared'
 import type { Transaction, TransactionType } from '@/types/finance'
-import { TRANSACTION_TYPE_LABELS, ACCOUNT_TYPE_LABELS } from '@/types/finance'
+import { TRANSACTION_TYPE_LABELS } from '@/types/finance'
 import { NETWORK_LABELS } from '../types'
 import { useTransactionForm } from '../composables/useTransactionForm'
 import { useFinanceStore } from '@/stores/finance'

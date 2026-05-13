@@ -47,6 +47,19 @@ export function useTransactionFilters() {
     month.value = currentMonth()
   }
 
+  function setType(t: TransactionType | undefined) {
+    type.value = t
+    category_id.value = undefined
+  }
+
+  function setCategoryId(id: string | undefined) {
+    category_id.value = id
+  }
+
+  function setAccountId(id: string | undefined) {
+    account_id.value = id
+  }
+
   function reset() {
     type.value = undefined
     category_id.value = undefined
@@ -67,6 +80,9 @@ export function useTransactionFilters() {
     nextMonth,
     isCurrentMonth,
     resetToCurrentMonth,
+    setType,
+    setCategoryId,
+    setAccountId,
     reset,
   }
 }
