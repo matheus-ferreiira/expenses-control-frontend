@@ -1,140 +1,154 @@
 # CLAUDE.md — Frontend (Vue 3)
 
 ## Stack
-- **Vue 3** (Composition API) | **TypeScript** | **Pinia** | **Vue Router**
-- Build: Vite | Testes: Vitest + Vue Test Utils + Cypress | Lint: ESLint + Prettier
+- **Vue 3.5** (Composition API, `<script setup lang="ts">`) | **TypeScript 5.9** | **Pinia 3** | **Vue Router 4**
+- Build: **Vite 7** + **@tailwindcss/vite** (Tailwind CSS v4)
+- UI: **shadcn-vue** (reka-ui/radix-vue) | Ícones: **lucide-vue-next**
+- HTTP: **Axios** com envelope unwrapping
+- Testes: Vitest + Vue Test Utils + Cypress | Lint: ESLint + Prettier
 
-## Estrutura Planejada
+## Estrutura Implementada
 
 ```
 src/
-├── assets/             Imagens, fontes, estilos globais
+├── assets/styles/
+│   └── base.css            Tailwind v4 + design tokens CSS vars (dark theme)
 ├── components/
-│   ├── ui/             Componentes base (Button, Input, Modal, etc.)
-│   └── [domain]/       Componentes específicos do domínio
-├── composables/        useXxx hooks reutilizáveis
-├── layouts/            AppLayout, AuthLayout, etc.
-├── pages/              Views por rota
-│   ├── auth/           Login, Register, ForgotPassword
-│   ├── dashboard/      Dashboard principal
-│   ├── tasks/          Tasks CRUD + kanban
-│   ├── habits/         Habits + heatmap
-│   ├── finance/        Finance + charts
-│   ├── goals/          Goals + progress
-│   └── calendar/       Calendar view
+│   ├── ui/                 shadcn-vue components (npx shadcn-vue@latest add <name>)
+│   └── shared/             AppSidebar, AppHeader
+├── composables/
+│   ├── useToast.ts         Toast state manager
+│   ├── useDebounce.ts      Reactive debounce
+│   ├── usePagination.ts    Pagination state + helpers
+│   └── useKeyboardShortcut.ts  G+D/T/H/A/F/M/R navigation
+├── constants/
+│   ├── routes.ts           ROUTES typed const
+│   └── api.ts              API_ENDPOINTS typed const
+├── layouts/
+│   ├── AuthLayout.vue      Centered card (login/register)
+│   └── AppLayout.vue       Sidebar + Header + <RouterView>
+├── lib/
+│   └── utils.ts            cn() helper (clsx + tailwind-merge)
+├── pages/
+│   ├── auth/               LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage
+│   ├── tasks/              TasksPage, TaskDetailPage
+│   ├── habits/             HabitsPage, HabitDetailPage
+│   ├── finance/            FinancePage, AccountsPage, CardsPage
+│   ├── goals/              GoalsPage, GoalDetailPage
+│   ├── calendar/           CalendarPage
+│   ├── DashboardPage.vue
+│   └── ReportsPage.vue
 ├── router/
-│   └── index.ts        Rotas + navigation guards
-├── services/
-│   └── api/            Camada de comunicação com o backend
-│       ├── client.ts   Axios instance + interceptors
-│       ├── auth.ts
-│       ├── tasks.ts
-│       ├── habits.ts
-│       ├── finance.ts
-│       ├── goals.ts
-│       └── calendar.ts
-├── stores/             Pinia stores por domínio
-│   ├── auth.ts
-│   ├── tasks.ts
-│   ├── habits.ts
-│   ├── finance.ts
-│   ├── goals.ts
-│   └── calendar.ts
-├── types/              TypeScript interfaces/types
-│   └── api.ts          Response types espelhando o backend
-└── utils/              Helpers, formatters, validators
+│   ├── index.ts
+│   ├── guards.ts           Auth guard + guest guard
+│   └── routes/
+│       ├── auth.ts         requiresGuest routes
+│       └── app.ts          requiresAuth routes (nested in AppLayout)
+├── services/api/
+│   ├── client.ts           Axios instance + Bearer token + 401 redirect + unwrap()
+│   ├── auth.ts             login, register, logout, me, forgot/reset
+│   ├── tasks.ts            CRUD + archive/reorder + subtasks + labels
+│   ├── habits.ts           CRUD + log/unlog/stats/heatmap/today
+│   ├── finance.ts          accounts, cards, transactions, categories, reports
+│   ├── goals.ts            CRUD + progress patch
+│   ├── calendar.ts         CRUD + upcoming
+│   └── dashboard.ts        aggregate dashboard
+├── stores/
+│   ├── auth.ts             token (localStorage), user, isAuthenticated
+│   ├── ui.ts               sidebar open, global loading
+│   ├── tasks.ts            + pendingTasks/overdueTasks computed
+│   ├── habits.ts           + todayHabits, log/unlog
+│   ├── finance.ts          accounts, cards, transactions, categories
+│   ├── goals.ts            + activeGoals/completedGoals computed
+│   └── calendar.ts         events + upcoming
+├── types/
+│   ├── api.ts              ApiResponse<T>, PaginatedResponse<T>, PaginationMeta
+│   ├── auth.ts             User, LoginCredentials, RegisterPayload, AuthTokenResponse
+│   ├── tasks.ts            Task, Subtask, TaskLabel, TaskStatus, TaskPriority + LABELS
+│   ├── habits.ts           Habit, HabitLog, HabitStats, HabitFrequency + LABELS
+│   ├── finance.ts          Transaction, BankAccount, CreditCard, Category + LABELS
+│   ├── goals.ts            Goal, GoalType, GoalStatus + LABELS
+│   └── calendar.ts         CalendarEvent, EventColor, EventSource
+└── utils/
+    ├── date.ts             formatDate, formatRelative, isOverdue, isToday, weekdayName
+    └── currency.ts         formatCurrency (BRL), parseCurrency, formatPercent
+```
+
+## Path Aliases
+
+```typescript
+'@'           → src/
+'@ui'         → src/components/ui/
+'@shared'     → src/components/shared/
+'@composables' → src/composables/
+'@stores'     → src/stores/
+'@services'   → src/services/
+'@types'      → src/types/
+'@utils'      → src/utils/
+'@layouts'    → src/layouts/
+'@pages'      → src/pages/
+'@constants'  → src/constants/
+'@lib'        → src/lib/
 ```
 
 ## Padrões Obrigatórios
 
-### Composition API (sempre `<script setup>`)
+### Composition API (sempre `<script setup lang="ts">`)
 ```vue
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useTaskStore } from '@/stores/tasks'
+import { ref, computed } from 'vue'
+import { useTaskStore } from '@stores/tasks'
 
 const store = useTaskStore()
-// ...
 </script>
 ```
 
-### Pinia Stores
+### Pinia Stores (Setup API)
 ```typescript
-// stores/tasks.ts
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { tasksApi } from '@/services/api/tasks'
-
 export const useTaskStore = defineStore('tasks', () => {
-  const tasks = ref<Task[]>([])
+  const items = ref<Task[]>([])
   const loading = ref(false)
-  
-  const pendingTasks = computed(() => tasks.value.filter(t => t.status === 'pending'))
-  
-  async function fetchTasks(filters?: TaskFilters) {
+  const error = ref<string | null>(null)
+
+  async function fetchAll() {
     loading.value = true
-    try {
-      const response = await tasksApi.list(filters)
-      tasks.value = response.data.data
-    } finally {
-      loading.value = false
-    }
+    try { items.value = await tasksApi.list() }
+    catch { error.value = 'Erro ao carregar tarefas' }
+    finally { loading.value = false }
   }
-  
-  return { tasks, loading, pendingTasks, fetchTasks }
+
+  return { items, loading, error, fetchAll }
 })
 ```
 
-### API Service Layer
+### API Service Layer (com unwrap)
 ```typescript
-// services/api/client.ts — Axios com interceptors de token e erro
-// services/api/tasks.ts — funções específicas do domínio Tasks
-
-import type { ApiResponse, PaginatedResponse } from '@/types/api'
-
 export const tasksApi = {
-  list: (filters?: TaskFilters) => 
-    client.get<PaginatedResponse<Task>>('/v1/tasks', { params: filters }),
-  
-  create: (data: CreateTaskDto) => 
-    client.post<ApiResponse<Task>>('/v1/tasks', data),
-    
-  // ...
+  list: (filters?: TaskFilters) =>
+    client.get<PaginatedResponse<Task>>(API_ENDPOINTS.TASKS.BASE, { params: filters })
+      .then(unwrap),
+
+  create: (payload: CreateTaskPayload) =>
+    client.post<ApiResponse<Task>>(API_ENDPOINTS.TASKS.BASE, payload).then(unwrap),
 }
 ```
 
-### TypeScript Types (espelhar o backend)
-```typescript
-// types/api.ts
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-  message: string
-  meta?: PaginationMeta
-}
-
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-  meta: PaginationMeta
-  links: PaginationLinks
-}
+### Adicionando shadcn-vue components
+```bash
+npx shadcn-vue@latest add button card badge input dialog dropdown-menu separator avatar
+# Componente é copiado para src/components/ui/
+# Adicionar ao barrel src/components/ui/index.ts
 ```
 
 ### Nomenclatura
-- Componentes: `PascalCase.vue`
-- Composables: `useCamelCase.ts`
-- Stores: `useCamelCaseStore` / arquivo `camelCase.ts`
-- Types/interfaces: `PascalCase`
-- Funções e variáveis: `camelCase`
-- Constantes: `UPPER_SNAKE_CASE`
-
-## Configuração de Prettier
-```json
-{
-  "singleQuote": true,
-  "semi": false,
-  "printWidth": 100
-}
-```
+- Páginas: `PascalCase + Page` → `TasksPage.vue`
+- Componentes: `PascalCase` → `TaskCard.vue`
+- Composables: `use + camelCase` → `useToast.ts`
+- Stores (arquivo): `camelCase` → `tasks.ts`
+- Stores (função): `use + PascalCase + Store` → `useTaskStore()`
+- Services: `camelCase + Api` → `tasksApi`
+- Types: `PascalCase` → `interface Task {}`
+- Constantes: `UPPER_SNAKE_CASE` → `ROUTES.TASKS`
 
 ## Comandos de Desenvolvimento
 
@@ -152,15 +166,20 @@ npm run format         # Prettier
 ## Variáveis de Ambiente
 
 ```env
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=http://localhost:8000
 VITE_APP_NAME=Productivity Control
 ```
+
+## Design System
+
+Dark mode por padrão (classe `.dark` no `<html>`). Paleta violet/slate via CSS custom properties.
+Ver `docs/frontend-conventions.md` para referência completa de design tokens.
 
 ## Regras de Qualidade
 
 - Sempre `lang="ts"` em `<script setup>`
-- Evitar `any` — criar tipos explícitos
-- Props sempre tipadas com `defineProps<{...}>()`
-- Emits sempre tipados com `defineEmits<{...}>()`
-- Composables para lógica reutilizável (evitar duplicação entre pages)
-- Testes unitários para composables e stores
+- Nunca `any` — criar tipos explícitos
+- Props: `defineProps<{...}>()`
+- Emits: `defineEmits<{ event: [payload: Type] }>()`
+- Barrel exports em todos os diretórios com múltiplos arquivos
+- `npm run type-check` + `npm run build` antes de commitar
