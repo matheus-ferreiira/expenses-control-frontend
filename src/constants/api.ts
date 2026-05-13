@@ -53,4 +53,8 @@ export const API_ENDPOINTS = {
     UPCOMING: `${API_BASE}/calendar/upcoming`,
   },
   DASHBOARD: `${API_BASE}/dashboard`,
+  PURCHASES: {
+    BASE: `${API_BASE}/purchases`,
+    DETAIL: (id: string) => `${API_BASE}/purchases/${id}`,
+  },
 } as const
