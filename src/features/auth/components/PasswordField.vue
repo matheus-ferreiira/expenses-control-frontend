@@ -10,8 +10,9 @@ withDefaults(
     id?: string
     disabled?: boolean
     error?: boolean
+    autocomplete?: string
   }>(),
-  { placeholder: 'Senha', error: false },
+  { placeholder: 'Senha', error: false, autocomplete: 'current-password' },
 )
 
 const emit = defineEmits<{
@@ -30,7 +31,7 @@ const visible = ref(false)
       :placeholder="placeholder"
       :disabled="disabled"
       :class="['h-10 pr-10 transition-colors', error ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
-      autocomplete="current-password"
+      :autocomplete="autocomplete"
       @update:model-value="emit('update:modelValue', String($event))"
     />
     <button
