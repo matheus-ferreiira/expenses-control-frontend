@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from '@ui/select'
 import { Loader2 } from 'lucide-vue-next'
-import TaskLabelBadge from './TaskLabelBadge.vue'
 import type { Task, TaskLabel } from '@/types/tasks'
 import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from '@/types/tasks'
 import { useTaskForm } from '../composables/useTaskForm'

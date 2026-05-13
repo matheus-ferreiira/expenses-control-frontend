@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Checkbox } from '@ui/checkbox'
 import { Button } from '@ui/button'
 import {
   DropdownMenu,

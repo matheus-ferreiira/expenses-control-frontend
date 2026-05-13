@@ -18,7 +18,7 @@ export interface TableColumn<R extends Record<string, unknown>> {
   align?: 'left' | 'center' | 'right'
 }
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     columns: TableColumn<T>[]
     rows: T[]

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import {
@@ -28,6 +27,7 @@ import type { ViewMode } from '../types'
 
 defineProps<{
   filterState: ReturnType<typeof useTaskFilters>
+  search: string
   labels: TaskLabel[]
   viewMode: ViewMode
   loading?: boolean
@@ -36,6 +36,7 @@ defineProps<{
 const emit = defineEmits<{
   create: []
   'update:viewMode': [mode: ViewMode]
+  'update:search': [value: string]
   sort: [field: SortField, direction: SortDirection]
 }>()
 
@@ -61,9 +62,10 @@ const sortOptions: SortOption[] = [
     <div class="relative flex-1 min-w-[180px] max-w-xs">
       <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" :size="14" />
       <Input
-        v-model="filterState.search.value"
+        :value="search"
         placeholder="Buscar tarefas..."
         class="pl-8 h-8 text-sm"
+        @input="emit('update:search', ($event.target as HTMLInputElement).value)"
       />
     </div>
 

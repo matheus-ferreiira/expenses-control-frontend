@@ -6,7 +6,7 @@ import { Input } from '@ui/input'
 import { Trash2, Plus, Loader2 } from 'lucide-vue-next'
 import type { Subtask } from '@/types/tasks'
 
-const props = defineProps<{
+defineProps<{
   taskId: string
   subtasks: Subtask[]
 }>()
