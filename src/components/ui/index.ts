@@ -1,7 +1,25 @@
-// shadcn-vue components are added individually via:
-//   npx shadcn-vue@latest add <component>
-// Each component is copied into this directory as its own file.
-// Re-export them here as they are added.
-//
-// Example (after adding button):
-//   export { Button, buttonVariants } from './button'
+// shadcn-vue components — added via: npx shadcn-vue@latest add <name>
+// Do not modify these files directly; override in src/components/shared/ wrappers.
+
+export * from './avatar'
+export * from './badge'
+export * from './button'
+export * from './card'
+export * from './checkbox'
+export * from './command'
+export * from './dialog'
+export * from './dropdown-menu'
+export * from './form'
+export * from './input'
+export * from './label'
+export * from './popover'
+export * from './scroll-area'
+export * from './select'
+export * from './separator'
+export * from './sheet'
+export * from './skeleton'
+export * from './sonner'
+export * from './tabs'
+export * from './table'
+export * from './textarea'
+export * from './tooltip'
