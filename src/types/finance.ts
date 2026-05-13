@@ -104,8 +104,8 @@ export interface TransactionFilters {
   category_id?: string
   account_id?: string
   credit_card_id?: string
-  date_from?: string
-  date_to?: string
+  start_date?: string
+  end_date?: string
   search?: string
   page?: number
   per_page?: number

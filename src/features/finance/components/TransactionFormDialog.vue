@@ -72,13 +72,13 @@ watch(
 
 // Mutually exclusive: selecting account clears card and vice versa
 function onAccountChange(val: string) {
-  form.account_id = val
-  if (val) form.credit_card_id = ''
+  form.account_id = val === '__none__' ? '' : val
+  if (form.account_id) form.credit_card_id = ''
 }
 
 function onCardChange(val: string) {
-  form.credit_card_id = val
-  if (val) form.account_id = ''
+  form.credit_card_id = val === '__none__' ? '' : val
+  if (form.credit_card_id) form.account_id = ''
 }
 
 function close() {
@@ -155,14 +155,14 @@ async function submit() {
         <!-- Category (hidden for transfer) -->
         <AppFormField v-if="form.type !== 'transfer'" label="Categoria">
           <Select
-            :model-value="form.category_id || ''"
-            @update:model-value="form.category_id = $event as string"
+            :model-value="form.category_id || '__none__'"
+            @update:model-value="form.category_id = ($event === '__none__' ? '' : $event as string)"
           >
             <SelectTrigger class="h-9">
               <SelectValue placeholder="Sem categoria" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Sem categoria</SelectItem>
+              <SelectItem value="__none__">Sem categoria</SelectItem>
               <SelectItem v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
                 {{ cat.name }}
               </SelectItem>
@@ -174,14 +174,14 @@ async function submit() {
         <div class="grid grid-cols-2 gap-3">
           <AppFormField label="Conta">
             <Select
-              :model-value="form.account_id || ''"
+              :model-value="form.account_id || '__none__'"
               @update:model-value="onAccountChange($event as string)"
             >
               <SelectTrigger class="h-9">
                 <SelectValue placeholder="—" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">—</SelectItem>
+                <SelectItem value="__none__">—</SelectItem>
                 <SelectItem
                   v-for="acc in store.activeAccounts"
                   :key="acc.id"
@@ -195,14 +195,14 @@ async function submit() {
 
           <AppFormField label="Cartão">
             <Select
-              :model-value="form.credit_card_id || ''"
+              :model-value="form.credit_card_id || '__none__'"
               @update:model-value="onCardChange($event as string)"
             >
               <SelectTrigger class="h-9">
                 <SelectValue placeholder="—" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">—</SelectItem>
+                <SelectItem value="__none__">—</SelectItem>
                 <SelectItem
                   v-for="card in store.activeCards"
                   :key="card.id"

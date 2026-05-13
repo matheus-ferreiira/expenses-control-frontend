@@ -25,9 +25,9 @@ export function useTransactionFilters() {
       type: type.value,
       category_id: category_id.value,
       account_id: account_id.value,
-      date_from: monthStart(month.value),
-      date_to: monthEnd(month.value),
-      per_page: 200,
+      start_date: monthStart(month.value),
+      end_date: monthEnd(month.value),
+      per_page: 100,
     }
   }
 
