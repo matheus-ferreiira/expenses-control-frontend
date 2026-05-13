@@ -1,36 +1,43 @@
 <script setup lang="ts">
-// no imports — pure template layout
+import { AuthBrandingPanel } from '@/features/auth/components'
 </script>
 
 <template>
-  <div class="relative min-h-screen bg-background flex flex-col items-center justify-center p-5 overflow-hidden">
-    <!-- Subtle background glow (primary violet, barely visible) -->
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-      <div class="absolute -top-32 left-1/2 h-[560px] w-[700px] -translate-x-1/2 rounded-full bg-primary/[0.07] blur-[130px]" />
+  <div class="min-h-screen flex bg-background">
+
+    <!-- Left: branding panel — desktop only -->
+    <div class="hidden lg:flex lg:w-1/2 xl:w-[52%] flex-col">
+      <AuthBrandingPanel />
     </div>
 
-    <div class="relative z-10 w-full max-w-[400px]">
-      <!-- Logo mark -->
-      <div class="mb-8 flex flex-col items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary ring-1 ring-primary/40 shadow-lg shadow-primary/20">
-          <span class="text-[15px] font-bold text-primary-foreground">P</span>
-        </div>
-        <span class="text-[10px] font-semibold tracking-[0.28em] text-muted-foreground/50 uppercase select-none">
-          Productivity
-        </span>
-      </div>
+    <!-- Right: form panel -->
+    <div class="flex flex-1 flex-col">
+      <!-- Scroll container -->
+      <div class="flex flex-1 flex-col items-center justify-center px-6 py-10 sm:px-10">
 
-      <!-- Auth card -->
-      <div class="rounded-xl border border-white/[0.06] bg-card shadow-2xl shadow-black/50 ring-1 ring-white/[0.04]">
-        <div class="p-8">
+        <!-- Mobile wordmark (shown only when left panel is hidden) -->
+        <div class="lg:hidden mb-10 flex items-center gap-2.5">
+          <span class="text-[17px] font-semibold tracking-tight text-foreground">Vault</span>
+          <span
+            class="rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/50"
+            style="border: 1px solid hsl(var(--border)); background: hsl(var(--muted) / 0.5);"
+          >
+            Beta
+          </span>
+        </div>
+
+        <!-- Form container -->
+        <div class="w-full max-w-[380px]">
           <RouterView />
         </div>
+
       </div>
+
+      <!-- Footer -->
+      <p class="text-center py-6 text-[11px] text-muted-foreground/25 select-none">
+        &copy; {{ new Date().getFullYear() }} Vault &mdash; uso pessoal
+      </p>
     </div>
 
-    <!-- Footer -->
-    <p class="relative mt-8 text-[11px] text-muted-foreground/30 select-none">
-      &copy; {{ new Date().getFullYear() }} Productivity Control
-    </p>
   </div>
 </template>
