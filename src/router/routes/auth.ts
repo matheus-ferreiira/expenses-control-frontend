@@ -8,6 +8,10 @@ export const authRoutes: RouteRecordRaw[] = [
     meta: { requiresGuest: true },
     children: [
       {
+        path: '',
+        redirect: { name: ROUTES.LOGIN },
+      },
+      {
         path: 'login',
         name: ROUTES.LOGIN,
         component: () => import('@/pages/auth/LoginPage.vue'),

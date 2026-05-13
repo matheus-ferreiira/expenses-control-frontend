@@ -20,8 +20,8 @@ export interface RegisterPayload {
 }
 
 export interface AuthTokenResponse {
+  user: User
   token: string
-  token_type: string
 }
 
 export interface ForgotPasswordPayload {
