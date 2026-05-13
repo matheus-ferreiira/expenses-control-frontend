@@ -12,7 +12,8 @@
 ```
 src/
 ├── assets/styles/
-│   └── base.css            Tailwind v4 + design tokens CSS vars (dark theme)
+│   ├── tokens.css          Design tokens — todas as CSS custom properties (cores, radius)
+│   └── base.css            Tailwind v4 entry point — importa tokens.css + @theme inline
 ├── components/
 │   ├── ui/                 shadcn-vue components (npx shadcn-vue@latest add <name>)
 │   └── shared/             AppSidebar, AppHeader
@@ -172,8 +173,27 @@ VITE_APP_NAME=Productivity Control
 
 ## Design System
 
-Dark mode por padrão (classe `.dark` no `<html>`). Paleta violet/slate via CSS custom properties.
-Ver `docs/frontend-conventions.md` para referência completa de design tokens.
+Dark mode por padrão. Paleta violet/slate definida como CSS custom properties.
+
+**Arquivo de tokens:** `src/assets/styles/tokens.css` — fonte única de verdade para todas as variáveis CSS.
+
+| Token | Dark (padrão) | Light (.light) | Tailwind class |
+|-------|--------------|----------------|----------------|
+| `--primary` | `262 83% 58%` (violet) | `262 83% 58%` | `bg-primary` |
+| `--background` | `222 47% 6%` (deep slate) | `0 0% 100%` (white) | `bg-background` |
+| `--foreground` | `213 31% 91%` | `222 47% 11%` | `text-foreground` |
+| `--card` | `222 47% 8%` | `0 0% 100%` | `bg-card` |
+| `--secondary` | `217 33% 13%` | `210 40% 96%` | `bg-secondary` |
+| `--muted` | `217 33% 13%` | `210 40% 96%` | `bg-muted` |
+| `--accent` | `217 33% 15%` | `210 40% 96%` | `bg-accent` |
+| `--destructive` | `0 63% 51%` (red) | `0 84% 60%` | `bg-destructive` |
+| `--border` | `217 33% 12%` | `214 32% 91%` | `border-border` |
+| `--ring` | `262 83% 58%` (violet) | `262 83% 58%` | `outline-ring` |
+| `--success` | `142 71% 45%` (green) | — | `bg-success` |
+| `--warning` | `38 92% 50%` (amber) | — | `bg-warning` |
+| `--radius` | `0.5rem` (8px) | — | `rounded-lg` |
+
+Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve conter valores de cores.
 
 ## Regras de Qualidade
 
