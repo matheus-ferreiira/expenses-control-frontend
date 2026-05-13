@@ -30,57 +30,40 @@ function sourceName(t: Transaction): string {
 </script>
 
 <template>
-  <div class="group flex items-center gap-3 px-4 py-3 hover:bg-accent/30 transition-colors">
-    <!-- Type/Category indicator -->
-    <div class="shrink-0">
+  <div class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-colors">
+
+    <!-- Dot indicator — 8px, no background circle -->
+    <div class="shrink-0 flex items-center justify-center w-5">
       <span
-        v-if="transaction.category"
-        class="flex h-7 w-7 items-center justify-center rounded-full"
-        :style="{
-          backgroundColor: transaction.category.color + '20',
-        }"
+        v-if="transaction.type === 'transfer'"
+        class="text-muted-foreground/40"
       >
-        <span
-          class="h-2.5 w-2.5 rounded-full"
-          :style="{ backgroundColor: transaction.category.color }"
-        />
-      </span>
-      <span
-        v-else-if="transaction.type === 'transfer'"
-        class="flex h-7 w-7 items-center justify-center rounded-full bg-muted"
-      >
-        <ArrowLeftRight :size="12" class="text-muted-foreground" />
+        <ArrowLeftRight :size="11" />
       </span>
       <span
         v-else
-        class="flex h-7 w-7 items-center justify-center rounded-full"
-        :class="
-          transaction.type === 'income'
-            ? 'bg-emerald-500/10'
-            : 'bg-red-500/10'
+        class="h-2 w-2 rounded-full"
+        :style="transaction.category
+          ? { backgroundColor: transaction.category.color }
+          : transaction.type === 'income'
+            ? { backgroundColor: 'hsl(var(--success))' }
+            : { backgroundColor: 'hsl(var(--destructive) / 0.7)' }
         "
-      >
-        <span
-          class="h-2.5 w-2.5 rounded-full"
-          :class="
-            transaction.type === 'income' ? 'bg-emerald-400' : 'bg-red-400'
-          "
-        />
-      </span>
+      />
     </div>
 
-    <!-- Description + source -->
+    <!-- Description + meta -->
     <div class="flex-1 min-w-0">
-      <p class="text-sm font-medium text-foreground truncate">
+      <p class="text-[13px] font-medium text-foreground/90 truncate leading-none mb-0.5">
         {{ transaction.description }}
       </p>
-      <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+      <div class="flex items-center gap-2">
         <CategoryBadge v-if="transaction.category" :category="transaction.category" size="xs" />
         <span
           v-if="sourceName(transaction)"
-          class="text-[10px] text-muted-foreground/60"
+          class="text-[10px] text-muted-foreground/40"
         >
-          {{ transaction.category ? '·' : '' }} {{ sourceName(transaction) }}
+          {{ sourceName(transaction) }}
         </span>
       </div>
     </div>
@@ -88,19 +71,19 @@ function sourceName(t: Transaction): string {
     <!-- Amount -->
     <span
       :class="[
-        'shrink-0 text-sm font-semibold tabular-nums',
+        'shrink-0 text-[13px] font-medium tabular-nums',
         transactionAmountClass(transaction.type),
       ]"
     >
       {{ transactionAmountPrefix(transaction.type) }}{{ formatCurrency(transaction.amount) }}
     </span>
 
-    <!-- Menu -->
+    <!-- Menu (appears on hover) -->
     <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" @click.stop>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon" class="h-7 w-7">
-            <MoreHorizontal :size="14" />
+          <Button variant="ghost" size="icon" class="h-6 w-6">
+            <MoreHorizontal :size="13" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="w-32">
@@ -119,5 +102,6 @@ function sourceName(t: Transaction): string {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
+
   </div>
 </template>
