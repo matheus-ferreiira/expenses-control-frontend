@@ -43,7 +43,6 @@ export interface Task {
   completed_at: string | null
   is_recurring: boolean
   recurrence_pattern: string | null
-  recurrence_ends_at: string | null
   order: number
   is_archived: boolean
   labels: TaskLabel[]
@@ -61,10 +60,6 @@ export interface CreateTaskPayload {
   status?: TaskStatus
   priority?: TaskPriority
   due_date?: string
-  due_time?: string
-  is_recurring?: boolean
-  recurrence_pattern?: string
-  recurrence_ends_at?: string
   label_ids?: string[]
 }
 

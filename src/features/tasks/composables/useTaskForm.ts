@@ -70,12 +70,7 @@ export function useTaskForm() {
     payload.status = form.status
     payload.priority = form.priority
     if (form.due_date) payload.due_date = form.due_date
-    if (form.due_time) payload.due_time = form.due_time
     if (form.label_ids.length) payload.label_ids = form.label_ids
-    if (form.is_recurring) {
-      payload.is_recurring = true
-      if (form.recurrence_pattern) payload.recurrence_pattern = form.recurrence_pattern
-    }
     return payload
   }
 
