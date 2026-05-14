@@ -195,12 +195,12 @@ export function useReportsData() {
           : financeStore.fetchTransactions({ per_page: 500 }),
       ])
 
-      const [tasks, yearly] = await Promise.all([
-        tasksApi.list({ status: 'completed', per_page: 500 }) as unknown as Promise<Task[]>,
+      const [tasksResult, yearly] = await Promise.all([
+        tasksApi.list({ status: 'completed', per_page: 500 }),
         reportsApi.yearlyFinance(new Date().getFullYear()),
       ])
 
-      completedTasks.value = Array.isArray(tasks) ? tasks : (tasks as unknown as { data: Task[] }).data ?? []
+      completedTasks.value = tasksResult.data
       yearlyFinance.value = yearly
     } catch {
       // non-fatal — components will show empty state
