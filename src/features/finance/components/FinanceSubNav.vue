@@ -22,7 +22,7 @@ function isActive(routeName: string): boolean {
       v-for="tab in tabs"
       :key="tab.route"
       :class="[
-        'px-3 py-2 text-[13px] font-medium transition-colors border-b-2 -mb-px',
+        'px-3 py-2 text-[13px] font-medium transition-base border-b-2 -mb-px',
         isActive(tab.route)
           ? 'border-primary text-foreground'
           : 'border-transparent text-muted-foreground/60 hover:text-foreground',

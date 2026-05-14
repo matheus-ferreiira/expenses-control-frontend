@@ -94,7 +94,7 @@ const monthLabels = computed(() => {
             v-for="(cell, di) in week"
             :key="di"
             :class="[
-              'w-3 h-3 rounded-sm transition-colors cursor-default',
+              'w-3 h-3 rounded-sm transition-base cursor-default',
               cell.isEmpty ? 'bg-transparent' : heatmapColorClass(cell.count),
             ]"
             @mouseenter="(e) => showTooltip(e, cell.date, cell.count)"

@@ -45,7 +45,7 @@ function cancelNew() {
     <div
       v-for="sub in subtasks"
       :key="sub.id"
-      class="group flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-accent/40 transition-colors"
+      class="group flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-accent/40 transition-base"
     >
       <Checkbox
         :checked="sub.completed"
@@ -90,7 +90,7 @@ function cancelNew() {
     <!-- Add trigger -->
     <button
       v-if="!adding"
-      class="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent/40 w-full"
+      class="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-base rounded-md hover:bg-accent/40 w-full"
       @click="adding = true"
     >
       <Plus :size="14" />

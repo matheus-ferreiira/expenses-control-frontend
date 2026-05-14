@@ -158,7 +158,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 
           <div class="flex items-center gap-1">
             <button
-              class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+              class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
               style="color: hsl(var(--muted-foreground) / 0.5)"
               title="Buscar notas"
               @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"

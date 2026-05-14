@@ -53,7 +53,7 @@ function handleLog(id: string) {
         </span>
       </div>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.HABITS })"
       >
         Ver todos <ArrowRight :size="10" />
@@ -100,7 +100,7 @@ function handleLog(id: string) {
       <div
         v-for="habit in shown"
         :key="habit.id"
-        class="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-colors"
+        class="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
       >
         <!-- Color dot -->
         <div
@@ -119,7 +119,7 @@ function handleLog(id: string) {
               v-for="(dot, i) in getWeeklyDots(habit)"
               :key="i"
               :class="[
-                'h-1.5 w-1.5 rounded-full transition-colors',
+                'h-1.5 w-1.5 rounded-full transition-base',
                 dot.isFuture
                   ? 'bg-muted/30'
                   : dot.isLogged
@@ -160,7 +160,7 @@ function handleLog(id: string) {
       <!-- More row -->
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+          class="text-xs text-muted-foreground/60 hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.HABITS })"
         >
           + {{ habits.length - MAX_SHOWN }} mais

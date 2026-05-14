@@ -34,7 +34,7 @@ function togglePriority(priority: TaskPriority) {
   <Popover>
     <PopoverTrigger as-child>
       <button
-        class="relative flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-colors"
+        class="relative flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-base"
         :style="
           activeFilters > 0
             ? 'border-color: hsl(var(--primary) / 0.4); color: hsl(var(--primary) / 0.8)'
@@ -63,7 +63,7 @@ function togglePriority(priority: TaskPriority) {
             v-for="s in statuses"
             :key="s"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-colors',
+              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
               filterState.filters.value.status === s
                 ? [STATUS_STYLE[s].bg, STATUS_STYLE[s].text, 'border-transparent']
                 : 'border-border text-muted-foreground hover:border-foreground/30',
@@ -85,7 +85,7 @@ function togglePriority(priority: TaskPriority) {
             v-for="p in priorities"
             :key="p"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-colors',
+              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
               filterState.filters.value.priority === p
                 ? [PRIORITY_STYLE[p].bg, PRIORITY_STYLE[p].text, 'border-transparent']
                 : 'border-border text-muted-foreground hover:border-foreground/30',
@@ -107,7 +107,7 @@ function togglePriority(priority: TaskPriority) {
               v-for="label in labels"
               :key="label.id"
               :class="[
-                'inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border transition-colors',
+                'inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
                 filterState.filters.value.label_id === label.id
                   ? 'bg-primary/10 text-primary border-transparent'
                   : 'border-border text-muted-foreground hover:border-foreground/30',

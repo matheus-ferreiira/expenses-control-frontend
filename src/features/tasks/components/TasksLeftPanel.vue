@@ -104,7 +104,7 @@ function isActive(id: TaskViewId) {
         <button
           v-for="view in views"
           :key="view.id"
-          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-colors"
+          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-base"
           :style="
             isActive(view.id)
               ? 'background: hsl(var(--sidebar-accent)); color: hsl(var(--foreground))'
@@ -167,7 +167,7 @@ function isActive(id: TaskViewId) {
         <button
           v-for="label in labels"
           :key="label.id"
-          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-colors"
+          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-base"
           :style="
             isActive(`label:${label.id}`)
               ? 'background: hsl(var(--sidebar-accent)); color: hsl(var(--foreground))'

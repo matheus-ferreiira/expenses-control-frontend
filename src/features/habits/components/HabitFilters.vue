@@ -47,7 +47,7 @@ function toggleFrequency(f: HabitFrequency) {
             v-for="f in frequencies"
             :key="f"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-colors',
+              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
               filterState.frequency.value === f
                 ? [FREQUENCY_STYLE[f].bg, FREQUENCY_STYLE[f].text, 'border-transparent']
                 : 'border-border text-muted-foreground hover:border-foreground/30',
@@ -66,7 +66,7 @@ function toggleFrequency(f: HabitFrequency) {
         <span class="text-sm text-foreground">Mostrar arquivados</span>
         <button
           :class="[
-            'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none',
+            'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-base duration-200 focus-visible:outline-none',
             filterState.showArchived.value ? 'bg-primary' : 'bg-muted',
           ]"
           role="switch"

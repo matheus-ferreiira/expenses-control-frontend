@@ -36,7 +36,7 @@ function accountLabel(tx: Transaction): string {
     <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
       <span class="text-sm font-medium text-foreground">Transações recentes</span>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.FINANCE })"
       >
         Ver todas <ArrowRight :size="10" />
@@ -68,7 +68,7 @@ function accountLabel(tx: Transaction): string {
       <div
         v-for="tx in transactions"
         :key="tx.id"
-        class="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-colors"
+        class="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
       >
         <!-- Category color dot -->
         <div

@@ -62,10 +62,10 @@ function handleAction(action: () => void) {
         <button
           v-for="item in quickActions"
           :key="item.label"
-          class="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-left hover:bg-foreground/[0.05] transition-colors group"
+          class="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-left hover:bg-foreground/[0.05] transition-base group"
           @click="handleAction(item.action)"
         >
-          <div class="w-7 h-7 rounded-md bg-foreground/[0.06] flex items-center justify-center shrink-0 group-hover:bg-foreground/[0.09] transition-colors">
+          <div class="w-7 h-7 rounded-md bg-foreground/[0.06] flex items-center justify-center shrink-0 group-hover:bg-foreground/[0.09] transition-base">
             <component :is="item.icon" :size="14" class="text-muted-foreground" />
           </div>
           <div class="min-w-0">

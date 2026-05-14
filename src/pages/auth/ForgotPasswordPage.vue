@@ -51,7 +51,7 @@ async function handleSubmit() {
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
       >
         ← Voltar ao login
       </RouterLink>
@@ -83,7 +83,7 @@ async function handleSubmit() {
             placeholder="voce@exemplo.com"
             autocomplete="email"
             :disabled="loading"
-            :class="['h-10 transition-colors', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+            :class="['h-10 transition-base', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
             @input="errors.email = undefined"
           />
           <p v-if="errors.email" class="text-[11px] text-destructive/80">{{ errors.email }}</p>
@@ -97,7 +97,7 @@ async function handleSubmit() {
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
       >
         ← Voltar ao login
       </RouterLink>

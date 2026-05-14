@@ -243,7 +243,7 @@ onUnmounted(() => {
         <div class="flex items-start gap-3">
           <!-- Mobile panel trigger -->
           <button
-            class="md:hidden mt-1 shrink-0 transition-colors"
+            class="md:hidden mt-1 shrink-0 transition-base"
             style="color: hsl(var(--muted-foreground) / 0.5)"
             @click="mobileLeftOpen = true"
           >

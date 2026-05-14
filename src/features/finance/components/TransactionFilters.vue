@@ -61,7 +61,7 @@ function toggleType(t: TransactionType) {
             v-for="t in transactionTypes"
             :key="t"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-colors',
+              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
               filterState.type.value === t
                 ? [TYPE_STYLE[t].bg, TYPE_STYLE[t].text, 'border-transparent']
                 : 'border-border text-muted-foreground hover:border-foreground/30',

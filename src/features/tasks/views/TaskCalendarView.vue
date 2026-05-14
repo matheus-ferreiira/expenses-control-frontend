@@ -143,7 +143,7 @@ function isOverdue(task: Task): boolean {
     <!-- Calendar header -->
     <div class="flex items-center justify-between px-1">
       <button
-        class="flex items-center justify-center h-7 w-7 rounded-md transition-colors"
+        class="flex items-center justify-center h-7 w-7 rounded-md transition-base"
         style="color: hsl(var(--muted-foreground) / 0.5)"
         @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
         @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.5)'"
@@ -157,7 +157,7 @@ function isOverdue(task: Task): boolean {
       </span>
 
       <button
-        class="flex items-center justify-center h-7 w-7 rounded-md transition-colors"
+        class="flex items-center justify-center h-7 w-7 rounded-md transition-base"
         style="color: hsl(var(--muted-foreground) / 0.5)"
         @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
         @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.5)'"
@@ -187,7 +187,7 @@ function isOverdue(task: Task): boolean {
           v-for="(day, idx) in calendarDays"
           :key="day.dateStr"
           :class="[
-            'min-h-[80px] p-1.5 border-border/25 cursor-pointer transition-colors',
+            'min-h-[80px] p-1.5 border-border/25 cursor-pointer transition-base',
             idx % 7 !== 6 ? 'border-r' : '',
             Math.floor(idx / 7) < Math.floor((calendarDays.length - 1) / 7) ? 'border-b' : '',
             !day.isCurrentMonth ? 'opacity-30 cursor-default' : 'hover:bg-accent/10',

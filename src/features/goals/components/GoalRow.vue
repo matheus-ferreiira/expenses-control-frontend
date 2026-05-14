@@ -45,7 +45,7 @@ const pctTextStyle = computed(() => {
 </script>
 
 <template>
-  <div class="group flex items-start gap-3 px-4 py-3 hover:bg-accent/20 transition-colors">
+  <div class="group flex items-start gap-3 px-4 py-3 hover:bg-accent/20 transition-base">
 
     <!-- Left: title + meta + progress bar -->
     <div class="flex-1 min-w-0">

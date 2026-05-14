@@ -215,7 +215,7 @@ async function focusContent() {
                   @keydown.stop
                 />
                 <button
-                  class="flex items-center justify-center w-5 h-5 rounded transition-colors"
+                  class="flex items-center justify-center w-5 h-5 rounded transition-base"
                   :style="newTagName.trim() ? 'color: hsl(var(--primary))' : 'color: hsl(var(--muted-foreground) / 0.3)'"
                   :disabled="!newTagName.trim() || creatingTag"
                   @click.stop="createAndApplyTag"

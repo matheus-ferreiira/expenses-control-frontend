@@ -53,7 +53,7 @@ const weekDots = computed(() => {
         <span class="text-sm font-medium text-foreground">Consistência Semanal</span>
       </div>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.HABITS })"
       >
         Ver <ArrowRight :size="10" />
@@ -102,7 +102,7 @@ const weekDots = computed(() => {
           </span>
           <div
             :class="[
-              'h-5 w-5 rounded-full flex items-center justify-center transition-colors',
+              'h-5 w-5 rounded-full flex items-center justify-center transition-base',
               dot.isFuture
                 ? 'bg-transparent border border-border/30'
                 : dot.logged

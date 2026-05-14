@@ -58,7 +58,7 @@ function onKeydown(e: KeyboardEvent) {
   <!-- Trigger row -->
   <div
     v-if="!editing"
-    class="flex items-center gap-2 px-4 py-2 cursor-pointer transition-colors"
+    class="flex items-center gap-2 px-4 py-2 cursor-pointer transition-base"
     style="color: hsl(var(--muted-foreground) / 0.35)"
     @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.65)'"
     @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.35)'"

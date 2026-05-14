@@ -137,7 +137,7 @@ const weekdays = [0, 1, 2, 3, 4, 5, 6] as const
               :key="day"
               type="button"
               :class="[
-                'flex-1 h-8 text-xs font-medium rounded-md border transition-colors',
+                'flex-1 h-8 text-xs font-medium rounded-md border transition-base',
                 form.target_days.includes(day)
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'border-border text-muted-foreground hover:border-foreground/30',

@@ -204,7 +204,7 @@ onMounted(async () => {
             </p>
             <RouterLink
               :to="{ name: 'finance-accounts' }"
-              class="text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+              class="text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-base"
             >
               Ver todas
             </RouterLink>
@@ -248,7 +248,7 @@ onMounted(async () => {
             </p>
             <RouterLink
               :to="{ name: 'finance-cards' }"
-              class="text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+              class="text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-base"
             >
               Ver todos
             </RouterLink>

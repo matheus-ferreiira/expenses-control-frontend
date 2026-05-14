@@ -16,7 +16,7 @@ const dots = computed(() => getWeeklyDots(props.habit))
       v-for="dot in dots"
       :key="dot.date"
       :class="[
-        'h-[7px] w-[7px] rounded-full transition-colors',
+        'h-[7px] w-[7px] rounded-full transition-base',
         dot.isFuture
           ? 'bg-border/20'
           : dot.isLogged

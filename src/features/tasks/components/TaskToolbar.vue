@@ -76,7 +76,7 @@ const sortOptions: SortOption[] = [
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <button
-          class="flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-colors"
+          class="flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-base"
           style="border-color: hsl(var(--border) / 0.5); color: hsl(var(--muted-foreground) / 0.6)"
           @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
           @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.6)'"
@@ -113,7 +113,7 @@ const sortOptions: SortOption[] = [
           { mode: 'calendar' as ViewMode, icon: CalendarDays },
         ]"
         :key="view.mode"
-        class="flex items-center justify-center h-8 w-8 transition-colors"
+        class="flex items-center justify-center h-8 w-8 transition-base"
         :class="i > 0 ? 'border-l' : ''"
         :style="[
           i > 0 ? 'border-color: hsl(var(--border) / 0.5);' : '',

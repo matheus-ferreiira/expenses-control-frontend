@@ -126,7 +126,7 @@ function handleKeydown(e: KeyboardEvent) {
             <div
               v-for="item in items"
               :key="item.id"
-              class="flex items-center gap-3 px-3 py-2.5 bg-card hover:bg-accent/30 transition-colors"
+              class="flex items-center gap-3 px-3 py-2.5 bg-card hover:bg-accent/30 transition-base"
             >
               <Checkbox
                 :id="`item-${item.id}`"
@@ -141,7 +141,7 @@ function handleKeydown(e: KeyboardEvent) {
                 {{ item.name }}
               </label>
               <button
-                class="text-muted-foreground hover:text-destructive transition-colors p-1"
+                class="text-muted-foreground hover:text-destructive transition-base p-1"
                 @click="remove(item.id)"
               >
                 <Trash2 :size="14" />
@@ -160,7 +160,7 @@ function handleKeydown(e: KeyboardEvent) {
           <div
             v-for="item in boughtItems"
             :key="item.id"
-            class="flex items-center gap-3 px-3 py-2.5 bg-card hover:bg-accent/30 transition-colors"
+            class="flex items-center gap-3 px-3 py-2.5 bg-card hover:bg-accent/30 transition-base"
           >
             <Checkbox
               :id="`item-${item.id}`"
@@ -175,7 +175,7 @@ function handleKeydown(e: KeyboardEvent) {
               <span v-if="item.category" class="ml-1 text-xs opacity-60">· {{ item.category }}</span>
             </label>
             <button
-              class="text-muted-foreground hover:text-destructive transition-colors p-1"
+              class="text-muted-foreground hover:text-destructive transition-base p-1"
               @click="remove(item.id)"
             >
               <Trash2 :size="14" />

@@ -47,7 +47,7 @@ async function handleLogin() {
     <div class="grid grid-cols-2 gap-2.5">
       <button
         type="button"
-        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-base hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         disabled
       >
         <!-- Google icon -->
@@ -61,7 +61,7 @@ async function handleLogin() {
       </button>
       <button
         type="button"
-        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-base hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         disabled
       >
         <!-- Apple icon -->
@@ -94,7 +94,7 @@ async function handleLogin() {
           placeholder="voce@exemplo.com"
           autocomplete="email"
           :disabled="auth.loading"
-          :class="['h-10 transition-colors', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+          :class="['h-10 transition-base', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
           @input="errors.email = undefined"
         />
         <p v-if="errors.email" class="text-[11px] text-destructive/80">{{ errors.email }}</p>
@@ -108,7 +108,7 @@ async function handleLogin() {
           </label>
           <RouterLink
             :to="{ name: ROUTES.FORGOT_PASSWORD }"
-            class="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+            class="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
           >
             Esqueceu a senha?
           </RouterLink>
@@ -128,7 +128,7 @@ async function handleLogin() {
       <label class="flex cursor-pointer items-center gap-2.5 select-none">
         <input type="checkbox" v-model="rememberMe" class="sr-only" />
         <div
-          class="relative flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors"
+          class="relative flex h-4 w-4 shrink-0 items-center justify-center rounded transition-base"
           :style="rememberMe ? { background: 'hsl(var(--primary))', border: '1px solid hsl(var(--primary))' } : { border: '1px solid hsl(var(--border))' }"
         >
           <svg v-if="rememberMe" width="9" height="9" viewBox="0 0 12 12" fill="none">
@@ -162,7 +162,7 @@ async function handleLogin() {
       Não tem conta?
       <RouterLink
         :to="{ name: ROUTES.REGISTER }"
-        class="font-medium text-foreground/70 hover:text-foreground transition-colors underline underline-offset-4 decoration-border/60"
+        class="font-medium text-foreground/70 hover:text-foreground transition-base underline underline-offset-4 decoration-border/60"
       >
         Criar conta
       </RouterLink>

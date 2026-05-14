@@ -61,7 +61,7 @@ function select(id: NoteViewId) {
         <button
           v-for="view in views"
           :key="view.id"
-          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-colors"
+          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-base"
           :style="
             isActive(view.id)
               ? 'background: hsl(var(--sidebar-accent)); color: hsl(var(--foreground))'
@@ -109,7 +109,7 @@ function select(id: NoteViewId) {
         <button
           v-for="tag in tags"
           :key="tag.id"
-          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-colors"
+          class="flex items-center gap-2 w-full px-2.5 py-[5px] rounded-md mb-px text-left text-[12.5px] transition-base"
           :style="
             isActive(`tag:${tag.id}`)
               ? 'background: hsl(var(--sidebar-accent)); color: hsl(var(--foreground))'

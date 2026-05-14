@@ -116,7 +116,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
         <span class="text-[14px] font-bold text-foreground select-none">V</span>
       </div>
       <button
-        class="shrink-0 p-1 rounded transition-colors"
+        class="shrink-0 p-1 rounded transition-base"
         style="color: hsl(var(--muted-foreground) / 0.3)"
         :class="open ? 'ml-1' : 'hidden'"
         @click="emit('toggle')"
@@ -132,7 +132,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       <!-- expanded -->
       <template v-if="open">
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md text-left transition-colors"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md text-left transition-base"
           style="color: hsl(var(--muted-foreground) / 0.5)"
           @click="emit('search')"
           @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.8)'"
@@ -145,7 +145,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
           </kbd>
         </button>
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md text-left transition-colors"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md text-left transition-base"
           style="color: hsl(var(--muted-foreground) / 0.5)"
           @click="emit('quickAdd')"
           @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.8)'"
@@ -159,7 +159,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       <!-- collapsed -->
       <template v-else>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-colors"
+          class="flex justify-center w-full p-2 rounded-md transition-base"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           @click="emit('search')"
           @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.7)'"
@@ -168,7 +168,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
           <Search :size="14" />
         </button>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-colors"
+          class="flex justify-center w-full p-2 rounded-md transition-base"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           @click="emit('quickAdd')"
           @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.7)'"
@@ -203,7 +203,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
             v-for="item in section.items"
             :key="item.route"
             :to="{ name: item.route }"
-            class="group flex items-center gap-2.5 px-2.5 py-[6px] rounded-md mb-px transition-colors"
+            class="group flex items-center gap-2.5 px-2.5 py-[6px] rounded-md mb-px transition-base"
             :class="[
               open ? 'text-[13px]' : 'justify-center',
               isActive(item.route)
@@ -260,7 +260,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       <!-- Theme toggle -->
       <button
         v-if="open"
-        class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors"
+        class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-base"
         style="color: hsl(var(--muted-foreground) / 0.4)"
         @click="ui.toggleTheme()"
         @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.7)'"
@@ -277,7 +277,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       <!-- Expand button (collapsed mode) -->
       <button
         v-if="!open"
-        class="flex justify-center w-full p-2 rounded-md mb-1 transition-colors"
+        class="flex justify-center w-full p-2 rounded-md mb-1 transition-base"
         style="color: hsl(var(--muted-foreground) / 0.3)"
         @click="emit('toggle')"
         @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.6)'"

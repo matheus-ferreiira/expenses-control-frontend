@@ -54,7 +54,7 @@ function onAdd(evt: { item: HTMLElement }) {
         </span>
       </div>
       <button
-        class="flex items-center justify-center h-5 w-5 rounded transition-colors"
+        class="flex items-center justify-center h-5 w-5 rounded transition-base"
         style="color: hsl(var(--muted-foreground) / 0.35)"
         @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
         @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.35)'"
@@ -73,7 +73,7 @@ function onAdd(evt: { item: HTMLElement }) {
       drag-class="shadow-xl ring-1 ring-primary/30"
       handle=".drag-handle"
       :data-status="column.status"
-      class="flex flex-col gap-1.5 min-h-[100px] max-h-[calc(100vh-200px)] overflow-y-auto rounded-lg p-2 border border-border/40 transition-colors"
+      class="flex flex-col gap-1.5 min-h-[100px] max-h-[calc(100vh-200px)] overflow-y-auto rounded-lg p-2 border border-border/40 transition-base"
       @update="onUpdate"
       @add="onAdd"
     >

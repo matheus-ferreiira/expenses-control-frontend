@@ -71,7 +71,7 @@ async function handleRegister() {
     <div class="grid grid-cols-2 gap-2.5">
       <button
         type="button"
-        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-base hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         disabled
       >
         <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
@@ -84,7 +84,7 @@ async function handleRegister() {
       </button>
       <button
         type="button"
-        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-base hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         disabled
       >
         <svg width="14" height="14" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true" class="text-foreground/80">
@@ -116,7 +116,7 @@ async function handleRegister() {
           placeholder="Seu nome"
           autocomplete="name"
           :disabled="auth.loading"
-          :class="['h-10 transition-colors', errors.name ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+          :class="['h-10 transition-base', errors.name ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
           @input="errors.name = undefined"
         />
         <p v-if="errors.name" class="text-[11px] text-destructive/80">{{ errors.name }}</p>
@@ -134,7 +134,7 @@ async function handleRegister() {
           placeholder="voce@exemplo.com"
           autocomplete="email"
           :disabled="auth.loading"
-          :class="['h-10 transition-colors', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+          :class="['h-10 transition-base', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
           @input="errors.email = undefined"
         />
         <p v-if="errors.email" class="text-[11px] text-destructive/80">{{ errors.email }}</p>
@@ -210,7 +210,7 @@ async function handleRegister() {
       Já tem conta?
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="font-medium text-foreground/70 hover:text-foreground transition-colors underline underline-offset-4 decoration-border/60"
+        class="font-medium text-foreground/70 hover:text-foreground transition-base underline underline-offset-4 decoration-border/60"
       >
         Entrar
       </RouterLink>

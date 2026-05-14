@@ -136,7 +136,7 @@ async function handleSubmit() {
 
     <RouterLink
       :to="{ name: ROUTES.LOGIN }"
-      class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
     >
       ← Voltar ao login
     </RouterLink>

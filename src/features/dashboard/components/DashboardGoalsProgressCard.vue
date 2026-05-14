@@ -38,7 +38,7 @@ function pctColor(goal: Goal) {
         <span class="text-sm font-medium text-foreground">Metas em Progresso</span>
       </div>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.GOALS })"
       >
         Ver tudo <ArrowRight :size="10" />
@@ -66,7 +66,7 @@ function pctColor(goal: Goal) {
       <div
         v-for="goal in shown"
         :key="goal.id"
-        class="px-4 py-2.5 hover:bg-accent/20 transition-colors"
+        class="px-4 py-2.5 hover:bg-accent/20 transition-base"
       >
         <div class="flex items-center justify-between mb-1.5">
           <p class="text-[13px] text-foreground/90 truncate flex-1 mr-2">{{ goal.title }}</p>
@@ -87,7 +87,7 @@ function pctColor(goal: Goal) {
 
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+          class="text-xs text-muted-foreground/60 hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.GOALS })"
         >
           + {{ goals.length - MAX_SHOWN }} mais

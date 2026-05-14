@@ -170,7 +170,7 @@ function toggleLabel(id: string) {
               v-for="label in labels"
               :key="label.id"
               :class="[
-                'inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-colors',
+                'inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-base',
                 form.label_ids.includes(label.id)
                   ? 'border-primary bg-primary/10 text-primary'
                   : 'border-border text-muted-foreground hover:border-foreground/30',

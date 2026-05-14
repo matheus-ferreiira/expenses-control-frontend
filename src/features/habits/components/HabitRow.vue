@@ -44,7 +44,7 @@ async function handleLog() {
 
 <template>
   <div
-    class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-colors cursor-pointer"
+    class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base cursor-pointer"
     @click="emit('open', habit)"
   >
     <!-- Color dot -->

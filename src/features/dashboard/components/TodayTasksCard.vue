@@ -68,7 +68,7 @@ function timeLabel(task: Task): string {
         </span>
       </div>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.TASKS })"
       >
         Ver todas <ArrowRight :size="10" />
@@ -101,7 +101,7 @@ function timeLabel(task: Task): string {
       <div
         v-for="task in shown"
         :key="task.id"
-        class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-colors"
+        class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
       >
         <!-- Toggle circle -->
         <button
@@ -161,7 +161,7 @@ function timeLabel(task: Task): string {
       <!-- More row -->
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+          class="text-xs text-muted-foreground/60 hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.TASKS })"
         >
           + {{ tasks.length - MAX_SHOWN }} mais

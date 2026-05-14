@@ -47,7 +47,7 @@ function dueLabelClass(days: number): string {
       <div
         v-for="bill in bills"
         :key="bill.id"
-        class="flex items-center justify-between px-4 py-2.5 hover:bg-accent/20 transition-colors"
+        class="flex items-center justify-between px-4 py-2.5 hover:bg-accent/20 transition-base"
       >
         <div>
           <p class="text-[13px] text-foreground leading-none mb-0.5 truncate">{{ bill.name }}</p>

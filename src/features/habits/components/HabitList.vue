@@ -74,7 +74,7 @@ function handleLog(id: string) {
     <div
       v-for="habit in habits"
       :key="habit.id"
-      class="group flex items-center gap-3 px-4 py-3 border-b border-border/50 last:border-0 hover:bg-accent/40 transition-colors cursor-pointer"
+      class="group flex items-center gap-3 px-4 py-3 border-b border-border/50 last:border-0 hover:bg-accent/40 transition-base cursor-pointer"
       @click="emit('open', habit)"
     >
       <!-- Color dot -->

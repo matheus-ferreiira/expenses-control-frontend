@@ -57,7 +57,7 @@ const statusIndicatorStyle = computed(() => {
 <template>
   <div
     :class="[
-      'group flex items-center gap-2.5 px-4 py-2 hover:bg-accent/20 transition-colors cursor-pointer border-b border-border/30 last:border-0',
+      'group flex items-center gap-2.5 px-4 py-2 hover:bg-accent/20 transition-base cursor-pointer border-b border-border/30 last:border-0',
       (isCompleted || isCancelled) && 'opacity-50',
     ]"
     @click="emit('open', task)"

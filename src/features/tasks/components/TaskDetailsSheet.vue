@@ -124,7 +124,7 @@ async function handleSubtaskDelete(subtaskId: string) {
           <div class="flex items-start gap-2">
             <!-- Completion toggle -->
             <button
-              class="mt-1 shrink-0 text-muted-foreground hover:text-primary transition-colors"
+              class="mt-1 shrink-0 text-muted-foreground hover:text-primary transition-base"
               @click="handleToggle"
             >
               <CheckCircle2

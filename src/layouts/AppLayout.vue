@@ -63,7 +63,7 @@ function openQuickAdd() {
         style="border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.95)"
       >
         <button
-          class="p-1.5 rounded-md transition-colors"
+          class="p-1.5 rounded-md transition-base"
           style="color: hsl(var(--muted-foreground) / 0.6)"
           @click="mobileMenuOpen = true"
         >

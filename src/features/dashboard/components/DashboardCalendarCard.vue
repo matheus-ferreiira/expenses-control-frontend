@@ -44,7 +44,7 @@ function eventEndTime(event: CalendarEvent): string {
         <span class="text-sm font-medium text-foreground">Agenda de hoje</span>
       </div>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.CALENDAR })"
       >
         Ver <ArrowRight :size="10" />
@@ -71,7 +71,7 @@ function eventEndTime(event: CalendarEvent): string {
       <div
         v-for="event in events"
         :key="event.id"
-        class="flex items-start gap-3 px-4 py-2.5 hover:bg-accent/20 transition-colors"
+        class="flex items-start gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
       >
         <!-- Time column -->
         <div class="shrink-0 w-[72px] text-right">
