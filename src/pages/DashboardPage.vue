@@ -8,14 +8,19 @@ import DashboardCashflowCard from '@/features/dashboard/components/DashboardCash
 import DashboardTransactionsCard from '@/features/dashboard/components/DashboardTransactionsCard.vue'
 import DashboardCalendarCard from '@/features/dashboard/components/DashboardCalendarCard.vue'
 import DashboardBillsCard from '@/features/dashboard/components/DashboardBillsCard.vue'
+import DashboardConsistencyCard from '@/features/dashboard/components/DashboardConsistencyCard.vue'
+import DashboardGoalsProgressCard from '@/features/dashboard/components/DashboardGoalsProgressCard.vue'
 import { useDashboard } from '@/features/dashboard/composables/useDashboard'
 import { useUiStore } from '@/stores/ui'
 import { useToast } from '@/composables/useToast'
+import { useGoalStore } from '@/stores/goals'
 import { formatDate } from '@/utils/date'
 
 const dashboard = useDashboard()
 const ui = useUiStore()
 const toast = useToast()
+const goalStore = useGoalStore()
+const activeGoals = computed(() => goalStore.goals.filter((g) => g.status === 'active'))
 
 const todayRaw = formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })
 const today = todayRaw.charAt(0).toUpperCase() + todayRaw.slice(1)
@@ -41,6 +46,7 @@ async function handleLogHabit(id: string) {
 
 onMounted(() => {
   dashboard.load()
+  goalStore.fetchGoals()
 })
 </script>
 
@@ -84,6 +90,15 @@ onMounted(() => {
               <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             Transação
+          </button>
+          <button
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
+            @click="ui.quickAddOpen = true"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Evento
           </button>
         </div>
       </div>
@@ -137,6 +152,16 @@ onMounted(() => {
           :habits="dashboard.activeHabits.value"
           :loading="dashboard.loading.value"
           @log="handleLogHabit"
+        />
+
+        <DashboardConsistencyCard
+          :habits="dashboard.activeHabits.value"
+          :loading="dashboard.loading.value"
+        />
+
+        <DashboardGoalsProgressCard
+          :goals="activeGoals"
+          :loading="dashboard.loading.value"
         />
 
         <DashboardBillsCard
