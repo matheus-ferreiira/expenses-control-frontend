@@ -21,7 +21,7 @@ async function handleLogin() {
   if (!validate()) return
   auth.error = null
   try {
-    await auth.login({ email: form.email, password: form.password })
+    await auth.login({ email: form.email, password: form.password, remember: rememberMe.value })
     const redirect = route.query.redirect as string | undefined
     router.push(redirect && redirect.startsWith('/') ? redirect : { name: ROUTES.DASHBOARD })
   } catch {
