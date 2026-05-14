@@ -45,9 +45,15 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   async function createTask(payload: CreateTaskPayload): Promise<Task> {
-    const task = await tasksApi.create(payload)
-    tasks.value.unshift(task)
-    return task
+    try {
+      const task = await tasksApi.create(payload)
+      tasks.value.unshift(task)
+      total.value++
+      return task
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar tarefa'
+      throw e
+    }
   }
 
   async function updateTask(id: string, payload: UpdateTaskPayload): Promise<Task> {
@@ -58,8 +64,14 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   async function deleteTask(id: string) {
-    await tasksApi.delete(id)
-    tasks.value = tasks.value.filter((t) => t.id !== id)
+    try {
+      await tasksApi.delete(id)
+      tasks.value = tasks.value.filter((t) => t.id !== id)
+      total.value--
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir tarefa'
+      throw e
+    }
   }
 
   async function fetchLabels() {
