@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { AppPageContainer, PageHeader } from '@/components/shared'
+import { Plus } from 'lucide-vue-next'
+import { Button } from '@ui/button'
 import HabitToolbar from '@/features/habits/components/HabitToolbar.vue'
-import HabitGridView from '@/features/habits/views/HabitGridView.vue'
+import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
 import HabitListView from '@/features/habits/views/HabitListView.vue'
+import HabitGridView from '@/features/habits/views/HabitGridView.vue'
 import HabitFormDialog from '@/features/habits/components/HabitFormDialog.vue'
 import HabitDetailsSheet from '@/features/habits/components/HabitDetailsSheet.vue'
 import { useHabitStore } from '@/stores/habits'
 import { useHabitFilters } from '@/features/habits/composables/useHabitFilters'
 import { useDebounce } from '@/composables/useDebounce'
+import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import type { Habit } from '@/types/habits'
 import type { ViewMode } from '@/features/habits/types'
 import { useToast } from '@/composables/useToast'
@@ -20,7 +23,7 @@ const toast = useToast()
 // View mode — persisted
 const VIEW_MODE_KEY = 'habits:viewMode'
 const viewMode = ref<ViewMode>(
-  (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) ?? 'grid',
+  (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) ?? 'list',
 )
 watch(viewMode, (v) => localStorage.setItem(VIEW_MODE_KEY, v))
 
@@ -33,21 +36,41 @@ const selectedHabit = ref<Habit | null>(null)
 // Debounced search
 const debouncedSearch = useDebounce(filterState.search, 300)
 
+// Active habits (not archived, not cancelled)
+const activeHabits = computed(() => store.habits.filter((h) => h.is_active))
+
+// Stats computed from store
+const longestStreak = computed(() =>
+  activeHabits.value.reduce((max, h) => Math.max(max, h.current_streak), 0),
+)
+
+const completedTodayCount = computed(() =>
+  activeHabits.value.filter((h) => isCompletedToday(h)).length,
+)
+
+const weeklyConsistency = computed(() => {
+  if (!activeHabits.value.length) return 0
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+  const weekStartStr = sevenDaysAgo.toLocaleDateString('en-CA')
+  const withRecentLogs = activeHabits.value.filter((h) =>
+    h.logs.some((l) => l.completed_date >= weekStartStr),
+  )
+  return Math.round((withRecentLogs.length / activeHabits.value.length) * 100)
+})
+
 // Filtered habits
 const filteredHabits = computed(() => {
   let list = store.habits
 
-  // Active filter
   if (!filterState.showArchived.value) {
     list = list.filter((h) => h.is_active)
   }
 
-  // Frequency filter
   if (filterState.frequency.value) {
     list = list.filter((h) => h.frequency === filterState.frequency.value)
   }
 
-  // Search
   if (debouncedSearch.value.trim()) {
     const q = debouncedSearch.value.trim().toLowerCase()
     list = list.filter(
@@ -105,7 +128,6 @@ async function handleArchive(id: string) {
   }
 }
 
-// Keep selectedHabit in sync with store
 watch(
   () => store.habits,
   (habits) => {
@@ -117,7 +139,6 @@ watch(
   { deep: true },
 )
 
-// Keyboard shortcut: N → create new habit
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey) {
     const active = document.activeElement as HTMLElement
@@ -137,22 +158,41 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <AppPageContainer>
+  <div class="flex flex-col min-h-full">
+
     <!-- Header -->
-    <PageHeader
-      category="PRODUTIVIDADE"
-      title="Hábitos"
-      subtitle="Construa consistência diária com acompanhamento visual e streaks."
-    >
-      <template #actions>
-        <span class="text-xs text-muted-foreground hidden sm:inline">
-          {{ store.habits.filter(h => h.is_active).length }} ativo{{ store.habits.filter(h => h.is_active).length !== 1 ? 's' : '' }}
-        </span>
-      </template>
-    </PageHeader>
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
+      <div>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+          Produtividade
+        </p>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+          Hábitos
+        </h1>
+        <p class="text-[13px] text-muted-foreground/50">
+          {{ activeHabits.length }} hábito{{ activeHabits.length !== 1 ? 's' : '' }} ativo{{ activeHabits.length !== 1 ? 's' : '' }}
+        </p>
+      </div>
+      <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
+        <Plus :size="12" class="mr-1.5" />
+        Novo hábito
+      </Button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="px-4 sm:px-6 pb-5 shrink-0">
+      <HabitStatsRow
+        :active-count="activeHabits.length"
+        :longest-streak="longestStreak"
+        :weekly-consistency="weeklyConsistency"
+        :completed-today="completedTodayCount"
+        :total-active="activeHabits.length"
+        :loading="store.loading"
+      />
+    </div>
 
     <!-- Toolbar -->
-    <div class="mb-4">
+    <div class="px-4 sm:px-6 pb-4 shrink-0">
       <HabitToolbar
         :filter-state="filterState"
         :search="filterState.search.value"
@@ -163,32 +203,34 @@ onUnmounted(() => {
       />
     </div>
 
-    <!-- Grid view -->
-    <HabitGridView
-      v-if="viewMode === 'grid'"
-      :habits="filteredHabits"
-      :loading="store.loading"
-      @log="handleLog"
-      @edit="openEdit"
-      @delete="handleDelete"
-      @archive="handleArchive"
-      @open="openDetail"
-      @create="openCreate()"
-    />
+    <!-- Views -->
+    <div class="flex-1 px-4 sm:px-6 pb-6">
+      <HabitGridView
+        v-if="viewMode === 'grid'"
+        :habits="filteredHabits"
+        :loading="store.loading"
+        @log="handleLog"
+        @edit="openEdit"
+        @delete="handleDelete"
+        @archive="handleArchive"
+        @open="openDetail"
+        @create="openCreate()"
+      />
 
-    <!-- List view -->
-    <HabitListView
-      v-else
-      :habits="filteredHabits"
-      :loading="store.loading"
-      @log="handleLog"
-      @edit="openEdit"
-      @delete="handleDelete"
-      @archive="handleArchive"
-      @open="openDetail"
-      @create="openCreate()"
-    />
-  </AppPageContainer>
+      <HabitListView
+        v-else
+        :habits="filteredHabits"
+        :loading="store.loading"
+        @log="handleLog"
+        @edit="openEdit"
+        @delete="handleDelete"
+        @archive="handleArchive"
+        @open="openDetail"
+        @create="openCreate()"
+      />
+    </div>
+
+  </div>
 
   <!-- Form dialog -->
   <HabitFormDialog
