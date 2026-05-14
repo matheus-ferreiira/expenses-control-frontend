@@ -6,6 +6,7 @@ import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid
 import { useCalendarStore } from '@/stores/calendar'
 import CalendarMonthHeader from '@/features/calendar/components/CalendarMonthHeader.vue'
 import CalendarMonthGrid from '@/features/calendar/components/CalendarMonthGrid.vue'
+import CalendarWeekGrid from '@/features/calendar/components/CalendarWeekGrid.vue'
 import CalendarAgendaView from '@/features/calendar/components/CalendarAgendaView.vue'
 import CalendarEventModal from '@/features/calendar/components/CalendarEventModal.vue'
 import type { CalendarDay, CalendarEvent } from '@/types/calendar'
@@ -14,8 +15,14 @@ const store = useCalendarStore()
 const nav = useCalendarNav()
 const modal = ref<InstanceType<typeof CalendarEventModal> | null>(null)
 
-const isCurrentMonth = computed(() => {
+const isCurrentPeriod = computed(() => {
   const now = new Date()
+  if (nav.viewMode.value === 'week') {
+    const weekStart = nav.currentWeekStart.value
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekEnd.getDate() + 6)
+    return now >= weekStart && now <= weekEnd
+  }
   return (
     nav.currentYear.value === now.getFullYear() &&
     nav.currentMonth.value === now.getMonth()
@@ -24,12 +31,18 @@ const isCurrentMonth = computed(() => {
 
 const { weeks } = useCalendarGrid(nav.currentYear, nav.currentMonth, computed(() => store.events))
 
-async function loadCurrentMonth() {
+async function loadCurrentPeriod() {
   await store.fetchForMonth(nav.currentYear.value, nav.currentMonth.value)
+  if (nav.viewMode.value === 'week') {
+    const weekEnd = nav.weekDays.value[6]
+    if (weekEnd && weekEnd.getMonth() !== nav.currentMonth.value) {
+      await store.fetchForMonth(weekEnd.getFullYear(), weekEnd.getMonth())
+    }
+  }
 }
 
-onMounted(loadCurrentMonth)
-watch([nav.currentYear, nav.currentMonth], loadCurrentMonth)
+onMounted(loadCurrentPeriod)
+watch([nav.currentYear, nav.currentMonth, nav.viewMode], loadCurrentPeriod)
 
 function handleClickDay(day: CalendarDay) {
   modal.value?.openCreate(day.date)
@@ -39,6 +52,12 @@ function handleClickEvent(event: CalendarEvent) {
   modal.value?.openEdit(event)
 }
 
+function handleClickSlot(date: Date, hour: number) {
+  const d = new Date(date)
+  d.setHours(hour, 0, 0, 0)
+  modal.value?.openCreate(d)
+}
+
 function onKeyDown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement).tagName
   if (tag === 'INPUT' || tag === 'TEXTAREA') return
@@ -46,11 +65,8 @@ function onKeyDown(e: KeyboardEvent) {
     modal.value?.openCreate()
     return
   }
-  // Arrow key navigation (month view only)
-  if (nav.viewMode.value === 'month') {
-    if (e.key === 'ArrowLeft') nav.prevMonth()
-    if (e.key === 'ArrowRight') nav.nextMonth()
-  }
+  if (e.key === 'ArrowLeft') nav.prev()
+  if (e.key === 'ArrowRight') nav.next()
 }
 
 onMounted(() => window.addEventListener('keydown', onKeyDown))
@@ -88,13 +104,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       </div>
     </div>
 
-    <!-- Month navigation header -->
+    <!-- Navigation header -->
     <CalendarMonthHeader
-      :month-label="nav.monthLabel.value"
+      :month-label="nav.headerLabel.value"
       :view-mode="nav.viewMode.value"
-      :is-current-month="isCurrentMonth"
-      @prev="nav.prevMonth()"
-      @next="nav.nextMonth()"
+      :is-current-month="isCurrentPeriod"
+      @prev="nav.prev()"
+      @next="nav.next()"
       @today="nav.goToday()"
       @update:view-mode="nav.setView($event)"
     />
@@ -106,6 +122,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       :loading="store.loading"
       @click-day="handleClickDay"
       @click-event="handleClickEvent"
+    />
+
+    <!-- Week grid -->
+    <CalendarWeekGrid
+      v-else-if="nav.viewMode.value === 'week'"
+      :week-days="nav.weekDays.value"
+      :events="store.events"
+      :loading="store.loading"
+      @click-event="handleClickEvent"
+      @click-slot="handleClickSlot"
     />
 
     <!-- Agenda list -->

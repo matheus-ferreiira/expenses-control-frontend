@@ -50,6 +50,28 @@ export function addMonths(date: Date, months: number): Date {
   return d
 }
 
+export function addDays(date: Date, days: number): Date {
+  const d = new Date(date)
+  d.setDate(d.getDate() + days)
+  return d
+}
+
+export function formatWeekRange(start: Date, end: Date, locale = 'pt-BR'): string {
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()
+  const sameYear = start.getFullYear() === end.getFullYear()
+  const startFmt = start.toLocaleDateString(locale, {
+    day: '2-digit',
+    month: sameMonth ? undefined : 'short',
+    year: sameYear ? undefined : 'numeric',
+  })
+  const endFmt = end.toLocaleDateString(locale, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+  return `${startFmt} – ${endFmt}`
+}
+
 export function formatMonthYear(date: Date, locale = 'pt-BR'): string {
   const s = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
   return s.charAt(0).toUpperCase() + s.slice(1)

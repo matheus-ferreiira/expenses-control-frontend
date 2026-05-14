@@ -6,6 +6,7 @@ defineProps<{
   monthLabel: string
   viewMode: ViewMode
   isCurrentMonth: boolean
+  isCurrent?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +18,7 @@ const emit = defineEmits<{
 
 const VIEWS: { id: ViewMode; label: string }[] = [
   { id: 'month', label: 'Mês' },
+  { id: 'week', label: 'Semana' },
   { id: 'agenda', label: 'Agenda' },
 ]
 </script>
