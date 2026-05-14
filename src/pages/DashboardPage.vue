@@ -60,7 +60,7 @@ onMounted(() => {
       >
         Hoje
       </p>
-      <div class="flex items-start justify-between gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
         <div class="min-w-0">
           <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">
             {{ today }}
@@ -72,7 +72,7 @@ onMounted(() => {
         </div>
 
         <!-- Quick actions -->
-        <div class="flex items-center gap-1.5 shrink-0 mt-0.5">
+        <div class="flex items-center gap-1.5 shrink-0 sm:mt-0.5">
           <button
             class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
             @click="ui.quickAddOpen = true"
