@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, PanelLeft } from 'lucide-vue-next'
 import { Button } from '@ui/button'
+import { Sheet, SheetContent } from '@ui/sheet'
 import TasksLeftPanel from '@/features/tasks/components/TasksLeftPanel.vue'
 import TaskToolbar from '@/features/tasks/components/TaskToolbar.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
@@ -18,6 +19,7 @@ import type { ViewMode, TaskViewId } from '@/features/tasks/types'
 import type { SortField, SortDirection } from '@/features/tasks/utils/taskHelpers'
 
 const store = useTaskStore()
+const mobileLeftOpen = ref(false)
 const filterState = useTaskFilters()
 
 // View mode (list/kanban/calendar) — persisted
@@ -222,21 +224,42 @@ onUnmounted(() => {
       />
     </div>
 
+    <!-- Mobile left panel Sheet -->
+    <Sheet v-model:open="mobileLeftOpen">
+      <SheetContent side="left" class="p-0 w-[200px]">
+        <TasksLeftPanel
+          v-model:selected-view="selectedView"
+          :labels="store.labels"
+          @update:selected-view="mobileLeftOpen = false"
+        />
+      </SheetContent>
+    </Sheet>
+
     <!-- Right content area -->
     <div class="flex flex-col flex-1 min-w-0">
 
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:items-start justify-between px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
-        <div>
-          <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
-            Produtividade
-          </p>
-          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
-            {{ viewTitle }}
-          </h1>
-          <p class="text-[13px] text-muted-foreground/50">
-            {{ displayTasks.length }} tarefa{{ displayTasks.length !== 1 ? 's' : '' }}
-          </p>
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
+        <div class="flex items-start gap-3">
+          <!-- Mobile panel trigger -->
+          <button
+            class="md:hidden mt-1 shrink-0 transition-colors"
+            style="color: hsl(var(--muted-foreground) / 0.5)"
+            @click="mobileLeftOpen = true"
+          >
+            <PanelLeft :size="18" />
+          </button>
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+              Produtividade
+            </p>
+            <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+              {{ viewTitle }}
+            </h1>
+            <p class="text-[13px] text-muted-foreground/50">
+              {{ displayTasks.length }} tarefa{{ displayTasks.length !== 1 ? 's' : '' }}
+            </p>
+          </div>
         </div>
         <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
           <Plus :size="12" class="mr-1.5" />
