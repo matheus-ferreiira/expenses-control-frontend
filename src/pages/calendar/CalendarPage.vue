@@ -6,6 +6,7 @@ import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid
 import { useCalendarStore } from '@/stores/calendar'
 import CalendarMonthHeader from '@/features/calendar/components/CalendarMonthHeader.vue'
 import CalendarMonthGrid from '@/features/calendar/components/CalendarMonthGrid.vue'
+import CalendarAgendaView from '@/features/calendar/components/CalendarAgendaView.vue'
 import CalendarEventModal from '@/features/calendar/components/CalendarEventModal.vue'
 import type { CalendarDay, CalendarEvent } from '@/types/calendar'
 
@@ -41,7 +42,15 @@ function handleClickEvent(event: CalendarEvent) {
 function onKeyDown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement).tagName
   if (tag === 'INPUT' || tag === 'TEXTAREA') return
-  if (e.key === 'n' || e.key === 'N') modal.value?.openCreate()
+  if (e.key === 'n' || e.key === 'N') {
+    modal.value?.openCreate()
+    return
+  }
+  // Arrow key navigation (month view only)
+  if (nav.viewMode.value === 'month') {
+    if (e.key === 'ArrowLeft') nav.prevMonth()
+    if (e.key === 'ArrowRight') nav.nextMonth()
+  }
 }
 
 onMounted(() => window.addEventListener('keydown', onKeyDown))
@@ -90,7 +99,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       @update:view-mode="nav.setView($event)"
     />
 
-    <!-- Calendar grid -->
+    <!-- Month grid -->
     <CalendarMonthGrid
       v-if="nav.viewMode.value === 'month'"
       :weeks="weeks"
@@ -99,15 +108,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       @click-event="handleClickEvent"
     />
 
-    <!-- Agenda view stub -->
-    <div
-      v-else
-      class="flex-1 flex items-center justify-center"
-    >
-      <p class="text-[13px]" style="color: hsl(var(--muted-foreground) / 0.4)">
-        Agenda view — Sprint 7
-      </p>
-    </div>
+    <!-- Agenda list -->
+    <CalendarAgendaView
+      v-else-if="nav.viewMode.value === 'agenda'"
+      :events="store.events"
+      @click-event="handleClickEvent"
+      @create="modal?.openCreate()"
+    />
 
     <!-- Event create/edit modal -->
     <CalendarEventModal ref="modal" />
