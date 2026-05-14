@@ -25,28 +25,48 @@ export const useGoalStore = defineStore('goals', () => {
   }
 
   async function createGoal(payload: CreateGoalPayload): Promise<Goal> {
-    const goal = await goalsApi.create(payload)
-    goals.value.unshift(goal)
-    return goal
+    try {
+      const goal = await goalsApi.create(payload)
+      goals.value.unshift(goal)
+      return goal
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar meta'
+      throw e
+    }
   }
 
   async function updateGoal(id: string, payload: UpdateGoalPayload): Promise<Goal> {
-    const updated = await goalsApi.update(id, payload)
-    const idx = goals.value.findIndex((g) => g.id === id)
-    if (idx !== -1) goals.value[idx] = updated
-    return updated
+    try {
+      const updated = await goalsApi.update(id, payload)
+      const idx = goals.value.findIndex((g) => g.id === id)
+      if (idx !== -1) goals.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar meta'
+      throw e
+    }
   }
 
   async function deleteGoal(id: string) {
-    await goalsApi.delete(id)
-    goals.value = goals.value.filter((g) => g.id !== id)
+    try {
+      await goalsApi.delete(id)
+      goals.value = goals.value.filter((g) => g.id !== id)
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir meta'
+      throw e
+    }
   }
 
   async function updateProgress(id: string, value: number): Promise<Goal> {
-    const updated = await goalsApi.updateProgress(id, { current_amount: value })
-    const idx = goals.value.findIndex((g) => g.id === id)
-    if (idx !== -1) goals.value[idx] = updated
-    return updated
+    try {
+      const updated = await goalsApi.updateProgress(id, { current_amount: value })
+      const idx = goals.value.findIndex((g) => g.id === id)
+      if (idx !== -1) goals.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar progresso'
+      throw e
+    }
   }
 
   return {

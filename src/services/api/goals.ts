@@ -5,7 +5,7 @@ import type { Goal, CreateGoalPayload, UpdateGoalPayload, UpdateGoalProgressPayl
 
 export const goalsApi = {
   list: () =>
-    client.get<ApiResponse<Goal[]>>(API_ENDPOINTS.GOALS.BASE).then(unwrap),
+    client.get<ApiResponse<Goal[]>>(API_ENDPOINTS.GOALS.BASE, { params: { per_page: 500 } }).then(unwrap),
 
   get: (id: string) =>
     client.get<ApiResponse<Goal>>(API_ENDPOINTS.GOALS.DETAIL(id)).then(unwrap),
