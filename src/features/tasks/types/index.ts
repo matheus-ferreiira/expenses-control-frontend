@@ -14,7 +14,8 @@ export {
   TASK_PRIORITY_LABELS,
 } from '@/types/tasks'
 
-export type ViewMode = 'list' | 'kanban'
+export type ViewMode = 'list' | 'kanban' | 'calendar'
+export type TaskViewId = 'all' | 'today' | 'upcoming' | 'overdue' | 'completed' | 'no-date' | `label:${string}`
 
 export interface KanbanColumn {
   status: import('@/types/tasks').TaskStatus

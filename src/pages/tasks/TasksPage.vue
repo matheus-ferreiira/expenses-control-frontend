@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { AppPageContainer, PageHeader } from '@/components/shared'
+import { Plus } from 'lucide-vue-next'
+import { Button } from '@ui/button'
+import TasksLeftPanel from '@/features/tasks/components/TasksLeftPanel.vue'
 import TaskToolbar from '@/features/tasks/components/TaskToolbar.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
 import TaskKanbanView from '@/features/tasks/views/TaskKanbanView.vue'
@@ -9,20 +11,27 @@ import TaskDetailsSheet from '@/features/tasks/components/TaskDetailsSheet.vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useTaskFilters } from '@/features/tasks/composables/useTaskFilters'
 import { useDebounce } from '@/composables/useDebounce'
-import { sortTasks } from '@/features/tasks/utils/taskHelpers'
+import { sortTasks, isTaskOverdue } from '@/features/tasks/utils/taskHelpers'
 import type { Task } from '@/types/tasks'
-import type { ViewMode } from '@/features/tasks/types'
+import type { ViewMode, TaskViewId } from '@/features/tasks/types'
 import type { SortField, SortDirection } from '@/features/tasks/utils/taskHelpers'
 
 const store = useTaskStore()
 const filterState = useTaskFilters()
 
-// View mode — persisted
+// View mode (list/kanban/calendar) — persisted
 const VIEW_MODE_KEY = 'tasks:viewMode'
 const viewMode = ref<ViewMode>(
   (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) ?? 'list',
 )
 watch(viewMode, (v) => localStorage.setItem(VIEW_MODE_KEY, v))
+
+// Selected left-panel view — persisted
+const VIEW_KEY = 'tasks:selectedView'
+const selectedView = ref<TaskViewId>(
+  (localStorage.getItem(VIEW_KEY) as TaskViewId) ?? 'all',
+)
+watch(selectedView, (v) => localStorage.setItem(VIEW_KEY, v))
 
 // Sort
 const sortField = ref<SortField>('order')
@@ -37,20 +46,66 @@ const selectedTask = ref<Task | null>(null)
 // Debounced search
 const debouncedSearch = useDebounce(filterState.search, 300)
 
-// Filtered + sorted tasks
-const filteredTasks = computed(() => {
-  let list = store.tasks
+// Local date helpers (avoid UTC offset issues)
+function todayStr() {
+  return new Date().toLocaleDateString('en-CA')
+}
+
+function addDaysStr(n: number) {
+  const d = new Date()
+  d.setDate(d.getDate() + n)
+  return d.toLocaleDateString('en-CA')
+}
+
+// Filter tasks by selected view
+const filteredByView = computed(() => {
+  const today = todayStr()
+  const nextWeek = addDaysStr(7)
+  const tasks = store.tasks
+
+  switch (selectedView.value) {
+    case 'today':
+      return tasks.filter(
+        (t) => t.due_date === today && t.status !== 'completed' && t.status !== 'cancelled',
+      )
+    case 'upcoming':
+      return tasks.filter(
+        (t) =>
+          t.due_date &&
+          t.due_date > today &&
+          t.due_date <= nextWeek &&
+          t.status !== 'completed' &&
+          t.status !== 'cancelled',
+      )
+    case 'overdue':
+      return tasks.filter((t) => isTaskOverdue(t))
+    case 'completed':
+      return tasks.filter((t) => t.status === 'completed')
+    case 'no-date':
+      return tasks.filter(
+        (t) => !t.due_date && t.status !== 'completed' && t.status !== 'cancelled',
+      )
+    default: {
+      if (selectedView.value.startsWith('label:')) {
+        const labelId = selectedView.value.slice(6)
+        return tasks.filter(
+          (t) => t.labels.some((l) => l.id === labelId) && t.status !== 'cancelled',
+        )
+      }
+      return tasks.filter((t) => t.status !== 'cancelled')
+    }
+  }
+})
+
+// Apply toolbar filters + sort on top of view filter
+const displayTasks = computed(() => {
+  let list = filteredByView.value
 
   const { filters } = filterState
-  if (filters.value.status) {
-    list = list.filter((t) => t.status === filters.value.status)
-  }
-  if (filters.value.priority) {
-    list = list.filter((t) => t.priority === filters.value.priority)
-  }
-  if (filters.value.label_id) {
+  if (filters.value.status) list = list.filter((t) => t.status === filters.value.status)
+  if (filters.value.priority) list = list.filter((t) => t.priority === filters.value.priority)
+  if (filters.value.label_id)
     list = list.filter((t) => t.labels.some((l) => l.id === filters.value.label_id))
-  }
   if (debouncedSearch.value.trim()) {
     const q = debouncedSearch.value.trim().toLowerCase()
     list = list.filter(
@@ -61,6 +116,27 @@ const filteredTasks = computed(() => {
   }
 
   return sortTasks(list, sortField.value, sortDirection.value)
+})
+
+const viewTitle = computed(() => {
+  switch (selectedView.value) {
+    case 'today':
+      return 'Hoje'
+    case 'upcoming':
+      return 'Próximas'
+    case 'overdue':
+      return 'Atrasadas'
+    case 'completed':
+      return 'Concluídas'
+    case 'no-date':
+      return 'Sem data'
+    default:
+      if (selectedView.value.startsWith('label:')) {
+        const labelId = selectedView.value.slice(6)
+        return store.labels.find((l) => l.id === labelId)?.name ?? 'Projeto'
+      }
+      return 'Todas as tarefas'
+  }
 })
 
 function openCreate() {
@@ -85,42 +161,25 @@ function handleSort(field: SortField, direction: SortDirection) {
 }
 
 async function handleToggle(id: string) {
-  try {
-    await store.toggleComplete(id)
-  } catch {
-    // toast already handled in store actions if we add it
-  }
+  await store.toggleComplete(id)
 }
 
 async function handleDelete(id: string) {
-  try {
-    await store.deleteTask(id)
-    if (selectedTask.value?.id === id) {
-      detailOpen.value = false
-      selectedTask.value = null
-    }
-  } catch {
-    // handled by store
+  await store.deleteTask(id)
+  if (selectedTask.value?.id === id) {
+    detailOpen.value = false
+    selectedTask.value = null
   }
 }
 
 async function handleArchive(id: string) {
-  try {
-    await store.changeStatus(id, 'cancelled')
-  } catch {
-    // handled by store
-  }
+  await store.changeStatus(id, 'cancelled')
 }
 
 async function handleReorder(ids: string[]) {
-  try {
-    await store.reorderTasks(ids)
-  } catch {
-    // handled by store
-  }
+  await store.reorderTasks(ids)
 }
 
-// Keep selectedTask in sync with store (for detail sheet reflecting updates)
 watch(
   () => store.tasks,
   (tasks) => {
@@ -151,64 +210,87 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <AppPageContainer>
-    <!-- Header -->
-    <PageHeader
-      category="PRODUTIVIDADE"
-      title="Tarefas"
-      subtitle="Organize seu fluxo de trabalho com listas e kanban."
-    >
-      <template #actions>
-        <span class="text-xs text-muted-foreground hidden sm:inline">
-          {{ store.tasks.length }} tarefa{{ store.tasks.length !== 1 ? 's' : '' }}
-        </span>
-      </template>
-    </PageHeader>
+  <!-- Workspace layout: left panel + main content -->
+  <div class="flex">
 
-    <!-- Toolbar -->
-    <div class="mb-4">
-      <TaskToolbar
-        :filter-state="filterState"
-        :search="filterState.search.value"
+    <!-- Left panel: sticky alongside scrolling content (desktop only) -->
+    <div class="hidden md:block sticky top-0 h-screen shrink-0">
+      <TasksLeftPanel
+        v-model:selected-view="selectedView"
         :labels="store.labels"
-        v-model:view-mode="viewMode"
-        :loading="store.loading"
-        @create="openCreate()"
-        @update:search="filterState.search.value = $event"
-        @sort="handleSort"
       />
     </div>
 
-    <!-- Views -->
-    <TaskListView
-      v-if="viewMode === 'list'"
-      :tasks="filteredTasks"
-      :loading="store.loading"
-      :sort-field="sortField"
-      :sort-direction="sortDirection"
-      @toggle="handleToggle"
-      @edit="openEdit"
-      @delete="handleDelete"
-      @archive="handleArchive"
-      @open="openDetail"
-      @reorder="handleReorder"
-      @create="openCreate()"
-    />
+    <!-- Right content area -->
+    <div class="flex flex-col flex-1 min-w-0">
 
-    <TaskKanbanView
-      v-else
-      :tasks="filteredTasks"
-      :loading="store.loading"
-      @toggle="handleToggle"
-      @edit="openEdit"
-      @delete="handleDelete"
-      @archive="handleArchive"
-      @open="openDetail"
-      @create="openCreate"
-    />
-  </AppPageContainer>
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+            Produtividade
+          </p>
+          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+            {{ viewTitle }}
+          </h1>
+          <p class="text-[13px] text-muted-foreground/50">
+            {{ displayTasks.length }} tarefa{{ displayTasks.length !== 1 ? 's' : '' }}
+          </p>
+        </div>
+        <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
+          <Plus :size="12" class="mr-1.5" />
+          Nova tarefa
+        </Button>
+      </div>
 
-  <!-- Form dialog -->
+      <!-- Toolbar -->
+      <div class="px-6 pb-4 shrink-0">
+        <TaskToolbar
+          :filter-state="filterState"
+          :search="filterState.search.value"
+          :labels="store.labels"
+          v-model:view-mode="viewMode"
+          :loading="store.loading"
+          @create="openCreate()"
+          @update:search="filterState.search.value = $event"
+          @sort="handleSort"
+        />
+      </div>
+
+      <!-- Views -->
+      <div class="flex-1 px-6 pb-6">
+        <TaskListView
+          v-if="viewMode === 'list'"
+          :tasks="displayTasks"
+          :loading="store.loading"
+          :sort-field="sortField"
+          :sort-direction="sortDirection"
+          @toggle="handleToggle"
+          @edit="openEdit"
+          @delete="handleDelete"
+          @archive="handleArchive"
+          @open="openDetail"
+          @reorder="handleReorder"
+          @create="openCreate()"
+        />
+
+        <TaskKanbanView
+          v-else-if="viewMode === 'kanban'"
+          :tasks="displayTasks"
+          :loading="store.loading"
+          @toggle="handleToggle"
+          @edit="openEdit"
+          @delete="handleDelete"
+          @archive="handleArchive"
+          @open="openDetail"
+          @create="openCreate"
+        />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Dialogs -->
   <TaskFormDialog
     v-model:open="formOpen"
     :task="editingTask"
@@ -217,7 +299,6 @@ onUnmounted(() => {
     @updated="store.fetchTasks()"
   />
 
-  <!-- Details sheet -->
   <TaskDetailsSheet
     v-model:open="detailOpen"
     :task="selectedTask"
