@@ -39,9 +39,9 @@ function handleLog(id: string) {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border bg-card">
+  <div class="rounded-lg border border-border/50 bg-card">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/60">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
       <div class="flex items-center gap-2">
         <Flame :size="13" class="text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">Hábitos</span>

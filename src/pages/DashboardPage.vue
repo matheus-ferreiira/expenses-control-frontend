@@ -74,7 +74,7 @@ onMounted(() => {
         <!-- Quick actions -->
         <div class="flex items-center gap-1.5 shrink-0 sm:mt-0.5">
           <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
             @click="ui.quickAddOpen = true"
           >
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
@@ -83,7 +83,7 @@ onMounted(() => {
             Nova tarefa
           </button>
           <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
             @click="ui.quickAddOpen = true"
           >
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
@@ -92,7 +92,7 @@ onMounted(() => {
             Transação
           </button>
           <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-colors"
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
             @click="ui.quickAddOpen = true"
           >
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
@@ -142,7 +142,7 @@ onMounted(() => {
       </div>
 
       <!-- Right sidebar -->
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-3">
         <DashboardCalendarCard
           :events="dashboard.todayEvents.value"
           :loading="dashboard.loading.value"

@@ -36,9 +36,9 @@ function expenseRatio(): string {
 </script>
 
 <template>
-  <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-2">
     <!-- Tarefas hoje -->
-    <div class="rounded-lg border border-border bg-card px-4 py-3.5">
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-12 mb-1.5" />
@@ -56,7 +56,7 @@ function expenseRatio(): string {
     </div>
 
     <!-- Streak -->
-    <div class="rounded-lg border border-border bg-card px-4 py-3.5">
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-12 mb-1.5" />
@@ -76,7 +76,7 @@ function expenseRatio(): string {
     </div>
 
     <!-- Saldo total -->
-    <div class="rounded-lg border border-border bg-card px-4 py-3.5">
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-24 mb-1.5" />
@@ -97,7 +97,7 @@ function expenseRatio(): string {
     </div>
 
     <!-- Gastos do mês -->
-    <div class="rounded-lg border border-border bg-card px-4 py-3.5">
+    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-24 mb-1.5" />
