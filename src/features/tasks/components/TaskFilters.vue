@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { Button } from '@ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
 import { Separator } from '@ui/separator'
-import { Badge } from '@ui/badge'
 import { SlidersHorizontal, X } from 'lucide-vue-next'
 import type { TaskStatus, TaskPriority, TaskLabel } from '@/types/tasks'
 import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from '@/types/tasks'
@@ -34,16 +33,25 @@ function togglePriority(priority: TaskPriority) {
 <template>
   <Popover>
     <PopoverTrigger as-child>
-      <Button variant="outline" size="sm" class="h-8 gap-1.5 relative">
-        <SlidersHorizontal :size="14" />
+      <button
+        class="relative flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-colors"
+        :style="
+          activeFilters > 0
+            ? 'border-color: hsl(var(--primary) / 0.4); color: hsl(var(--primary) / 0.8)'
+            : 'border-color: hsl(var(--border) / 0.5); color: hsl(var(--muted-foreground) / 0.6)'
+        "
+        @mouseenter="(e) => { if (!activeFilters) (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))' }"
+        @mouseleave="(e) => { if (!activeFilters) (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.6)' }"
+      >
+        <SlidersHorizontal :size="12" />
         Filtros
-        <Badge
+        <span
           v-if="activeFilters > 0"
-          class="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+          class="ml-0.5 text-[10px] font-semibold tabular-nums"
         >
           {{ activeFilters }}
-        </Badge>
-      </Button>
+        </span>
+      </button>
     </PopoverTrigger>
 
     <PopoverContent align="end" class="w-64 p-3 space-y-4">

@@ -1,20 +1,17 @@
 <script setup lang="ts">
-import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
 import {
-  Plus,
   Search,
   LayoutList,
-  LayoutGrid,
-  ArrowUpDown,
+  Columns3,
   CalendarDays,
+  ArrowUpDown,
   AlertCircle,
   Clock,
   ArrowDownAZ,
@@ -48,75 +45,88 @@ interface SortOption {
 }
 
 const sortOptions: SortOption[] = [
-  { label: 'Ordem manual',   icon: ArrowUpDown,   field: 'order',      direction: 'asc'  },
-  { label: 'Prioridade',     icon: AlertCircle,   field: 'priority',   direction: 'asc'  },
-  { label: 'Data de entrega',icon: CalendarDays,  field: 'due_date',   direction: 'asc'  },
-  { label: 'Mais recentes',  icon: Clock,         field: 'created_at', direction: 'desc' },
-  { label: 'Título A→Z',    icon: ArrowDownAZ,   field: 'title',      direction: 'asc'  },
+  { label: 'Ordem manual',    icon: ArrowUpDown,  field: 'order',      direction: 'asc'  },
+  { label: 'Prioridade',      icon: AlertCircle,  field: 'priority',   direction: 'asc'  },
+  { label: 'Data de entrega', icon: CalendarDays, field: 'due_date',   direction: 'asc'  },
+  { label: 'Mais recentes',   icon: Clock,        field: 'created_at', direction: 'desc' },
+  { label: 'Título A→Z',     icon: ArrowDownAZ,  field: 'title',      direction: 'asc'  },
 ]
 </script>
 
 <template>
-  <div class="flex items-center gap-2 flex-wrap">
+  <div class="flex items-center gap-1.5">
     <!-- Search -->
-    <div class="relative flex-1 min-w-[180px] max-w-xs">
-      <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" :size="14" />
+    <div class="relative flex-1 min-w-[160px] max-w-[240px]">
+      <Search
+        class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 pointer-events-none"
+        :size="13"
+      />
       <Input
         :value="search"
         placeholder="Buscar tarefas..."
-        class="pl-8 h-8 text-sm"
+        class="pl-8 h-8 text-[12.5px] border-border/50 bg-transparent placeholder:text-muted-foreground/35"
         @input="emit('update:search', ($event.target as HTMLInputElement).value)"
       />
     </div>
 
-    <!-- Filters popover -->
+    <!-- Filters -->
     <TaskFilters :filter-state="filterState" :labels="labels" />
 
     <!-- Sort dropdown -->
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
-        <Button variant="outline" size="sm" class="h-8 gap-1.5">
-          <ArrowUpDown :size="14" />
+        <button
+          class="flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-colors"
+          style="border-color: hsl(var(--border) / 0.5); color: hsl(var(--muted-foreground) / 0.6)"
+          @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
+          @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.6)'"
+        >
+          <ArrowUpDown :size="12" />
           Ordenar
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" class="w-48">
         <DropdownMenuItem
           v-for="opt in sortOptions"
           :key="opt.field"
+          class="text-[12px]"
           @click="emit('sort', opt.field, opt.direction)"
         >
-          <component :is="opt.icon" :size="13" class="mr-2 text-muted-foreground" />
+          <component :is="opt.icon" :size="12" class="mr-2 text-muted-foreground/50" />
           {{ opt.label }}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
 
-    <!-- View toggle -->
-    <div class="flex items-center rounded-md border border-border overflow-hidden">
-      <Button
-        variant="ghost"
-        size="icon"
-        :class="['h-8 w-8 rounded-none', viewMode === 'list' && 'bg-accent']"
-        @click="emit('update:viewMode', 'list')"
-      >
-        <LayoutList :size="15" />
-      </Button>
-      <DropdownMenuSeparator class="h-5 w-px m-0 bg-border" />
-      <Button
-        variant="ghost"
-        size="icon"
-        :class="['h-8 w-8 rounded-none', viewMode === 'kanban' && 'bg-accent']"
-        @click="emit('update:viewMode', 'kanban')"
-      >
-        <LayoutGrid :size="15" />
-      </Button>
-    </div>
+    <!-- Spacer -->
+    <div class="flex-1" />
 
-    <!-- New task -->
-    <Button size="sm" class="h-8 gap-1.5" @click="emit('create')">
-      <Plus :size="14" />
-      Nova tarefa
-    </Button>
+    <!-- View toggle -->
+    <div
+      class="flex items-center rounded-md overflow-hidden"
+      style="border: 1px solid hsl(var(--border) / 0.5)"
+    >
+      <button
+        v-for="(view, i) in [
+          { mode: 'list' as ViewMode, icon: LayoutList },
+          { mode: 'kanban' as ViewMode, icon: Columns3 },
+          { mode: 'calendar' as ViewMode, icon: CalendarDays },
+        ]"
+        :key="view.mode"
+        class="flex items-center justify-center h-8 w-8 transition-colors"
+        :class="i > 0 ? 'border-l' : ''"
+        :style="[
+          i > 0 ? 'border-color: hsl(var(--border) / 0.5);' : '',
+          viewMode === view.mode
+            ? 'background: hsl(var(--accent)); color: hsl(var(--foreground))'
+            : 'color: hsl(var(--muted-foreground) / 0.45)',
+        ]"
+        @click="emit('update:viewMode', view.mode)"
+        @mouseenter="(e) => { if (viewMode !== view.mode) (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))' }"
+        @mouseleave="(e) => { if (viewMode !== view.mode) (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.45)' }"
+      >
+        <component :is="view.icon" :size="14" />
+      </button>
+    </div>
   </div>
 </template>
