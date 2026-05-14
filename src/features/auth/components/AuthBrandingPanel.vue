@@ -50,13 +50,14 @@
             class="text-[32px] font-semibold leading-[1.15] tracking-tight text-white/90"
             style="letter-spacing: -0.02em;"
           >
-            Organize sua vida<br />
-            pessoal em um<br />
-            único lugar.
+            Suas finanças,<br />
+            finalmente em ordem —<br />
+            com a inteligência<br />
+            ao seu lado.
           </h2>
           <p class="mt-4 text-[14px] leading-relaxed text-white/35 max-w-[300px]">
-            Tarefas, hábitos, finanças e agenda —
-            tudo conectado em um sistema operacional pessoal.
+            Tarefas, hábitos, metas e agenda —
+            tudo integrado no seu sistema operacional pessoal.
           </p>
         </div>
 
