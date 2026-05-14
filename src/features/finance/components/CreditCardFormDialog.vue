@@ -9,17 +9,10 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@ui/select'
 import { Loader2 } from 'lucide-vue-next'
 import { AppFormField } from '@/components/shared'
-import type { CreditCard, CreditCardNetwork } from '@/types/finance'
-import { CARD_COLORS, NETWORK_LABELS } from '../types'
+import type { CreditCard } from '@/types/finance'
+import { CARD_COLORS } from '../types'
 import { useCreditCardForm } from '../composables/useCreditCardForm'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
@@ -38,8 +31,6 @@ const emit = defineEmits<{
 const store = useFinanceStore()
 const toast = useToast()
 const { form, errors, submitting, fromCard, reset, validate, toPayload } = useCreditCardForm()
-
-const networks: CreditCardNetwork[] = ['visa', 'mastercard', 'elo', 'amex', 'other']
 
 watch(
   () => props.open,
@@ -89,25 +80,8 @@ async function submit() {
           <Input v-model="form.name" placeholder="Ex: Nubank" class="h-9" />
         </AppFormField>
 
-        <AppFormField label="Bandeira">
-          <Select v-model="form.network">
-            <SelectTrigger class="h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="n in networks" :key="n" :value="n">
-                {{ NETWORK_LABELS[n] }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </AppFormField>
-
-        <AppFormField label="Limite (R$)" :error="errors.credit_limit" required>
-          <Input v-model="form.credit_limit" inputmode="decimal" placeholder="0,00" class="h-9" />
-        </AppFormField>
-
-        <AppFormField label="Fatura atual (R$)">
-          <Input v-model="form.current_balance" inputmode="decimal" placeholder="0,00" class="h-9" />
+        <AppFormField label="Limite (R$)" :error="errors.limit_amount" required>
+          <Input v-model="form.limit_amount" inputmode="decimal" placeholder="0,00" class="h-9" />
         </AppFormField>
 
         <div class="grid grid-cols-2 gap-3">

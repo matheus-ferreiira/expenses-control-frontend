@@ -1,12 +1,12 @@
-import type { AccountType, CreditCardNetwork } from '@/types/finance'
+import type { AccountType } from '@/types/finance'
 
 export interface CreateAccountPayload {
   name: string
   type: AccountType
   balance: number
+  bank_name?: string
   currency?: string
   color?: string
-  icon?: string | null
   is_active?: boolean
 }
 
@@ -14,9 +14,7 @@ export type UpdateAccountPayload = Partial<CreateAccountPayload>
 
 export interface CreateCreditCardPayload {
   name: string
-  network: CreditCardNetwork
-  credit_limit: number
-  current_balance?: number
+  limit_amount: number
   closing_day: number
   due_day: number
   color?: string
@@ -47,10 +45,3 @@ export const CARD_COLORS = [
   '#1e293b',
 ] as const
 
-export const NETWORK_LABELS: Record<CreditCardNetwork, string> = {
-  visa: 'Visa',
-  mastercard: 'Mastercard',
-  elo: 'Elo',
-  amex: 'Amex',
-  other: 'Outro',
-}

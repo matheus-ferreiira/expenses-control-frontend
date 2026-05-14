@@ -6,32 +6,30 @@ export interface TransactionFormData {
   type: TransactionType
   description: string
   amount: string
-  date: string
+  transaction_date: string
   category_id: string
   account_id: string
-  credit_card_id: string
+  card_id: string
   notes: string
   is_recurring: boolean
-  recurrence_pattern: string
 }
 
 export interface TransactionFormErrors {
   description?: string
   amount?: string
-  date?: string
+  transaction_date?: string
 }
 
 const DEFAULTS: TransactionFormData = {
   type: 'expense',
   description: '',
   amount: '',
-  date: '',
+  transaction_date: '',
   category_id: '',
   account_id: '',
-  credit_card_id: '',
+  card_id: '',
   notes: '',
   is_recurring: false,
-  recurrence_pattern: '',
 }
 
 export function useTransactionForm() {
@@ -43,18 +41,17 @@ export function useTransactionForm() {
     form.type = t.type
     form.description = t.description
     form.amount = t.amount.toString()
-    form.date = t.date
+    form.transaction_date = t.transaction_date
     form.category_id = t.category_id ?? ''
     form.account_id = t.account_id ?? ''
-    form.credit_card_id = t.credit_card_id ?? ''
+    form.card_id = t.card_id ?? ''
     form.notes = t.notes ?? ''
     form.is_recurring = t.is_recurring
-    form.recurrence_pattern = t.recurrence_pattern ?? ''
     Object.assign(errors, {})
   }
 
   function reset() {
-    Object.assign(form, { ...DEFAULTS, date: toISODate(new Date()) })
+    Object.assign(form, { ...DEFAULTS, transaction_date: toISODate(new Date()) })
     Object.assign(errors, {})
     submitting.value = false
   }
@@ -71,8 +68,8 @@ export function useTransactionForm() {
       errors.amount = 'Valor deve ser maior que zero'
       valid = false
     }
-    if (!form.date) {
-      errors.date = 'Data é obrigatória'
+    if (!form.transaction_date) {
+      errors.transaction_date = 'Data é obrigatória'
       valid = false
     }
     return valid
@@ -84,18 +81,13 @@ export function useTransactionForm() {
       type: form.type,
       description: form.description.trim(),
       amount,
-      date: form.date,
+      transaction_date: form.transaction_date,
     }
     if (form.category_id) payload.category_id = form.category_id
     if (form.account_id) payload.account_id = form.account_id
-    if (form.credit_card_id) payload.credit_card_id = form.credit_card_id
+    if (form.card_id) payload.card_id = form.card_id
     if (form.notes.trim()) payload.notes = form.notes.trim()
-    if (form.is_recurring) {
-      payload.is_recurring = true
-      if (form.recurrence_pattern.trim()) {
-        payload.recurrence_pattern = form.recurrence_pattern.trim()
-      }
-    }
+    if (form.is_recurring) payload.is_recurring = true
     return payload
   }
 

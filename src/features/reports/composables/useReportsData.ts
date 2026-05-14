@@ -44,7 +44,7 @@ export function useReportsData() {
   )
 
   const financeNet = computed(() => {
-    const txns = financeStore.transactions.filter((t) => t.date >= startDate.value)
+    const txns = financeStore.transactions.filter((t) => t.transaction_date >= startDate.value)
     const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
     const expenses = txns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
     return income - expenses
@@ -169,7 +169,7 @@ export function useReportsData() {
 
   const topExpenseCategory = computed(() => {
     const expenses = financeStore.transactions.filter(
-      (t) => t.type === 'expense' && t.date >= startDate.value,
+      (t) => t.type === 'expense' && t.transaction_date >= startDate.value,
     )
     const byCategory: Record<string, { name: string; total: number }> = {}
     for (const t of expenses) {

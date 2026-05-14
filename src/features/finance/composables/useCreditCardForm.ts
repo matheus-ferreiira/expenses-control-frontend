@@ -1,13 +1,11 @@
 import { reactive, ref } from 'vue'
-import type { CreditCard, CreditCardNetwork } from '@/types/finance'
+import type { CreditCard } from '@/types/finance'
 import type { CreateCreditCardPayload } from '../types'
 import { CARD_COLORS } from '../types'
 
 export interface CreditCardFormData {
   name: string
-  network: CreditCardNetwork
-  credit_limit: string
-  current_balance: string
+  limit_amount: string
   closing_day: string
   due_day: string
   color: string
@@ -15,16 +13,14 @@ export interface CreditCardFormData {
 
 export interface CreditCardFormErrors {
   name?: string
-  credit_limit?: string
+  limit_amount?: string
   closing_day?: string
   due_day?: string
 }
 
 const DEFAULTS: CreditCardFormData = {
   name: '',
-  network: 'visa',
-  credit_limit: '',
-  current_balance: '0',
+  limit_amount: '',
   closing_day: '1',
   due_day: '10',
   color: CARD_COLORS[0] ?? '#8b5cf6',
@@ -37,9 +33,7 @@ export function useCreditCardForm() {
 
   function fromCard(card: CreditCard) {
     form.name = card.name
-    form.network = card.network
-    form.credit_limit = card.credit_limit.toString()
-    form.current_balance = card.current_balance.toString()
+    form.limit_amount = card.limit_amount.toString()
     form.closing_day = card.closing_day.toString()
     form.due_day = card.due_day.toString()
     form.color = card.color
@@ -59,9 +53,9 @@ export function useCreditCardForm() {
       errors.name = 'Nome é obrigatório'
       valid = false
     }
-    const limit = parseFloat(form.credit_limit.replace(',', '.'))
-    if (!form.credit_limit || isNaN(limit) || limit <= 0) {
-      errors.credit_limit = 'Limite deve ser maior que zero'
+    const limit = parseFloat(form.limit_amount.replace(',', '.'))
+    if (!form.limit_amount || isNaN(limit) || limit <= 0) {
+      errors.limit_amount = 'Limite deve ser maior que zero'
       valid = false
     }
     const closing = parseInt(form.closing_day)
@@ -80,9 +74,7 @@ export function useCreditCardForm() {
   function toPayload(): CreateCreditCardPayload {
     return {
       name: form.name.trim(),
-      network: form.network,
-      credit_limit: parseFloat(form.credit_limit.replace(',', '.')) || 0,
-      current_balance: parseFloat(form.current_balance.replace(',', '.')) || 0,
+      limit_amount: parseFloat(form.limit_amount.replace(',', '.')) || 0,
       closing_day: parseInt(form.closing_day) || 1,
       due_day: parseInt(form.due_day) || 10,
       color: form.color,

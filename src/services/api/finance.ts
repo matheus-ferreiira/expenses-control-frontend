@@ -1,4 +1,4 @@
-import { client, unwrap } from './client'
+import { client, unwrap, unwrapPaginated } from './client'
 import { API_ENDPOINTS } from '@/constants/api'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
@@ -22,14 +22,14 @@ export const financeApi = {
         .get<ApiResponse<BankAccount>>(API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id))
         .then(unwrap),
 
-    create: (payload: Omit<BankAccount, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'deleted_at'>) =>
+    create: (payload: Omit<BankAccount, 'id' | 'created_at'>) =>
       client
         .post<ApiResponse<BankAccount>>(API_ENDPOINTS.FINANCE.ACCOUNTS, payload)
         .then(unwrap),
 
-    update: (id: string, payload: Partial<BankAccount>) =>
+    update: (id: string, payload: Partial<Omit<BankAccount, 'id' | 'created_at'>>) =>
       client
-        .put<ApiResponse<BankAccount>>(API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id), payload)
+        .patch<ApiResponse<BankAccount>>(API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id), payload)
         .then(unwrap),
 
     delete: (id: string) =>
@@ -47,14 +47,14 @@ export const financeApi = {
         .get<ApiResponse<CreditCard>>(API_ENDPOINTS.FINANCE.CARD_DETAIL(id))
         .then(unwrap),
 
-    create: (payload: Omit<CreditCard, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'deleted_at'>) =>
+    create: (payload: Omit<CreditCard, 'id' | 'created_at'>) =>
       client
         .post<ApiResponse<CreditCard>>(API_ENDPOINTS.FINANCE.CARDS, payload)
         .then(unwrap),
 
-    update: (id: string, payload: Partial<CreditCard>) =>
+    update: (id: string, payload: Partial<Omit<CreditCard, 'id' | 'created_at'>>) =>
       client
-        .put<ApiResponse<CreditCard>>(API_ENDPOINTS.FINANCE.CARD_DETAIL(id), payload)
+        .patch<ApiResponse<CreditCard>>(API_ENDPOINTS.FINANCE.CARD_DETAIL(id), payload)
         .then(unwrap),
 
     delete: (id: string) =>
@@ -69,7 +69,7 @@ export const financeApi = {
         .get<PaginatedResponse<Transaction>>(API_ENDPOINTS.FINANCE.TRANSACTIONS, {
           params: filters,
         })
-        .then(unwrap),
+        .then(unwrapPaginated),
 
     get: (id: string) =>
       client

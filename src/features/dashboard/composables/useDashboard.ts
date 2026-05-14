@@ -92,7 +92,7 @@ export function useDashboard() {
   const monthTransactions = computed(() => {
     const now = new Date()
     const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
-    return financeStore.transactions.filter((t) => t.date >= monthStart && t.type !== 'transfer')
+    return financeStore.transactions.filter((t) => t.transaction_date >= monthStart && t.type !== 'transfer')
   })
 
   const monthIncome = computed(() =>
@@ -110,7 +110,7 @@ export function useDashboard() {
   const recentTransactions = computed(() =>
     [...financeStore.transactions]
       .filter((t) => t.type !== 'transfer')
-      .sort((a, b) => b.date.localeCompare(a.date))
+      .sort((a, b) => b.transaction_date.localeCompare(a.transaction_date))
       .slice(0, 5),
   )
 
@@ -124,7 +124,7 @@ export function useDashboard() {
         d.setDate(now.getDate() - 6 + i)
         const dateStr = toISODate(d)
         const label = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')
-        const dayTxs = txs.filter((t) => t.date === dateStr)
+        const dayTxs = txs.filter((t) => t.transaction_date === dateStr)
         const income = dayTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
         const expense = dayTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
         return { label, income, expense, net: income - expense }
@@ -137,7 +137,7 @@ export function useDashboard() {
         d.setDate(now.getDate() - 29 + i)
         const dateStr = toISODate(d)
         const label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
-        const dayTxs = txs.filter((t) => t.date === dateStr)
+        const dayTxs = txs.filter((t) => t.transaction_date === dateStr)
         const income = dayTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
         const expense = dayTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
         return { label, income, expense, net: income - expense }
@@ -151,7 +151,7 @@ export function useDashboard() {
       const month = d.getMonth() + 1
       const prefix = `${year}-${String(month).padStart(2, '0')}`
       const label = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-      const monthTxs = txs.filter((t) => t.date.startsWith(prefix))
+      const monthTxs = txs.filter((t) => t.transaction_date.startsWith(prefix))
       const income = monthTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
       const expense = monthTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
       return { label, income, expense, net: income - expense }
@@ -184,7 +184,7 @@ export function useDashboard() {
           id: card.id,
           name: card.name,
           dueDate: toISODate(dueDate),
-          amount: card.current_balance,
+          amount: card.limit_amount,
           daysUntilDue,
         }
       })

@@ -27,7 +27,7 @@ function amountPrefix(type: Transaction['type']): string {
 }
 
 function accountLabel(tx: Transaction): string {
-  return tx.account?.name ?? tx.credit_card?.name ?? '—'
+  return tx.account?.name ?? tx.card?.name ?? '—'
 }
 </script>
 
@@ -94,7 +94,7 @@ function accountLabel(tx: Transaction): string {
             {{ amountPrefix(tx.type) }}{{ formatCurrency(tx.amount) }}
           </p>
           <p class="text-[10px] text-muted-foreground/50 leading-none">
-            {{ formatDate(tx.date, { day: '2-digit', month: 'short' }) }}
+            {{ formatDate(tx.transaction_date, { day: '2-digit', month: 'short' }) }}
           </p>
         </div>
       </div>

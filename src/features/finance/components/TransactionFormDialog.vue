@@ -23,7 +23,6 @@ import { Loader2 } from 'lucide-vue-next'
 import { AppFormField } from '@/components/shared'
 import type { Transaction, TransactionType } from '@/types/finance'
 import { TRANSACTION_TYPE_LABELS } from '@/types/finance'
-import { NETWORK_LABELS } from '../types'
 import { useTransactionForm } from '../composables/useTransactionForm'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
@@ -62,7 +61,6 @@ watch(
   },
 )
 
-// Reset category when type changes
 watch(
   () => form.type,
   () => {
@@ -70,15 +68,14 @@ watch(
   },
 )
 
-// Mutually exclusive: selecting account clears card and vice versa
 function onAccountChange(val: string) {
   form.account_id = val === '__none__' ? '' : val
-  if (form.account_id) form.credit_card_id = ''
+  if (form.account_id) form.card_id = ''
 }
 
 function onCardChange(val: string) {
-  form.credit_card_id = val === '__none__' ? '' : val
-  if (form.credit_card_id) form.account_id = ''
+  form.card_id = val === '__none__' ? '' : val
+  if (form.card_id) form.account_id = ''
 }
 
 function close() {
@@ -148,8 +145,8 @@ async function submit() {
         </AppFormField>
 
         <!-- Date -->
-        <AppFormField label="Data" :error="errors.date" required>
-          <Input v-model="form.date" type="date" class="h-9" />
+        <AppFormField label="Data" :error="errors.transaction_date" required>
+          <Input v-model="form.transaction_date" type="date" class="h-9" />
         </AppFormField>
 
         <!-- Category (hidden for transfer) -->
@@ -195,7 +192,7 @@ async function submit() {
 
           <AppFormField label="Cartão">
             <Select
-              :model-value="form.credit_card_id || '__none__'"
+              :model-value="form.card_id || '__none__'"
               @update:model-value="onCardChange($event as string)"
             >
               <SelectTrigger class="h-9">
@@ -209,7 +206,6 @@ async function submit() {
                   :value="card.id"
                 >
                   {{ card.name }}
-                  <span class="text-muted-foreground ml-1 text-xs">{{ NETWORK_LABELS[card.network] }}</span>
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -228,14 +224,6 @@ async function submit() {
             Transação recorrente
           </Label>
         </div>
-
-        <AppFormField v-if="form.is_recurring" label="Padrão de recorrência">
-          <Input
-            v-model="form.recurrence_pattern"
-            placeholder="Ex: mensal, semanal, anual..."
-            class="h-9"
-          />
-        </AppFormField>
       </form>
 
       <DialogFooter class="gap-2">

@@ -280,13 +280,13 @@ onMounted(async () => {
                 <div
                   class="h-full rounded-full transition-all"
                   :class="
-                    utilizationPercent(card.current_balance, card.credit_limit) >= 80
+                    utilizationPercent(0, card.limit_amount) >= 80
                       ? 'bg-destructive/60'
-                      : utilizationPercent(card.current_balance, card.credit_limit) >= 50
+                      : utilizationPercent(0, card.limit_amount) >= 50
                         ? 'bg-warning/70'
                         : 'bg-success/60'
                   "
-                  :style="{ width: utilizationPercent(card.current_balance, card.credit_limit) + '%' }"
+                  :style="{ width: utilizationPercent(0, card.limit_amount) + '%' }"
                 />
               </div>
             </div>

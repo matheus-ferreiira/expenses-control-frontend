@@ -40,8 +40,7 @@ async function loadChartData() {
   try {
     const { start_date, end_date } = getPeriodDates(period.value)
     const result = await financeApi.transactions.list({ start_date, end_date, per_page: 500 })
-    // PaginatedResponse has .data, plain array does not
-    localTransactions.value = Array.isArray(result) ? result : ((result as { data?: Transaction[] }).data ?? [])
+    localTransactions.value = result.data
   } catch {
     localTransactions.value = []
   } finally {
@@ -60,7 +59,7 @@ function computeCashflow(p: Period): CashflowPoint[] {
       const d = new Date(now)
       d.setDate(d.getDate() - i)
       const key = d.toISOString().slice(0, 10)
-      const dayTxs = txs.filter((t) => t.date === key)
+      const dayTxs = txs.filter((t) => t.transaction_date === key)
       points.push({
         label: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         income: dayTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
@@ -80,7 +79,7 @@ function computeCashflow(p: Period): CashflowPoint[] {
       weekStart.setDate(weekStart.getDate() - 6)
       const ws = weekStart.toISOString().slice(0, 10)
       const we = weekEnd.toISOString().slice(0, 10)
-      const weekTxs = txs.filter((t) => t.date >= ws && t.date <= we)
+      const weekTxs = txs.filter((t) => t.transaction_date >= ws && t.transaction_date <= we)
       points.push({
         label: weekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         income: weekTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
@@ -96,7 +95,7 @@ function computeCashflow(p: Period): CashflowPoint[] {
   for (let i = monthCount - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
     const ym = d.toISOString().slice(0, 7)
-    const monthTxs = txs.filter((t) => t.date.startsWith(ym))
+    const monthTxs = txs.filter((t) => t.transaction_date.startsWith(ym))
     points.push({
       label: d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
       income: monthTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),

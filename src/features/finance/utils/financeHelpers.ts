@@ -71,12 +71,14 @@ export function groupTransactionsByDate(transactions: Transaction[]): Transactio
 
   const map = new Map<string, Transaction[]>()
 
-  const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date))
+  const sorted = [...transactions].sort((a, b) =>
+    b.transaction_date.localeCompare(a.transaction_date),
+  )
 
   for (const t of sorted) {
-    const list = map.get(t.date) ?? []
+    const list = map.get(t.transaction_date) ?? []
     list.push(t)
-    map.set(t.date, list)
+    map.set(t.transaction_date, list)
   }
 
   return [...map.entries()].map(([date, txs]) => {

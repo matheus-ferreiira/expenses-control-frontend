@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 function sourceName(t: Transaction): string {
   if (t.account) return t.account.name
-  if (t.credit_card) return t.credit_card.name
+  if (t.card) return t.card.name
   return ''
 }
 </script>

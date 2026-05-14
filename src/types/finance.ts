@@ -1,6 +1,5 @@
 export type TransactionType = 'income' | 'expense' | 'transfer'
 export type AccountType = 'checking' | 'savings' | 'investment' | 'wallet'
-export type CreditCardNetwork = 'visa' | 'mastercard' | 'elo' | 'amex' | 'other'
 
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   income: 'Receita',
@@ -17,64 +16,59 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
 
 export interface TransactionCategory {
   id: string
-  user_id: string
+  user_id: string | null
   name: string
   type: TransactionType
   color: string
   icon: string | null
+  is_default: boolean
   created_at: string
 }
 
 export interface BankAccount {
   id: string
-  user_id: string
   name: string
+  bank_name: string | null
   type: AccountType
   balance: number
   currency: string
   color: string
-  icon: string | null
   is_active: boolean
   created_at: string
-  updated_at: string
-  deleted_at: string | null
 }
 
 export interface CreditCard {
   id: string
-  user_id: string
+  bank_account_id: string | null
   name: string
-  network: CreditCardNetwork
-  credit_limit: number
-  current_balance: number
+  limit_amount: number
   closing_day: number
   due_day: number
   color: string
   is_active: boolean
   created_at: string
-  updated_at: string
-  deleted_at: string | null
 }
 
 export interface Transaction {
   id: string
-  user_id: string
-  category_id: string | null
   account_id: string | null
-  credit_card_id: string | null
+  card_id: string | null
+  category_id: string | null
   type: TransactionType
   amount: number
   description: string
   notes: string | null
-  date: string
+  transaction_date: string
   is_recurring: boolean
-  recurrence_pattern: string | null
+  recurrence_config: Record<string, unknown> | null
+  installment_number: number | null
+  total_installments: number | null
+  installment_group_id: string | null
   category?: TransactionCategory
   account?: BankAccount
-  credit_card?: CreditCard
+  card?: CreditCard
   created_at: string
   updated_at: string
-  deleted_at: string | null
 }
 
 export interface FinanceSummary {
@@ -87,14 +81,15 @@ export interface FinanceSummary {
 export interface CreateTransactionPayload {
   category_id?: string
   account_id?: string
-  credit_card_id?: string
+  card_id?: string
   type: TransactionType
   amount: number
   description: string
   notes?: string
-  date: string
+  transaction_date: string
   is_recurring?: boolean
-  recurrence_pattern?: string
+  recurrence_config?: Record<string, unknown>
+  total_installments?: number
 }
 
 export type UpdateTransactionPayload = Partial<CreateTransactionPayload>
@@ -103,7 +98,7 @@ export interface TransactionFilters {
   type?: TransactionType
   category_id?: string
   account_id?: string
-  credit_card_id?: string
+  card_id?: string
   start_date?: string
   end_date?: string
   search?: string

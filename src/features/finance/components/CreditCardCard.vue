@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,10 +10,8 @@ import { Button } from '@ui/button'
 import { MoreHorizontal, Pencil, Trash2, CreditCard } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
-import { NETWORK_LABELS } from '../types'
-import { utilizationPercent } from '../utils/financeHelpers'
 
-const props = defineProps<{
+defineProps<{
   card: CreditCardType
 }>()
 
@@ -22,15 +19,6 @@ const emit = defineEmits<{
   edit: [card: CreditCardType]
   delete: [id: string]
 }>()
-
-const utilPct = computed(() => utilizationPercent(props.card.current_balance, props.card.credit_limit))
-const available = computed(() => props.card.credit_limit - props.card.current_balance)
-
-const utilBarClass = computed(() => {
-  if (utilPct.value >= 80) return 'bg-destructive/60'
-  if (utilPct.value >= 50) return 'bg-warning/70'
-  return 'bg-success/60'
-})
 </script>
 
 <template>
@@ -42,7 +30,7 @@ const utilBarClass = computed(() => {
         <div class="min-w-0">
           <p class="text-[13px] font-medium text-foreground truncate">{{ card.name }}</p>
           <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5">
-            {{ NETWORK_LABELS[card.network] }} · Fecha dia {{ card.closing_day }}
+            Fecha dia {{ card.closing_day }} · Vence dia {{ card.due_day }}
           </p>
         </div>
       </div>
@@ -70,38 +58,28 @@ const utilBarClass = computed(() => {
       </DropdownMenu>
     </div>
 
-    <!-- Invoice + available -->
+    <!-- Limit -->
     <div class="pt-2 border-t border-border/40">
-      <div class="flex items-end justify-between mb-2">
+      <div class="flex items-end justify-between">
         <div>
-          <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-1">Fatura</p>
+          <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-1">Limite</p>
           <p class="text-[18px] font-semibold tabular-nums leading-none text-foreground">
-            {{ formatCurrency(card.current_balance) }}
+            {{ formatCurrency(card.limit_amount) }}
           </p>
         </div>
         <div class="text-right">
-          <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-1">Disponível</p>
-          <p class="text-[13px] font-medium tabular-nums text-success/80">
-            {{ formatCurrency(available) }}
-          </p>
+          <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-1">Status</p>
+          <span
+            :class="[
+              'text-[10px] font-medium px-1.5 py-0.5 rounded',
+              card.is_active
+                ? 'bg-success/10 text-success/80'
+                : 'bg-muted/50 text-muted-foreground/50',
+            ]"
+          >
+            {{ card.is_active ? 'Ativo' : 'Inativo' }}
+          </span>
         </div>
-      </div>
-
-      <!-- Utilization bar -->
-      <div class="h-1 rounded-full bg-muted/50 overflow-hidden">
-        <div
-          :class="['h-full rounded-full transition-all', utilBarClass]"
-          :style="{ width: `${utilPct}%` }"
-        />
-      </div>
-
-      <div class="flex items-center justify-between mt-1.5">
-        <span class="text-[10px] text-muted-foreground/40">
-          Limite: {{ formatCurrency(card.credit_limit) }}
-        </span>
-        <span class="text-[10px] text-muted-foreground/40">
-          {{ utilPct }}% · Vence dia {{ card.due_day }}
-        </span>
       </div>
     </div>
   </div>
