@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Loader2, Trash2, MapPin, AlignLeft } from 'lucide-vue-next'
 import {
   Dialog,
@@ -9,10 +10,12 @@ import {
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import { Checkbox } from '@ui/checkbox'
+import { ConfirmDialog } from '@/components/shared'
 import type { EventColor } from '@/types/calendar'
 import { useEventForm } from '../composables/useEventForm'
 
 const form = useEventForm()
+const confirmDeleteOpen = ref(false)
 
 const EVENT_COLORS: { id: EventColor; label: string; hex: string }[] = [
   { id: 'violet', label: 'Violeta', hex: 'hsl(262 83% 58%)' },
@@ -156,7 +159,7 @@ defineExpose({ openCreate: form.openCreate, openEdit: form.openEdit })
             :disabled="form.submitting.value"
             @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--destructive))'"
             @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--destructive) / 0.7)'"
-            @click="form.deleteEvent()"
+            @click="confirmDeleteOpen = true"
           >
             <Trash2 :size="13" />
             Excluir
@@ -181,4 +184,15 @@ defineExpose({ openCreate: form.openCreate, openEdit: form.openEdit })
       </div>
     </DialogContent>
   </Dialog>
+
+  <ConfirmDialog
+    :open="confirmDeleteOpen"
+    title="Excluir evento"
+    description="Esta ação não pode ser desfeita."
+    variant="destructive"
+    confirm-label="Excluir"
+    :loading="form.submitting.value"
+    @update:open="confirmDeleteOpen = $event"
+    @confirm="form.deleteEvent()"
+  />
 </template>
