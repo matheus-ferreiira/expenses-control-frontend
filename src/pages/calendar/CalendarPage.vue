@@ -10,12 +10,15 @@ import CalendarMonthGrid from '@/features/calendar/components/CalendarMonthGrid.
 import CalendarWeekGrid from '@/features/calendar/components/CalendarWeekGrid.vue'
 import CalendarAgendaView from '@/features/calendar/components/CalendarAgendaView.vue'
 import CalendarEventModal from '@/features/calendar/components/CalendarEventModal.vue'
+import CalendarGoogleConnectModal from '@/features/calendar/components/CalendarGoogleConnectModal.vue'
 import type { CalendarDay, CalendarEvent } from '@/types/calendar'
 
 const store = useCalendarStore()
 const nav = useCalendarNav()
 const modal = ref<InstanceType<typeof CalendarEventModal> | null>(null)
 const toast = useToast()
+const googleModalOpen = ref(false)
+const googleConnected = ref(false)
 
 const isCurrentPeriod = computed(() => {
   const now = new Date()
@@ -105,9 +108,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       <div class="flex items-center gap-2">
         <button
           class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
-          style="color: hsl(var(--muted-foreground) / 0.7); border: 1px solid hsl(var(--border) / 0.6)"
+          :style="googleConnected
+            ? 'color: hsl(var(--success)); border: 1px solid hsl(var(--success) / 0.4)'
+            : 'color: hsl(var(--muted-foreground) / 0.7); border: 1px solid hsl(var(--border) / 0.6)'"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
-          @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.7)'"
+          @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = googleConnected ? 'hsl(var(--success))' : 'hsl(var(--muted-foreground) / 0.7)'"
+          @click="googleModalOpen = true"
         >
           <Link :size="12" />
           Google Calendar
@@ -166,5 +172,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 
     <!-- Event create/edit modal -->
     <CalendarEventModal ref="modal" />
+
+    <!-- Google Calendar connect modal -->
+    <CalendarGoogleConnectModal
+      :open="googleModalOpen"
+      :connected="googleConnected"
+      @update:open="googleModalOpen = $event"
+      @connect="toast.info('Integração com Google Calendar em breve!')"
+      @disconnect="googleConnected = false; googleModalOpen = false"
+    />
   </div>
 </template>
