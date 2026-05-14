@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus, Link } from 'lucide-vue-next'
 import { useCalendarNav } from '@/features/calendar/composables/useCalendarNav'
 import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid'
 import { useCalendarStore } from '@/stores/calendar'
 import CalendarMonthHeader from '@/features/calendar/components/CalendarMonthHeader.vue'
 import CalendarMonthGrid from '@/features/calendar/components/CalendarMonthGrid.vue'
+import CalendarEventModal from '@/features/calendar/components/CalendarEventModal.vue'
 import type { CalendarDay, CalendarEvent } from '@/types/calendar'
 
 const store = useCalendarStore()
 const nav = useCalendarNav()
+const modal = ref<InstanceType<typeof CalendarEventModal> | null>(null)
 
 const isCurrentMonth = computed(() => {
   const now = new Date()
@@ -21,7 +23,6 @@ const isCurrentMonth = computed(() => {
 
 const { weeks } = useCalendarGrid(nav.currentYear, nav.currentMonth, computed(() => store.events))
 
-// Fetch events when month changes
 async function loadCurrentMonth() {
   await store.fetchForMonth(nav.currentYear.value, nav.currentMonth.value)
 }
@@ -29,19 +30,22 @@ async function loadCurrentMonth() {
 onMounted(loadCurrentMonth)
 watch([nav.currentYear, nav.currentMonth], loadCurrentMonth)
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function handleClickDay(_day: CalendarDay) {
-  // Sprint 5: open create modal with day pre-filled
+function handleClickDay(day: CalendarDay) {
+  modal.value?.openCreate(day.date)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function handleClickEvent(_event: CalendarEvent) {
-  // Sprint 5: open edit modal
+function handleClickEvent(event: CalendarEvent) {
+  modal.value?.openEdit(event)
 }
 
-function handleNewEvent() {
-  // Sprint 5: open create modal
+function onKeyDown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement).tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return
+  if (e.key === 'n' || e.key === 'N') modal.value?.openCreate()
 }
+
+onMounted(() => window.addEventListener('keydown', onKeyDown))
+onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 </script>
 
 <template>
@@ -67,7 +71,7 @@ function handleNewEvent() {
           style="color: hsl(var(--foreground)); border: 1px solid hsl(var(--border))"
           @mouseenter="(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--accent))' }"
           @mouseleave="(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }"
-          @click="handleNewEvent"
+          @click="modal?.openCreate()"
         >
           <Plus :size="12" />
           Novo evento
@@ -104,5 +108,8 @@ function handleNewEvent() {
         Agenda view — Sprint 7
       </p>
     </div>
+
+    <!-- Event create/edit modal -->
+    <CalendarEventModal ref="modal" />
   </div>
 </template>
