@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue'
-import { Pin, Star, Archive, Trash2, Tag, ArchiveRestore } from 'lucide-vue-next'
+import { Pin, Star, Archive, Trash2, Tag, ArchiveRestore, Plus } from 'lucide-vue-next'
 import { useNoteStore } from '@/stores/notes'
 import { useNoteAutosave } from '@/features/notes/composables/useNoteAutosave'
 import type { Note, NoteTag } from '@/types/notes'
+
+const TAG_COLORS = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6']
 
 const props = defineProps<{
   note: Note | null
@@ -19,6 +21,8 @@ const store = useNoteStore()
 const title = ref('')
 const content = ref('')
 const tagPickerOpen = ref(false)
+const newTagName = ref('')
+const creatingTag = ref(false)
 
 const autosave = useNoteAutosave(() => props.note?.id ?? null)
 
@@ -85,6 +89,20 @@ async function toggleTag(tag: NoteTag) {
 
 function hasTag(tagId: string) {
   return props.note?.tags.some((t) => t.id === tagId) ?? false
+}
+
+async function createAndApplyTag() {
+  const name = newTagName.value.trim()
+  if (!name || !props.note || creatingTag.value) return
+  creatingTag.value = true
+  try {
+    const color = TAG_COLORS[store.tags.length % TAG_COLORS.length]
+    const tag = await store.createTag({ name, color })
+    await toggleTag(tag)
+    newTagName.value = ''
+  } finally {
+    creatingTag.value = false
+  }
 }
 
 async function focusContent() {
@@ -191,6 +209,28 @@ async function focusContent() {
               </div>
               <span v-if="hasTag(tag.id)" class="text-[10px]" style="color: hsl(var(--primary))">✓</span>
             </button>
+
+            <!-- Divider + create tag input -->
+            <div class="border-t mt-1 pt-1" style="border-color: hsl(var(--border) / 0.5)">
+              <div class="flex items-center gap-1.5 px-3 py-1">
+                <input
+                  v-model="newTagName"
+                  type="text"
+                  placeholder="Nova tag…"
+                  class="flex-1 bg-transparent outline-none text-[11.5px] text-foreground placeholder:text-muted-foreground/30"
+                  @keydown.enter.prevent="createAndApplyTag"
+                  @keydown.stop
+                />
+                <button
+                  class="flex items-center justify-center w-5 h-5 rounded transition-colors"
+                  :style="newTagName.trim() ? 'color: hsl(var(--primary))' : 'color: hsl(var(--muted-foreground) / 0.3)'"
+                  :disabled="!newTagName.trim() || creatingTag"
+                  @click.stop="createAndApplyTag"
+                >
+                  <Plus :size="11" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
