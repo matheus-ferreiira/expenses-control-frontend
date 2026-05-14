@@ -38,25 +38,44 @@ export const useNoteStore = defineStore('notes', () => {
   }
 
   async function fetchTags() {
-    tags.value = await notesApi.tags.list() as NoteTag[]
+    try {
+      tags.value = (await notesApi.tags.list()) as NoteTag[]
+    } catch {
+      error.value = 'Erro ao carregar tags'
+    }
   }
 
   async function createNote(payload: CreateNotePayload): Promise<Note> {
-    const note = await notesApi.create(payload) as Note
-    notes.value.unshift(note)
-    return note
+    try {
+      const note = (await notesApi.create(payload)) as Note
+      notes.value.unshift(note)
+      return note
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar nota'
+      throw e
+    }
   }
 
   async function updateNote(id: string, payload: UpdateNotePayload): Promise<Note> {
-    const updated = await notesApi.update(id, payload) as Note
-    const idx = notes.value.findIndex((n) => n.id === id)
-    if (idx !== -1) notes.value[idx] = updated
-    return updated
+    try {
+      const updated = (await notesApi.update(id, payload)) as Note
+      const idx = notes.value.findIndex((n) => n.id === id)
+      if (idx !== -1) notes.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar nota'
+      throw e
+    }
   }
 
   async function deleteNote(id: string): Promise<void> {
-    await notesApi.delete(id)
-    notes.value = notes.value.filter((n) => n.id !== id)
+    try {
+      await notesApi.delete(id)
+      notes.value = notes.value.filter((n) => n.id !== id)
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir nota'
+      throw e
+    }
   }
 
   async function togglePin(id: string): Promise<Note> {
@@ -92,31 +111,51 @@ export const useNoteStore = defineStore('notes', () => {
   }
 
   async function archiveNote(id: string): Promise<void> {
-    const updated = await notesApi.archive(id) as Note
-    const idx = notes.value.findIndex((n) => n.id === id)
-    if (idx !== -1) notes.value[idx] = updated
+    try {
+      const updated = (await notesApi.archive(id)) as Note
+      const idx = notes.value.findIndex((n) => n.id === id)
+      if (idx !== -1) notes.value[idx] = updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao arquivar nota'
+      throw e
+    }
   }
 
   async function unarchiveNote(id: string): Promise<void> {
-    const updated = await notesApi.unarchive(id) as Note
-    const idx = notes.value.findIndex((n) => n.id === id)
-    if (idx !== -1) notes.value[idx] = updated
+    try {
+      const updated = (await notesApi.unarchive(id)) as Note
+      const idx = notes.value.findIndex((n) => n.id === id)
+      if (idx !== -1) notes.value[idx] = updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao desarquivar nota'
+      throw e
+    }
   }
 
   async function createTag(payload: { name: string; color?: string }): Promise<NoteTag> {
-    const tag = await notesApi.tags.create(payload) as NoteTag
-    tags.value.push(tag)
-    tags.value.sort((a, b) => a.name.localeCompare(b.name))
-    return tag
+    try {
+      const tag = (await notesApi.tags.create(payload)) as NoteTag
+      tags.value.push(tag)
+      tags.value.sort((a, b) => a.name.localeCompare(b.name))
+      return tag
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar tag'
+      throw e
+    }
   }
 
   async function deleteTag(id: string): Promise<void> {
-    await notesApi.tags.delete(id)
-    tags.value = tags.value.filter((t) => t.id !== id)
-    notes.value = notes.value.map((n) => ({
-      ...n,
-      tags: n.tags.filter((t) => t.id !== id),
-    }))
+    try {
+      await notesApi.tags.delete(id)
+      tags.value = tags.value.filter((t) => t.id !== id)
+      notes.value = notes.value.map((n) => ({
+        ...n,
+        tags: n.tags.filter((t) => t.id !== id),
+      }))
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir tag'
+      throw e
+    }
   }
 
   return {
