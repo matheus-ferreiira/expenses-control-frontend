@@ -34,11 +34,11 @@ const timeLabel = computed(() => {
 
 <template>
   <button
-    class="w-full text-left px-3 py-2.5 border-b transition-colors group"
+    class="w-full text-left px-3 py-2.5 border-b transition-base group"
     :style="[
-      'border-color: hsl(var(--border) / 0.4)',
+      'border-color: hsl(var(--border) / 0.35)',
       active
-        ? 'background: hsl(var(--accent) / 0.4)'
+        ? 'background: hsl(var(--foreground) / 0.04); box-shadow: inset 2px 0 0 hsl(var(--primary) / 0.7)'
         : 'background: transparent',
     ]"
     @click="emit('select', note)"

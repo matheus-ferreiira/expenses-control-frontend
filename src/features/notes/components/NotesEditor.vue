@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue'
-import { Pin, Star, Archive, Trash2, Tag, ArchiveRestore, Plus } from 'lucide-vue-next'
+import { Pin, Star, Archive, Trash2, Tag, ArchiveRestore, Plus, Loader2, FileText } from 'lucide-vue-next'
 import { useNoteStore } from '@/stores/notes'
 import { useNoteAutosave } from '@/features/notes/composables/useNoteAutosave'
 import type { Note, NoteTag } from '@/types/notes'
@@ -116,17 +116,10 @@ async function focusContent() {
   <!-- Empty state -->
   <div
     v-if="!note"
-    class="flex-1 flex flex-col items-center justify-center gap-3 h-full"
-    style="color: hsl(var(--muted-foreground) / 0.3)"
+    class="flex-1 flex flex-col items-center justify-center gap-2 h-full select-none"
   >
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/>
-      <line x1="16" y1="17" x2="8" y2="17"/>
-      <polyline points="10 9 9 9 8 9"/>
-    </svg>
-    <p class="text-[12px]">Selecione uma nota ou crie uma nova</p>
+    <FileText :size="18" style="color: hsl(var(--muted-foreground) / 0.2)" />
+    <p class="text-[12px]" style="color: hsl(var(--muted-foreground) / 0.3)">Selecione ou crie uma nota</p>
   </div>
 
   <!-- Editor -->
@@ -134,13 +127,13 @@ async function focusContent() {
 
     <!-- Toolbar -->
     <div
-      class="flex items-center justify-between px-5 py-2.5 border-b shrink-0"
-      style="border-color: hsl(var(--border) / 0.4)"
+      class="flex items-center justify-between px-6 py-2 border-b shrink-0"
+      style="border-color: hsl(var(--border) / 0.35)"
     >
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-0.5">
         <!-- Pin -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
           :style="note.is_pinned
             ? 'color: hsl(var(--primary)); background: hsl(var(--primary) / 0.1)'
             : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -154,7 +147,7 @@ async function focusContent() {
 
         <!-- Favorite -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
           :style="note.is_favorite
             ? 'color: hsl(var(--warning)); background: hsl(var(--warning) / 0.1)'
             : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -169,7 +162,7 @@ async function focusContent() {
         <!-- Tag picker -->
         <div class="relative">
           <button
-            class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+            class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
             :style="tagPickerOpen
               ? 'color: hsl(var(--foreground)); background: hsl(var(--accent))'
               : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -197,7 +190,7 @@ async function focusContent() {
             <button
               v-for="tag in allTags"
               :key="tag.id"
-              class="flex items-center justify-between gap-2 w-full px-3 py-1.5 text-left text-[12px] transition-colors"
+              class="flex items-center justify-between gap-2 w-full px-3 py-1.5 text-left text-[12px] transition-base"
               :style="hasTag(tag.id) ? 'color: hsl(var(--foreground))' : 'color: hsl(var(--muted-foreground) / 0.7)'"
               @mouseenter="(e) => (e.currentTarget as HTMLElement).style.background = 'hsl(var(--accent))'"
               @mouseleave="(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'"
@@ -235,11 +228,11 @@ async function focusContent() {
         </div>
       </div>
 
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-0.5">
         <!-- Archive / Unarchive -->
         <button
           v-if="!note.is_archived"
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Arquivar"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
@@ -250,7 +243,7 @@ async function focusContent() {
         </button>
         <button
           v-else
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Desarquivar"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
@@ -262,7 +255,7 @@ async function focusContent() {
 
         <!-- Delete -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-colors"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Excluir"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--destructive))'"
@@ -276,19 +269,19 @@ async function focusContent() {
 
     <!-- Title input -->
     <div
-      class="px-5 pt-4 pb-2 shrink-0"
+      class="px-7 pt-6 pb-2 shrink-0"
       @click="focusContent"
     >
       <input
         v-model="title"
         type="text"
         placeholder="Sem título"
-        class="w-full bg-transparent outline-none text-[20px] font-semibold text-foreground placeholder:text-muted-foreground/20 leading-tight"
+        class="w-full bg-transparent outline-none text-[22px] font-semibold text-foreground placeholder:text-muted-foreground/15 leading-tight"
       />
     </div>
 
     <!-- Tags row -->
-    <div v-if="note.tags.length > 0" class="px-5 pb-2 flex flex-wrap gap-1.5 shrink-0">
+    <div v-if="note.tags.length > 0" class="px-7 pb-2 flex flex-wrap gap-1.5 shrink-0">
       <span
         v-for="tag in note.tags"
         :key="tag.id"
@@ -301,30 +294,35 @@ async function focusContent() {
     </div>
 
     <!-- Content textarea -->
-    <div class="flex-1 min-h-0 relative px-5 pb-10">
+    <div class="flex-1 min-h-0 relative px-7 pb-10">
       <textarea
         id="note-content"
         v-model="content"
         placeholder="Escreva algo…"
-        class="w-full h-full resize-none bg-transparent outline-none text-[13.5px] leading-relaxed text-foreground/80 placeholder:text-muted-foreground/20"
+        class="w-full h-full resize-none bg-transparent outline-none text-[14px] leading-[1.75] text-foreground/75 placeholder:text-muted-foreground/20"
         style="font-family: inherit"
       />
     </div>
 
     <!-- Footer: autosave status + metadata -->
     <div
-      class="flex items-center justify-between px-5 py-2.5 border-t shrink-0"
-      style="border-color: hsl(var(--border) / 0.3)"
+      class="flex items-center justify-between px-7 py-2 border-t shrink-0"
+      style="border-color: hsl(var(--border) / 0.25)"
     >
-      <span class="text-[10px]" style="color: hsl(var(--muted-foreground) / 0.3)">
+      <span class="text-[10px]" style="color: hsl(var(--muted-foreground) / 0.28)">
         {{ new Date(note.updated_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }}
       </span>
       <span
-        class="text-[10px] transition-opacity"
+        class="flex items-center gap-1 text-[10px] transition-base"
         :style="saveStatusLabel
-          ? 'color: hsl(var(--muted-foreground) / 0.5); opacity: 1'
+          ? 'color: hsl(var(--muted-foreground) / 0.45); opacity: 1'
           : 'opacity: 0'"
       >
+        <Loader2
+          v-if="autosave.status.value === 'saving'"
+          :size="9"
+          class="animate-spin"
+        />
         {{ saveStatusLabel || '·' }}
       </span>
     </div>
