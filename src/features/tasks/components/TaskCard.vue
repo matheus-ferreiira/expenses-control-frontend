@@ -46,6 +46,12 @@ const dueDateStyle = computed(() => {
   if (dueToday.value) return 'color: hsl(var(--warning) / 0.7)'
   return 'color: hsl(var(--muted-foreground) / 0.4)'
 })
+
+const statusIndicatorStyle = computed(() => {
+  if (isCompleted.value) return 'background: hsl(var(--success) / 0.7)'
+  if (overdue.value) return 'background: hsl(var(--destructive) / 0.7)'
+  return 'background: hsl(var(--info) / 0.6)'
+})
 </script>
 
 <template>
@@ -56,6 +62,12 @@ const dueDateStyle = computed(() => {
     ]"
     @click="emit('open', task)"
   >
+    <!-- Status indicator -->
+    <div
+      class="h-2 w-2 rounded-full shrink-0"
+      :style="statusIndicatorStyle"
+    />
+
     <!-- Drag handle -->
     <div
       v-if="draggable"
