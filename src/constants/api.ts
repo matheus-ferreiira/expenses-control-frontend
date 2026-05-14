@@ -41,6 +41,13 @@ export const API_ENDPOINTS = {
     CATEGORIES: `${API_BASE}/finance/categories`,
     CATEGORY_DETAIL: (id: string) => `${API_BASE}/finance/categories/${id}`,
     REPORTS: `${API_BASE}/finance/reports`,
+    REPORTS_MONTHLY: `${API_BASE}/finance/reports/monthly`,
+    REPORTS_YEARLY: `${API_BASE}/finance/reports/yearly`,
+    REPORTS_CASHFLOW: `${API_BASE}/finance/reports/cashflow`,
+    REPORTS_BALANCE: `${API_BASE}/finance/reports/balance`,
+  },
+  REPORTS: {
+    WEEKLY_PRODUCTIVITY: `${API_BASE}/reports/weekly-productivity`,
   },
   GOALS: {
     BASE: `${API_BASE}/goals`,
