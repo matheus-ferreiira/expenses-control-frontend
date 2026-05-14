@@ -46,7 +46,7 @@ defineProps<{
       </div>
       <Skeleton v-if="loading" class="h-6 w-16" />
       <p v-else class="text-2xl font-bold text-foreground">
-        {{ stats?.logs_this_week ?? 0 }}
+        {{ stats?.completed_this_week ?? 0 }}
         <span class="text-sm font-normal text-muted-foreground">vezes</span>
       </p>
     </div>
@@ -59,7 +59,7 @@ defineProps<{
       </div>
       <Skeleton v-if="loading" class="h-6 w-16" />
       <p v-else class="text-2xl font-bold text-foreground">
-        {{ stats ? getCompletionRateLabel(stats.completion_rate) : '—' }}
+        {{ stats ? getCompletionRateLabel(stats.completion_rate_30d) : '—' }}
       </p>
     </div>
   </div>

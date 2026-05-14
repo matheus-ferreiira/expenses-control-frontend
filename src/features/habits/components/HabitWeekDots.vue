@@ -25,7 +25,7 @@ const dots = computed(() => getWeeklyDots(props.habit))
               ? 'bg-border/50 ring-1 ring-border'
               : 'bg-border/30',
       ]"
-      :style="dot.isLogged && !dot.isFuture ? `background: ${habit.color}` : undefined"
+      :style="dot.isLogged && !dot.isFuture && habit.color ? `background: ${habit.color}` : undefined"
       :title="dot.date"
     />
   </div>

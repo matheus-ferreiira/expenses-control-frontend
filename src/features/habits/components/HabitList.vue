@@ -80,7 +80,7 @@ function handleLog(id: string) {
       <!-- Color dot -->
       <div
         class="w-1.5 h-8 rounded-full shrink-0"
-        :style="{ backgroundColor: habit.color }"
+        :style="{ backgroundColor: habit.color ?? undefined }"
       />
 
       <!-- Content -->

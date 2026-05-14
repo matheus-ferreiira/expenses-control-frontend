@@ -162,7 +162,7 @@ export function useReportsData() {
           const logs = h.logs.filter((l) => l.completed_date >= startDate.value).length
           return logs > best.count ? { count: logs, name: h.name, color: h.color } : best
         },
-        { count: 0, name: '', color: '' },
+        { count: 0, name: '', color: null as string | null },
       )
     return best.count > 0 ? best : null
   })

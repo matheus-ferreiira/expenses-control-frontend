@@ -95,7 +95,7 @@ async function handleArchive() {
           <div class="flex items-center gap-3">
             <span
               class="w-3 h-3 rounded-full shrink-0"
-              :style="{ backgroundColor: habit.color }"
+              :style="{ backgroundColor: habit.color ?? undefined }"
             />
             <SheetTitle class="text-left leading-snug">{{ habit.name }}</SheetTitle>
           </div>

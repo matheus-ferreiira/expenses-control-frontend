@@ -35,7 +35,7 @@ export function useHabitForm() {
     form.description = habit.description ?? ''
     form.frequency = habit.frequency
     form.target_days = [...habit.target_days]
-    form.color = habit.color
+    form.color = habit.color ?? HABIT_COLORS[0]?.value ?? '#8b5cf6'
     form.icon = habit.icon ?? ''
     Object.assign(errors, {})
   }
@@ -65,7 +65,7 @@ export function useHabitForm() {
   function toPayload(): CreateHabitPayload {
     const payload: CreateHabitPayload = {
       name: form.name.trim(),
-      frequency: form.frequency,
+      frequency_type: form.frequency,
     }
     if (form.description.trim()) payload.description = form.description.trim()
     if (form.target_days.length) payload.target_days = [...form.target_days]

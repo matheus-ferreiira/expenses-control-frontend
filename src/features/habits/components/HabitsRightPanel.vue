@@ -74,7 +74,7 @@ const topStreaks = computed(() =>
         >
           <div
             class="h-1.5 w-1.5 rounded-full shrink-0"
-            :style="{ background: habit.color }"
+            :style="{ background: habit.color ?? undefined }"
           />
           <span class="text-[12px] text-foreground/70 truncate flex-1">
             {{ habit.name }}

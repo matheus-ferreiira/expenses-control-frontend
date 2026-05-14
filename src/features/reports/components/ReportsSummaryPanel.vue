@@ -12,7 +12,7 @@ interface BestStreak {
 interface MostConsistentHabit {
   count: number
   name: string
-  color: string
+  color: string | null
 }
 
 interface TopExpenseCategory {

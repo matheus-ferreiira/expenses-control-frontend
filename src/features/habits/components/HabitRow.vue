@@ -50,7 +50,7 @@ async function handleLog() {
     <!-- Color dot -->
     <div
       class="h-2 w-2 rounded-full shrink-0"
-      :style="{ background: habit.color }"
+      :style="{ background: habit.color ?? undefined }"
     />
 
     <!-- Name + frequency -->
@@ -98,7 +98,7 @@ async function handleLog() {
             ? 'border-transparent'
             : 'border-border/50 hover:border-success/50 hover:bg-success/10',
         ]"
-        :style="doneToday ? `background: ${habit.color}20; border-color: ${habit.color}50` : undefined"
+        :style="doneToday && habit.color ? `background: ${habit.color}20; border-color: ${habit.color}50` : undefined"
         :disabled="logging"
         @click="handleLog"
       >
@@ -106,7 +106,7 @@ async function handleLog() {
         <Check
           v-else
           :size="12"
-          :style="doneToday ? `color: ${habit.color}` : 'color: hsl(var(--muted-foreground) / 0.4)'"
+          :style="doneToday && habit.color ? `color: ${habit.color}` : 'color: hsl(var(--muted-foreground) / 0.4)'"
         />
       </button>
     </div>

@@ -21,24 +21,27 @@ export interface Habit {
   description: string | null
   frequency: HabitFrequency
   target_days: number[]
-  color: string
+  color: string | null
   icon: string | null
   is_active: boolean
+  is_archived: boolean
   current_streak: number
   longest_streak: number
   logs: HabitLog[]
+  start_date: string | null
   created_at: string
   updated_at: string
-  deleted_at: string | null
 }
 
 export interface HabitStats {
-  total_logs: number
   current_streak: number
   longest_streak: number
-  completion_rate: number
-  logs_this_week: number
-  logs_this_month: number
+  completion_rate_30d: number
+  completion_rate_7d: number
+  completed_today: boolean
+  completed_this_week: number
+  completed_this_month: number
+  total_completed: number
 }
 
 export interface HabitHeatmapEntry {
@@ -49,7 +52,7 @@ export interface HabitHeatmapEntry {
 export interface CreateHabitPayload {
   name: string
   description?: string
-  frequency: HabitFrequency
+  frequency_type: HabitFrequency
   target_days?: number[]
   color?: string
   icon?: string

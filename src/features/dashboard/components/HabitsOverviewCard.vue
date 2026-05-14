@@ -105,7 +105,7 @@ function handleLog(id: string) {
         <!-- Color dot -->
         <div
           class="shrink-0 h-1.5 w-1.5 rounded-full mt-0.5"
-          :style="{ backgroundColor: habit.color }"
+          :style="{ backgroundColor: habit.color ?? undefined }"
         />
 
         <!-- Name + weekly dots -->

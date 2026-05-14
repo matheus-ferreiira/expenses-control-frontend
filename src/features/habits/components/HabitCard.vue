@@ -43,7 +43,7 @@ const isArchived = computed(() => !props.habit.is_active)
     <!-- Color accent bar -->
     <div
       class="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
-      :style="{ backgroundColor: habit.color }"
+      :style="{ backgroundColor: habit.color ?? undefined }"
     />
 
     <div class="pl-4 pr-3 py-3">
