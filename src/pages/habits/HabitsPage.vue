@@ -5,6 +5,7 @@ import { Button } from '@ui/button'
 import HabitToolbar from '@/features/habits/components/HabitToolbar.vue'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
 import HabitsRightPanel from '@/features/habits/components/HabitsRightPanel.vue'
+import HabitsHeatmap from '@/features/habits/components/HabitsHeatmap.vue'
 import HabitTableView from '@/features/habits/views/HabitTableView.vue'
 import HabitListView from '@/features/habits/views/HabitListView.vue'
 import HabitGridView from '@/features/habits/views/HabitGridView.vue'
@@ -252,6 +253,13 @@ onUnmounted(() => {
         <HabitsRightPanel :habits="store.habits" />
       </div>
 
+    </div>
+
+    <!-- Heatmap (only when there are habits) -->
+    <div v-if="activeHabits.length > 0" class="px-4 sm:px-6 pt-2 pb-8 shrink-0">
+      <div class="border-t border-border/30 pt-5">
+        <HabitsHeatmap :habits="store.habits" />
+      </div>
     </div>
 
   </div>
