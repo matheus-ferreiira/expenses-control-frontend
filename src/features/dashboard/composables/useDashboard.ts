@@ -163,8 +163,8 @@ export function useDashboard() {
   const todayEvents = computed(() => {
     const todayStr = toISODate(new Date())
     return calendarStore.events
-      .filter((e) => e.start_datetime.startsWith(todayStr))
-      .sort((a, b) => a.start_datetime.localeCompare(b.start_datetime))
+      .filter((e) => e.start_date.startsWith(todayStr))
+      .sort((a, b) => a.start_date.localeCompare(b.start_date))
   })
 
   // ── Upcoming Bills (credit card due days) ─────────────────────────────────
@@ -232,10 +232,7 @@ export function useDashboard() {
         end_date: toISODate(now),
         per_page: 500,
       }),
-      calendarStore.fetchEvents({
-        start: toISODate(now),
-        end: toISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
-      }),
+      calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
     ])
   }
 

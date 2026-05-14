@@ -28,6 +28,8 @@ export const calendarApi = {
   delete: (id: string) =>
     client.delete<ApiResponse<null>>(API_ENDPOINTS.CALENDAR.DETAIL(id)).then(unwrap),
 
-  upcoming: () =>
-    client.get<ApiResponse<CalendarEvent[]>>(API_ENDPOINTS.CALENDAR.UPCOMING).then(unwrap),
+  upcoming: (days?: number) =>
+    client
+      .get<ApiResponse<CalendarEvent[]>>(API_ENDPOINTS.CALENDAR.UPCOMING, { params: { days } })
+      .then(unwrap),
 }

@@ -24,14 +24,14 @@ const EVENT_COLORS: Record<string, string> = {
 }
 
 function eventTime(event: CalendarEvent): string {
-  if (event.all_day) return 'Dia todo'
-  const d = new Date(event.start_datetime)
+  if (event.is_all_day) return 'Dia todo'
+  const d = new Date(event.start_date)
   return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
 function eventEndTime(event: CalendarEvent): string {
-  if (event.all_day) return ''
-  const d = new Date(event.end_datetime)
+  if (event.is_all_day) return ''
+  const d = new Date(event.end_date)
   return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 </script>
@@ -77,7 +77,7 @@ function eventEndTime(event: CalendarEvent): string {
         <div class="shrink-0 w-[72px] text-right">
           <span class="text-[11px] tabular-nums font-mono" style="color: hsl(var(--muted-foreground) / 0.5)">
             {{ eventTime(event) }}
-            <template v-if="!event.all_day && eventEndTime(event)">
+            <template v-if="!event.is_all_day && eventEndTime(event)">
               – {{ eventEndTime(event) }}
             </template>
           </span>
@@ -86,7 +86,7 @@ function eventEndTime(event: CalendarEvent): string {
         <!-- Color bar -->
         <div
           class="mt-[5px] h-1.5 w-1.5 rounded-full shrink-0"
-          :style="{ backgroundColor: EVENT_COLORS[event.color] ?? '#64748b' }"
+          :style="{ backgroundColor: event.color ? (EVENT_COLORS[event.color] ?? '#64748b') : '#64748b' }"
         />
 
         <!-- Title -->
