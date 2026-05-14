@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch, onMounted } from 'vue'
 import { Plus, Link } from 'lucide-vue-next'
 import { useCalendarNav } from '@/features/calendar/composables/useCalendarNav'
 import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid'
 import { useCalendarStore } from '@/stores/calendar'
 import CalendarMonthHeader from '@/features/calendar/components/CalendarMonthHeader.vue'
 import CalendarMonthGrid from '@/features/calendar/components/CalendarMonthGrid.vue'
-import type { CalendarDay } from '@/types/calendar'
+import type { CalendarDay, CalendarEvent } from '@/types/calendar'
 
 const store = useCalendarStore()
 const nav = useCalendarNav()
@@ -21,8 +21,22 @@ const isCurrentMonth = computed(() => {
 
 const { weeks } = useCalendarGrid(nav.currentYear, nav.currentMonth, computed(() => store.events))
 
+// Fetch events when month changes
+async function loadCurrentMonth() {
+  await store.fetchForMonth(nav.currentYear.value, nav.currentMonth.value)
+}
+
+onMounted(loadCurrentMonth)
+watch([nav.currentYear, nav.currentMonth], loadCurrentMonth)
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function handleClickDay(_day: CalendarDay) {
   // Sprint 5: open create modal with day pre-filled
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function handleClickEvent(_event: CalendarEvent) {
+  // Sprint 5: open edit modal
 }
 
 function handleNewEvent() {
@@ -76,7 +90,9 @@ function handleNewEvent() {
     <CalendarMonthGrid
       v-if="nav.viewMode.value === 'month'"
       :weeks="weeks"
+      :loading="store.loading"
       @click-day="handleClickDay"
+      @click-event="handleClickEvent"
     />
 
     <!-- Agenda view stub -->
