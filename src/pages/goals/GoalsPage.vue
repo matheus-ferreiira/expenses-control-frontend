@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Plus } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 import GoalsSummary from '@/features/goals/components/GoalsSummary.vue'
 import GoalGroup from '@/features/goals/components/GoalGroup.vue'
+import GoalFormDialog from '@/features/goals/components/GoalFormDialog.vue'
 import { useGoalStore } from '@/stores/goals'
 import { useToast } from '@/composables/useToast'
 import { GOAL_TYPE_GROUP_LABELS, GOAL_TYPE_ORDER } from '@/types/goals'
@@ -12,6 +13,9 @@ import type { Goal, GoalType } from '@/types/goals'
 
 const store = useGoalStore()
 const toast = useToast()
+
+const formOpen = ref(false)
+const editingGoal = ref<Goal | null>(null)
 
 // Stats computed from all goals
 const activeGoals = computed(() => store.goals.filter((g) => g.status === 'active'))
@@ -50,12 +54,16 @@ async function handleDelete(id: string) {
   }
 }
 
-// Placeholder handlers — will be wired in Sprint 3 and 4
 function openCreate() {
-  // Sprint 3: GoalFormDialog
+  editingGoal.value = null
+  formOpen.value = true
 }
- 
-function openEdit(goal: Goal) { void goal /* Sprint 3: GoalFormDialog */ }
+
+function openEdit(goal: Goal) {
+  editingGoal.value = goal
+  formOpen.value = true
+}
+
  
 function openUpdateProgress(goal: Goal) { void goal /* Sprint 4: GoalProgressDialog */ }
 
@@ -158,4 +166,12 @@ onMounted(() => store.fetchGoals())
     </div>
 
   </div>
+
+  <!-- Form dialog -->
+  <GoalFormDialog
+    v-model:open="formOpen"
+    :goal="editingGoal"
+    @created="store.fetchGoals()"
+    @updated="store.fetchGoals()"
+  />
 </template>
