@@ -49,25 +49,33 @@ export const useCalendarStore = defineStore('calendar', () => {
   }
 
   async function fetchUpcoming() {
-    upcoming.value = await calendarApi.upcoming()
+    try {
+      upcoming.value = await calendarApi.upcoming()
+    } catch {
+      error.value = 'Erro ao carregar próximos eventos'
+    }
   }
 
   async function createEvent(payload: CreateCalendarEventPayload): Promise<CalendarEvent> {
-    const event = await calendarApi.create(payload)
-    events.value.push(event)
-    // Invalidate the month so next visit re-fetches with server state
-    const d = new Date(event.start_date)
-    invalidateMonth(d.getFullYear(), d.getMonth())
-    return event
+    try {
+      const event = await calendarApi.create(payload)
+      events.value.push(event)
+      const d = new Date(event.start_date)
+      invalidateMonth(d.getFullYear(), d.getMonth())
+      return event
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar evento'
+      throw e
+    }
   }
 
   async function updateEvent(
     id: string,
     payload: UpdateCalendarEventPayload,
   ): Promise<CalendarEvent> {
-    // Optimistic update
     const idx = events.value.findIndex((e) => e.id === id)
-    const previous: CalendarEvent | null = idx !== -1 ? (JSON.parse(JSON.stringify(events.value[idx])) as CalendarEvent) : null
+    const previous: CalendarEvent | null =
+      idx !== -1 ? (JSON.parse(JSON.stringify(events.value[idx])) as CalendarEvent) : null
     if (idx !== -1) {
       events.value[idx] = Object.assign({}, events.value[idx], payload) as CalendarEvent
     }
@@ -75,22 +83,21 @@ export const useCalendarStore = defineStore('calendar', () => {
       const updated = await calendarApi.update(id, payload)
       if (idx !== -1) events.value[idx] = updated
       return updated
-    } catch (e) {
-      // Rollback
+    } catch (e: unknown) {
       if (idx !== -1 && previous) events.value[idx] = previous
+      error.value = 'Erro ao atualizar evento'
       throw e
     }
   }
 
   async function deleteEvent(id: string) {
-    // Optimistic delete
     const idx = events.value.findIndex((e) => e.id === id)
     const previous = idx !== -1 ? events.value.splice(idx, 1)[0] : null
     try {
       await calendarApi.delete(id)
-    } catch (e) {
-      // Rollback
+    } catch (e: unknown) {
       if (previous) events.value.push(previous)
+      error.value = 'Erro ao excluir evento'
       throw e
     }
   }
