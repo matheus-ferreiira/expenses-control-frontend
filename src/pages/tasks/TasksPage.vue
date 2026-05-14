@@ -176,7 +176,7 @@ async function handleDelete(id: string) {
 }
 
 async function handleArchive(id: string) {
-  await store.changeStatus(id, 'cancelled')
+  await store.archiveTask(id)
 }
 
 async function handleReorder(ids: string[]) {

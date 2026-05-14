@@ -95,6 +95,11 @@ export const useTaskStore = defineStore('tasks', () => {
     return optimisticUpdate(id, { status })
   }
 
+  async function archiveTask(id: string): Promise<void> {
+    await tasksApi.archive(id)
+    tasks.value = tasks.value.filter((t) => t.id !== id)
+  }
+
   async function reorderTasks(ids: string[]): Promise<void> {
     const prev = [...tasks.value]
     // Reorder local array to match new order
@@ -179,6 +184,7 @@ export const useTaskStore = defineStore('tasks', () => {
     optimisticUpdate,
     toggleComplete,
     changeStatus,
+    archiveTask,
     reorderTasks,
     createSubtask,
     toggleSubtask,

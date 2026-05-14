@@ -29,7 +29,7 @@ export const tasksApi = {
     client.delete<ApiResponse<null>>(API_ENDPOINTS.TASKS.DETAIL(id)).then(unwrap),
 
   archive: (id: string) =>
-    client.post<ApiResponse<Task>>(API_ENDPOINTS.TASKS.ARCHIVE(id)).then(unwrap),
+    client.patch<ApiResponse<Task>>(API_ENDPOINTS.TASKS.ARCHIVE(id)).then(unwrap),
 
   reorder: (ids: string[]) =>
     client.post<ApiResponse<null>>(API_ENDPOINTS.TASKS.REORDER, { ids }).then(unwrap),
