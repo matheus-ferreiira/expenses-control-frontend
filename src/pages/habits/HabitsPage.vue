@@ -4,6 +4,7 @@ import { Plus } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import HabitToolbar from '@/features/habits/components/HabitToolbar.vue'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
+import HabitTableView from '@/features/habits/views/HabitTableView.vue'
 import HabitListView from '@/features/habits/views/HabitListView.vue'
 import HabitGridView from '@/features/habits/views/HabitGridView.vue'
 import HabitFormDialog from '@/features/habits/components/HabitFormDialog.vue'
@@ -20,10 +21,10 @@ const store = useHabitStore()
 const filterState = useHabitFilters()
 const toast = useToast()
 
-// View mode — persisted
+// View mode — persisted (table is new default)
 const VIEW_MODE_KEY = 'habits:viewMode'
 const viewMode = ref<ViewMode>(
-  (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) ?? 'list',
+  (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) ?? 'table',
 )
 watch(viewMode, (v) => localStorage.setItem(VIEW_MODE_KEY, v))
 
@@ -205,8 +206,20 @@ onUnmounted(() => {
 
     <!-- Views -->
     <div class="flex-1 px-4 sm:px-6 pb-6">
+      <HabitTableView
+        v-if="viewMode === 'table' || !['grid', 'list'].includes(viewMode)"
+        :habits="filteredHabits"
+        :loading="store.loading"
+        @log="handleLog"
+        @edit="openEdit"
+        @delete="handleDelete"
+        @archive="handleArchive"
+        @open="openDetail"
+        @create="openCreate()"
+      />
+
       <HabitGridView
-        v-if="viewMode === 'grid'"
+        v-else-if="viewMode === 'grid'"
         :habits="filteredHabits"
         :loading="store.loading"
         @log="handleLog"

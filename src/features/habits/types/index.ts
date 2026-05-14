@@ -11,7 +11,7 @@ export type {
 
 export { HABIT_FREQUENCY_LABELS } from '@/types/habits'
 
-export type ViewMode = 'grid' | 'list'
+export type ViewMode = 'table' | 'grid' | 'list'
 
 export interface HabitColor {
   value: string
