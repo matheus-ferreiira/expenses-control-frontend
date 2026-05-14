@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import type { Ref } from 'vue'
 import type { CalendarEvent } from '@/types/calendar'
-import { isSameDay, eventIntersectsDay } from '../utils/calendarHelpers'
+import { eventIntersectsDay } from '../utils/calendarHelpers'
 
 export interface PositionedEvent {
   event: CalendarEvent

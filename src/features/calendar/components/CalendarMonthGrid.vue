@@ -11,6 +11,7 @@ defineProps<{
 const emit = defineEmits<{
   clickDay: [day: CalendarDay]
   clickEvent: [event: CalendarEvent]
+  dropEvent: [eventId: string, day: CalendarDay]
 }>()
 
 const WEEKDAY_HEADERS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
@@ -50,6 +51,7 @@ const WEEKDAY_HEADERS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
           :style="wi === weeks.length - 1 ? 'border-bottom: none' : ''"
           @click-day="emit('clickDay', $event)"
           @click-event="emit('clickEvent', $event)"
+          @drop-event="(id, d) => emit('dropEvent', id, d)"
         />
       </div>
     </div>

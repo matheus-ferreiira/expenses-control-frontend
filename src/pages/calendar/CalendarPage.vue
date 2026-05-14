@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus, Link } from 'lucide-vue-next'
+import { useToast } from '@/composables/useToast'
 import { useCalendarNav } from '@/features/calendar/composables/useCalendarNav'
 import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid'
 import { useCalendarStore } from '@/stores/calendar'
@@ -14,6 +15,7 @@ import type { CalendarDay, CalendarEvent } from '@/types/calendar'
 const store = useCalendarStore()
 const nav = useCalendarNav()
 const modal = ref<InstanceType<typeof CalendarEventModal> | null>(null)
+const toast = useToast()
 
 const isCurrentPeriod = computed(() => {
   const now = new Date()
@@ -50,6 +52,25 @@ function handleClickDay(day: CalendarDay) {
 
 function handleClickEvent(event: CalendarEvent) {
   modal.value?.openEdit(event)
+}
+
+async function handleDropEvent(eventId: string, targetDay: CalendarDay) {
+  const event = store.events.find((e) => e.id === eventId)
+  if (!event) return
+  const startDate = new Date(event.start_date)
+  const endDate = new Date(event.end_date)
+  const duration = endDate.getTime() - startDate.getTime()
+  const newStart = new Date(targetDay.date)
+  newStart.setHours(startDate.getHours(), startDate.getMinutes(), 0, 0)
+  const newEnd = new Date(newStart.getTime() + duration)
+  try {
+    await store.updateEvent(eventId, {
+      start_date: newStart.toISOString(),
+      end_date: newEnd.toISOString(),
+    })
+  } catch {
+    toast.error('Erro ao mover evento')
+  }
 }
 
 function handleClickSlot(date: Date, hour: number) {
@@ -122,6 +143,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       :loading="store.loading"
       @click-day="handleClickDay"
       @click-event="handleClickEvent"
+      @drop-event="handleDropEvent"
     />
 
     <!-- Week grid -->
