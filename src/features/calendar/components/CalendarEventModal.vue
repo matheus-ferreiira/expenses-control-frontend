@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Loader2, Trash2, MapPin, AlignLeft } from 'lucide-vue-next'
+import { Loader2, Trash2, MapPin, AlignLeft, Repeat2 } from 'lucide-vue-next'
 import {
   Dialog,
   DialogContent,
@@ -148,6 +148,22 @@ defineExpose({ openCreate: form.openCreate, openEdit: form.openEdit })
               @click="form.color.value = c.id"
             />
           </div>
+        </div>
+
+        <!-- Recurrence -->
+        <div class="flex items-center gap-2">
+          <Repeat2 :size="13" style="color: hsl(var(--muted-foreground) / 0.4)" class="shrink-0" />
+          <select
+            v-model="form.recurrenceFreq.value"
+            class="flex-1 bg-transparent outline-none text-[13px] border-0 border-b rounded-none px-0 h-8 cursor-pointer"
+            style="border-color: hsl(var(--border) / 0.5); color: hsl(var(--foreground) / 0.8)"
+          >
+            <option value="none" style="background: hsl(var(--card))">Não repete</option>
+            <option value="daily" style="background: hsl(var(--card))">Diariamente</option>
+            <option value="weekly" style="background: hsl(var(--card))">Semanalmente</option>
+            <option value="monthly" style="background: hsl(var(--card))">Mensalmente</option>
+            <option value="yearly" style="background: hsl(var(--card))">Anualmente</option>
+          </select>
         </div>
 
         <!-- Footer actions -->

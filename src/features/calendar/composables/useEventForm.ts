@@ -4,6 +4,31 @@ import { useToast } from '@/composables/useToast'
 import type { CalendarEvent, EventColor } from '@/types/calendar'
 
 export type EventFormMode = 'create' | 'edit'
+export type RecurrenceFreq = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+const WEEKDAY_CODES = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+
+function buildRrule(freq: RecurrenceFreq, startLocal: string): string | null {
+  if (freq === 'none') return null
+  if (freq === 'daily') return 'FREQ=DAILY'
+  if (freq === 'weekly') {
+    const d = new Date(startLocal)
+    const byday = WEEKDAY_CODES[d.getDay()]
+    return `FREQ=WEEKLY;BYDAY=${byday}`
+  }
+  if (freq === 'monthly') return 'FREQ=MONTHLY'
+  if (freq === 'yearly') return 'FREQ=YEARLY'
+  return null
+}
+
+function rruleToFreq(rule: string | null): RecurrenceFreq {
+  if (!rule) return 'none'
+  if (rule.startsWith('FREQ=DAILY')) return 'daily'
+  if (rule.startsWith('FREQ=WEEKLY')) return 'weekly'
+  if (rule.startsWith('FREQ=MONTHLY')) return 'monthly'
+  if (rule.startsWith('FREQ=YEARLY')) return 'yearly'
+  return 'none'
+}
 
 function toLocalDateTimeInput(isoStr: string): string {
   const d = new Date(isoStr)
@@ -50,6 +75,7 @@ export function useEventForm() {
   const color = ref<EventColor>('violet')
   const location = ref('')
   const description = ref('')
+  const recurrenceFreq = ref<'none' | 'daily' | 'weekly' | 'monthly' | 'yearly'>('none')
 
   const isValid = computed(() => title.value.trim().length > 0 && startLocal.value && endLocal.value)
 
@@ -63,6 +89,7 @@ export function useEventForm() {
     color.value = 'violet'
     location.value = ''
     description.value = ''
+    recurrenceFreq.value = 'none'
     open.value = true
   }
 
@@ -76,6 +103,7 @@ export function useEventForm() {
     color.value = event.color ?? 'violet'
     location.value = event.location ?? ''
     description.value = event.description ?? ''
+    recurrenceFreq.value = rruleToFreq(event.recurrence_rule)
     open.value = true
   }
 
@@ -117,6 +145,7 @@ export function useEventForm() {
         color: color.value,
         location: location.value.trim() || undefined,
         description: description.value.trim() || undefined,
+        recurrence_rule: buildRrule(recurrenceFreq.value, startLocal.value) || undefined,
       }
 
       if (mode.value === 'create') {
@@ -159,6 +188,7 @@ export function useEventForm() {
     color,
     location,
     description,
+    recurrenceFreq,
     isValid,
     openCreate,
     openEdit,
