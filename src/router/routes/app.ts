@@ -81,7 +81,7 @@ export const appRoutes: RouteRecordRaw[] = [
       {
         path: 'notes',
         name: ROUTES.NOTES,
-        component: () => import('@/pages/NotesPage.vue'),
+        component: () => import('@/pages/notes/NotesPage.vue'),
       },
       {
         path: 'daily-log',
