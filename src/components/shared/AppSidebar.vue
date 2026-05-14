@@ -212,7 +212,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
             ]"
             :style="
               isActive(item.route)
-                ? 'background: hsl(var(--sidebar-accent)); color: hsl(var(--foreground))'
+                ? 'background: hsl(var(--foreground) / 0.04); color: hsl(var(--foreground))'
                 : 'color: hsl(var(--muted-foreground) / 0.65)'
             "
             @mouseenter="
@@ -238,7 +238,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
             <span v-if="open" class="flex-1 truncate">{{ item.label }}</span>
             <span
               v-if="open && item.shortcut"
-              class="text-[9.5px] font-mono tabular-nums shrink-0"
+              class="text-[9.5px] font-mono tabular-nums shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
               :style="
                 isActive(item.route)
                   ? 'color: hsl(var(--muted-foreground) / 0.45)'
