@@ -25,25 +25,45 @@ export const useHabitStore = defineStore('habits', () => {
   }
 
   async function fetchToday() {
-    todayHabits.value = await habitsApi.today()
+    try {
+      todayHabits.value = await habitsApi.today()
+    } catch (e: unknown) {
+      error.value = 'Erro ao carregar hábitos de hoje'
+      throw e
+    }
   }
 
   async function createHabit(payload: CreateHabitPayload): Promise<Habit> {
-    const habit = await habitsApi.create(payload)
-    habits.value.unshift(habit)
-    return habit
+    try {
+      const habit = await habitsApi.create(payload)
+      habits.value.unshift(habit)
+      return habit
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar hábito'
+      throw e
+    }
   }
 
   async function updateHabit(id: string, payload: UpdateHabitPayload): Promise<Habit> {
-    const updated = await habitsApi.update(id, payload)
-    const idx = habits.value.findIndex((h) => h.id === id)
-    if (idx !== -1) habits.value[idx] = updated
-    return updated
+    try {
+      const updated = await habitsApi.update(id, payload)
+      const idx = habits.value.findIndex((h) => h.id === id)
+      if (idx !== -1) habits.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar hábito'
+      throw e
+    }
   }
 
   async function deleteHabit(id: string) {
-    await habitsApi.delete(id)
-    habits.value = habits.value.filter((h) => h.id !== id)
+    try {
+      await habitsApi.delete(id)
+      habits.value = habits.value.filter((h) => h.id !== id)
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir hábito'
+      throw e
+    }
   }
 
   async function logHabit(id: string, payload?: LogHabitPayload): Promise<Habit> {
@@ -112,9 +132,14 @@ export const useHabitStore = defineStore('habits', () => {
   }
 
   async function archiveHabit(id: string): Promise<Habit> {
-    const updated = await habitsApi.archive(id)
-    habits.value = habits.value.filter((h) => h.id !== id)
-    return updated
+    try {
+      const updated = await habitsApi.archive(id)
+      habits.value = habits.value.filter((h) => h.id !== id)
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao arquivar hábito'
+      throw e
+    }
   }
 
   return {
