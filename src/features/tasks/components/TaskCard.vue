@@ -9,9 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { CalendarDays, Tag, CheckSquare2, MoreHorizontal, Pencil, Archive, Trash2, GripVertical } from 'lucide-vue-next'
-import TaskPriorityBadge from './TaskPriorityBadge.vue'
-import TaskLabelBadge from './TaskLabelBadge.vue'
+import { MoreHorizontal, Pencil, Archive, Trash2, GripVertical } from 'lucide-vue-next'
 import type { Task } from '@/types/tasks'
 import { formatDueDateShort, isTaskOverdue, isTaskDueToday } from '../utils/taskHelpers'
 
@@ -32,35 +30,51 @@ const isCompleted = computed(() => props.task.status === 'completed')
 const isCancelled = computed(() => props.task.status === 'cancelled')
 const overdue = computed(() => isTaskOverdue(props.task))
 const dueToday = computed(() => isTaskDueToday(props.task))
-
 const dueDateLabel = computed(() => formatDueDateShort(props.task.due_date))
 
-const dueDateClass = computed(() => {
-  if (overdue.value) return 'text-red-400'
-  if (dueToday.value) return 'text-orange-400'
-  return 'text-muted-foreground'
+const priorityDotStyle = computed<string | null>(() => {
+  switch (props.task.priority) {
+    case 'urgent': return 'background: hsl(var(--destructive))'
+    case 'high':   return 'background: hsl(var(--warning))'
+    case 'low':    return 'background: hsl(var(--muted-foreground) / 0.4)'
+    default:       return null
+  }
+})
+
+const dueDateStyle = computed(() => {
+  if (overdue.value) return 'color: hsl(var(--destructive) / 0.6)'
+  if (dueToday.value) return 'color: hsl(var(--warning) / 0.7)'
+  return 'color: hsl(var(--muted-foreground) / 0.4)'
 })
 </script>
 
 <template>
   <div
     :class="[
-      'group flex items-start gap-3 px-4 py-3 hover:bg-accent/40 transition-colors cursor-pointer border-b border-border/50 last:border-0',
-      (isCompleted || isCancelled) && 'opacity-60',
+      'group flex items-center gap-2.5 px-4 py-2 hover:bg-accent/20 transition-colors cursor-pointer border-b border-border/30 last:border-0',
+      (isCompleted || isCancelled) && 'opacity-50',
     ]"
     @click="emit('open', task)"
   >
     <!-- Drag handle -->
     <div
       v-if="draggable"
-      class="drag-handle mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity"
+      class="drag-handle shrink-0 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+      style="color: hsl(var(--muted-foreground) / 0.3)"
       @click.stop
     >
-      <GripVertical :size="16" />
+      <GripVertical :size="14" />
     </div>
 
+    <!-- Priority dot -->
+    <div
+      v-if="priorityDotStyle"
+      class="h-2 w-2 rounded-full shrink-0"
+      :style="priorityDotStyle"
+    />
+
     <!-- Checkbox -->
-    <div class="mt-0.5 shrink-0" @click.stop>
+    <div class="shrink-0" @click.stop>
       <Checkbox
         :checked="isCompleted"
         :disabled="isCancelled"
@@ -68,59 +82,45 @@ const dueDateClass = computed(() => {
       />
     </div>
 
-    <!-- Content -->
-    <div class="flex-1 min-w-0">
-      <!-- Title -->
-      <p
-        :class="[
-          'text-sm font-medium leading-snug text-foreground truncate',
-          (isCompleted || isCancelled) && 'line-through text-muted-foreground',
-        ]"
+    <!-- Title -->
+    <span
+      :class="[
+        'flex-1 min-w-0 text-[13px] font-medium truncate',
+        isCompleted || isCancelled ? 'line-through text-muted-foreground/50' : 'text-foreground/90',
+      ]"
+    >
+      {{ task.title }}
+    </span>
+
+    <!-- Meta (right side) -->
+    <div class="flex items-center gap-2.5 shrink-0">
+      <!-- Subtask count -->
+      <span
+        v-if="task.subtasks_count > 0"
+        class="text-[11px] tabular-nums"
+        style="color: hsl(var(--muted-foreground) / 0.4)"
       >
-        {{ task.title }}
-      </p>
+        {{ task.completed_subtasks_count }}/{{ task.subtasks_count }}
+      </span>
 
-      <!-- Meta row -->
-      <div class="flex flex-wrap items-center gap-2 mt-1.5">
-        <!-- Priority -->
-        <TaskPriorityBadge v-if="task.priority !== 'normal'" :priority="task.priority" dot />
-
-        <!-- Due date -->
+      <!-- Label dots -->
+      <div v-if="task.labels.length > 0" class="flex items-center gap-1">
         <span
-          v-if="task.due_date"
-          :class="['inline-flex items-center gap-1 text-[11px] font-medium', dueDateClass]"
-        >
-          <CalendarDays :size="11" />
-          {{ dueDateLabel }}
-        </span>
-
-        <!-- Labels -->
-        <template v-if="task.labels.length">
-          <TaskLabelBadge
-            v-for="label in task.labels.slice(0, 3)"
-            :key="label.id"
-            :label="label"
-          />
-        </template>
-
-        <!-- Subtasks counter -->
-        <span
-          v-if="task.subtasks_count > 0"
-          class="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-medium"
-        >
-          <CheckSquare2 :size="11" />
-          {{ task.completed_subtasks_count }}/{{ task.subtasks_count }}
-        </span>
-
-        <!-- Label count overflow -->
-        <span
-          v-if="task.labels.length > 3"
-          class="inline-flex items-center gap-1 text-[11px] text-muted-foreground"
-        >
-          <Tag :size="11" />
-          +{{ task.labels.length - 3 }}
-        </span>
+          v-for="label in task.labels.slice(0, 4)"
+          :key="label.id"
+          class="h-1.5 w-1.5 rounded-full"
+          :style="{ background: label.color }"
+        />
       </div>
+
+      <!-- Due date -->
+      <span
+        v-if="task.due_date"
+        class="text-[11px] tabular-nums"
+        :style="dueDateStyle"
+      >
+        {{ dueDateLabel }}
+      </span>
     </div>
 
     <!-- Actions dropdown -->
