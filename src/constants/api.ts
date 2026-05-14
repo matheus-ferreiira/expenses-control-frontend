@@ -64,4 +64,14 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE}/purchases`,
     DETAIL: (id: string) => `${API_BASE}/purchases/${id}`,
   },
+  NOTES: {
+    BASE: `${API_BASE}/notes`,
+    DETAIL: (id: string) => `${API_BASE}/notes/${id}`,
+    PIN: (id: string) => `${API_BASE}/notes/${id}/pin`,
+    FAVORITE: (id: string) => `${API_BASE}/notes/${id}/favorite`,
+    ARCHIVE: (id: string) => `${API_BASE}/notes/${id}/archive`,
+    UNARCHIVE: (id: string) => `${API_BASE}/notes/${id}/unarchive`,
+    TAGS: `${API_BASE}/note-tags`,
+    TAG_DETAIL: (id: string) => `${API_BASE}/note-tags/${id}`,
+  },
 } as const
