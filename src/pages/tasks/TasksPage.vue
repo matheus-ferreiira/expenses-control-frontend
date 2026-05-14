@@ -6,6 +6,7 @@ import TasksLeftPanel from '@/features/tasks/components/TasksLeftPanel.vue'
 import TaskToolbar from '@/features/tasks/components/TaskToolbar.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
 import TaskKanbanView from '@/features/tasks/views/TaskKanbanView.vue'
+import TaskCalendarView from '@/features/tasks/views/TaskCalendarView.vue'
 import TaskFormDialog from '@/features/tasks/components/TaskFormDialog.vue'
 import TaskDetailsSheet from '@/features/tasks/components/TaskDetailsSheet.vue'
 import { useTaskStore } from '@/stores/tasks'
@@ -284,6 +285,16 @@ onUnmounted(() => {
           @archive="handleArchive"
           @open="openDetail"
           @create="openCreate"
+        />
+
+        <TaskCalendarView
+          v-else-if="viewMode === 'calendar'"
+          :tasks="store.tasks"
+          @toggle="handleToggle"
+          @edit="openEdit"
+          @delete="handleDelete"
+          @archive="handleArchive"
+          @open="openDetail"
         />
       </div>
 
