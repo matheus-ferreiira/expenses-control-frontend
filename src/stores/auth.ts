@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const data = await authApi.login(credentials)
       setToken(data.token)
-      await fetchMe()
+      user.value = data.user
     } catch (e: unknown) {
       error.value = extractError(e)
       throw e
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const data = await authApi.register(payload)
       setToken(data.token)
-      await fetchMe()
+      user.value = data.user
     } catch (e: unknown) {
       error.value = extractError(e)
       throw e
