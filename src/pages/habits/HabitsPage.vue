@@ -4,6 +4,7 @@ import { Plus } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import HabitToolbar from '@/features/habits/components/HabitToolbar.vue'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
+import HabitsRightPanel from '@/features/habits/components/HabitsRightPanel.vue'
 import HabitTableView from '@/features/habits/views/HabitTableView.vue'
 import HabitListView from '@/features/habits/views/HabitListView.vue'
 import HabitGridView from '@/features/habits/views/HabitGridView.vue'
@@ -204,43 +205,53 @@ onUnmounted(() => {
       />
     </div>
 
-    <!-- Views -->
-    <div class="flex-1 px-4 sm:px-6 pb-6">
-      <HabitTableView
-        v-if="viewMode === 'table' || !['grid', 'list'].includes(viewMode)"
-        :habits="filteredHabits"
-        :loading="store.loading"
-        @log="handleLog"
-        @edit="openEdit"
-        @delete="handleDelete"
-        @archive="handleArchive"
-        @open="openDetail"
-        @create="openCreate()"
-      />
+    <!-- Main content: table + right panel -->
+    <div class="flex-1 flex gap-6 px-4 sm:px-6 pb-6 min-w-0">
 
-      <HabitGridView
-        v-else-if="viewMode === 'grid'"
-        :habits="filteredHabits"
-        :loading="store.loading"
-        @log="handleLog"
-        @edit="openEdit"
-        @delete="handleDelete"
-        @archive="handleArchive"
-        @open="openDetail"
-        @create="openCreate()"
-      />
+      <!-- Table view area -->
+      <div class="flex-1 min-w-0">
+        <HabitTableView
+          v-if="viewMode === 'table' || !['grid', 'list'].includes(viewMode)"
+          :habits="filteredHabits"
+          :loading="store.loading"
+          @log="handleLog"
+          @edit="openEdit"
+          @delete="handleDelete"
+          @archive="handleArchive"
+          @open="openDetail"
+          @create="openCreate()"
+        />
 
-      <HabitListView
-        v-else
-        :habits="filteredHabits"
-        :loading="store.loading"
-        @log="handleLog"
-        @edit="openEdit"
-        @delete="handleDelete"
-        @archive="handleArchive"
-        @open="openDetail"
-        @create="openCreate()"
-      />
+        <HabitGridView
+          v-else-if="viewMode === 'grid'"
+          :habits="filteredHabits"
+          :loading="store.loading"
+          @log="handleLog"
+          @edit="openEdit"
+          @delete="handleDelete"
+          @archive="handleArchive"
+          @open="openDetail"
+          @create="openCreate()"
+        />
+
+        <HabitListView
+          v-else
+          :habits="filteredHabits"
+          :loading="store.loading"
+          @log="handleLog"
+          @edit="openEdit"
+          @delete="handleDelete"
+          @archive="handleArchive"
+          @open="openDetail"
+          @create="openCreate()"
+        />
+      </div>
+
+      <!-- Right panel (desktop only) -->
+      <div class="hidden lg:block">
+        <HabitsRightPanel :habits="store.habits" />
+      </div>
+
     </div>
 
   </div>
