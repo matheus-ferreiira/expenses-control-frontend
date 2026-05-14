@@ -51,7 +51,8 @@ export function addMonths(date: Date, months: number): Date {
 }
 
 export function formatMonthYear(date: Date, locale = 'pt-BR'): string {
-  return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+  const s = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 export function formatDayNumber(date: Date): number {

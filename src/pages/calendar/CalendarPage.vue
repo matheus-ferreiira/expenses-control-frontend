@@ -1,32 +1,92 @@
 <script setup lang="ts">
-import { AppPageContainer, PageHeader, EmptyState } from '@/components/shared'
-import { CalendarDays } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { Plus, Link } from 'lucide-vue-next'
+import { useCalendarNav } from '@/features/calendar/composables/useCalendarNav'
+import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid'
+import { useCalendarStore } from '@/stores/calendar'
+import CalendarMonthHeader from '@/features/calendar/components/CalendarMonthHeader.vue'
+import CalendarMonthGrid from '@/features/calendar/components/CalendarMonthGrid.vue'
+import type { CalendarDay } from '@/types/calendar'
+
+const store = useCalendarStore()
+const nav = useCalendarNav()
+
+const isCurrentMonth = computed(() => {
+  const now = new Date()
+  return (
+    nav.currentYear.value === now.getFullYear() &&
+    nav.currentMonth.value === now.getMonth()
+  )
+})
+
+const { weeks } = useCalendarGrid(nav.currentYear, nav.currentMonth, computed(() => store.events))
+
+function handleClickDay(_day: CalendarDay) {
+  // Sprint 5: open create modal with day pre-filled
+}
+
+function handleNewEvent() {
+  // Sprint 5: open create modal
+}
 </script>
 
 <template>
-  <AppPageContainer>
-    <PageHeader
-      category="PRODUTIVIDADE"
-      title="Agenda"
-      subtitle="Eventos, compromissos e tarefas em um só lugar."
-    >
-      <template #actions>
+  <div class="flex flex-col h-[calc(100dvh-3rem)] md:h-dvh overflow-hidden">
+    <!-- Page header bar -->
+    <div class="flex items-center justify-between px-5 py-3 border-b shrink-0" style="border-color: hsl(var(--border) / 0.5)">
+      <div>
+        <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-0.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">PRODUTIVIDADE</p>
+        <h1 class="text-[18px] font-semibold text-foreground tracking-tight leading-tight">Agenda</h1>
+      </div>
+      <div class="flex items-center gap-2">
         <button
-          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[13px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] transition-base"
+          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
+          style="color: hsl(var(--muted-foreground) / 0.7); border: 1px solid hsl(var(--border) / 0.6)"
+          @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
+          @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.7)'"
         >
-          Conectar Google
+          <Link :size="12" />
+          Google Calendar
         </button>
         <button
-          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[13px] font-medium text-foreground border border-border hover:bg-foreground/[0.05] transition-base"
+          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
+          style="color: hsl(var(--foreground)); border: 1px solid hsl(var(--border))"
+          @mouseenter="(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--accent))' }"
+          @mouseleave="(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }"
+          @click="handleNewEvent"
         >
-          + Novo evento
+          <Plus :size="12" />
+          Novo evento
         </button>
-      </template>
-    </PageHeader>
-    <EmptyState
-      :icon="CalendarDays"
-      title="Agenda em desenvolvimento"
-      description="Month view, semana, drag & drop e integração Google Calendar. Em breve."
+      </div>
+    </div>
+
+    <!-- Month navigation header -->
+    <CalendarMonthHeader
+      :month-label="nav.monthLabel.value"
+      :view-mode="nav.viewMode.value"
+      :is-current-month="isCurrentMonth"
+      @prev="nav.prevMonth()"
+      @next="nav.nextMonth()"
+      @today="nav.goToday()"
+      @update:view-mode="nav.setView($event)"
     />
-  </AppPageContainer>
+
+    <!-- Calendar grid -->
+    <CalendarMonthGrid
+      v-if="nav.viewMode.value === 'month'"
+      :weeks="weeks"
+      @click-day="handleClickDay"
+    />
+
+    <!-- Agenda view stub -->
+    <div
+      v-else
+      class="flex-1 flex items-center justify-center"
+    >
+      <p class="text-[13px]" style="color: hsl(var(--muted-foreground) / 0.4)">
+        Agenda view — Sprint 7
+      </p>
+    </div>
+  </div>
 </template>
