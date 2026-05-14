@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Target } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
+import { EmptyState } from '@/components/shared'
 import GoalsSummary from '@/features/goals/components/GoalsSummary.vue'
 import GoalGroup from '@/features/goals/components/GoalGroup.vue'
 import GoalFormDialog from '@/features/goals/components/GoalFormDialog.vue'
@@ -138,19 +139,14 @@ onMounted(() => store.fetchGoals())
 
       <!-- Empty state -->
       <template v-else-if="store.goals.length === 0">
-        <div class="flex flex-col items-center justify-center py-24 text-center">
-          <div class="w-10 h-10 rounded-xl bg-foreground/[0.04] border border-border/50 flex items-center justify-center mb-4">
-            <span class="text-lg">🎯</span>
-          </div>
-          <p class="text-[13px] font-medium text-foreground/60 mb-1">Nenhuma meta ainda</p>
-          <p class="text-[12px] text-muted-foreground/40 mb-4">
-            Defina objetivos financeiros, pessoais e de saúde.
-          </p>
-          <Button size="sm" class="h-8 text-[12px]" @click="openCreate">
-            <Plus :size="12" class="mr-1.5" />
-            Criar primeira meta
-          </Button>
-        </div>
+        <EmptyState
+          :icon="Target"
+          title="Nenhuma meta ainda"
+          description="Defina objetivos financeiros, pessoais e de saúde."
+          :cta-icon="Plus"
+          cta-label="Criar primeira meta"
+          @cta="openCreate"
+        />
       </template>
 
       <!-- Groups -->

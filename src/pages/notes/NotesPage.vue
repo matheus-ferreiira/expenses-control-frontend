@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus, Search, PanelLeft, X } from 'lucide-vue-next'
 import { Button } from '@ui/button'
+import { Skeleton } from '@ui/skeleton'
 import { Sheet, SheetContent } from '@ui/sheet'
 import NotesSidebar from '@/features/notes/components/NotesSidebar.vue'
 import NoteListItem from '@/features/notes/components/NoteListItem.vue'
@@ -201,38 +202,31 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       <!-- Notes list -->
       <div class="flex-1 overflow-y-auto">
         <!-- Loading -->
-        <div v-if="store.loading" class="px-3 py-8 flex flex-col gap-2">
-          <div
-            v-for="i in 5"
-            :key="i"
-            class="h-16 rounded-md animate-pulse"
-            style="background: hsl(var(--border) / 0.4)"
-          />
+        <div v-if="store.loading" class="px-3 py-4 flex flex-col gap-2">
+          <Skeleton v-for="i in 5" :key="i" class="h-[60px] rounded-md" />
         </div>
 
         <!-- Empty state -->
         <div
           v-else-if="displayNotes.length === 0"
-          class="flex flex-col items-center justify-center py-12 px-4 gap-2"
-          style="color: hsl(var(--muted-foreground) / 0.35)"
+          class="flex flex-col items-center justify-center py-10 px-4 text-center select-none"
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          <p class="text-[11.5px] text-center">
-            <template v-if="debouncedSearch">Nenhum resultado para "{{ debouncedSearch }}"</template>
-            <template v-else-if="selectedView === 'favorites'">Nenhuma nota favorita</template>
-            <template v-else-if="selectedView === 'pinned'">Nenhuma nota fixada</template>
-            <template v-else-if="selectedView === 'archived'">Nenhuma nota arquivada</template>
+          <p class="text-[12px] font-medium mb-1" style="color: hsl(var(--foreground) / 0.45)">
+            <template v-if="debouncedSearch">Sem resultados</template>
+            <template v-else-if="selectedView === 'favorites'">Sem favoritas</template>
+            <template v-else-if="selectedView === 'pinned'">Sem fixadas</template>
+            <template v-else-if="selectedView === 'archived'">Sem arquivadas</template>
             <template v-else>Nenhuma nota ainda</template>
+          </p>
+          <p v-if="debouncedSearch" class="text-[11px]" style="color: hsl(var(--muted-foreground) / 0.3)">
+            "{{ debouncedSearch }}"
           </p>
           <button
             v-if="!debouncedSearch && selectedView === 'all'"
-            class="text-[11px] transition-colors"
-            style="color: hsl(var(--primary) / 0.8)"
+            class="mt-3 text-[11px] font-medium transition-base"
+            style="color: hsl(var(--primary) / 0.6)"
             @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--primary))'"
-            @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--primary) / 0.8)'"
+            @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--primary) / 0.6)'"
             @click="createNote"
           >
             Criar primeira nota →

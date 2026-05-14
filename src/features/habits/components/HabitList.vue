@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@ui/button'
+import { Skeleton } from '@ui/skeleton'
 import { Check, Flame, Plus, Loader2 } from 'lucide-vue-next'
 import {
   DropdownMenu,
@@ -44,12 +45,12 @@ function handleLog(id: string) {
   <!-- Loading -->
   <div v-if="loading" class="rounded-lg border border-border overflow-hidden divide-y divide-border/50">
     <div v-for="i in 5" :key="i" class="flex items-center gap-3 px-4 py-3">
-      <div class="w-2 h-8 rounded-full bg-muted animate-pulse" />
+      <Skeleton class="w-1.5 h-8 rounded-full" />
       <div class="flex-1 space-y-1.5">
-        <div class="h-4 w-1/2 rounded bg-muted animate-pulse" />
-        <div class="h-3 w-1/4 rounded bg-muted animate-pulse" />
+        <Skeleton class="h-3.5 w-1/2" />
+        <Skeleton class="h-3 w-1/4" />
       </div>
-      <div class="h-7 w-7 rounded-full bg-muted animate-pulse" />
+      <Skeleton class="h-7 w-7 rounded-full" />
     </div>
   </div>
 

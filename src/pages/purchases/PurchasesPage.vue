@@ -5,6 +5,7 @@ import { Input } from '@ui/input'
 import { Button } from '@ui/button'
 import { Checkbox } from '@ui/checkbox'
 import { Badge } from '@ui/badge'
+import { EmptyState } from '@/components/shared'
 import { usePurchaseStore } from '@/stores/purchases'
 import { useToast } from '@/composables/useToast'
 
@@ -107,13 +108,12 @@ function handleKeydown(e: KeyboardEvent) {
     </div>
 
     <!-- Empty state -->
-    <div
+    <EmptyState
       v-else-if="store.items.length === 0"
-      class="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3"
-    >
-      <ShoppingCart :size="40" class="opacity-30" />
-      <p class="text-sm">Nenhum item na lista.</p>
-    </div>
+      :icon="ShoppingCart"
+      title="Lista vazia"
+      description="Adicione itens acima para começar sua lista de compras."
+    />
 
     <!-- Pending items grouped by category -->
     <div v-else class="space-y-5">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Skeleton } from '@ui/skeleton'
+import { EmptyState } from '@/components/shared'
 import { ReceiptText } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
@@ -40,18 +41,12 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
   </div>
 
   <!-- Empty -->
-  <div
+  <EmptyState
     v-else-if="transactions.length === 0"
-    class="flex flex-col items-center justify-center py-14 text-center"
-  >
-    <div class="p-2.5 rounded-lg bg-muted/50 mb-3">
-      <ReceiptText :size="18" class="text-muted-foreground/50" />
-    </div>
-    <p class="text-[13px] font-medium text-foreground/70">Nenhuma transação</p>
-    <p class="text-[12px] text-muted-foreground/40 mt-0.5">
-      Registre sua primeira transação para o mês.
-    </p>
-  </div>
+    :icon="ReceiptText"
+    title="Nenhuma transação"
+    description="Registre sua primeira transação para o mês."
+  />
 
   <!-- Grouped list -->
   <div v-else class="rounded-lg border border-border/50 overflow-hidden">

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button } from '@ui/button'
 import { Inbox, Plus } from 'lucide-vue-next'
+import { Skeleton } from '@ui/skeleton'
+import { EmptyState } from '@/components/shared'
 import TaskGroupHeader from '../components/TaskGroupHeader.vue'
 import TaskCard from '../components/TaskCard.vue'
 import TaskInlineCreate from '../components/TaskInlineCreate.vue'
@@ -87,28 +88,23 @@ const groups = computed<TaskGroup[]>(() => {
 <template>
   <!-- Loading skeletons -->
   <div v-if="loading" class="rounded-lg border border-border overflow-hidden divide-y divide-border/30">
-    <div v-for="i in 6" :key="i" class="flex items-center gap-3 px-4 py-2">
-      <div class="h-3.5 w-3.5 rounded bg-muted animate-pulse shrink-0" />
-      <div class="h-3.5 rounded bg-muted animate-pulse" :style="{ width: `${45 + (i % 3) * 15}%` }" />
-      <div class="ml-auto h-3.5 w-14 rounded bg-muted animate-pulse" />
+    <div v-for="i in 6" :key="i" class="flex items-center gap-3 px-4 py-2.5">
+      <Skeleton class="h-3.5 w-3.5 rounded shrink-0" />
+      <Skeleton class="h-3.5 rounded" :class="`w-[${45 + (i % 3) * 15}%]`" :style="{ width: `${45 + (i % 3) * 15}%` }" />
+      <Skeleton class="ml-auto h-3.5 w-14" />
     </div>
   </div>
 
   <!-- Empty state -->
-  <div
+  <EmptyState
     v-else-if="groups.length === 0"
-    class="flex flex-col items-center justify-center gap-4 py-16 text-center"
-  >
-    <Inbox class="text-muted-foreground/25" :size="36" />
-    <div>
-      <p class="text-[13px] font-medium text-muted-foreground/60">Nenhuma tarefa encontrada</p>
-      <p class="text-[12px] text-muted-foreground/35 mt-1">Crie uma nova tarefa ou ajuste os filtros.</p>
-    </div>
-    <Button size="sm" class="h-8 text-[12px]" @click="emit('create')">
-      <Plus :size="12" class="mr-1.5" />
-      Nova tarefa
-    </Button>
-  </div>
+    :icon="Inbox"
+    title="Nenhuma tarefa encontrada"
+    description="Crie uma nova tarefa ou ajuste os filtros."
+    :cta-icon="Plus"
+    cta-label="Nova tarefa"
+    @cta="emit('create')"
+  />
 
   <!-- Grouped task list -->
   <div v-else class="rounded-lg border border-border overflow-hidden">
