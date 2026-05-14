@@ -17,7 +17,8 @@ const dashboard = useDashboard()
 const ui = useUiStore()
 const toast = useToast()
 
-const today = formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })
+const todayRaw = formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })
+const today = todayRaw.charAt(0).toUpperCase() + todayRaw.slice(1)
 const greeting = computed(() => dashboard.greeting())
 const greetingContext = computed(() => dashboard.greetingContext())
 const userName = computed(() => dashboard.userName.value)
@@ -55,7 +56,7 @@ onMounted(() => {
       </p>
       <div class="flex items-start justify-between gap-4">
         <div class="min-w-0">
-          <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight capitalize">
+          <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">
             {{ today }}
           </h1>
           <p class="mt-0.5 text-[13px] text-muted-foreground/60">

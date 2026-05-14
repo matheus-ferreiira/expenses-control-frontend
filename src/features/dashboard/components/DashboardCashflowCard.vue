@@ -41,9 +41,9 @@ function hsl(token: string, alpha = 1): string {
 
 async function buildChart() {
   if (!canvasRef.value) return
-  const { Chart, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip } =
+  const { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip } =
     await import('chart.js')
-  Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip)
+  Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip)
 
   if (chartInstance) {
     chartInstance.destroy()

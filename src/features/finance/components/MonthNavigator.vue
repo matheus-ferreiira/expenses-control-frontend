@@ -21,7 +21,7 @@ const emit = defineEmits<{
       <ChevronLeft :size="14" />
     </Button>
 
-    <span class="text-sm font-medium text-foreground min-w-28 text-center capitalize">
+    <span class="text-sm font-medium text-foreground min-w-28 text-center">
       {{ monthLabel(month) }}
     </span>
 
