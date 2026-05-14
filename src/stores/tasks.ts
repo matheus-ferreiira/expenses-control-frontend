@@ -33,8 +33,9 @@ export const useTaskStore = defineStore('tasks', () => {
     loading.value = true
     error.value = null
     try {
-      const data = await tasksApi.list(filters)
-      tasks.value = data as unknown as Task[]
+      const { data, meta } = await tasksApi.list(filters)
+      tasks.value = data
+      total.value = meta.total
     } catch (e: unknown) {
       error.value = 'Erro ao carregar tarefas'
       throw e

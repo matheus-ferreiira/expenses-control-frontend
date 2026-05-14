@@ -35,3 +35,12 @@ export { client }
 export function unwrap<T>(response: AxiosResponse<ApiResponse<T>>): T {
   return response.data.data
 }
+
+export function unwrapPaginated<T>(
+  response: AxiosResponse<ApiResponse<T[]>>,
+): { data: T[]; meta: import('@/types/api').PaginationMeta } {
+  return {
+    data: response.data.data,
+    meta: response.data.meta!,
+  }
+}

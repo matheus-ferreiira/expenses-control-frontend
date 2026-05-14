@@ -1,4 +1,4 @@
-import { client, unwrap } from './client'
+import { client, unwrap, unwrapPaginated } from './client'
 import { API_ENDPOINTS } from '@/constants/api'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
@@ -14,7 +14,7 @@ export const tasksApi = {
   list: (filters?: TaskFilters) =>
     client
       .get<PaginatedResponse<Task>>(API_ENDPOINTS.TASKS.BASE, { params: filters })
-      .then(unwrap),
+      .then(unwrapPaginated),
 
   get: (id: string) =>
     client.get<ApiResponse<Task>>(API_ENDPOINTS.TASKS.DETAIL(id)).then(unwrap),
