@@ -6,6 +6,7 @@ import { Skeleton } from '@ui/skeleton'
 import GoalsSummary from '@/features/goals/components/GoalsSummary.vue'
 import GoalGroup from '@/features/goals/components/GoalGroup.vue'
 import GoalFormDialog from '@/features/goals/components/GoalFormDialog.vue'
+import GoalProgressDialog from '@/features/goals/components/GoalProgressDialog.vue'
 import { useGoalStore } from '@/stores/goals'
 import { useToast } from '@/composables/useToast'
 import { GOAL_TYPE_GROUP_LABELS, GOAL_TYPE_ORDER } from '@/types/goals'
@@ -16,6 +17,8 @@ const toast = useToast()
 
 const formOpen = ref(false)
 const editingGoal = ref<Goal | null>(null)
+const progressOpen = ref(false)
+const progressGoal = ref<Goal | null>(null)
 
 // Stats computed from all goals
 const activeGoals = computed(() => store.goals.filter((g) => g.status === 'active'))
@@ -64,8 +67,10 @@ function openEdit(goal: Goal) {
   formOpen.value = true
 }
 
- 
-function openUpdateProgress(goal: Goal) { void goal /* Sprint 4: GoalProgressDialog */ }
+function openUpdateProgress(goal: Goal) {
+  progressGoal.value = goal
+  progressOpen.value = true
+}
 
 onMounted(() => store.fetchGoals())
 </script>
@@ -172,6 +177,13 @@ onMounted(() => store.fetchGoals())
     v-model:open="formOpen"
     :goal="editingGoal"
     @created="store.fetchGoals()"
+    @updated="store.fetchGoals()"
+  />
+
+  <!-- Progress dialog -->
+  <GoalProgressDialog
+    v-model:open="progressOpen"
+    :goal="progressGoal"
     @updated="store.fetchGoals()"
   />
 </template>
