@@ -4,6 +4,7 @@ import { Button } from '@ui/button'
 import { Inbox, Plus } from 'lucide-vue-next'
 import TaskGroupHeader from '../components/TaskGroupHeader.vue'
 import TaskCard from '../components/TaskCard.vue'
+import TaskInlineCreate from '../components/TaskInlineCreate.vue'
 import type { Task } from '@/types/tasks'
 import type { SortField, SortDirection } from '../utils/taskHelpers'
 
@@ -28,6 +29,7 @@ interface TaskGroup {
   id: string
   label: string
   tasks: Task[]
+  groupDate: string | null
 }
 
 const groups = computed<TaskGroup[]>(() => {
@@ -71,13 +73,13 @@ const groups = computed<TaskGroup[]>(() => {
   }
 
   return [
-    { id: 'overdue',   label: 'Atrasadas',    tasks: overdue   },
-    { id: 'today',     label: 'Hoje',          tasks: today     },
-    { id: 'tomorrow',  label: 'Amanhã',        tasks: tomorrow  },
-    { id: 'week',      label: 'Esta semana',   tasks: week      },
-    { id: 'upcoming',  label: 'Próximas',      tasks: upcoming  },
-    { id: 'no-date',   label: 'Sem data',      tasks: noDate    },
-    { id: 'completed', label: 'Concluídas',    tasks: completed },
+    { id: 'overdue',   label: 'Atrasadas',    tasks: overdue,   groupDate: null        },
+    { id: 'today',     label: 'Hoje',          tasks: today,     groupDate: todayStr    },
+    { id: 'tomorrow',  label: 'Amanhã',        tasks: tomorrow,  groupDate: tomorrowStr },
+    { id: 'week',      label: 'Esta semana',   tasks: week,      groupDate: null        },
+    { id: 'upcoming',  label: 'Próximas',      tasks: upcoming,  groupDate: null        },
+    { id: 'no-date',   label: 'Sem data',      tasks: noDate,    groupDate: null        },
+    { id: 'completed', label: 'Concluídas',    tasks: completed, groupDate: null        },
   ].filter((g) => g.tasks.length > 0)
 })
 </script>
@@ -127,6 +129,12 @@ const groups = computed<TaskGroup[]>(() => {
         @delete="emit('delete', $event)"
         @archive="emit('archive', $event)"
         @open="emit('open', $event)"
+      />
+
+      <!-- Inline create (all groups except completed) -->
+      <TaskInlineCreate
+        v-if="group.id !== 'completed'"
+        :group-date="group.groupDate"
       />
     </template>
   </div>
