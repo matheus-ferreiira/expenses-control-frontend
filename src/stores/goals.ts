@@ -43,7 +43,7 @@ export const useGoalStore = defineStore('goals', () => {
   }
 
   async function updateProgress(id: string, value: number): Promise<Goal> {
-    const updated = await goalsApi.updateProgress(id, { current_value: value })
+    const updated = await goalsApi.updateProgress(id, { current_amount: value })
     const idx = goals.value.findIndex((g) => g.id === id)
     if (idx !== -1) goals.value[idx] = updated
     return updated
