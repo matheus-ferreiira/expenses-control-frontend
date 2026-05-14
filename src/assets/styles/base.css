@@ -37,6 +37,49 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* -----------------------------------------------------------------------
+   MOTION UTILITIES
+   Use these instead of Tailwind's generic `transition-colors` to ensure
+   consistent timing and easing everywhere in the product.
+   ----------------------------------------------------------------------- */
+@utility transition-base {
+  transition-property: color, background-color, border-color, opacity, box-shadow;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-smooth);
+}
+
+@utility transition-fast {
+  transition-property: color, background-color, border-color, opacity;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-smooth);
+}
+
+@utility transition-slow {
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+  transition-duration: var(--duration-slow);
+  transition-timing-function: var(--ease-out);
+}
+
+/* -----------------------------------------------------------------------
+   SKELETON SHIMMER
+   Replaces animate-pulse for a more premium, directional shimmer.
+   ----------------------------------------------------------------------- */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@utility skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--border) / 0.5) 25%,
+    hsl(var(--border) / 0.8) 50%,
+    hsl(var(--border) / 0.5) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

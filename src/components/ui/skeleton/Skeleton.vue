@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { cn } from "@/lib/utils"
+import type { HTMLAttributes } from 'vue'
+import { cn } from '@/lib/utils'
 
-interface SkeletonProps {
-  class?: HTMLAttributes["class"]
-}
-
-const props = defineProps<SkeletonProps>()
+defineProps<{
+  class?: HTMLAttributes['class']
+}>()
 </script>
 
 <template>
-  <div :class="cn('animate-pulse rounded-md bg-muted', props.class)" />
+  <div :class="cn('skeleton-shimmer rounded-md', $props.class)" />
 </template>
