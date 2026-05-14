@@ -1,33 +1,91 @@
 <script setup lang="ts">
-import { AppPageContainer, PageHeader } from '@/components/shared'
+import { onMounted, watch } from 'vue'
+import { Download } from 'lucide-vue-next'
+import { Button } from '@ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@ui/select'
+import ReportsStats from '@/features/reports/components/ReportsStats.vue'
+import { useReportsData } from '@/features/reports/composables/useReportsData'
+import { REPORT_PERIOD_LABELS, REPORT_PERIODS } from '@/types/reports'
+
+const {
+  period,
+  loading,
+  tasksCompletedCount,
+  habitsLoggedCount,
+  financeNet,
+  activeGoalsCount,
+  load,
+} = useReportsData()
+
+watch(period, () => load())
+
+onMounted(() => load())
 </script>
 
 <template>
-  <AppPageContainer>
-    <PageHeader
-      category="ANÁLISE"
-      title="Relatórios"
-      subtitle="Produtividade, hábitos e finanças em uma visão integrada."
-    >
-      <template #actions>
-        <button
-          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[13px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] transition-colors"
-        >
-          Período: 30 dias
-        </button>
-        <button
-          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[13px] font-medium text-foreground border border-border hover:bg-foreground/[0.05] transition-colors"
-        >
-          Exportar
-        </button>
-      </template>
-    </PageHeader>
-    <div class="flex flex-col items-center justify-center py-24 text-center">
-      <div class="w-10 h-10 rounded-xl bg-foreground/[0.04] border border-border flex items-center justify-center mb-4">
-        <span class="text-lg">📊</span>
+  <div class="flex flex-col min-h-full">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
+      <div>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+          Análise
+        </p>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+          Relatórios
+        </h1>
+        <p class="text-[13px] text-muted-foreground/50">
+          Produtividade, hábitos e finanças em uma visão integrada.
+        </p>
       </div>
-      <p class="text-sm font-medium text-foreground/60">Em construção</p>
-      <p class="text-xs text-muted-foreground/40 mt-1">O módulo de relatórios está sendo desenvolvido.</p>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 sm:mt-1 shrink-0">
+        <Select v-model="period">
+          <SelectTrigger class="h-8 w-[110px] text-[12px]">
+            <SelectValue :placeholder="REPORT_PERIOD_LABELS[period]" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem
+              v-for="p in REPORT_PERIODS"
+              :key="p"
+              :value="p"
+              class="text-[12px]"
+            >
+              {{ REPORT_PERIOD_LABELS[p] }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button variant="outline" size="sm" class="h-8 text-[12px]">
+          <Download :size="12" class="mr-1.5" />
+          Exportar
+        </Button>
+      </div>
     </div>
-  </AppPageContainer>
+
+    <!-- Stats row -->
+    <div class="px-4 sm:px-6 pb-5 shrink-0">
+      <ReportsStats
+        :tasks-completed="tasksCompletedCount"
+        :habits-logged="habitsLoggedCount"
+        :finance-net="financeNet"
+        :active-goals="activeGoalsCount"
+        :period="period"
+        :loading="loading"
+      />
+    </div>
+
+    <!-- Charts + summary placeholder for Sprint 3 & 4 -->
+    <div class="flex-1 px-4 sm:px-6 pb-8 space-y-5">
+      <!-- Charts come in Sprint 3 -->
+    </div>
+
+  </div>
 </template>
