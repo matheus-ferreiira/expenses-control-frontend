@@ -14,6 +14,6 @@ onMounted(() => {
 <template>
   <TooltipProvider :delay-duration="300">
     <RouterView />
-    <Toaster position="top-right" :expand="true" :rich-colors="true" theme="dark" />
+    <Toaster position="bottom-right" :rich-colors="true" theme="dark" :duration="3000" />
   </TooltipProvider>
 </template>
