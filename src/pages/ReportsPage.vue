@@ -10,16 +10,26 @@ import {
   SelectValue,
 } from '@ui/select'
 import ReportsStats from '@/features/reports/components/ReportsStats.vue'
+import ProductivityChart from '@/features/reports/components/ProductivityChart.vue'
+import HabitsTrendChart from '@/features/reports/components/HabitsTrendChart.vue'
+import FinanceComparisonChart from '@/features/reports/components/FinanceComparisonChart.vue'
+import ReportsSummaryPanel from '@/features/reports/components/ReportsSummaryPanel.vue'
 import { useReportsData } from '@/features/reports/composables/useReportsData'
 import { REPORT_PERIOD_LABELS, REPORT_PERIODS } from '@/types/reports'
 
 const {
   period,
   loading,
+  yearlyFinance,
   tasksCompletedCount,
   habitsLoggedCount,
   financeNet,
   activeGoalsCount,
+  productivityChartData,
+  habitsTrendData,
+  bestStreak,
+  mostConsistentHabit,
+  topExpenseCategory,
   load,
 } = useReportsData()
 
@@ -82,9 +92,29 @@ onMounted(() => load())
       />
     </div>
 
-    <!-- Charts + summary placeholder for Sprint 3 & 4 -->
-    <div class="flex-1 px-4 sm:px-6 pb-8 space-y-5">
-      <!-- Charts come in Sprint 3 -->
+    <!-- Charts + Summary -->
+    <div class="flex-1 px-4 sm:px-6 pb-8 space-y-4">
+
+      <!-- Productivity (full width) -->
+      <ProductivityChart :data="productivityChartData" :loading="loading" />
+
+      <!-- Habits Trend + Finance Comparison (2 cols on lg+) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <HabitsTrendChart :data="habitsTrendData" :loading="loading" />
+        <FinanceComparisonChart :data="yearlyFinance" :loading="loading" />
+      </div>
+
+      <!-- Summary panel -->
+      <ReportsSummaryPanel
+        :best-streak="bestStreak"
+        :most-consistent-habit="mostConsistentHabit"
+        :top-expense-category="topExpenseCategory"
+        :tasks-completed="tasksCompletedCount"
+        :active-goals="activeGoalsCount"
+        :period="period"
+        :loading="loading"
+      />
+
     </div>
 
   </div>
