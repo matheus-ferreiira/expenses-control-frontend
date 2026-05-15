@@ -46,6 +46,10 @@ const previewPct = computed(() => {
   return Math.min(Math.round((currentValue.value / props.goal.target_amount) * 100), 100)
 })
 
+const exceedsTarget = computed(() =>
+  !!props.goal?.target_amount && currentValue.value > props.goal.target_amount,
+)
+
 const step = computed(() => {
   if (!props.goal?.target_amount) return 1
   return props.goal.target_amount >= 10000 ? 500 : props.goal.target_amount >= 1000 ? 100 : 10
@@ -134,8 +138,9 @@ async function submit() {
               v-model.number="currentValue"
               type="number"
               min="0"
+              :max="goal?.target_amount ?? undefined"
               step="any"
-              class="h-8 text-[13px] text-center tabular-nums"
+              :class="['h-8 text-[13px] text-center tabular-nums', exceedsTarget ? 'border-warning/60' : '']"
             />
             <Button
               variant="outline"
@@ -146,7 +151,10 @@ async function submit() {
               <Plus :size="13" />
             </Button>
           </div>
-          <p v-if="goal.target_amount" class="text-[11px] text-muted-foreground/40">
+          <p v-if="exceedsTarget" class="text-[11px]" style="color: hsl(var(--warning))">
+            Valor ultrapassa a meta ({{ formatCurrency(goal!.target_amount!) }})
+          </p>
+          <p v-else-if="goal.target_amount" class="text-[11px] text-muted-foreground/40">
             Incremento: {{ formatCurrency(step) }}
           </p>
         </div>
