@@ -93,7 +93,7 @@ function cellStyle(count: number): string {
         <!-- Month labels -->
         <div class="flex gap-[3px] mb-1 pl-0" style="height: 14px">
           <template v-for="wi in WEEKS" :key="wi">
-            <div class="w-[13px]">
+            <div class="w-[16px]">
               <span
                 v-if="monthLabels.some(l => l.colIndex === wi - 1)"
                 class="text-[9px]"
@@ -115,7 +115,7 @@ function cellStyle(count: number): string {
             <div
               v-for="cell in week"
               :key="cell.date"
-              class="h-[13px] w-[13px] rounded-[2px] cursor-default transition-opacity hover:opacity-80"
+              class="h-[16px] w-[16px] rounded-[2px] cursor-default transition-opacity hover:opacity-80"
               :style="cellStyle(cell.count)"
               :title="`${cell.label}: ${cell.count} hábito${cell.count !== 1 ? 's' : ''}`"
             />
@@ -125,7 +125,7 @@ function cellStyle(count: number): string {
         <!-- Legend -->
         <div class="flex items-center gap-1.5 mt-2.5 justify-end">
           <span class="text-[9px]" style="color: hsl(var(--muted-foreground) / 0.35)">Menos</span>
-          <div v-for="n in [0, 1, 3, 5, 6]" :key="n" class="h-[13px] w-[13px] rounded-[2px]" :style="cellStyle(n)" />
+          <div v-for="n in [0, 1, 3, 5, 6]" :key="n" class="h-[16px] w-[16px] rounded-[2px]" :style="cellStyle(n)" />
           <span class="text-[9px]" style="color: hsl(var(--muted-foreground) / 0.35)">Mais</span>
         </div>
       </div>

@@ -79,6 +79,7 @@ async function handleArchive() {
   if (!props.habit) return
   try {
     await store.archiveHabit(props.habit.id)
+    emit('update:open', false)
     toast.success('Hábito arquivado')
   } catch {
     toast.error('Erro ao arquivar hábito')

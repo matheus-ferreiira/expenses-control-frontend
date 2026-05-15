@@ -44,7 +44,7 @@ const activeHabits = computed(() => store.habits.filter((h) => h.is_active))
 
 // Stats computed from store
 const longestStreak = computed(() =>
-  activeHabits.value.reduce((max, h) => Math.max(max, h.current_streak), 0),
+  activeHabits.value.reduce((max, h) => Math.max(max, h.longest_streak), 0),
 )
 
 const completedTodayCount = computed(() =>

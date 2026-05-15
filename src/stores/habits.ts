@@ -87,7 +87,7 @@ export const useHabitStore = defineStore('habits', () => {
   async function unlogHabit(id: string, date?: string) {
     try {
       await habitsApi.unlog(id, date)
-      await fetchToday()
+      await Promise.all([fetchToday(), fetchHabits()])
     } catch (e: unknown) {
       error.value = 'Erro ao remover registro de hábito'
       throw e

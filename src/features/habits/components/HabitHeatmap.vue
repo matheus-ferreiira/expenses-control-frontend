@@ -49,7 +49,7 @@ const monthLabels = computed(() => {
     <div v-if="loading" class="space-y-1">
       <div class="flex gap-1">
         <div v-for="w in (weeks ?? 12)" :key="w" class="flex flex-col gap-1">
-          <div v-for="d in 7" :key="d" class="w-3 h-3 rounded-sm bg-muted animate-pulse" />
+          <div v-for="d in 7" :key="d" class="w-4 h-4 rounded-sm bg-muted animate-pulse" />
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@ const monthLabels = computed(() => {
         <div
           v-for="w in (weeks ?? 12)"
           :key="w"
-          class="w-3 shrink-0 text-center"
+          class="w-4 shrink-0 text-center"
         >
           <span
             v-if="monthLabels.some(ml => ml.week === w - 1)"
@@ -78,7 +78,7 @@ const monthLabels = computed(() => {
           <span
             v-for="(label, i) in WEEKDAY_LABELS"
             :key="i"
-            class="w-4 h-3 flex items-center justify-center text-[9px] text-muted-foreground/50 leading-none"
+            class="w-4 h-4 flex items-center justify-center text-[9px] text-muted-foreground/50 leading-none"
           >
             {{ i % 2 === 1 ? label.charAt(0) : '' }}
           </span>
@@ -94,7 +94,7 @@ const monthLabels = computed(() => {
             v-for="(cell, di) in week"
             :key="di"
             :class="[
-              'w-3 h-3 rounded-sm transition-base cursor-default',
+              'w-4 h-4 rounded-sm transition-base cursor-default',
               cell.isEmpty ? 'bg-transparent' : heatmapColorClass(cell.count),
             ]"
             @mouseenter="(e) => showTooltip(e, cell.date, cell.count)"
