@@ -11,6 +11,7 @@ import type { Task } from '@/types/tasks'
 export function useReportsData() {
   const period = ref<ReportPeriod>('30d')
   const loading = ref(false)
+  const error = ref<string | null>(null)
   const yearlyFinance = ref<YearlySummary | null>(null)
   const completedTasks = ref<Task[]>([])
 
@@ -192,18 +193,18 @@ export function useReportsData() {
         goalStore.goals.length ? Promise.resolve() : goalStore.fetchGoals(),
         financeStore.transactions.length
           ? Promise.resolve()
-          : financeStore.fetchTransactions({ per_page: 500 }),
+          : financeStore.fetchTransactions({ per_page: 300 }),
       ])
 
       const [tasksResult, yearly] = await Promise.all([
-        tasksApi.list({ status: 'completed', per_page: 500 }),
+        tasksApi.list({ status: 'completed', per_page: 300 }),
         reportsApi.yearlyFinance(new Date().getFullYear()),
       ])
 
       completedTasks.value = tasksResult.data
       yearlyFinance.value = yearly
     } catch {
-      // non-fatal — components will show empty state
+      error.value = 'Erro ao carregar dados de relatórios'
     } finally {
       loading.value = false
     }
@@ -212,6 +213,7 @@ export function useReportsData() {
   return {
     period,
     loading,
+    error,
     yearlyFinance,
     tasksCompletedCount,
     habitsLoggedCount,
