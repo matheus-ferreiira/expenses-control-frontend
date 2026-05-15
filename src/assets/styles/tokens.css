@@ -37,60 +37,61 @@
 
 /* -----------------------------------------------------------------------
    DARK MODE (DEFAULT)
-   Violet accent on deep slate background.
+   Neutral zinc/gray palette — no blue or violet tint.
+   Primary is white; accent colors reserved for semantic data only.
    ----------------------------------------------------------------------- */
 :root {
   /* --- Surfaces --- */
-  --background:             222 47%  6%;  /* deepest background */
-  --foreground:             213 31% 91%;  /* primary text */
+  --background:             240  6%  5%;  /* #0c0c0e — near-black, minimal hue */
+  --foreground:               0  0% 93%;  /* #ededed — near-white text */
 
-  --card:                   222 47%  8%;  /* card / panel surface */
-  --card-foreground:        213 31% 91%;
+  --card:                   240  5%  8%;  /* #111115 — card surface */
+  --card-foreground:          0  0% 93%;
 
-  --popover:                222 47%  9%;  /* popover / dropdown surface */
-  --popover-foreground:     213 31% 91%;
+  --popover:                240  5%  9%;  /* popover / dropdown surface */
+  --popover-foreground:       0  0% 93%;
 
   /* --- Brand --- */
-  --primary:                262 83% 58%;  /* violet — main interactive color */
-  --primary-foreground:     210 20% 98%;  /* white text on primary */
+  --primary:                  0  0% 98%;  /* #fafafa — white primary button */
+  --primary-foreground:     240  6% 10%;  /* dark text on white */
 
   /* --- Secondary --- */
-  --secondary:              217 33% 13%;
-  --secondary-foreground:   213 31% 91%;
+  --secondary:              240  4% 14%;  /* #212126 — secondary backgrounds */
+  --secondary-foreground:     0  0% 93%;
 
   /* --- Muted / disabled --- */
-  --muted:                  217 33% 13%;
-  --muted-foreground:       215 16% 47%;  /* placeholder, helper text */
+  --muted:                  240  4% 14%;
+  --muted-foreground:       240  4% 50%;  /* #787880 — placeholder, helper text */
 
   /* --- Accent (hover backgrounds, subtle highlights) --- */
-  --accent:                 217 33% 15%;
-  --accent-foreground:      213 31% 91%;
+  --accent:                 240  4% 16%;  /* #252529 — hover bg */
+  --accent-foreground:        0  0% 93%;
 
   /* --- Destructive --- */
   --destructive:              0 63% 51%;  /* red */
-  --destructive-foreground:  210 40% 98%;
+  --destructive-foreground:   0  0% 98%;
 
   /* --- Structural --- */
-  --border:                 217 33% 12%;
-  --input:                  217 33% 12%;  /* input border color */
-  --ring:                   262 83% 58%;  /* focus ring — matches primary */
+  --border:                 240  4% 13%;  /* #1e1e22 — subtle dividers */
+  --input:                  240  4% 13%;  /* input border */
+  --ring:                     0  0% 65%;  /* neutral gray focus ring */
 
   /* --- Sidebar --- */
-  --sidebar:                222 47%  5%;  /* deeper than background for clear separation */
-  --sidebar-foreground:     213 31% 91%;
-  --sidebar-border:         217 33%  9%;  /* barely-there border */
-  --sidebar-accent:         217 33% 13%;  /* hover / active background — slate, not violet */
+  --sidebar:                240  6%  4%;  /* #09090b — darker than background */
+  --sidebar-foreground:       0  0% 93%;
+  --sidebar-border:         240  4%  9%;  /* barely-there separator */
+  --sidebar-accent:         240  4% 12%;  /* hover / active row */
 
   /* --- Semantic status --- */
   --success:                142 71% 45%;  /* green */
   --warning:                 38 92% 50%;  /* amber */
-  --info:                   217 91% 60%;  /* blue (informational only, no Tailwind alias) */
+  --info:                   217 91% 60%;  /* blue (informational only) */
 }
 
 /* -----------------------------------------------------------------------
    LIGHT MODE
    Applied when the root element has class `.light`.
-   Primary stays violet — only surfaces and text change.
+   Primary stays white — only surfaces and text change.
    ----------------------------------------------------------------------- */
 .light {
   /* --- Surfaces --- */

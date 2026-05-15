@@ -11,7 +11,6 @@ const emit = defineEmits<{
 }>()
 
 const COLOR_MAP: Record<string, string> = {
-  violet: 'hsl(262 83% 58%)',
   blue: 'hsl(217 91% 60%)',
   green: 'hsl(142 71% 45%)',
   yellow: 'hsl(38 92% 50%)',
@@ -33,9 +32,9 @@ function onDragStart(e: DragEvent) {
     draggable="true"
     class="truncate text-[10.5px] font-medium rounded px-1.5 py-[1px] leading-[1.5] cursor-grab active:cursor-grabbing transition-base select-none"
     :style="{
-      background: `${COLOR_MAP[event.color ?? 'violet'] ?? COLOR_MAP.violet}22`,
-      color: COLOR_MAP[event.color ?? 'violet'] ?? COLOR_MAP.violet,
-      borderLeft: `2px solid ${COLOR_MAP[event.color ?? 'violet'] ?? COLOR_MAP.violet}`,
+      background: `${COLOR_MAP[event.color ?? 'blue'] ?? COLOR_MAP.blue}22`,
+      color: COLOR_MAP[event.color ?? 'blue'] ?? COLOR_MAP.blue,
+      borderLeft: `2px solid ${COLOR_MAP[event.color ?? 'blue'] ?? COLOR_MAP.blue}`,
     }"
     @click.stop="emit('click')"
     @dragstart.stop="onDragStart"

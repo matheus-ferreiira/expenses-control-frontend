@@ -13,7 +13,6 @@ defineProps<{
 const router = useRouter()
 
 const EVENT_COLORS: Record<string, string> = {
-  violet: '#8b5cf6',
   blue: '#3b82f6',
   green: '#10b981',
   yellow: '#f59e0b',

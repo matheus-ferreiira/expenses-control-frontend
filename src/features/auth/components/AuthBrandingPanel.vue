@@ -15,16 +15,16 @@
       "
     />
 
-    <!-- Subtle violet glow — top right -->
+    <!-- Subtle glow — top right -->
     <div
       class="pointer-events-none absolute -top-24 -right-24 h-[400px] w-[400px] rounded-full"
-      style="background: radial-gradient(circle, hsl(262 83% 58% / 0.09) 0%, transparent 70%);"
+      style="background: radial-gradient(circle, hsl(0 0% 100% / 0.04) 0%, transparent 70%);"
     />
 
     <!-- Bottom gradient fade -->
     <div
       class="pointer-events-none absolute bottom-0 left-0 right-0 h-32"
-      style="background: linear-gradient(to top, hsl(222 47% 4%), transparent);"
+      style="background: linear-gradient(to top, hsl(240 6% 4%), transparent);"
     />
 
     <!-- Content -->

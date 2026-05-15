@@ -15,7 +15,6 @@ const emit = defineEmits<{
 }>()
 
 const COLOR_MAP: Record<string, string> = {
-  violet: 'hsl(262 83% 58%)',
   blue: 'hsl(217 91% 60%)',
   green: 'hsl(142 71% 45%)',
   yellow: 'hsl(38 92% 50%)',
@@ -120,7 +119,7 @@ function formatEventTime(event: CalendarEvent): string {
             <!-- Color bar -->
             <div
               class="mt-[3px] w-1.5 h-1.5 rounded-full shrink-0"
-              :style="{ background: COLOR_MAP[event.color ?? 'violet'] ?? COLOR_MAP.violet }"
+              :style="{ background: COLOR_MAP[event.color ?? 'blue'] ?? COLOR_MAP.blue }"
             />
 
             <!-- Content -->

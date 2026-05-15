@@ -54,7 +54,7 @@ defineProps<{
     <!-- Completion rate -->
     <div class="rounded-lg border border-border bg-card p-3 space-y-1">
       <div class="flex items-center gap-1.5 text-muted-foreground">
-        <Target :size="13" class="text-violet-400" />
+        <Target :size="13" class="text-muted-foreground" />
         <span class="text-[11px] font-medium uppercase tracking-wide">Consistência</span>
       </div>
       <Skeleton v-if="loading" class="h-6 w-16" />

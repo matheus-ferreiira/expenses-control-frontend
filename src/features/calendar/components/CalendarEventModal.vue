@@ -18,7 +18,6 @@ const form = useEventForm()
 const confirmDeleteOpen = ref(false)
 
 const EVENT_COLORS: { id: EventColor; label: string; hex: string }[] = [
-  { id: 'violet', label: 'Violeta', hex: 'hsl(262 83% 58%)' },
   { id: 'blue', label: 'Azul', hex: 'hsl(217 91% 60%)' },
   { id: 'green', label: 'Verde', hex: 'hsl(142 71% 45%)' },
   { id: 'yellow', label: 'Amarelo', hex: 'hsl(38 92% 50%)' },

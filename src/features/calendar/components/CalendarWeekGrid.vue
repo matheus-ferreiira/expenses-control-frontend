@@ -10,7 +10,6 @@ const TOTAL_HEIGHT = HOUR_HEIGHT * 24
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 
 const COLOR_MAP: Record<string, string> = {
-  violet: 'hsl(262 83% 58%)',
   blue: 'hsl(217 91% 60%)',
   green: 'hsl(142 71% 45%)',
   yellow: 'hsl(38 92% 50%)',
@@ -47,7 +46,7 @@ function getCurrentTimePct(): number {
 }
 
 function getEventColor(color: string | null): string {
-  return COLOR_MAP[color ?? 'violet'] ?? 'hsl(262 83% 58%)'
+  return COLOR_MAP[color ?? 'blue'] ?? 'hsl(217 91% 60%)'
 }
 
 function handleSlotClick(day: Date, hour: number) {

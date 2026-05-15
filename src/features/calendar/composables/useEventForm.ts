@@ -72,7 +72,7 @@ export function useEventForm() {
   const startLocal = ref(defaultStart())
   const endLocal = ref(defaultEnd(startLocal.value))
   const isAllDay = ref(false)
-  const color = ref<EventColor>('violet')
+  const color = ref<EventColor>('blue')
   const location = ref('')
   const description = ref('')
   const recurrenceFreq = ref<'none' | 'daily' | 'weekly' | 'monthly' | 'yearly'>('none')
@@ -86,7 +86,7 @@ export function useEventForm() {
     startLocal.value = defaultStart(date ? new Date(date) : undefined)
     endLocal.value = defaultEnd(startLocal.value)
     isAllDay.value = false
-    color.value = 'violet'
+    color.value = 'blue'
     location.value = ''
     description.value = ''
     recurrenceFreq.value = 'none'
@@ -100,7 +100,7 @@ export function useEventForm() {
     startLocal.value = toLocalDateTimeInput(event.start_date)
     endLocal.value = toLocalDateTimeInput(event.end_date)
     isAllDay.value = event.is_all_day
-    color.value = event.color ?? 'violet'
+    color.value = event.color ?? 'blue'
     location.value = event.location ?? ''
     description.value = event.description ?? ''
     recurrenceFreq.value = rruleToFreq(event.recurrence_rule)

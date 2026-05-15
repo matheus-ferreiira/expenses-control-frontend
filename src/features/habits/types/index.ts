@@ -34,7 +34,7 @@ export const FREQUENCY_STYLE: Record<
   { text: string; bg: string }
 > = {
   daily:   { text: 'text-blue-400',   bg: 'bg-blue-400/10'   },
-  weekly:  { text: 'text-violet-400', bg: 'bg-violet-400/10' },
+  weekly:  { text: 'text-blue-400',   bg: 'bg-blue-400/10'   },
   monthly: { text: 'text-orange-400', bg: 'bg-orange-400/10' },
 }
 

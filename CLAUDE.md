@@ -173,25 +173,25 @@ VITE_APP_NAME=Productivity Control
 
 ## Design System
 
-Dark mode por padrão. Paleta violet/slate definida como CSS custom properties.
+Dark mode por padrão. Paleta neutral zinc/gray — sem azul ou roxo nos fundos.
 
 **Arquivo de tokens:** `src/assets/styles/tokens.css` — fonte única de verdade para todas as variáveis CSS.
 
 | Token | Dark (padrão) | Light (.light) | Tailwind class |
 |-------|--------------|----------------|----------------|
-| `--primary` | `262 83% 58%` (violet) | `262 83% 58%` | `bg-primary` |
-| `--background` | `222 47% 6%` (deep slate) | `0 0% 100%` (white) | `bg-background` |
-| `--foreground` | `213 31% 91%` | `222 47% 11%` | `text-foreground` |
-| `--card` | `222 47% 8%` | `0 0% 100%` | `bg-card` |
-| `--secondary` | `217 33% 13%` | `210 40% 96%` | `bg-secondary` |
-| `--muted` | `217 33% 13%` | `210 40% 96%` | `bg-muted` |
-| `--accent` | `217 33% 15%` | `210 40% 96%` | `bg-accent` |
+| `--primary` | `0 0% 98%` (white) | `262 83% 58%` (violet) | `bg-primary` |
+| `--background` | `240 6% 5%` (near-black) | `0 0% 100%` (white) | `bg-background` |
+| `--foreground` | `0 0% 93%` (near-white) | `222 47% 11%` | `text-foreground` |
+| `--card` | `240 5% 8%` | `0 0% 100%` | `bg-card` |
+| `--secondary` | `240 4% 14%` | `210 40% 96%` | `bg-secondary` |
+| `--muted` | `240 4% 14%` | `210 40% 96%` | `bg-muted` |
+| `--accent` | `240 4% 16%` | `210 40% 96%` | `bg-accent` |
 | `--destructive` | `0 63% 51%` (red) | `0 84% 60%` | `bg-destructive` |
-| `--border` | `217 33% 12%` | `214 32% 91%` | `border-border` |
-| `--ring` | `262 83% 58%` (violet) | `262 83% 58%` | `outline-ring` |
+| `--border` | `240 4% 13%` | `214 32% 91%` | `border-border` |
+| `--ring` | `0 0% 65%` (neutral gray) | `262 83% 58%` | `outline-ring` |
 | `--success` | `142 71% 45%` (green) | — | `bg-success` |
 | `--warning` | `38 92% 50%` (amber) | — | `bg-warning` |
-| `--radius` | `0.5rem` (8px) | — | `rounded-lg` |
+| `--radius` | `0.375rem` (6px) | — | `rounded-lg` |
 
 Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve conter valores de cores.
 
