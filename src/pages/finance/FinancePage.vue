@@ -35,6 +35,13 @@ const expenses = computed(() =>
   store.transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
 )
 
+// Credit card used amount derived from current month's transactions
+function cardUsed(cardId: string): number {
+  return store.transactions
+    .filter((t) => t.card_id === cardId && t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0)
+}
+
 // Total balance across all active accounts
 const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
@@ -280,13 +287,13 @@ onMounted(async () => {
                 <div
                   class="h-full rounded-full transition-all"
                   :class="
-                    utilizationPercent(0, card.limit_amount) >= 80
+                    utilizationPercent(cardUsed(card.id), card.limit_amount) >= 80
                       ? 'bg-destructive/60'
-                      : utilizationPercent(0, card.limit_amount) >= 50
+                      : utilizationPercent(cardUsed(card.id), card.limit_amount) >= 50
                         ? 'bg-warning/70'
                         : 'bg-success/60'
                   "
-                  :style="{ width: utilizationPercent(0, card.limit_amount) + '%' }"
+                  :style="{ width: utilizationPercent(cardUsed(card.id), card.limit_amount) + '%' }"
                 />
               </div>
             </div>
