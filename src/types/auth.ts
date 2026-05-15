@@ -6,6 +6,7 @@ export interface User {
   avatar: string | null
   locale: string
   timezone: string
+  settings: Record<string, unknown>
   created_at: string
 }
 

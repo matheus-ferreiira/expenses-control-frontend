@@ -15,6 +15,10 @@ const { form, errors, validate } = useResetPasswordForm()
 const loading = ref(false)
 const apiError = ref<string | null>(null)
 
+const tokenParam = route.query.token as string | undefined
+const emailParam = route.query.email as string | undefined
+const invalidLink = !tokenParam || !emailParam
+
 // Password strength: 0–4
 const passwordStrength = computed(() => {
   const p = form.password
@@ -43,8 +47,8 @@ async function handleSubmit() {
   apiError.value = null
   try {
     await authApi.resetPassword({
-      token: route.query.token as string,
-      email: route.query.email as string,
+      token: tokenParam!,
+      email: emailParam!,
       password: form.password,
       password_confirmation: form.password_confirmation,
     })
@@ -60,17 +64,30 @@ async function handleSubmit() {
 <template>
   <div class="space-y-6">
 
-    <!-- Header -->
-    <div class="space-y-1">
-      <h1 class="text-xl font-semibold tracking-tight text-foreground">
-        Redefinir senha
-      </h1>
-      <p class="text-[13px] text-muted-foreground/60">
-        Escolha uma senha forte para sua conta
-      </p>
-    </div>
+    <!-- Invalid link state -->
+    <template v-if="invalidLink">
+      <div class="space-y-1">
+        <h1 class="text-xl font-semibold tracking-tight text-foreground">Link inválido</h1>
+        <p class="text-[13px] text-muted-foreground/60">
+          Este link de redefinição é inválido ou expirou.
+        </p>
+      </div>
+      <RouterLink
+        :to="{ name: ROUTES.FORGOT_PASSWORD }"
+        class="block text-center text-[13px] font-medium text-foreground/70 hover:text-foreground transition-base underline underline-offset-4 decoration-border/60"
+      >
+        Solicitar novo link
+      </RouterLink>
+      <RouterLink
+        :to="{ name: ROUTES.LOGIN }"
+        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
+      >
+        ← Voltar ao login
+      </RouterLink>
+    </template>
 
     <!-- Form -->
+    <template v-else>
     <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
 
       <!-- New password -->
@@ -140,6 +157,8 @@ async function handleSubmit() {
     >
       ← Voltar ao login
     </RouterLink>
+
+    </template><!-- end v-else -->
 
   </div>
 </template>

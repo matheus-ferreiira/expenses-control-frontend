@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, nextTick, ref } from 'vue'
+import { onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import { Input } from '@ui/input'
@@ -13,7 +13,6 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 const { form, errors, validate } = useLoginForm()
-const rememberMe = ref(false)
 
 onMounted(() => nextTick(() => (document.getElementById('email') as HTMLInputElement)?.focus()))
 
@@ -21,7 +20,7 @@ async function handleLogin() {
   if (!validate()) return
   auth.error = null
   try {
-    await auth.login({ email: form.email, password: form.password, remember: rememberMe.value })
+    await auth.login({ email: form.email, password: form.password })
     const redirect = route.query.redirect as string | undefined
     router.push(redirect && redirect.startsWith('/') ? redirect : { name: ROUTES.DASHBOARD })
   } catch {
@@ -123,20 +122,6 @@ async function handleLogin() {
         />
         <p v-if="errors.password" class="text-[11px] text-destructive/80">{{ errors.password }}</p>
       </div>
-
-      <!-- Remember me -->
-      <label class="flex cursor-pointer items-center gap-2.5 select-none">
-        <input type="checkbox" v-model="rememberMe" class="sr-only" />
-        <div
-          class="relative flex h-4 w-4 shrink-0 items-center justify-center rounded transition-base"
-          :style="rememberMe ? { background: 'hsl(var(--primary))', border: '1px solid hsl(var(--primary))' } : { border: '1px solid hsl(var(--border))' }"
-        >
-          <svg v-if="rememberMe" width="9" height="9" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <span class="text-[12px] text-muted-foreground/60">Lembrar sessão</span>
-      </label>
 
       <!-- Backend error -->
       <div
