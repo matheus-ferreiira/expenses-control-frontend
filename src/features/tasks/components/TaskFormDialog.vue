@@ -20,8 +20,38 @@ import {
   SelectValue,
 } from '@ui/select'
 import { Loader2 } from 'lucide-vue-next'
-import type { Task, TaskLabel } from '@/types/tasks'
-import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from '@/types/tasks'
+import type { Task, TaskLabel, TaskPriority } from '@/types/tasks'
+import { TASK_STATUS_LABELS } from '@/types/tasks'
+
+const PRIORITY_BTN_LABELS: Record<TaskPriority, string> = {
+  urgent: 'P1 Urgente',
+  high:   'P2 Alta',
+  normal: 'P3 Média',
+  low:    'P4 Baixa',
+}
+
+const PRIORITY_BTN_STYLE: Record<TaskPriority, { base: string; active: string; idle: string }> = {
+  urgent: {
+    base:   'border-red-500/40',
+    active: 'bg-red-500/20 text-red-400 border-red-500/70',
+    idle:   'text-muted-foreground hover:bg-red-500/10 hover:text-red-400',
+  },
+  high: {
+    base:   'border-orange-500/40',
+    active: 'bg-orange-500/20 text-orange-400 border-orange-500/70',
+    idle:   'text-muted-foreground hover:bg-orange-500/10 hover:text-orange-400',
+  },
+  normal: {
+    base:   'border-amber-500/40',
+    active: 'bg-amber-500/20 text-amber-400 border-amber-500/70',
+    idle:   'text-muted-foreground hover:bg-amber-500/10 hover:text-amber-400',
+  },
+  low: {
+    base:   'border-slate-500/30',
+    active: 'bg-slate-500/20 text-slate-400 border-slate-500/50',
+    idle:   'text-muted-foreground hover:bg-slate-500/10 hover:text-slate-400',
+  },
+}
 import { useTaskForm } from '../composables/useTaskForm'
 import { useTaskStore } from '@/stores/tasks'
 import { useToast } from '@/composables/useToast'
@@ -122,34 +152,38 @@ function toggleLabel(id: string) {
           />
         </div>
 
-        <!-- Status + Priority row -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="space-y-1.5">
-            <Label>Status</Label>
-            <Select v-model="form.status">
-              <SelectTrigger class="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="s in statuses" :key="s" :value="s">
-                  {{ TASK_STATUS_LABELS[s] }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <!-- Status row -->
+        <div class="space-y-1.5">
+          <Label>Status</Label>
+          <Select v-model="form.status">
+            <SelectTrigger class="h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="s in statuses" :key="s" :value="s">
+                {{ TASK_STATUS_LABELS[s] }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div class="space-y-1.5">
-            <Label>Prioridade</Label>
-            <Select v-model="form.priority">
-              <SelectTrigger class="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="p in priorities" :key="p" :value="p">
-                  {{ TASK_PRIORITY_LABELS[p] }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+        <!-- Priority buttons -->
+        <div class="space-y-1.5">
+          <Label>Prioridade</Label>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button
+              v-for="p in priorities"
+              :key="p"
+              type="button"
+              :class="[
+                'h-8 rounded-md text-xs font-semibold border transition-all',
+                PRIORITY_BTN_STYLE[p].base,
+                form.priority === p ? PRIORITY_BTN_STYLE[p].active : PRIORITY_BTN_STYLE[p].idle,
+              ]"
+              @click="form.priority = p"
+            >
+              {{ PRIORITY_BTN_LABELS[p] }}
+            </button>
           </div>
         </div>
 
