@@ -21,15 +21,10 @@ const editingGoal = ref<Goal | null>(null)
 const progressOpen = ref(false)
 const progressGoal = ref<Goal | null>(null)
 
-// Stats computed from all goals
-const activeGoals = computed(() => store.goals.filter((g) => g.status === 'active'))
-const completedGoals = computed(() => store.goals.filter((g) => g.status === 'completed'))
-const overdueGoals = computed(() => store.goals.filter((g) => g.is_overdue))
-
 const averageProgress = computed(() => {
-  if (!activeGoals.value.length) return 0
-  const sum = activeGoals.value.reduce((acc, g) => acc + g.progress_percentage, 0)
-  return Math.round(sum / activeGoals.value.length)
+  if (!store.activeGoals.length) return 0
+  const sum = store.activeGoals.reduce((acc, g) => acc + g.progress_percentage, 0)
+  return Math.round(sum / store.activeGoals.length)
 })
 
 // Visible goals: active + completed (not cancelled/paused)
@@ -89,7 +84,7 @@ onMounted(() => store.fetchGoals())
           Metas
         </h1>
         <p class="text-[13px] text-muted-foreground/50">
-          {{ activeGoals.length }} meta{{ activeGoals.length !== 1 ? 's' : '' }} ativa{{ activeGoals.length !== 1 ? 's' : '' }}
+          {{ store.activeGoals.length }} meta{{ store.activeGoals.length !== 1 ? 's' : '' }} ativa{{ store.activeGoals.length !== 1 ? 's' : '' }}
         </p>
       </div>
       <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
@@ -101,10 +96,10 @@ onMounted(() => store.fetchGoals())
     <!-- Stats summary -->
     <div class="px-4 sm:px-6 pb-5 shrink-0">
       <GoalsSummary
-        :active-count="activeGoals.length"
-        :completed-count="completedGoals.length"
+        :active-count="store.activeGoals.length"
+        :completed-count="store.completedGoals.length"
         :average-progress="averageProgress"
-        :overdue-count="overdueGoals.length"
+        :overdue-count="store.overdueGoals.length"
         :loading="store.loading"
       />
     </div>

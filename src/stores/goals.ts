@@ -10,6 +10,7 @@ export const useGoalStore = defineStore('goals', () => {
 
   const activeGoals = computed(() => goals.value.filter((g) => g.status === 'active'))
   const completedGoals = computed(() => goals.value.filter((g) => g.status === 'completed'))
+  const overdueGoals = computed(() => goals.value.filter((g) => g.is_overdue))
 
   async function fetchGoals() {
     loading.value = true
@@ -91,6 +92,7 @@ export const useGoalStore = defineStore('goals', () => {
     error,
     activeGoals,
     completedGoals,
+    overdueGoals,
     fetchGoals,
     createGoal,
     updateGoal,
