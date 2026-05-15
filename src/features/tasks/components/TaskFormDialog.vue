@@ -48,6 +48,8 @@ watch(
     if (isOpen) {
       if (props.task) fromTask(props.task)
       else reset()
+    } else {
+      reset()
     }
   },
 )

@@ -56,6 +56,19 @@ const form = ref({
 
 const errors = ref<Partial<Record<keyof typeof form.value, string>>>({})
 
+function resetForm() {
+  errors.value = {}
+  form.value = {
+    title: '',
+    description: '',
+    type: 'personal',
+    target_amount: '',
+    current_amount: '',
+    target_date: '',
+    status: 'active',
+  }
+}
+
 watch(
   () => props.open,
   (isOpen) => {
@@ -72,16 +85,10 @@ watch(
           status: props.goal.status,
         }
       } else {
-        form.value = {
-          title: '',
-          description: '',
-          type: 'personal',
-          target_amount: '',
-          current_amount: '',
-          target_date: '',
-          status: 'active',
-        }
+        resetForm()
       }
+    } else {
+      resetForm()
     }
   },
 )
