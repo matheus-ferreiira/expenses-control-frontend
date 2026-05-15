@@ -24,3 +24,7 @@ export type { TableColumn } from './AppTable.vue'
 
 // Forms
 export { default as AppFormField } from './AppFormField.vue'
+
+// Pickers
+export { default as IconPicker } from './IconPicker.vue'
+export { default as ColorPicker } from './ColorPicker.vue'
