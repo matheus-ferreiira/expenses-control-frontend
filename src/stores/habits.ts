@@ -26,11 +26,14 @@ export const useHabitStore = defineStore('habits', () => {
   }
 
   async function fetchToday() {
+    loading.value = true
     try {
       todayHabits.value = await habitsApi.today()
     } catch (e: unknown) {
       error.value = 'Erro ao carregar hábitos de hoje'
       throw e
+    } finally {
+      loading.value = false
     }
   }
 
@@ -111,6 +114,7 @@ export const useHabitStore = defineStore('habits', () => {
         habits.value[idx] = updated
       } catch {
         habits.value[idx] = { ...habit, logs: prevLogs, current_streak: prevStreak } as Habit
+        error.value = 'Erro ao desmarcar hábito'
         throw new Error('Erro ao desmarcar hábito')
       }
     } else {
@@ -130,6 +134,7 @@ export const useHabitStore = defineStore('habits', () => {
         habits.value[idx] = updated
       } catch {
         habits.value[idx] = { ...habit, logs: prevLogs, current_streak: prevStreak } as Habit
+        error.value = 'Erro ao marcar hábito'
         throw new Error('Erro ao marcar hábito')
       }
     }
