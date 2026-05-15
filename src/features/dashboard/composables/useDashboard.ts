@@ -230,7 +230,7 @@ export function useDashboard() {
       financeStore.fetchTransactions({
         start_date: toISODate(yearAgo),
         end_date: toISODate(now),
-        per_page: 500,
+        per_page: 300,
       }),
       calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
     ])
