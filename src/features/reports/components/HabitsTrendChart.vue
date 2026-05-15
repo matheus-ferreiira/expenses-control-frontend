@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Skeleton } from '@ui/skeleton'
+import { Activity } from 'lucide-vue-next'
 
 interface ChartPoint {
   label: string
@@ -112,6 +113,10 @@ watch(
   },
 )
 
+const isEmpty = computed(() =>
+  !props.loading && (props.data.length === 0 || props.data.every((d) => d.value === 0))
+)
+
 onMounted(() => {
   if (!props.loading) buildChart()
 })
@@ -132,7 +137,11 @@ onBeforeUnmount(() => {
       <div v-if="loading" class="absolute inset-4">
         <Skeleton class="h-full w-full rounded" />
       </div>
-      <canvas v-show="!loading" ref="canvasRef" />
+      <div v-else-if="isEmpty" class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <Activity :size="20" class="text-muted-foreground/20" />
+        <p class="text-[12px] text-muted-foreground/35">Nenhum registro de hábito no período</p>
+      </div>
+      <canvas v-show="!loading && !isEmpty" ref="canvasRef" />
     </div>
   </div>
 </template>

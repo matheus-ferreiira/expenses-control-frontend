@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Skeleton } from '@ui/skeleton'
+import { BarChart2 } from 'lucide-vue-next'
 import { formatCurrencyCompact } from '@/utils/currency'
 import type { YearlySummary } from '@/types/reports'
 
@@ -131,6 +132,12 @@ watch(
   },
 )
 
+const isEmpty = computed(() => {
+  if (props.loading) return false
+  if (!props.data?.months?.length) return true
+  return props.data.months.every((m) => m.income === 0 && m.expenses === 0)
+})
+
 onMounted(() => {
   if (!props.loading) buildChart()
 })
@@ -148,10 +155,14 @@ onBeforeUnmount(() => {
       </span>
     </div>
     <div class="px-4 pt-3 pb-4 h-[200px] relative">
-      <div v-if="loading || !data" class="absolute inset-4">
+      <div v-if="loading" class="absolute inset-4">
         <Skeleton class="h-full w-full rounded" />
       </div>
-      <canvas v-show="!loading && !!data" ref="canvasRef" />
+      <div v-else-if="isEmpty" class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <BarChart2 :size="20" class="text-muted-foreground/20" />
+        <p class="text-[12px] text-muted-foreground/35">Nenhuma transação registrada no ano</p>
+      </div>
+      <canvas v-show="!loading && !isEmpty" ref="canvasRef" />
     </div>
   </div>
 </template>
