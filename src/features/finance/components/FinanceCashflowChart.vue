@@ -39,7 +39,7 @@ async function loadChartData() {
   loading.value = true
   try {
     const { start_date, end_date } = getPeriodDates(period.value)
-    const result = await financeApi.transactions.list({ start_date, end_date, per_page: 500 })
+    const result = await financeApi.transactions.list({ start_date, end_date, per_page: 300 })
     localTransactions.value = result.data
   } catch {
     localTransactions.value = []
@@ -117,7 +117,7 @@ function getCSSVar(name: string): string {
 
 function hsl(token: string, alpha = 1): string {
   const val = getCSSVar(token)
-  return alpha < 1 ? `hsla(${val}, ${alpha})` : `hsl(${val})`
+  return alpha < 1 ? `hsl(${val} / ${alpha})` : `hsl(${val})`
 }
 
 async function buildChart() {

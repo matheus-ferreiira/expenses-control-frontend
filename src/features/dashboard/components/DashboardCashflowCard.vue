@@ -36,7 +36,7 @@ function getCSSVar(name: string): string {
 
 function hsl(token: string, alpha = 1): string {
   const val = getCSSVar(token)
-  return alpha < 1 ? `hsla(${val}, ${alpha})` : `hsl(${val})`
+  return alpha < 1 ? `hsl(${val} / ${alpha})` : `hsl(${val})`
 }
 
 async function buildChart() {
