@@ -60,6 +60,7 @@ export interface CreateTaskPayload {
   status?: TaskStatus
   priority?: TaskPriority
   due_date?: string
+  due_time?: string
   label_ids?: string[]
 }
 
