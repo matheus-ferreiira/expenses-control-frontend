@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { reportsApi } from '@/services/api/reports'
 import { tasksApi } from '@/services/api/tasks'
 import { useHabitStore } from '@/stores/habits'
@@ -37,12 +37,18 @@ export function useReportsData() {
     ).length,
   )
 
-  const habitsLoggedCount = computed(() =>
-    habitStore.habits.reduce(
-      (sum, h) => sum + h.logs.filter((l) => l.completed_date >= startDate.value).length,
-      0,
-    ),
-  )
+  const habitsLoggedCount = ref(0)
+
+  async function fetchHabitsLogCount() {
+    try {
+      const result = await reportsApi.habitsLogCount(startDate.value)
+      habitsLoggedCount.value = result.count
+    } catch {
+      // non-fatal — keep previous value
+    }
+  }
+
+  watch(period, () => fetchHabitsLogCount())
 
   const financeNet = computed(() => {
     const txns = financeStore.transactions.filter((t) => t.transaction_date >= startDate.value)
@@ -199,6 +205,7 @@ export function useReportsData() {
       const [tasksResult, yearly] = await Promise.all([
         tasksApi.list({ status: 'completed', per_page: 300 }),
         reportsApi.yearlyFinance(new Date().getFullYear()),
+        fetchHabitsLogCount(),
       ])
 
       completedTasks.value = tasksResult.data

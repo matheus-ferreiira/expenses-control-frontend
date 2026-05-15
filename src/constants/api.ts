@@ -47,6 +47,7 @@ export const API_ENDPOINTS = {
     REPORTS_BALANCE: `${API_BASE}/finance/reports/balance`,
   },
   REPORTS: {
+    HABITS_LOG_COUNT: `${API_BASE}/reports/habits-log-count`,
     WEEKLY_PRODUCTIVITY: `${API_BASE}/reports/weekly-productivity`,
   },
   GOALS: {
