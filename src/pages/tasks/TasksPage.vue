@@ -92,10 +92,10 @@ const filteredByView = computed(() => {
       if (selectedView.value.startsWith('label:')) {
         const labelId = selectedView.value.slice(6)
         return tasks.filter(
-          (t) => t.labels.some((l) => l.id === labelId) && t.status !== 'cancelled',
+          (t) => t.labels.some((l) => l.id === labelId) && t.status !== 'cancelled' && t.status !== 'completed',
         )
       }
-      return tasks.filter((t) => t.status !== 'cancelled')
+      return tasks.filter((t) => t.status !== 'cancelled' && t.status !== 'completed')
     }
   }
 })
