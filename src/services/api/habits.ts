@@ -1,6 +1,6 @@
-import { client, unwrap } from './client'
+import { client, unwrap, unwrapPaginated } from './client'
 import { API_ENDPOINTS } from '@/constants/api'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
   Habit,
   HabitStats,
@@ -12,8 +12,10 @@ import type {
 import { toISODate } from '@/utils/date'
 
 export const habitsApi = {
-  list: () =>
-    client.get<ApiResponse<Habit[]>>(API_ENDPOINTS.HABITS.BASE).then(unwrap),
+  list: (params?: { per_page?: number }) =>
+    client
+      .get<PaginatedResponse<Habit>>(API_ENDPOINTS.HABITS.BASE, { params })
+      .then(unwrapPaginated),
 
   get: (id: string) =>
     client.get<ApiResponse<Habit>>(API_ENDPOINTS.HABITS.DETAIL(id)).then(unwrap),

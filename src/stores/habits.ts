@@ -15,7 +15,8 @@ export const useHabitStore = defineStore('habits', () => {
     loading.value = true
     error.value = null
     try {
-      habits.value = await habitsApi.list()
+      const result = await habitsApi.list({ per_page: 100 })
+      habits.value = result.data
     } catch (e: unknown) {
       error.value = 'Erro ao carregar hábitos'
       throw e
@@ -67,17 +68,27 @@ export const useHabitStore = defineStore('habits', () => {
   }
 
   async function logHabit(id: string, payload?: LogHabitPayload): Promise<Habit> {
-    const updated = await habitsApi.log(id, payload)
-    const idx = habits.value.findIndex((h) => h.id === id)
-    if (idx !== -1) habits.value[idx] = updated
-    const todayIdx = todayHabits.value.findIndex((h) => h.id === id)
-    if (todayIdx !== -1) todayHabits.value[todayIdx] = updated
-    return updated
+    try {
+      const updated = await habitsApi.log(id, payload)
+      const idx = habits.value.findIndex((h) => h.id === id)
+      if (idx !== -1) habits.value[idx] = updated
+      const todayIdx = todayHabits.value.findIndex((h) => h.id === id)
+      if (todayIdx !== -1) todayHabits.value[todayIdx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao registrar hábito'
+      throw e
+    }
   }
 
   async function unlogHabit(id: string, date?: string) {
-    await habitsApi.unlog(id, date)
-    await fetchToday()
+    try {
+      await habitsApi.unlog(id, date)
+      await fetchToday()
+    } catch (e: unknown) {
+      error.value = 'Erro ao remover registro de hábito'
+      throw e
+    }
   }
 
   // Optimistic toggle: log if not done today, unlog if already done
