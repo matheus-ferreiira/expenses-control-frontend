@@ -8,8 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Trash2, TrendingUp } from 'lucide-vue-next'
-import type { Goal } from '@/types/goals'
+import {
+  MoreHorizontal, Pencil, Trash2, TrendingUp,
+  DollarSign, Heart, User, Zap, Activity, BookOpen,
+} from 'lucide-vue-next'
+import type { Goal, GoalType } from '@/types/goals'
 import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
@@ -22,8 +25,18 @@ const emit = defineEmits<{
   'update-progress': [goal: Goal]
 }>()
 
+const TYPE_ICONS: Record<GoalType, typeof DollarSign> = {
+  financial:   DollarSign,
+  health:      Heart,
+  personal:    User,
+  productivity: Zap,
+  habit:       Activity,
+  learning:    BookOpen,
+}
+
 const pct = computed(() => Math.min(Math.round(props.goal.progress_percentage), 100))
 const hasAmount = computed(() => props.goal.target_amount !== null)
+const TypeIcon = computed(() => TYPE_ICONS[props.goal.type] ?? DollarSign)
 
 const deadline = computed(() => {
   if (!props.goal.target_date) return null
@@ -47,6 +60,11 @@ const pctTextStyle = computed(() => {
 <template>
   <div class="group flex items-start gap-3 px-4 py-3 hover:bg-accent/20 transition-base">
 
+    <!-- Type icon -->
+    <div class="mt-[1px] shrink-0 rounded p-1" style="background: hsl(var(--accent))">
+      <component :is="TypeIcon" :size="12" style="color: hsl(var(--muted-foreground) / 0.7)" />
+    </div>
+
     <!-- Left: title + meta + progress bar -->
     <div class="flex-1 min-w-0">
       <!-- Title row -->
@@ -65,30 +83,34 @@ const pctTextStyle = computed(() => {
       </div>
 
       <!-- Full-width progress bar -->
-      <div class="h-[3px] w-full rounded-full overflow-hidden mb-1.5" style="background: hsl(var(--border) / 0.5)">
+      <div class="h-1 w-full rounded-full overflow-hidden mb-2" style="background: hsl(var(--border) / 0.5)">
         <div
           class="h-full rounded-full transition-all duration-500"
           :style="{ width: `${pct}%`, background: barColor }"
         />
       </div>
 
-      <!-- Sub-row: amount values + deadline -->
+      <!-- Sub-row: amount values + deadline badge -->
       <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5 flex-wrap">
-          <p v-if="hasAmount" class="text-[11px] tabular-nums" style="color: hsl(var(--muted-foreground) / 0.5)">
-            {{ formatCurrency(goal.current_amount) }}
-            <span style="color: hsl(var(--muted-foreground) / 0.3)"> / </span>
-            {{ formatCurrency(goal.target_amount!) }}
-          </p>
-          <p
-            v-if="goal.target_date"
-            :class="[
-              'text-[11px] shrink-0',
-              goal.is_overdue ? 'text-warning/70' : 'text-muted-foreground/35',
-            ]"
+        <p v-if="hasAmount" class="text-[11px] tabular-nums" style="color: hsl(var(--muted-foreground) / 0.5)">
+          {{ formatCurrency(goal.current_amount) }}
+          <span style="color: hsl(var(--muted-foreground) / 0.3)"> / </span>
+          {{ formatCurrency(goal.target_amount!) }}
+        </p>
+        <div v-if="goal.target_date" class="flex items-center gap-1.5 ml-auto">
+          <span
+            v-if="goal.is_overdue && pct < 100"
+            class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-warning/15 text-warning/80 select-none"
           >
-            {{ hasAmount ? '·' : '' }} {{ deadline }}
-          </p>
+            Vencida
+          </span>
+          <span
+            v-else
+            class="text-[11px]"
+            style="color: hsl(var(--muted-foreground) / 0.35)"
+          >
+            {{ deadline }}
+          </span>
         </div>
       </div>
     </div>
