@@ -74,7 +74,7 @@ function expenseRatio(): string {
           </p>
         </div>
         <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums">
-          {{ bestStreak }}<span class="text-sm font-normal text-muted-foreground ml-1">dias</span>
+          {{ bestStreak }} <span class="text-sm font-normal text-muted-foreground">dias</span>
         </p>
         <p class="text-xs text-muted-foreground/70 truncate">
           {{ bestStreakHabitName ?? 'Sem hábitos ativos' }}
