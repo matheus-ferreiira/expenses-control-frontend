@@ -38,10 +38,13 @@ export const useNoteStore = defineStore('notes', () => {
   }
 
   async function fetchTags() {
+    loading.value = true
     try {
       tags.value = (await notesApi.tags.list()) as NoteTag[]
     } catch {
       error.value = 'Erro ao carregar tags'
+    } finally {
+      loading.value = false
     }
   }
 

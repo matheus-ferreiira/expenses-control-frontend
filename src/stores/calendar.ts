@@ -49,10 +49,13 @@ export const useCalendarStore = defineStore('calendar', () => {
   }
 
   async function fetchUpcoming() {
+    loading.value = true
     try {
       upcoming.value = await calendarApi.upcoming()
     } catch {
       error.value = 'Erro ao carregar próximos eventos'
+    } finally {
+      loading.value = false
     }
   }
 
