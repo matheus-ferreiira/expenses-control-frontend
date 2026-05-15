@@ -133,7 +133,7 @@ async function focusContent() {
       <div class="flex items-center gap-0.5">
         <!-- Pin -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
           :style="note.is_pinned
             ? 'color: hsl(var(--primary)); background: hsl(var(--primary) / 0.1)'
             : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -147,7 +147,7 @@ async function focusContent() {
 
         <!-- Favorite -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
           :style="note.is_favorite
             ? 'color: hsl(var(--warning)); background: hsl(var(--warning) / 0.1)'
             : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -162,7 +162,7 @@ async function focusContent() {
         <!-- Tag picker -->
         <div class="relative">
           <button
-            class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
+            class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
             :style="tagPickerOpen
               ? 'color: hsl(var(--foreground)); background: hsl(var(--accent))'
               : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -232,7 +232,7 @@ async function focusContent() {
         <!-- Archive / Unarchive -->
         <button
           v-if="!note.is_archived"
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Arquivar"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
@@ -243,7 +243,7 @@ async function focusContent() {
         </button>
         <button
           v-else
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Desarquivar"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
@@ -255,7 +255,7 @@ async function focusContent() {
 
         <!-- Delete -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Excluir"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--destructive))'"

@@ -93,7 +93,7 @@ async function handleLog() {
     <div class="shrink-0" @click.stop>
       <button
         :class="[
-          'flex items-center justify-center h-7 w-7 rounded-md border transition-all',
+          'flex items-center justify-center h-7 w-7 rounded-full border transition-all active:scale-90',
           doneToday
             ? 'border-transparent'
             : 'border-border/50 hover:border-success/50 hover:bg-success/10',
