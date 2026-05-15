@@ -44,7 +44,7 @@ function sourceName(t: Transaction): string {
         v-else
         class="h-2 w-2 rounded-full"
         :style="transaction.category
-          ? { backgroundColor: transaction.category.color }
+          ? { backgroundColor: transaction.category?.color }
           : transaction.type === 'income'
             ? { backgroundColor: 'hsl(var(--success))' }
             : { backgroundColor: 'hsl(var(--destructive) / 0.7)' }
