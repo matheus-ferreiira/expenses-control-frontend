@@ -41,11 +41,6 @@ const priorityDotStyle = computed<string | null>(() => {
   }
 })
 
-const dueDateStyle = computed(() => {
-  if (overdue.value) return 'color: hsl(var(--destructive) / 0.6)'
-  if (dueToday.value) return 'color: hsl(var(--warning) / 0.7)'
-  return 'color: hsl(var(--muted-foreground) / 0.4)'
-})
 
 const statusIndicatorStyle = computed(() => {
   if (isCompleted.value) return 'background: hsl(var(--success) / 0.7)'
@@ -126,13 +121,27 @@ const statusIndicatorStyle = computed(() => {
       </div>
 
       <!-- Due date -->
-      <span
-        v-if="task.due_date"
-        class="text-[11px] tabular-nums"
-        :style="dueDateStyle"
-      >
-        {{ dueDateLabel }}
-      </span>
+      <template v-if="task.due_date">
+        <span
+          v-if="overdue"
+          class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-destructive/15 text-destructive/80 select-none"
+        >
+          Atrasada
+        </span>
+        <span
+          v-else-if="dueToday"
+          class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-warning/15 text-warning/80 select-none"
+        >
+          Hoje
+        </span>
+        <span
+          v-else
+          class="text-[11px] tabular-nums"
+          style="color: hsl(var(--muted-foreground) / 0.4)"
+        >
+          {{ dueDateLabel }}
+        </span>
+      </template>
     </div>
 
     <!-- Actions dropdown -->
