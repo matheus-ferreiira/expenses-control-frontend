@@ -267,6 +267,16 @@ onUnmounted(() => {
         </Button>
       </div>
 
+      <!-- Network error banner -->
+      <div
+        v-if="store.error"
+        class="mx-6 mb-3 flex items-center justify-between gap-3 rounded-md px-3 py-2 text-[12px] shrink-0"
+        style="background: hsl(var(--destructive) / 0.1); color: hsl(var(--destructive))"
+      >
+        <span>{{ store.error }}</span>
+        <button class="underline opacity-70 hover:opacity-100" @click="store.fetchTasks()">Tentar novamente</button>
+      </div>
+
       <!-- Toolbar -->
       <div class="px-6 pb-4 shrink-0">
         <TaskToolbar
