@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Skeleton } from '@ui/skeleton'
+import { Wallet, TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
@@ -23,9 +24,12 @@ const monthNet = computed(() => props.income - props.expenses)
         <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Saldo total
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Wallet :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Saldo total
+          </p>
+        </div>
         <p :class="['text-xl font-semibold tabular-nums leading-none', totalBalance < 0 ? 'text-destructive/80' : 'text-foreground']">
           {{ formatCurrency(totalBalance) }}
         </p>
@@ -40,9 +44,12 @@ const monthNet = computed(() => props.income - props.expenses)
         <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Receitas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <TrendingUp :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Receitas
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ formatCurrency(income) }}
         </p>
@@ -57,9 +64,12 @@ const monthNet = computed(() => props.income - props.expenses)
         <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Despesas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <TrendingDown :size="12" class="text-destructive/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Despesas
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ formatCurrency(expenses) }}
         </p>
@@ -74,9 +84,12 @@ const monthNet = computed(() => props.income - props.expenses)
         <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Fluxo do mês
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <ArrowLeftRight :size="12" class="text-muted-foreground/50 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Fluxo do mês
+          </p>
+        </div>
         <p :class="['text-xl font-semibold tabular-nums leading-none', monthNet >= 0 ? 'text-success' : 'text-destructive/80']">
           {{ monthNet >= 0 ? '+' : '' }}{{ formatCurrency(monthNet) }}
         </p>

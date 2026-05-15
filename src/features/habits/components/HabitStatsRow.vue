@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Skeleton } from '@ui/skeleton'
+import { Activity, Flame, BarChart2, CheckCircle2 } from 'lucide-vue-next'
 
 defineProps<{
   activeCount: number
@@ -21,9 +22,12 @@ defineProps<{
         <Skeleton class="h-6 w-12" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Hábitos ativos
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Activity :size="12" class="text-info/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Hábitos ativos
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ activeCount }}
         </p>
@@ -40,9 +44,12 @@ defineProps<{
         <Skeleton class="h-6 w-12" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Maior streak
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Flame :size="12" class="text-orange-400/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Maior streak
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ longestStreak }}
           <span class="text-sm font-normal text-muted-foreground/50">dias</span>
@@ -58,9 +65,12 @@ defineProps<{
         <Skeleton class="h-6 w-12" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Consistência semanal
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <BarChart2 :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Consistência semanal
+          </p>
+        </div>
         <p :class="[
           'text-xl font-semibold tabular-nums leading-none',
           weeklyConsistency >= 80 ? 'text-success' : weeklyConsistency >= 50 ? 'text-warning' : 'text-foreground'
@@ -78,9 +88,12 @@ defineProps<{
         <Skeleton class="h-6 w-12" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Concluídos hoje
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <CheckCircle2 :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Concluídos hoje
+          </p>
+        </div>
         <p :class="[
           'text-xl font-semibold tabular-nums leading-none',
           completedToday === totalActive && totalActive > 0 ? 'text-success' : 'text-foreground'

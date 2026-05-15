@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Skeleton } from '@ui/skeleton'
+import { Target, Trophy, BarChart3, AlertCircle } from 'lucide-vue-next'
 
 defineProps<{
   activeCount: number
@@ -20,9 +21,12 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Ativas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Target :size="12" class="text-info/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Ativas
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ activeCount }}
         </p>
@@ -37,9 +41,12 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Concluídas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Trophy :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Concluídas
+          </p>
+        </div>
         <p :class="['text-xl font-semibold tabular-nums leading-none', completedCount > 0 ? 'text-success' : 'text-foreground']">
           {{ completedCount }}
         </p>
@@ -54,9 +61,12 @@ defineProps<{
         <Skeleton class="h-6 w-12" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Progresso médio
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <BarChart3 :size="12" class="text-warning/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Progresso médio
+          </p>
+        </div>
         <p :class="[
           'text-xl font-semibold tabular-nums leading-none',
           averageProgress >= 75 ? 'text-success' : averageProgress >= 40 ? 'text-warning' : 'text-foreground',
@@ -74,9 +84,12 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Atrasadas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <AlertCircle :size="12" class="text-warning/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Atrasadas
+          </p>
+        </div>
         <p :class="['text-xl font-semibold tabular-nums leading-none', overdueCount > 0 ? 'text-warning' : 'text-foreground']">
           {{ overdueCount }}
         </p>

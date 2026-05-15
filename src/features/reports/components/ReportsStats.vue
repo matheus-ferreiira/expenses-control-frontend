@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Skeleton } from '@ui/skeleton'
+import { CheckSquare, Activity, DollarSign, Target } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 import type { ReportPeriod } from '@/types/reports'
 import { REPORT_PERIOD_LABELS } from '@/types/reports'
@@ -24,9 +25,12 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Tarefas concluídas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <CheckSquare :size="12" class="text-info/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Tarefas concluídas
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ tasksCompleted }}
         </p>
@@ -43,9 +47,12 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Registros de hábito
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Activity :size="12" class="text-orange-400/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Registros de hábito
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ habitsLogged }}
         </p>
@@ -62,9 +69,12 @@ defineProps<{
         <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Saldo líquido
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <DollarSign :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Saldo líquido
+          </p>
+        </div>
         <p
           :class="[
             'text-xl font-semibold tabular-nums leading-none',
@@ -84,9 +94,12 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-2">
-          Metas ativas
-        </p>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Target :size="12" class="text-info/70 shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            Metas ativas
+          </p>
+        </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ activeGoals }}
         </p>

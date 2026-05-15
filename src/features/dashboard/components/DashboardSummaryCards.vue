@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Skeleton } from '@ui/skeleton'
+import { CheckSquare, Flame, Wallet, TrendingDown } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
@@ -45,9 +46,12 @@ function expenseRatio(): string {
         <Skeleton class="h-3 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 mb-2.5 select-none">
-          Tarefas hoje
-        </p>
+        <div class="flex items-center gap-1.5 mb-2.5">
+          <CheckSquare :size="12" class="text-muted-foreground/50 shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+            Tarefas hoje
+          </p>
+        </div>
         <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums">
           {{ pendingToday }}
         </p>
@@ -63,9 +67,12 @@ function expenseRatio(): string {
         <Skeleton class="h-3 w-24" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 mb-2.5 select-none">
-          Maior streak
-        </p>
+        <div class="flex items-center gap-1.5 mb-2.5">
+          <Flame :size="12" class="text-orange-400/70 shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+            Maior streak
+          </p>
+        </div>
         <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums">
           {{ bestStreak }}<span class="text-sm font-normal text-muted-foreground ml-1">dias</span>
         </p>
@@ -83,9 +90,12 @@ function expenseRatio(): string {
         <Skeleton class="h-3 w-28" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 mb-2.5 select-none">
-          Saldo total
-        </p>
+        <div class="flex items-center gap-1.5 mb-2.5">
+          <Wallet :size="12" class="text-success/70 shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+            Saldo total
+          </p>
+        </div>
         <p
           class="text-2xl font-semibold leading-none mb-1.5 tabular-nums truncate"
           :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
@@ -104,9 +114,12 @@ function expenseRatio(): string {
         <Skeleton class="h-3 w-20" />
       </template>
       <template v-else>
-        <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 mb-2.5 select-none">
-          Gastos do mês
-        </p>
+        <div class="flex items-center gap-1.5 mb-2.5">
+          <TrendingDown :size="12" class="text-destructive/70 shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+            Gastos do mês
+          </p>
+        </div>
         <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums truncate">
           {{ formatCurrency(monthExpenses) }}
         </p>
