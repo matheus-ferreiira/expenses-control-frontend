@@ -57,10 +57,15 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   async function updateTask(id: string, payload: UpdateTaskPayload): Promise<Task> {
-    const updated = await tasksApi.update(id, payload)
-    const idx = tasks.value.findIndex((t) => t.id === id)
-    if (idx !== -1) tasks.value[idx] = updated
-    return updated
+    try {
+      const updated = await tasksApi.update(id, payload)
+      const idx = tasks.value.findIndex((t) => t.id === id)
+      if (idx !== -1) tasks.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar tarefa'
+      throw e
+    }
   }
 
   async function deleteTask(id: string) {
@@ -153,9 +158,11 @@ export const useTaskStore = defineStore('tasks', () => {
 
     try {
       await tasksApi.subtasks.update(taskId, subtaskId, { completed: sub.completed })
-    } catch {
+    } catch (e: unknown) {
       sub.completed = prevCompleted
       task.completed_subtasks_count += sub.completed ? 1 : -1
+      error.value = 'Erro ao atualizar subtarefa'
+      throw e
     }
   }
 
@@ -173,10 +180,12 @@ export const useTaskStore = defineStore('tasks', () => {
 
     try {
       await tasksApi.subtasks.delete(taskId, subtaskId)
-    } catch {
+    } catch (e: unknown) {
       task.subtasks = prevSubtasks
       task.subtasks_count++
       if (wasCompleted) task.completed_subtasks_count++
+      error.value = 'Erro ao excluir subtarefa'
+      throw e
     }
   }
 
