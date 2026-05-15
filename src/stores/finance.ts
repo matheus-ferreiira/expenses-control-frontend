@@ -31,18 +31,24 @@ export const useFinanceStore = defineStore('finance', () => {
   // ── Fetch ────────────────────────────────────────────────────────────────
 
   async function fetchAccounts() {
+    loading.value = true
     try {
       accounts.value = await financeApi.accounts.list()
     } catch {
       error.value = 'Erro ao carregar contas'
+    } finally {
+      loading.value = false
     }
   }
 
   async function fetchCards() {
+    loading.value = true
     try {
       cards.value = await financeApi.cards.list()
     } catch {
       error.value = 'Erro ao carregar cartões'
+    } finally {
+      loading.value = false
     }
   }
 
@@ -61,10 +67,13 @@ export const useFinanceStore = defineStore('finance', () => {
   }
 
   async function fetchCategories() {
+    loading.value = true
     try {
       categories.value = await financeApi.categories.list()
     } catch {
       error.value = 'Erro ao carregar categorias'
+    } finally {
+      loading.value = false
     }
   }
 
