@@ -81,7 +81,8 @@ async function handleDelete() {
 async function handleArchive() {
   if (!props.task) return
   try {
-    await store.updateTask(props.task.id, { status: 'cancelled' })
+    await store.archiveTask(props.task.id)
+    emit('update:open', false)
     toast.success('Tarefa arquivada')
   } catch {
     toast.error('Erro ao arquivar tarefa')

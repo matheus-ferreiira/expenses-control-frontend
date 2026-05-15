@@ -23,12 +23,10 @@ export interface TaskLabel {
 
 export interface Subtask {
   id: string
-  task_id: string
   title: string
   completed: boolean
-  order: number
+  position: number
   created_at: string
-  updated_at: string
 }
 
 export interface Task {
