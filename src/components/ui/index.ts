@@ -2,6 +2,8 @@
 // Do not modify these files directly; override in src/components/shared/ wrappers.
 
 export * from './avatar'
+export * from './calendar'
+export * from './date-picker'
 export * from './badge'
 export * from './button'
 export * from './card'

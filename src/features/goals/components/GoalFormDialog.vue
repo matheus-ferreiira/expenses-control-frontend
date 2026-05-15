@@ -9,6 +9,7 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
+import { DatePicker } from '@ui/date-picker'
 import { Textarea } from '@ui/textarea'
 import { Label } from '@ui/label'
 import {
@@ -235,11 +236,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
           <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
             Prazo
           </Label>
-          <Input
-            v-model="form.target_date"
-            type="date"
-            class="h-8 text-[13px]"
-          />
+          <DatePicker v-model="form.target_date" placeholder="Sem prazo" />
         </div>
 
       </div>

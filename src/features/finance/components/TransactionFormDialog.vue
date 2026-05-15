@@ -9,6 +9,7 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
+import { DatePicker } from '@ui/date-picker'
 import { Textarea } from '@ui/textarea'
 import { Label } from '@ui/label'
 import { Checkbox } from '@ui/checkbox'
@@ -146,7 +147,7 @@ async function submit() {
 
         <!-- Date -->
         <AppFormField label="Data" :error="errors.transaction_date" required>
-          <Input v-model="form.transaction_date" type="date" class="h-9" />
+          <DatePicker v-model="form.transaction_date" />
         </AppFormField>
 
         <!-- Category (hidden for transfer) -->

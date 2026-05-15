@@ -9,6 +9,7 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
+import { DatePicker } from '@ui/date-picker'
 import { Checkbox } from '@ui/checkbox'
 import { ConfirmDialog } from '@/components/shared'
 import type { EventColor } from '@/types/calendar'
@@ -79,13 +80,10 @@ defineExpose({ openCreate: form.openCreate, openEdit: form.openEdit })
               style="border-color: hsl(var(--border)); color: hsl(var(--foreground)); color-scheme: dark"
               @change="form.onStartChange()"
             />
-            <input
+            <DatePicker
               v-else
               v-model="form.startLocal.value"
-              type="date"
-              class="w-full h-8 px-2.5 rounded-md text-[12px] bg-transparent border outline-none transition-base"
-              style="border-color: hsl(var(--border)); color: hsl(var(--foreground)); color-scheme: dark"
-              @change="form.onStartChange()"
+              class="h-8 text-[12px]"
             />
           </div>
           <div class="space-y-1">
@@ -97,12 +95,10 @@ defineExpose({ openCreate: form.openCreate, openEdit: form.openEdit })
               class="w-full h-8 px-2.5 rounded-md text-[12px] bg-transparent border outline-none transition-base"
               style="border-color: hsl(var(--border)); color: hsl(var(--foreground)); color-scheme: dark"
             />
-            <input
+            <DatePicker
               v-else
               v-model="form.endLocal.value"
-              type="date"
-              class="w-full h-8 px-2.5 rounded-md text-[12px] bg-transparent border outline-none transition-base"
-              style="border-color: hsl(var(--border)); color: hsl(var(--foreground)); color-scheme: dark"
+              class="h-8 text-[12px]"
             />
           </div>
         </div>

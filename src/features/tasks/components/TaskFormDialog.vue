@@ -9,6 +9,7 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
+import { DatePicker } from '@ui/date-picker'
 import { Textarea } from '@ui/textarea'
 import { Label } from '@ui/label'
 import {
@@ -154,7 +155,7 @@ function toggleLabel(id: string) {
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1.5">
             <Label for="task-due-date">Data de entrega</Label>
-            <Input id="task-due-date" v-model="form.due_date" type="date" class="h-9" />
+            <DatePicker v-model="form.due_date" placeholder="Sem data" />
           </div>
           <div class="space-y-1.5">
             <Label for="task-due-time">Horário</Label>
