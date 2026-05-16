@@ -115,8 +115,18 @@ const pctTextStyle = computed(() => {
       </div>
     </div>
 
-    <!-- Right: actions dropdown -->
-    <div class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" @click.stop>
+    <!-- Right: progress button + dropdown -->
+    <div class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 flex items-center gap-1" @click.stop>
+      <Button
+        v-if="goal.status !== 'completed'"
+        variant="ghost"
+        size="sm"
+        class="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+        @click="emit('update-progress', goal)"
+      >
+        <TrendingUp :size="11" />
+        Progresso
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="ghost" size="icon" class="h-7 w-7">
