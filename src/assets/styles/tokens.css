@@ -42,7 +42,7 @@
    ----------------------------------------------------------------------- */
 :root {
   /* --- Surfaces --- */
-  --background:             240  5%  7%;  /* near-black with slight cool tint */
+  --background:             240  5% 10%;  /* closer to Lovable oklch(16.5% .005 270) */
   --foreground:               0  0% 96%;  /* near-white text */
 
   --card:                   240  4%  9%;  /* card surface */
@@ -77,7 +77,7 @@
   --ring:                   262 83% 58%;  /* violet focus ring */
 
   /* --- Sidebar --- */
-  --sidebar:                240  4%  8%;  /* slightly lighter dark sidebar */
+  --sidebar:                240  4% 13%;  /* closer to Lovable oklch(0.18 .005 270) */
   --sidebar-foreground:       0  0% 96%;
   --sidebar-border:         240  4% 10%;  /* barely-there separator */
   --sidebar-accent:         240  4% 11%;  /* hover / active row */
