@@ -37,7 +37,27 @@ function expenseRatio(): string {
 </script>
 
 <template>
-  <div class="grid grid-cols-2 xl:grid-cols-4 gap-2">
+  <!-- Mobile: inline chips (compact summary) -->
+  <div class="flex items-center gap-2 flex-wrap sm:hidden">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px] text-foreground/80">
+      <CheckSquare :size="12" class="text-muted-foreground/60 shrink-0" />
+      <template v-if="loading"><span class="w-12 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
+      <template v-else>{{ completedToday }}/{{ pendingToday + completedToday }} tarefas</template>
+    </div>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px] text-foreground/80">
+      <Flame :size="12" class="text-orange-400/70 shrink-0" />
+      <template v-if="loading"><span class="w-10 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
+      <template v-else>{{ bestStreak }} dias</template>
+    </div>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px]" :class="(monthIncome - monthExpenses) >= 0 ? 'text-success' : 'text-destructive/80'">
+      <Wallet :size="12" class="shrink-0" />
+      <template v-if="loading"><span class="w-16 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
+      <template v-else>{{ formatCurrency(monthIncome - monthExpenses) }} líquido</template>
+    </div>
+  </div>
+
+  <!-- Desktop: 4-card grid -->
+  <div class="hidden sm:grid grid-cols-2 xl:grid-cols-4 gap-2">
     <!-- Tarefas hoje -->
     <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
