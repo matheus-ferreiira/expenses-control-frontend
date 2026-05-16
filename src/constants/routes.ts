@@ -13,6 +13,7 @@ export const ROUTES = {
   HABIT_DETAIL: 'habit-detail',
 
   FINANCE: 'finance',
+  FINANCE_TRANSACTIONS: 'finance-transactions',
   FINANCE_ACCOUNTS: 'finance-accounts',
   FINANCE_CARDS: 'finance-cards',
   FINANCE_REPORTS: 'finance-reports',

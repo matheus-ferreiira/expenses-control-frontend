@@ -7,13 +7,23 @@ import {
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
+import { computed } from 'vue'
 import { MoreHorizontal, Pencil, Trash2, CreditCard } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 
-defineProps<{
+const props = defineProps<{
   card: CreditCardType
 }>()
+
+const daysUntilDue = computed(() => {
+  const today = new Date().getDate()
+  const due = props.card.due_day
+  if (due >= today) return due - today
+  const now = new Date()
+  const nextDue = new Date(now.getFullYear(), now.getMonth() + 1, due)
+  return Math.ceil((nextDue.getTime() - now.setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24))
+})
 
 const emit = defineEmits<{
   edit: [card: CreditCardType]
@@ -32,6 +42,19 @@ const emit = defineEmits<{
           <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5">
             Fecha dia {{ card.closing_day }} · Vence dia {{ card.due_day }}
           </p>
+          <span
+            v-if="daysUntilDue <= 10"
+            :class="[
+              'inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+              daysUntilDue === 0
+                ? 'bg-destructive/15 text-destructive/80'
+                : daysUntilDue <= 3
+                  ? 'bg-warning/15 text-warning/80'
+                  : 'bg-muted/60 text-muted-foreground/60',
+            ]"
+          >
+            {{ daysUntilDue === 0 ? 'Vence hoje' : `Vence em ${daysUntilDue} dias` }}
+          </span>
         </div>
       </div>
 

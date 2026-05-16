@@ -7,6 +7,7 @@ const router = useRouter()
 
 const tabs = [
   { label: 'Visão Geral', route: ROUTES.FINANCE },
+  { label: 'Transações', route: ROUTES.FINANCE_TRANSACTIONS },
   { label: 'Contas', route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões', route: ROUTES.FINANCE_CARDS },
 ]
