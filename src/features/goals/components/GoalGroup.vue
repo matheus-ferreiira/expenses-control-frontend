@@ -25,7 +25,7 @@ const emit = defineEmits<{
     </div>
 
     <!-- Goals container -->
-    <div class="rounded-lg border border-border/50 overflow-hidden divide-y divide-border/25">
+    <div class="space-y-3">
       <GoalRow
         v-for="goal in goals"
         :key="goal.id"

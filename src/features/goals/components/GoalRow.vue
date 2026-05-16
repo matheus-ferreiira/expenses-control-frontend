@@ -10,9 +10,8 @@ import {
 } from '@ui/dropdown-menu'
 import {
   MoreHorizontal, Pencil, Trash2, TrendingUp,
-  DollarSign, Heart, User, Zap, Activity, BookOpen,
 } from 'lucide-vue-next'
-import type { Goal, GoalType } from '@/types/goals'
+import type { Goal } from '@/types/goals'
 import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
@@ -25,18 +24,8 @@ const emit = defineEmits<{
   'update-progress': [goal: Goal]
 }>()
 
-const TYPE_ICONS: Record<GoalType, typeof DollarSign> = {
-  financial:   DollarSign,
-  health:      Heart,
-  personal:    User,
-  productivity: Zap,
-  habit:       Activity,
-  learning:    BookOpen,
-}
-
 const pct = computed(() => Math.min(Math.round(props.goal.progress_percentage), 100))
 const hasAmount = computed(() => props.goal.target_amount !== null)
-const TypeIcon = computed(() => TYPE_ICONS[props.goal.type] ?? DollarSign)
 
 const deadline = computed(() => {
   if (!props.goal.target_date) return null
@@ -49,109 +38,97 @@ const barColor = computed(() => {
   if (props.goal.is_overdue) return 'hsl(var(--warning))'
   return 'hsl(var(--primary))'
 })
-
-const pctTextStyle = computed(() => {
-  if (pct.value >= 100) return 'color: hsl(var(--success))'
-  if (props.goal.is_overdue) return 'color: hsl(var(--warning) / 0.8)'
-  return 'color: hsl(var(--muted-foreground) / 0.6)'
-})
 </script>
 
 <template>
-  <div class="group flex items-start gap-3 px-4 py-3 hover:bg-accent/20 transition-base">
+  <div class="rounded-lg border border-border/50 bg-card px-5 py-5 transition-base hover:border-border/80">
 
-    <!-- Type icon -->
-    <div class="mt-[1px] shrink-0 rounded p-1" style="background: hsl(var(--accent))">
-      <component :is="TypeIcon" :size="12" style="color: hsl(var(--muted-foreground) / 0.7)" />
-    </div>
-
-    <!-- Left: title + meta + progress bar -->
-    <div class="flex-1 min-w-0">
-      <!-- Title row -->
-      <div class="flex items-center justify-between gap-2 mb-1.5">
+    <!-- Top row: title + % badge + actions -->
+    <div class="flex items-start justify-between gap-3 mb-3">
+      <div class="flex-1 min-w-0">
         <p
           :class="[
-            'text-[13px] font-medium truncate flex-1',
-            goal.status === 'completed' ? 'text-foreground/50 line-through' : 'text-foreground/90',
+            'text-[15px] font-semibold leading-snug',
+            goal.status === 'completed' ? 'text-foreground/40 line-through' : 'text-foreground',
           ]"
         >
           {{ goal.title }}
         </p>
-        <span class="text-[11px] font-semibold tabular-nums shrink-0" :style="pctTextStyle">
+        <p v-if="goal.target_date" class="text-[12px] mt-0.5" style="color: hsl(var(--muted-foreground) / 0.45)">
+          <span v-if="goal.is_overdue && pct < 100" class="text-warning/80">Vencida · </span>
+          Prazo: {{ deadline }}
+        </p>
+      </div>
+
+      <!-- % badge + menu -->
+      <div class="flex items-center gap-2 shrink-0" @click.stop>
+        <span
+          class="text-[12px] font-semibold tabular-nums px-2 py-0.5 rounded-md"
+          :style="[
+            pct >= 100
+              ? 'background: hsl(var(--success) / 0.15); color: hsl(var(--success))'
+              : goal.is_overdue
+              ? 'background: hsl(var(--warning) / 0.12); color: hsl(var(--warning) / 0.85)'
+              : 'background: hsl(var(--border) / 0.5); color: hsl(var(--muted-foreground) / 0.7)',
+          ]"
+        >
           {{ pct }}%
         </span>
-      </div>
-
-      <!-- Full-width progress bar -->
-      <div class="h-1 w-full rounded-full overflow-hidden mb-2" style="background: hsl(var(--border) / 0.5)">
-        <div
-          class="h-full rounded-full transition-all duration-500"
-          :style="{ width: `${pct}%`, background: barColor }"
-        />
-      </div>
-
-      <!-- Sub-row: amount values + deadline badge -->
-      <div class="flex items-center justify-between gap-2">
-        <p v-if="hasAmount" class="text-[11px] tabular-nums" style="color: hsl(var(--muted-foreground) / 0.5)">
-          {{ formatCurrency(goal.current_amount) }}
-          <span style="color: hsl(var(--muted-foreground) / 0.3)"> / </span>
-          {{ formatCurrency(goal.target_amount!) }}
-        </p>
-        <div v-if="goal.target_date" class="flex items-center gap-1.5 ml-auto">
-          <span
-            v-if="goal.is_overdue && pct < 100"
-            class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-warning/15 text-warning/80 select-none"
-          >
-            Vencida
-          </span>
-          <span
-            v-else
-            class="text-[11px]"
-            style="color: hsl(var(--muted-foreground) / 0.35)"
-          >
-            {{ deadline }}
-          </span>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button variant="ghost" size="icon" class="h-7 w-7 -mr-1">
+              <MoreHorizontal :size="14" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="w-44">
+            <DropdownMenuItem @click="emit('update-progress', goal)">
+              <TrendingUp :size="12" class="mr-2" />
+              Atualizar progresso
+            </DropdownMenuItem>
+            <DropdownMenuItem @click="emit('edit', goal)">
+              <Pencil :size="12" class="mr-2" />
+              Editar
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              class="text-destructive focus:text-destructive"
+              @click="emit('delete', goal.id)"
+            >
+              <Trash2 :size="12" class="mr-2" />
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
 
-    <!-- Right: progress button + dropdown -->
-    <div class="shrink-0 mt-0.5 flex items-center gap-1" @click.stop>
+    <!-- Progress bar -->
+    <div class="h-2 w-full rounded-full overflow-hidden mb-2.5" style="background: hsl(var(--border) / 0.4)">
+      <div
+        class="h-full rounded-full transition-all duration-500"
+        :style="{ width: `${pct}%`, background: barColor }"
+      />
+    </div>
+
+    <!-- Bottom row: amounts + progress button -->
+    <div class="flex items-center justify-between gap-3">
+      <p v-if="hasAmount" class="text-[12px] tabular-nums" style="color: hsl(var(--muted-foreground) / 0.5)">
+        {{ formatCurrency(goal.current_amount) }}
+        <span class="mx-1" style="color: hsl(var(--muted-foreground) / 0.25)">de</span>
+        {{ formatCurrency(goal.target_amount!) }}
+      </p>
+      <div v-else class="flex-1" />
+
       <Button
         v-if="goal.status !== 'completed'"
-        variant="ghost"
+        variant="outline"
         size="sm"
-        class="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+        class="h-7 px-3 text-[11px] gap-1 shrink-0"
         @click="emit('update-progress', goal)"
       >
         <TrendingUp :size="11" />
-        Progresso
+        Adicionar progresso
       </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon" class="h-7 w-7">
-            <MoreHorizontal :size="13" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="w-44">
-          <DropdownMenuItem @click="emit('update-progress', goal)">
-            <TrendingUp :size="12" class="mr-2" />
-            Atualizar progresso
-          </DropdownMenuItem>
-          <DropdownMenuItem @click="emit('edit', goal)">
-            <Pencil :size="12" class="mr-2" />
-            Editar
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            class="text-destructive focus:text-destructive"
-            @click="emit('delete', goal.id)"
-          >
-            <Trash2 :size="12" class="mr-2" />
-            Excluir
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
 
   </div>
