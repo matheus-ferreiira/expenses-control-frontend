@@ -3,14 +3,11 @@ import { computed, watch } from 'vue'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
-import { Label } from '@ui/label'
-import { Loader2, Activity } from 'lucide-vue-next'
+import { Loader2, ArrowLeft, Activity, Check } from 'lucide-vue-next'
 import type { Habit } from '@/types/habits'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
 import { WEEKDAY_LABELS } from '../types'
@@ -81,110 +78,139 @@ const previewIcon = computed(() => {
 
 <template>
   <Dialog :open="open" @update:open="emit('update:open', $event)">
-    <DialogContent class="max-w-md">
-      <DialogHeader>
-        <DialogTitle>{{ habit ? 'Editar hábito' : 'Novo hábito' }}</DialogTitle>
-      </DialogHeader>
-
-      <div class="space-y-4 py-2">
-
-        <!-- Live preview card -->
-        <div
-          class="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-card/50"
-          :style="{ borderColor: form.color + '40' }"
-        >
-          <span
-            class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
-            :style="{ backgroundColor: form.color + '25', color: form.color }"
-          >
-            <component :is="previewIcon" :size="20" />
-          </span>
-          <div class="min-w-0">
-            <p class="text-sm font-medium truncate text-foreground/90">
-              {{ form.name || 'Nome do hábito' }}
-            </p>
-            <p class="text-xs text-muted-foreground mt-0.5">
-              {{ HABIT_FREQUENCY_LABELS[form.frequency] ?? form.frequency }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Name -->
-        <div class="space-y-1.5">
-          <Label for="habit-name">Nome <span class="text-destructive">*</span></Label>
-          <Input
-            id="habit-name"
-            v-model="form.name"
-            placeholder="Ex: Meditar 10 minutos"
-            autofocus
-            :class="errors.name && 'border-destructive'"
-          />
-          <p v-if="errors.name" class="text-xs text-destructive">{{ errors.name }}</p>
-        </div>
-
-        <!-- Frequency buttons -->
-        <div class="space-y-1.5">
-          <Label>Frequência</Label>
-          <div class="grid grid-cols-3 gap-1.5">
-            <button
-              v-for="f in frequencies"
-              :key="f"
-              type="button"
-              :class="[
-                'h-8 rounded-md text-xs font-medium border transition-all',
-                form.frequency === f
-                  ? 'bg-violet-500/20 text-violet-400 border-violet-500/60'
-                  : 'border-border text-muted-foreground hover:bg-accent',
-              ]"
-              @click="form.frequency = f"
-            >
-              {{ HABIT_FREQUENCY_LABELS[f] }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Target days (weekly/monthly only) -->
-        <div v-if="form.frequency !== 'daily'" class="space-y-1.5">
-          <Label>Dias da semana</Label>
-          <div class="flex gap-1.5">
-            <button
-              v-for="day in weekdays"
-              :key="day"
-              type="button"
-              :class="[
-                'flex-1 h-8 text-xs font-medium rounded-md border transition-base',
-                form.target_days.includes(day)
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-foreground/30',
-              ]"
-              @click="toggleTargetDay(day)"
-            >
-              {{ WEEKDAY_LABELS[day]?.charAt(0) }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Color -->
-        <div class="space-y-1.5">
-          <Label>Cor</Label>
-          <ColorPicker v-model="form.color" />
-        </div>
-
-        <!-- Icon -->
-        <div class="space-y-1.5">
-          <Label>Ícone</Label>
-          <IconPicker v-model="form.icon" :color="form.color" />
-        </div>
-
+    <DialogContent
+      hide-close
+      class="fixed inset-0 w-screen h-screen max-w-none max-h-none rounded-none border-0 p-0 flex flex-col translate-x-0 translate-y-0 left-0 top-0"
+    >
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-4 h-14 border-b border-border/40 shrink-0">
+        <Button variant="ghost" size="icon" class="h-8 w-8 shrink-0" @click="close">
+          <ArrowLeft :size="18" />
+        </Button>
+        <DialogTitle class="text-[15px] font-semibold">
+          {{ habit ? 'Editar hábito' : 'Novo hábito' }}
+        </DialogTitle>
       </div>
 
-      <DialogFooter class="gap-2">
-        <Button variant="outline" :disabled="submitting" @click="close">Cancelar</Button>
-        <Button :disabled="submitting" @click="submit">
-          <Loader2 v-if="submitting" :size="14" class="mr-1.5 animate-spin" />
-          {{ habit ? 'Salvar' : 'Criar hábito' }}
-        </Button>
-      </DialogFooter>
+      <!-- Scrollable body -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="max-w-lg mx-auto px-5 py-6 space-y-5">
+
+          <!-- Live preview card -->
+          <div
+            class="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-card/50"
+            :style="{ borderColor: form.color + '40' }"
+          >
+            <span
+              class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
+              :style="{ backgroundColor: form.color + '25', color: form.color }"
+            >
+              <component :is="previewIcon" :size="20" />
+            </span>
+            <div class="min-w-0">
+              <p class="text-sm font-medium truncate text-foreground/90">
+                {{ form.name || 'Nome do hábito' }}
+              </p>
+              <p class="text-xs text-muted-foreground mt-0.5">
+                {{ HABIT_FREQUENCY_LABELS[form.frequency] ?? form.frequency }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Name -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Nome do hábito
+            </label>
+            <Input
+              id="habit-name"
+              v-model="form.name"
+              placeholder="Ex: Meditar 10 minutos"
+              autofocus
+              :class="errors.name && 'border-destructive'"
+            />
+            <p v-if="errors.name" class="text-xs text-destructive">{{ errors.name }}</p>
+          </div>
+
+          <!-- Frequency buttons -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Frequência
+            </label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button
+                v-for="f in frequencies"
+                :key="f"
+                type="button"
+                :class="[
+                  'h-8 rounded-md text-xs font-medium border transition-all',
+                  form.frequency === f
+                    ? 'bg-foreground text-background border-transparent'
+                    : 'border-border text-muted-foreground hover:bg-accent',
+                ]"
+                @click="form.frequency = f"
+              >
+                {{ HABIT_FREQUENCY_LABELS[f] }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Target days (weekly/monthly only) -->
+          <div v-if="form.frequency !== 'daily'" class="space-y-1.5">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Dias da semana
+            </label>
+            <div class="flex gap-1.5">
+              <button
+                v-for="day in weekdays"
+                :key="day"
+                type="button"
+                :class="[
+                  'flex-1 h-8 text-xs font-medium rounded-md border transition-base',
+                  form.target_days.includes(day)
+                    ? 'bg-foreground text-background border-transparent'
+                    : 'border-border text-muted-foreground hover:border-foreground/30',
+                ]"
+                @click="toggleTargetDay(day)"
+              >
+                {{ WEEKDAY_LABELS[day]?.charAt(0) }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Color -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Cor
+            </label>
+            <ColorPicker v-model="form.color" />
+          </div>
+
+          <!-- Icon -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Ícone
+            </label>
+            <IconPicker v-model="form.icon" :color="form.color" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer — full-width green submit -->
+      <div class="shrink-0 px-5 py-4 border-t border-border/40">
+        <div class="max-w-lg mx-auto">
+          <Button
+            class="w-full h-10 text-sm font-medium bg-success text-white hover:bg-success/90"
+            :disabled="submitting"
+            @click="submit"
+          >
+            <Loader2 v-if="submitting" :size="14" class="mr-1.5 animate-spin" />
+            <Check v-else :size="14" class="mr-1.5" />
+            {{ habit ? 'Salvar alterações' : 'Criar hábito' }}
+          </Button>
+        </div>
+      </div>
     </DialogContent>
   </Dialog>
 </template>
