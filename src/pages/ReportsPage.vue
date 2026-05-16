@@ -22,8 +22,10 @@ const {
   loading,
   yearlyFinance,
   tasksCompletedCount,
+  tasksCompletedDelta,
   habitsLoggedCount,
   financeNet,
+  financeNetDelta,
   activeGoalsCount,
   productivityChartData,
   habitsTrendData,
@@ -84,8 +86,10 @@ onMounted(() => load())
     <div class="px-4 sm:px-6 pb-5 shrink-0">
       <ReportsStats
         :tasks-completed="tasksCompletedCount"
+        :tasks-completed-delta="tasksCompletedDelta"
         :habits-logged="habitsLoggedCount"
         :finance-net="financeNet"
+        :finance-net-delta="financeNetDelta"
         :active-goals="activeGoalsCount"
         :period="period"
         :loading="loading"

@@ -116,7 +116,7 @@ const pctTextStyle = computed(() => {
     </div>
 
     <!-- Right: progress button + dropdown -->
-    <div class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 flex items-center gap-1" @click.stop>
+    <div class="shrink-0 mt-0.5 flex items-center gap-1" @click.stop>
       <Button
         v-if="goal.status !== 'completed'"
         variant="ghost"

@@ -7,8 +7,10 @@ import { REPORT_PERIOD_LABELS } from '@/types/reports'
 
 defineProps<{
   tasksCompleted: number
+  tasksCompletedDelta: number | null
   habitsLogged: number
   financeNet: number
+  financeNetDelta: number | null
   activeGoals: number
   period: ReportPeriod
   loading?: boolean
@@ -25,11 +27,22 @@ defineProps<{
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <div class="flex items-center gap-1.5 mb-2">
-          <CheckSquare :size="12" class="text-info/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-            Tarefas concluídas
-          </p>
+        <div class="flex items-center justify-between gap-1.5 mb-2">
+          <div class="flex items-center gap-1.5">
+            <CheckSquare :size="12" class="text-info/70 shrink-0" />
+            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+              Tarefas concluídas
+            </p>
+          </div>
+          <span
+            v-if="tasksCompletedDelta !== null"
+            :class="[
+              'text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0',
+              tasksCompletedDelta >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive/80',
+            ]"
+          >
+            {{ tasksCompletedDelta >= 0 ? '+' : '' }}{{ tasksCompletedDelta }}%
+          </span>
         </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ tasksCompleted }}
@@ -69,11 +82,22 @@ defineProps<{
         <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
-        <div class="flex items-center gap-1.5 mb-2">
-          <DollarSign :size="12" class="text-success/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-            Saldo líquido
-          </p>
+        <div class="flex items-center justify-between gap-1.5 mb-2">
+          <div class="flex items-center gap-1.5">
+            <DollarSign :size="12" class="text-success/70 shrink-0" />
+            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+              Saldo líquido
+            </p>
+          </div>
+          <span
+            v-if="financeNetDelta !== null"
+            :class="[
+              'text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0',
+              financeNetDelta >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive/80',
+            ]"
+          >
+            {{ financeNetDelta >= 0 ? '+' : '' }}{{ financeNetDelta }}%
+          </span>
         </div>
         <p
           :class="[

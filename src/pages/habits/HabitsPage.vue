@@ -167,13 +167,13 @@ onUnmounted(() => {
     <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
       <div>
         <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
-          Produtividade
+          Rotina
         </p>
         <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Hábitos
         </h1>
         <p class="text-[13px] text-muted-foreground/50">
-          {{ activeHabits.length }} hábito{{ activeHabits.length !== 1 ? 's' : '' }} ativo{{ activeHabits.length !== 1 ? 's' : '' }}
+          Construa consistência diária com acompanhamento visual e streaks.
         </p>
       </div>
       <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">

@@ -129,6 +129,17 @@ async function buildChart() {
   if (chartInstance) { chartInstance.destroy(); chartInstance = null }
 
   const data = cashflowData.value
+  const ctx = canvasRef.value.getContext('2d')!
+
+  // Gradient fills
+  const h = canvasRef.value.offsetHeight || 180
+  const incomeGrad = ctx.createLinearGradient(0, 0, 0, h)
+  incomeGrad.addColorStop(0, hsl('--success', 0.3))
+  incomeGrad.addColorStop(1, hsl('--success', 0.0))
+
+  const expenseGrad = ctx.createLinearGradient(0, 0, 0, h)
+  expenseGrad.addColorStop(0, hsl('--destructive', 0.25))
+  expenseGrad.addColorStop(1, hsl('--destructive', 0.0))
 
   chartInstance = new Chart(canvasRef.value, {
     type: 'line',
@@ -138,24 +149,24 @@ async function buildChart() {
         {
           label: 'Receitas',
           data: data.map((p) => p.income),
-          borderColor: hsl('--success', 0.85),
-          backgroundColor: hsl('--success', 0.07),
+          borderColor: hsl('--success', 0.9),
+          backgroundColor: incomeGrad,
           fill: true,
           tension: 0.4,
-          borderWidth: 1.5,
+          borderWidth: 2,
           pointRadius: 0,
-          pointHoverRadius: 3,
+          pointHoverRadius: 4,
         },
         {
           label: 'Despesas',
           data: data.map((p) => p.expense),
-          borderColor: hsl('--destructive', 0.85),
-          backgroundColor: hsl('--destructive', 0.05),
+          borderColor: hsl('--destructive', 0.8),
+          backgroundColor: expenseGrad,
           fill: true,
           tension: 0.4,
-          borderWidth: 1.5,
+          borderWidth: 2,
           pointRadius: 0,
-          pointHoverRadius: 3,
+          pointHoverRadius: 4,
         },
       ],
     },

@@ -29,6 +29,14 @@ export function useReportsData() {
     return d.toLocaleDateString('en-CA')
   })
 
+  // Previous period start (for delta comparison)
+  const prevStartDate = computed(() => {
+    const d = new Date()
+    const days = period.value === '7d' ? 14 : period.value === '30d' ? 60 : period.value === '90d' ? 180 : 730
+    d.setDate(d.getDate() - days)
+    return d.toLocaleDateString('en-CA')
+  })
+
   // ── Stats ────────────────────────────────────────────────────────────────
 
   const tasksCompletedCount = computed(() =>
@@ -36,6 +44,22 @@ export function useReportsData() {
       (t) => t.completed_at && t.completed_at.slice(0, 10) >= startDate.value,
     ).length,
   )
+
+  const tasksCompletedPrev = computed(() =>
+    completedTasks.value.filter(
+      (t) =>
+        t.completed_at &&
+        t.completed_at.slice(0, 10) >= prevStartDate.value &&
+        t.completed_at.slice(0, 10) < startDate.value,
+    ).length,
+  )
+
+  const tasksCompletedDelta = computed(() => {
+    const curr = tasksCompletedCount.value
+    const prev = tasksCompletedPrev.value
+    if (prev === 0) return null
+    return Math.round(((curr - prev) / prev) * 100)
+  })
 
   const habitsLoggedCount = ref(0)
 
@@ -55,6 +79,22 @@ export function useReportsData() {
     const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
     const expenses = txns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
     return income - expenses
+  })
+
+  const financeNetPrev = computed(() => {
+    const txns = financeStore.transactions.filter(
+      (t) => t.transaction_date >= prevStartDate.value && t.transaction_date < startDate.value,
+    )
+    const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+    const expenses = txns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+    return income - expenses
+  })
+
+  const financeNetDelta = computed(() => {
+    const curr = financeNet.value
+    const prev = financeNetPrev.value
+    if (prev === 0) return null
+    return Math.round(((curr - prev) / Math.abs(prev)) * 100)
   })
 
   const activeGoalsCount = computed(() => goalStore.goals.filter((g) => g.status === 'active').length)
@@ -223,8 +263,10 @@ export function useReportsData() {
     error,
     yearlyFinance,
     tasksCompletedCount,
+    tasksCompletedDelta,
     habitsLoggedCount,
     financeNet,
+    financeNetDelta,
     activeGoalsCount,
     productivityChartData,
     habitsTrendData,

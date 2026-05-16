@@ -4,7 +4,6 @@ import { Plus, Target } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 import { EmptyState } from '@/components/shared'
-import GoalsSummary from '@/features/goals/components/GoalsSummary.vue'
 import GoalGroup from '@/features/goals/components/GoalGroup.vue'
 import GoalFormDialog from '@/features/goals/components/GoalFormDialog.vue'
 import GoalProgressDialog from '@/features/goals/components/GoalProgressDialog.vue'
@@ -20,12 +19,6 @@ const formOpen = ref(false)
 const editingGoal = ref<Goal | null>(null)
 const progressOpen = ref(false)
 const progressGoal = ref<Goal | null>(null)
-
-const averageProgress = computed(() => {
-  if (!store.activeGoals.length) return 0
-  const sum = store.activeGoals.reduce((acc, g) => acc + g.progress_percentage, 0)
-  return Math.round(sum / store.activeGoals.length)
-})
 
 // Visible goals: active + completed (not cancelled/paused)
 const visibleGoals = computed(() =>
@@ -78,30 +71,19 @@ onMounted(() => store.fetchGoals())
     <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
       <div>
         <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
-          Produtividade
+          Objetivos
         </p>
         <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Metas
         </h1>
         <p class="text-[13px] text-muted-foreground/50">
-          {{ store.activeGoals.length }} meta{{ store.activeGoals.length !== 1 ? 's' : '' }} ativa{{ store.activeGoals.length !== 1 ? 's' : '' }}
+          Suas metas financeiras, pessoais e de saúde unificadas.
         </p>
       </div>
       <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
         <Plus :size="12" class="mr-1.5" />
         Nova meta
       </Button>
-    </div>
-
-    <!-- Stats summary -->
-    <div class="px-4 sm:px-6 pb-5 shrink-0">
-      <GoalsSummary
-        :active-count="store.activeGoals.length"
-        :completed-count="store.completedGoals.length"
-        :average-progress="averageProgress"
-        :overdue-count="store.overdueGoals.length"
-        :loading="store.loading"
-      />
     </div>
 
     <!-- Goals list -->

@@ -102,9 +102,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
     <!-- Page header bar -->
     <div class="flex items-center justify-between px-5 py-3 border-b shrink-0" style="border-color: hsl(var(--border) / 0.5)">
       <div>
-        <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-0.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">PRODUTIVIDADE</p>
+        <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-0.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">ROTINA</p>
         <h1 class="text-[18px] font-semibold text-foreground tracking-tight leading-tight">Agenda</h1>
-        <p class="text-[11px] text-muted-foreground/40 mt-0.5 select-none">Seus eventos e compromissos</p>
+        <p class="text-[11px] text-muted-foreground/40 mt-0.5 select-none">Eventos, compromissos e tarefas em um só lugar.</p>
       </div>
       <div class="flex items-center gap-2">
         <button
