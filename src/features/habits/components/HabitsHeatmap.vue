@@ -6,7 +6,7 @@ const props = defineProps<{
   habits: Habit[]
 }>()
 
-const WEEKS = 15
+const WEEKS = 12
 const TOTAL_DAYS = WEEKS * 7
 
 interface HeatCell {
@@ -83,21 +83,20 @@ function cellStyle(count: number): string {
 
 <template>
   <div>
-    <p class="text-[9px] font-semibold uppercase tracking-[0.12em] mb-3"
-      style="color: hsl(var(--muted-foreground) / 0.4)">
-      Consistência — últimas {{ WEEKS }} semanas
+    <p class="text-[11px] font-medium mb-4" style="color: hsl(var(--muted-foreground) / 0.5)">
+      Heatmap de consistência — últimas {{ WEEKS }} semanas
     </p>
 
     <div class="overflow-x-auto">
-      <div class="inline-block min-w-max">
-        <!-- Month labels -->
-        <div class="flex gap-[3px] mb-1 pl-0" style="height: 14px">
+      <div class="inline-flex flex-col min-w-max">
+        <!-- Month labels row -->
+        <div class="flex gap-[4px] mb-1.5 ml-8">
           <template v-for="wi in WEEKS" :key="wi">
-            <div class="w-[16px]">
+            <div class="w-[28px] text-center">
               <span
                 v-if="monthLabels.some(l => l.colIndex === wi - 1)"
-                class="text-[9px]"
-                style="color: hsl(var(--muted-foreground) / 0.35)"
+                class="text-[9px] font-medium"
+                style="color: hsl(var(--muted-foreground) / 0.4)"
               >
                 {{ monthLabels.find(l => l.colIndex === wi - 1)?.label }}
               </span>
@@ -105,17 +104,30 @@ function cellStyle(count: number): string {
           </template>
         </div>
 
-        <!-- Grid: columns = weeks, rows = days -->
-        <div class="flex gap-[3px]">
+        <!-- Grid: day labels + week columns -->
+        <div class="flex gap-[4px]">
+          <!-- Weekday labels (every other row) -->
+          <div class="flex flex-col gap-[4px] mr-1 w-7">
+            <div
+              v-for="(dayLabel, di) in ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']"
+              :key="di"
+              class="h-[28px] flex items-center justify-end pr-1 text-[9px] font-medium"
+              style="color: hsl(var(--muted-foreground) / 0.4)"
+            >
+              {{ di % 2 === 0 ? dayLabel : '' }}
+            </div>
+          </div>
+
+          <!-- Week columns -->
           <div
             v-for="(week, wi) in weeks"
             :key="wi"
-            class="flex flex-col gap-[3px]"
+            class="flex flex-col gap-[4px]"
           >
             <div
               v-for="cell in week"
               :key="cell.date"
-              class="h-[16px] w-[16px] rounded-[2px] cursor-default transition-opacity hover:opacity-80"
+              class="h-[28px] w-[28px] rounded-[4px] cursor-default transition-opacity hover:opacity-80"
               :style="cellStyle(cell.count)"
               :title="`${cell.label}: ${cell.count} hábito${cell.count !== 1 ? 's' : ''}`"
             />
@@ -123,10 +135,10 @@ function cellStyle(count: number): string {
         </div>
 
         <!-- Legend -->
-        <div class="flex items-center gap-1.5 mt-2.5 justify-end">
-          <span class="text-[9px]" style="color: hsl(var(--muted-foreground) / 0.35)">Menos</span>
-          <div v-for="n in [0, 1, 3, 5, 6]" :key="n" class="h-[16px] w-[16px] rounded-[2px]" :style="cellStyle(n)" />
-          <span class="text-[9px]" style="color: hsl(var(--muted-foreground) / 0.35)">Mais</span>
+        <div class="flex items-center gap-[4px] mt-3 ml-8 justify-start">
+          <span class="text-[9px] mr-1" style="color: hsl(var(--muted-foreground) / 0.4)">Menos</span>
+          <div v-for="n in [0, 1, 3, 5, 6]" :key="n" class="h-[12px] w-[12px] rounded-[2px]" :style="cellStyle(n)" />
+          <span class="text-[9px] ml-1" style="color: hsl(var(--muted-foreground) / 0.4)">Mais</span>
         </div>
       </div>
     </div>
