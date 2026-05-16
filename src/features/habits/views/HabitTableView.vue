@@ -56,8 +56,8 @@ const emit = defineEmits<{
 
   <!-- Table -->
   <div v-else class="rounded-lg border border-border overflow-hidden">
-    <!-- Column headers -->
-    <div class="flex items-center gap-3 px-4 py-2 border-b border-border/40">
+    <!-- Column headers (desktop only) -->
+    <div class="hidden sm:flex items-center gap-3 px-4 py-2 border-b border-border/40">
       <div class="w-2 shrink-0" />
       <div class="flex-1 min-w-0">
         <span class="text-[9px] font-semibold uppercase tracking-[0.1em]" style="color: hsl(var(--muted-foreground) / 0.35)">

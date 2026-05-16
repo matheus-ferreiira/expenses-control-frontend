@@ -8,10 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { Check, Loader2, MoreHorizontal, Pencil, Archive, Trash2 } from 'lucide-vue-next'
+import { Check, Loader2, MoreHorizontal, Pencil, Archive, Trash2, Activity } from 'lucide-vue-next'
 import HabitWeekDots from './HabitWeekDots.vue'
 import type { Habit } from '@/types/habits'
-import { isCompletedToday } from '../utils/habitHelpers'
+import { isCompletedToday, getWeeklyDots } from '../utils/habitHelpers'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
 
 const props = defineProps<{
@@ -30,6 +30,8 @@ const logging = ref(false)
 
 const doneToday = computed(() => isCompletedToday(props.habit))
 const freqLabel = computed(() => HABIT_FREQUENCY_LABELS[props.habit.frequency])
+const weeklyDots = computed(() => getWeeklyDots(props.habit))
+const DAY_LABELS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
 
 async function handleLog() {
   if (logging.value) return
@@ -43,8 +45,73 @@ async function handleLog() {
 </script>
 
 <template>
+  <!-- Mobile card layout -->
   <div
-    class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base cursor-pointer"
+    class="sm:hidden flex items-center gap-3 p-4 cursor-pointer"
+    @click="emit('open', habit)"
+  >
+    <!-- Colored icon -->
+    <div
+      class="flex items-center justify-center h-10 w-10 rounded-xl shrink-0"
+      :style="{ background: habit.color ? `${habit.color}25` : 'hsl(var(--accent))' }"
+    >
+      <Activity :size="18" :style="{ color: habit.color ?? 'hsl(var(--muted-foreground))' }" />
+    </div>
+
+    <!-- Info + weekly dots -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 mb-0.5">
+        <p :class="['text-[14px] font-medium leading-tight truncate', doneToday ? 'text-foreground/50' : 'text-foreground/90']">
+          {{ habit.name }}
+        </p>
+        <span v-if="habit.current_streak > 0" class="text-[11px] tabular-nums shrink-0" style="color: hsl(var(--warning) / 0.8)">
+          🔥 {{ habit.current_streak }}
+        </span>
+      </div>
+      <p class="text-[11px] text-muted-foreground/50 mb-2">{{ freqLabel }}</p>
+      <!-- 7-day squares -->
+      <div class="flex items-center gap-[3px]">
+        <div
+          v-for="(dot, i) in weeklyDots"
+          :key="dot.date"
+          class="flex flex-col items-center gap-[3px]"
+        >
+          <div
+            :class="[
+              'h-[14px] w-[14px] rounded-sm transition-base',
+              dot.isFuture ? 'bg-border/15' : dot.isLogged ? 'opacity-90' : 'bg-border/30',
+            ]"
+            :style="dot.isLogged && !dot.isFuture && habit.color ? `background: ${habit.color}` : undefined"
+          />
+          <span class="text-[8px] text-muted-foreground/30 leading-none">{{ DAY_LABELS[i] }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Large check button -->
+    <div class="shrink-0" @click.stop>
+      <button
+        :class="[
+          'flex items-center justify-center h-12 w-12 rounded-full border-2 transition-all active:scale-90',
+          doneToday ? 'border-transparent' : 'border-border/40 hover:border-success/60 hover:bg-success/10',
+        ]"
+        :style="doneToday && habit.color ? `background: ${habit.color}30; border-color: ${habit.color}80` : undefined"
+        :disabled="logging"
+        @click="handleLog"
+      >
+        <Loader2 v-if="logging" :size="18" class="animate-spin text-muted-foreground" />
+        <Check
+          v-else
+          :size="18"
+          :style="doneToday && habit.color ? `color: ${habit.color}` : 'color: hsl(var(--muted-foreground) / 0.3)'"
+        />
+      </button>
+    </div>
+  </div>
+
+  <!-- Desktop table row -->
+  <div
+    class="hidden sm:flex group items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base cursor-pointer"
     @click="emit('open', habit)"
   >
     <!-- Color dot -->
