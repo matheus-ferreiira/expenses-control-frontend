@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
 import { Check, Loader2, MoreHorizontal, Pencil, Archive, Trash2, Activity } from 'lucide-vue-next'
-import HabitWeekDots from './HabitWeekDots.vue'
 import type { Habit } from '@/types/habits'
 import { isCompletedToday, getWeeklyDots } from '../utils/habitHelpers'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
@@ -133,9 +132,32 @@ async function handleLog() {
       <p class="text-[11px] text-muted-foreground/40 mt-0.5">{{ freqLabel }}</p>
     </div>
 
-    <!-- Weekly dots -->
-    <div class="hidden sm:block shrink-0" @click.stop>
-      <HabitWeekDots :habit="habit" />
+    <!-- Meta (frequency badge) — desktop only, large screens -->
+    <div class="hidden lg:flex items-center shrink-0 w-[80px]" @click.stop>
+      <span
+        class="text-[11px] px-2 py-0.5 rounded-full border"
+        style="color: hsl(var(--muted-foreground) / 0.7); border-color: hsl(var(--border) / 0.6); background: hsl(var(--muted) / 0.3)"
+      >
+        {{ freqLabel }}
+      </span>
+    </div>
+
+    <!-- Esta semana — 7 labeled squares -->
+    <div class="hidden sm:flex items-end gap-[3px] shrink-0 w-[123px]" @click.stop>
+      <div
+        v-for="(dot, i) in weeklyDots"
+        :key="dot.date"
+        class="flex flex-col items-center gap-[2px]"
+      >
+        <div
+          :class="[
+            'h-[15px] w-[15px] rounded-sm transition-base',
+            dot.isFuture ? 'bg-border/15' : dot.isLogged ? 'opacity-90' : 'bg-border/30',
+          ]"
+          :style="dot.isLogged && !dot.isFuture && habit.color ? `background: ${habit.color}` : undefined"
+        />
+        <span class="text-[8px] leading-none" style="color: hsl(var(--muted-foreground) / 0.3)">{{ DAY_LABELS[i] }}</span>
+      </div>
     </div>
 
     <!-- Streak -->

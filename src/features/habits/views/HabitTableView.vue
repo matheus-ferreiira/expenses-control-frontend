@@ -64,7 +64,12 @@ const emit = defineEmits<{
           Hábito
         </span>
       </div>
-      <div class="hidden sm:block shrink-0 w-[67px]">
+      <div class="hidden lg:block shrink-0 w-[80px]">
+        <span class="text-[9px] font-semibold uppercase tracking-[0.1em]" style="color: hsl(var(--muted-foreground) / 0.35)">
+          Meta
+        </span>
+      </div>
+      <div class="hidden sm:block shrink-0 w-[123px]">
         <span class="text-[9px] font-semibold uppercase tracking-[0.1em]" style="color: hsl(var(--muted-foreground) / 0.35)">
           Esta semana
         </span>
