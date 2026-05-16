@@ -61,7 +61,7 @@
 
   /* --- Muted / disabled --- */
   --muted:                  240  4% 10%;
-  --muted-foreground:       240  3% 46%;  /* placeholder, helper text */
+  --muted-foreground:       240  5% 65%;  /* placeholder, helper text — matches Lovable oklch(66%) */
 
   /* --- Accent — violet (same as primary, for hover highlights) --- */
   --accent:                 262 83% 58%;  /* violet — matches Lovable */
