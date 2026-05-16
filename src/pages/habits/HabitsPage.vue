@@ -182,8 +182,32 @@ onUnmounted(() => {
       </Button>
     </div>
 
-    <!-- Stats row -->
-    <div class="px-4 sm:px-6 pb-5 shrink-0">
+    <!-- Mobile compact stats bar -->
+    <div class="sm:hidden px-4 pb-4 shrink-0">
+      <div class="flex items-center gap-3 text-[12px]" style="color: hsl(var(--muted-foreground) / 0.65)">
+        <span v-if="longestStreak > 0">
+          <span style="color: hsl(var(--warning) / 0.9)">🔥 {{ longestStreak }}</span>
+          <span class="ml-1">streak</span>
+        </span>
+        <span v-if="longestStreak > 0" style="color: hsl(var(--border))">|</span>
+        <span>
+          <span :style="completedTodayCount === activeHabits.length && activeHabits.length > 0 ? 'color: hsl(var(--success))' : 'color: hsl(var(--foreground) / 0.8)'">
+            {{ completedTodayCount }}/{{ activeHabits.length }}
+          </span>
+          <span class="ml-1">hoje</span>
+        </span>
+        <span style="color: hsl(var(--border))">|</span>
+        <span>
+          <span :style="weeklyConsistency >= 80 ? 'color: hsl(var(--success))' : 'color: hsl(var(--foreground) / 0.8)'">
+            {{ weeklyConsistency }}%
+          </span>
+          <span class="ml-1">semana</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Stats row (desktop only) -->
+    <div class="hidden sm:block px-4 sm:px-6 pb-5 shrink-0">
       <HabitStatsRow
         :active-count="activeHabits.length"
         :longest-streak="longestStreak"
@@ -194,8 +218,8 @@ onUnmounted(() => {
       />
     </div>
 
-    <!-- Toolbar -->
-    <div class="px-4 sm:px-6 pb-4 shrink-0">
+    <!-- Toolbar (desktop only) -->
+    <div class="hidden sm:block px-4 sm:px-6 pb-4 shrink-0">
       <HabitToolbar
         :filter-state="filterState"
         :search="filterState.search.value"
