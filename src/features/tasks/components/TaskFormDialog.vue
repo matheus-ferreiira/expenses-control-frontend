@@ -110,7 +110,7 @@ async function submit() {
 }
 
 const statuses = ['pending', 'in_progress', 'completed', 'cancelled'] as const
-const priorities = ['low', 'normal', 'high', 'urgent'] as const
+const priorities = ['urgent', 'high', 'normal', 'low'] as const
 
 function toggleLabel(id: string) {
   const idx = form.label_ids.indexOf(id)
