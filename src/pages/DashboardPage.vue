@@ -80,16 +80,7 @@ onMounted(() => {
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
               <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Nova tarefa
-          </button>
-          <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
-            @click="ui.quickAddOpen = true"
-          >
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
-              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            Transação
+            Tarefa
           </button>
           <button
             class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
@@ -99,6 +90,15 @@ onMounted(() => {
               <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             Evento
+          </button>
+          <button
+            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
+            @click="ui.quickAddOpen = true"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Transação
           </button>
         </div>
       </div>

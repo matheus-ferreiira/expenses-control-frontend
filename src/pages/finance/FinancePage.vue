@@ -135,7 +135,7 @@ onMounted(async () => {
           Visão geral
         </h1>
         <p class="text-[13px] text-muted-foreground/50">
-          Fluxo de caixa, contas e transações do mês
+          Contas, cartões, despesas e receitas em uma única tela funcional.
         </p>
       </div>
       <div class="flex items-center gap-2 sm:mt-1 shrink-0">
