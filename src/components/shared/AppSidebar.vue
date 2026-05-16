@@ -187,7 +187,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
           <div v-if="open" class="mt-4 mb-1 px-2.5">
             <span
               class="text-[9.5px] font-semibold tracking-[0.12em] uppercase select-none"
-              style="color: hsl(var(--muted-foreground) / 0.28)"
+              style="color: hsl(var(--muted-foreground) / 0.38)"
             >
               {{ section.label }}
             </span>
@@ -242,7 +242,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
               :style="
                 isActive(item.route)
                   ? 'color: hsl(var(--muted-foreground) / 0.45)'
-                  : 'color: hsl(var(--muted-foreground) / 0.28)'
+                  : 'color: hsl(var(--muted-foreground) / 0.35)'
               "
             >
               {{ item.shortcut }}

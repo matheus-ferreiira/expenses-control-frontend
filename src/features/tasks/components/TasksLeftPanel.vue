@@ -158,7 +158,7 @@ function isActive(id: TaskViewId) {
         <div class="mt-4 mb-1 px-2.5">
           <span
             class="text-[9px] font-semibold tracking-[0.12em] uppercase select-none"
-            style="color: hsl(var(--muted-foreground) / 0.28)"
+            style="color: hsl(var(--muted-foreground) / 0.38)"
           >
             Projetos
           </span>

@@ -204,13 +204,20 @@ export function useDashboard() {
   function greetingContext(): string {
     const parts: string[] = []
     const urgent = urgentTasks.value.length
-    const pending = pendingHabitsToday.value.length
-    if (urgent > 0)
+    const totalPending = pendingToday.value.length
+    const habits = pendingHabitsToday.value.length
+    const events = todayEvents.value.length
+
+    if (urgent > 0) {
       parts.push(`${urgent} ${urgent === 1 ? 'tarefa prioritária' : 'tarefas prioritárias'}`)
-    if (pending > 0)
-      parts.push(`${pending} ${pending === 1 ? 'hábito pendente' : 'hábitos pendentes'}`)
+    } else if (totalPending > 0) {
+      parts.push(`${totalPending} ${totalPending === 1 ? 'tarefa' : 'tarefas'}`)
+    }
+    if (habits > 0) parts.push(`${habits} ${habits === 1 ? 'hábito' : 'hábitos'}`)
+    if (events > 0) parts.push(`${events} ${events === 1 ? 'evento' : 'eventos'}`)
+
     if (parts.length === 0) return 'Tudo em dia por enquanto.'
-    return `Você tem ${parts.join(' e ')}.`
+    return `Você tem ${parts.join(', ')} hoje.`
   }
 
   // ── Load ──────────────────────────────────────────────────────────────────
