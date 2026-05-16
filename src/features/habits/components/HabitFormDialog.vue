@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -9,22 +9,16 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
-import { Textarea } from '@ui/textarea'
 import { Label } from '@ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@ui/select'
-import { Loader2 } from 'lucide-vue-next'
+import { Loader2, Activity } from 'lucide-vue-next'
 import type { Habit } from '@/types/habits'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
-import { HABIT_COLORS, WEEKDAY_LABELS } from '../types'
+import { WEEKDAY_LABELS } from '../types'
 import { useHabitForm } from '../composables/useHabitForm'
 import { useHabitStore } from '@/stores/habits'
 import { useToast } from '@/composables/useToast'
+import { IconPicker, ColorPicker } from '@/components/shared'
+import { findIcon } from '@/lib/icons'
 
 const props = defineProps<{
   open: boolean
@@ -77,8 +71,12 @@ async function submit() {
 }
 
 const frequencies = ['daily', 'weekly', 'monthly'] as const
-
 const weekdays = [0, 1, 2, 3, 4, 5, 6] as const
+
+const previewIcon = computed(() => {
+  if (form.icon) return findIcon(form.icon)?.component
+  return Activity
+})
 </script>
 
 <template>
@@ -89,6 +87,28 @@ const weekdays = [0, 1, 2, 3, 4, 5, 6] as const
       </DialogHeader>
 
       <div class="space-y-4 py-2">
+
+        <!-- Live preview card -->
+        <div
+          class="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-card/50"
+          :style="{ borderColor: form.color + '40' }"
+        >
+          <span
+            class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
+            :style="{ backgroundColor: form.color + '25', color: form.color }"
+          >
+            <component :is="previewIcon" :size="20" />
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium truncate text-foreground/90">
+              {{ form.name || 'Nome do hábito' }}
+            </p>
+            <p class="text-xs text-muted-foreground mt-0.5">
+              {{ HABIT_FREQUENCY_LABELS[form.frequency] ?? form.frequency }}
+            </p>
+          </div>
+        </div>
+
         <!-- Name -->
         <div class="space-y-1.5">
           <Label for="habit-name">Nome <span class="text-destructive">*</span></Label>
@@ -102,30 +122,25 @@ const weekdays = [0, 1, 2, 3, 4, 5, 6] as const
           <p v-if="errors.name" class="text-xs text-destructive">{{ errors.name }}</p>
         </div>
 
-        <!-- Description -->
-        <div class="space-y-1.5">
-          <Label for="habit-desc">Descrição</Label>
-          <Textarea
-            id="habit-desc"
-            v-model="form.description"
-            placeholder="Detalhes opcionais..."
-            class="min-h-[64px] resize-none text-sm"
-          />
-        </div>
-
-        <!-- Frequency -->
+        <!-- Frequency buttons -->
         <div class="space-y-1.5">
           <Label>Frequência</Label>
-          <Select v-model="form.frequency">
-            <SelectTrigger class="h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="f in frequencies" :key="f" :value="f">
-                {{ HABIT_FREQUENCY_LABELS[f] }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button
+              v-for="f in frequencies"
+              :key="f"
+              type="button"
+              :class="[
+                'h-8 rounded-md text-xs font-medium border transition-all',
+                form.frequency === f
+                  ? 'bg-violet-500/20 text-violet-400 border-violet-500/60'
+                  : 'border-border text-muted-foreground hover:bg-accent',
+              ]"
+              @click="form.frequency = f"
+            >
+              {{ HABIT_FREQUENCY_LABELS[f] }}
+            </button>
+          </div>
         </div>
 
         <!-- Target days (weekly/monthly only) -->
@@ -149,24 +164,18 @@ const weekdays = [0, 1, 2, 3, 4, 5, 6] as const
           </div>
         </div>
 
-        <!-- Color palette -->
+        <!-- Color -->
         <div class="space-y-1.5">
           <Label>Cor</Label>
-          <div class="flex gap-2 flex-wrap">
-            <button
-              v-for="c in HABIT_COLORS"
-              :key="c.value"
-              type="button"
-              :title="c.label"
-              :class="[
-                'w-7 h-7 rounded-full transition-transform hover:scale-110',
-                form.color === c.value && 'ring-2 ring-offset-2 ring-offset-background ring-foreground scale-110',
-              ]"
-              :style="{ backgroundColor: c.value }"
-              @click="form.color = c.value"
-            />
-          </div>
+          <ColorPicker v-model="form.color" />
         </div>
+
+        <!-- Icon -->
+        <div class="space-y-1.5">
+          <Label>Ícone</Label>
+          <IconPicker v-model="form.icon" :color="form.color" />
+        </div>
+
       </div>
 
       <DialogFooter class="gap-2">
