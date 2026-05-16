@@ -150,7 +150,7 @@ async function handleLog() {
     <!-- Meta badge — colored per frequency -->
     <div class="hidden lg:flex items-center shrink-0 w-[88px]" @click.stop>
       <span
-        class="text-[11px] px-2 py-0.5 rounded-full border"
+        class="text-[10px] font-medium px-1.5 py-0.5 rounded border"
         :style="badgeStyle"
       >
         {{ freqLabel }}
@@ -189,26 +189,26 @@ async function handleLog() {
       <span v-else class="text-[12px]" style="color: hsl(var(--muted-foreground) / 0.25)">—</span>
     </div>
 
-    <!-- Check today — rounded square -->
+    <!-- Check today — rounded square, no border (Lovable style) -->
     <div class="shrink-0" @click.stop>
       <button
         :class="[
-          'flex items-center justify-center h-7 w-7 rounded-md border-2 transition-all active:scale-90',
-          doneToday ? 'border-transparent' : 'border-border/50 hover:border-success/50 hover:bg-success/10',
+          'grid place-items-center h-8 w-8 rounded-md transition-all active:scale-90',
+          doneToday ? '' : 'hover:bg-muted',
         ]"
         :style="doneToday && habit.color
-          ? `background: ${habit.color}30; border-color: ${habit.color}80`
+          ? `background: ${habit.color}25`
           : doneToday
-            ? 'background: hsl(var(--success) / 0.2); border-color: hsl(var(--success) / 0.6)'
+            ? 'background: hsl(var(--success) / 0.15)'
             : undefined"
         :disabled="logging"
         @click="handleLog"
       >
-        <Loader2 v-if="logging" :size="12" class="animate-spin text-muted-foreground" />
+        <Loader2 v-if="logging" :size="13" class="animate-spin text-muted-foreground" />
         <Check
           v-else
-          :size="12"
-          :style="doneToday && habit.color ? `color: ${habit.color}` : doneToday ? 'color: hsl(var(--success))' : 'color: hsl(var(--muted-foreground) / 0.35)'"
+          :size="13"
+          :style="doneToday && habit.color ? `color: ${habit.color}` : doneToday ? 'color: hsl(var(--success))' : 'color: hsl(var(--muted-foreground) / 0.4)'"
         />
       </button>
     </div>
