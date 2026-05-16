@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -9,21 +9,14 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@ui/select'
-import { Loader2 } from 'lucide-vue-next'
-import { AppFormField } from '@/components/shared'
+import { Loader2, Wallet, Landmark, PiggyBank, TrendingUp, DollarSign } from 'lucide-vue-next'
+import { AppFormField, ColorPicker } from '@/components/shared'
 import type { BankAccount, AccountType } from '@/types/finance'
 import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
-import { ACCOUNT_COLORS } from '../types'
 import { useAccountForm } from '../composables/useAccountForm'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
+import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
   open: boolean
@@ -41,6 +34,20 @@ const toast = useToast()
 const { form, errors, submitting, fromAccount, reset, validate, toPayload } = useAccountForm()
 
 const accountTypes: AccountType[] = ['checking', 'savings', 'investment', 'wallet']
+
+const TYPE_ICONS: Record<AccountType, typeof Wallet> = {
+  checking:   Landmark,
+  savings:    PiggyBank,
+  investment: TrendingUp,
+  wallet:     Wallet,
+}
+
+const previewIcon = computed(() => TYPE_ICONS[form.type] ?? DollarSign)
+
+const previewBalance = computed(() => {
+  const val = parseFloat(form.balance.replace(',', '.'))
+  return isNaN(val) ? 'R$ 0,00' : formatCurrency(val)
+})
 
 watch(
   () => props.open,
@@ -86,22 +93,55 @@ async function submit() {
       </DialogHeader>
 
       <form class="space-y-4" @submit.prevent="submit">
+
+        <!-- Live preview card -->
+        <div
+          class="flex items-center gap-3 p-3 rounded-xl border"
+          :style="{ borderColor: form.color + '50', background: form.color + '10' }"
+        >
+          <span
+            class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
+            :style="{ backgroundColor: form.color + '25', color: form.color }"
+          >
+            <component :is="previewIcon" :size="20" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold truncate text-foreground/90">
+              {{ form.name || 'Nome da conta' }}
+            </p>
+            <p class="text-xs text-muted-foreground">
+              {{ ACCOUNT_TYPE_LABELS[form.type] }}
+            </p>
+          </div>
+          <p class="text-sm font-bold tabular-nums shrink-0" :style="{ color: form.color }">
+            {{ previewBalance }}
+          </p>
+        </div>
+
         <AppFormField label="Nome" :error="errors.name" required>
           <Input v-model="form.name" placeholder="Ex: Itaú Corrente" class="h-9" />
         </AppFormField>
 
-        <AppFormField label="Tipo">
-          <Select v-model="form.type">
-            <SelectTrigger class="h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="t in accountTypes" :key="t" :value="t">
-                {{ ACCOUNT_TYPE_LABELS[t] }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </AppFormField>
+        <!-- Type pills -->
+        <div class="space-y-1.5">
+          <p class="text-sm font-medium">Tipo</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button
+              v-for="t in accountTypes"
+              :key="t"
+              type="button"
+              :class="[
+                'h-8 rounded-md text-xs font-medium border transition-all',
+                form.type === t
+                  ? 'bg-violet-500/20 text-violet-400 border-violet-500/60'
+                  : 'border-border text-muted-foreground hover:bg-accent',
+              ]"
+              @click="form.type = t"
+            >
+              {{ ACCOUNT_TYPE_LABELS[t] }}
+            </button>
+          </div>
+        </div>
 
         <AppFormField label="Saldo inicial (R$)" :error="errors.balance">
           <Input
@@ -112,29 +152,17 @@ async function submit() {
           />
         </AppFormField>
 
-        <!-- Color palette -->
-        <AppFormField label="Cor">
-          <div class="flex gap-2 flex-wrap">
-            <button
-              v-for="color in ACCOUNT_COLORS"
-              :key="color"
-              type="button"
-              :class="[
-                'h-6 w-6 rounded-full border-2 transition-all',
-                form.color === color ? 'border-foreground scale-110' : 'border-transparent',
-              ]"
-              :style="{ backgroundColor: color }"
-              @click="form.color = color"
-            />
-          </div>
-        </AppFormField>
+        <div class="space-y-1.5">
+          <p class="text-sm font-medium">Cor</p>
+          <ColorPicker v-model="form.color" />
+        </div>
       </form>
 
       <DialogFooter class="gap-2">
         <Button variant="outline" :disabled="submitting" @click="close">Cancelar</Button>
         <Button :disabled="submitting" @click="submit">
           <Loader2 v-if="submitting" :size="14" class="mr-1.5 animate-spin" />
-          {{ account ? 'Salvar' : 'Criar' }}
+          {{ account ? 'Salvar' : 'Criar conta' }}
         </Button>
       </DialogFooter>
     </DialogContent>
