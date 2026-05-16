@@ -93,22 +93,25 @@ function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'ArrowRight') nav.next()
 }
 
-onMounted(() => window.addEventListener('keydown', onKeyDown))
+onMounted(() => {
+  window.addEventListener('keydown', onKeyDown)
+  if (window.innerWidth < 640) nav.setView('agenda')
+})
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 </script>
 
 <template>
   <div class="flex flex-col h-[calc(100dvh-3rem)] md:h-dvh overflow-hidden">
     <!-- Page header bar -->
-    <div class="flex items-center justify-between px-5 py-3 border-b shrink-0" style="border-color: hsl(var(--border) / 0.5)">
-      <div>
+    <div class="flex items-center justify-between px-4 sm:px-5 py-3 border-b shrink-0 gap-3" style="border-color: hsl(var(--border) / 0.5)">
+      <div class="min-w-0">
         <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-0.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">ROTINA</p>
         <h1 class="text-[18px] font-semibold text-foreground tracking-tight leading-tight">Agenda</h1>
-        <p class="text-[11px] text-muted-foreground/40 mt-0.5 select-none">Eventos, compromissos e tarefas em um só lugar. Sincronização com Google Calendar em breve.</p>
+        <p class="hidden sm:block text-[11px] text-muted-foreground/40 mt-0.5 select-none">Eventos, compromissos e tarefas em um só lugar. Sincronização com Google Calendar em breve.</p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <button
-          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
+          class="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
           :style="googleConnected
             ? 'color: hsl(var(--success)); border: 1px solid hsl(var(--success) / 0.4)'
             : 'color: hsl(var(--muted-foreground) / 0.7); border: 1px solid hsl(var(--border) / 0.6)'"
@@ -127,7 +130,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
           @click="modal?.openCreate()"
         >
           <Plus :size="12" />
-          Novo evento
+          <span class="hidden sm:inline">Novo evento</span>
+          <span class="sm:hidden">Evento</span>
         </button>
       </div>
     </div>

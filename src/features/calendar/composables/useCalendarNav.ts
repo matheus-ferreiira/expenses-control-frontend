@@ -13,7 +13,7 @@ import {
 
 export function useCalendarNav() {
   const currentDate = ref(new Date())
-  const viewMode = ref<ViewMode>('month')
+  const viewMode = ref<ViewMode>('week')
 
   const currentYear = computed(() => currentDate.value.getFullYear())
   const currentMonth = computed(() => currentDate.value.getMonth())

@@ -24,10 +24,10 @@ const VIEWS: { id: ViewMode; label: string }[] = [
 </script>
 
 <template>
-  <div class="flex items-center justify-between px-5 py-3 border-b shrink-0" style="border-color: hsl(var(--border) / 0.5)">
+  <div class="flex items-center justify-between px-4 sm:px-5 py-3 border-b shrink-0 gap-2" style="border-color: hsl(var(--border) / 0.5)">
     <!-- Left: month label + nav arrows -->
-    <div class="flex items-center gap-3">
-      <h2 class="text-[15px] font-semibold text-foreground tracking-tight">
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <h2 class="text-[14px] sm:text-[15px] font-semibold text-foreground tracking-tight whitespace-nowrap">
         {{ monthLabel }}
       </h2>
       <div class="flex items-center gap-0.5">
