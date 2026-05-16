@@ -92,7 +92,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 <template>
   <aside
     class="flex flex-col h-full transition-[width] duration-300 ease-in-out overflow-hidden"
-    :class="open ? 'w-[220px]' : 'w-[52px]'"
+    :class="open ? 'w-56' : 'w-[52px]'"
     :style="{
       backgroundColor: 'hsl(var(--sidebar))',
       borderRight: '1px solid hsl(var(--sidebar-border))',
@@ -203,12 +203,9 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
             v-for="item in section.items"
             :key="item.route"
             :to="{ name: item.route }"
-            class="group flex items-center gap-2.5 px-2.5 py-[6px] rounded-md mb-px transition-base"
+            class="group flex items-center gap-2 px-2 h-7 rounded mb-px transition-base"
             :class="[
               open ? 'text-[13px]' : 'justify-center',
-              isActive(item.route)
-                ? 'text-foreground font-medium'
-                : 'font-normal',
             ]"
             :style="
               isActive(item.route)
