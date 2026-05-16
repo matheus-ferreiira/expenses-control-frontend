@@ -25,6 +25,7 @@ const {
   tasksCompletedDelta,
   habitsLoggedCount,
   habitsLoggedDelta,
+  monthIncome,
   financeNet,
   financeNetDelta,
   activeGoalsCount,
@@ -92,7 +93,7 @@ onMounted(() => load())
         :habits-logged-delta="habitsLoggedDelta"
         :finance-net="financeNet"
         :finance-net-delta="financeNetDelta"
-        :active-goals="activeGoalsCount"
+        :month-income="monthIncome"
         :period="period"
         :loading="loading"
       />

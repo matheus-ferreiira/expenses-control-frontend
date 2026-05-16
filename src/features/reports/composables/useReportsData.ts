@@ -87,6 +87,12 @@ export function useReportsData() {
 
   watch(period, () => fetchHabitsLogCount())
 
+  const monthIncome = computed(() => {
+    return financeStore.transactions
+      .filter((t) => t.type === 'income' && t.transaction_date >= startDate.value)
+      .reduce((s, t) => s + t.amount, 0)
+  })
+
   const financeNet = computed(() => {
     const txns = financeStore.transactions.filter((t) => t.transaction_date >= startDate.value)
     const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
@@ -279,6 +285,7 @@ export function useReportsData() {
     tasksCompletedDelta,
     habitsLoggedCount,
     habitsLoggedDelta,
+    monthIncome,
     financeNet,
     financeNetDelta,
     activeGoalsCount,

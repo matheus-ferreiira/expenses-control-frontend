@@ -1,21 +1,27 @@
 <script setup lang="ts">
 import { Skeleton } from '@ui/skeleton'
-import { CheckSquare, Activity, DollarSign, Target } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { CheckSquare, Activity, DollarSign, PiggyBank } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 import type { ReportPeriod } from '@/types/reports'
 import { REPORT_PERIOD_LABELS } from '@/types/reports'
 
-defineProps<{
+const props = defineProps<{
   tasksCompleted: number
   tasksCompletedDelta: number | null
   habitsLogged: number
   habitsLoggedDelta: number | null
   financeNet: number
   financeNetDelta: number | null
-  activeGoals: number
+  monthIncome: number
   period: ReportPeriod
   loading?: boolean
 }>()
+
+const savingsRate = computed(() => {
+  if (props.monthIncome <= 0) return null
+  return Math.round((props.financeNet / props.monthIncome) * 100)
+})
 </script>
 
 <template>
@@ -123,23 +129,30 @@ defineProps<{
       </template>
     </div>
 
-    <!-- Metas ativas -->
+    <!-- Economia -->
     <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-20 mb-3" />
-        <Skeleton class="h-6 w-10" />
+        <Skeleton class="h-6 w-24" />
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2">
-          <Target :size="12" class="text-info/70 shrink-0" />
+          <PiggyBank :size="12" class="text-success/70 shrink-0" />
           <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-            Metas ativas
+            Economia
           </p>
         </div>
-        <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
-          {{ activeGoals }}
+        <p
+          :class="[
+            'text-xl font-semibold tabular-nums leading-none',
+            financeNet >= 0 ? 'text-success' : 'text-destructive/80',
+          ]"
+        >
+          {{ financeNet >= 0 ? '+' : '' }}{{ formatCurrency(financeNet) }}
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">em andamento</p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">
+          {{ savingsRate !== null ? `${savingsRate}% da receita` : 'sem receitas no período' }}
+        </p>
       </template>
     </div>
 
