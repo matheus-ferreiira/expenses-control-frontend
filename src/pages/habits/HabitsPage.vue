@@ -2,7 +2,6 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus } from 'lucide-vue-next'
 import { Button } from '@ui/button'
-import HabitToolbar from '@/features/habits/components/HabitToolbar.vue'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
 import HabitsRightPanel from '@/features/habits/components/HabitsRightPanel.vue'
 import HabitsHeatmap from '@/features/habits/components/HabitsHeatmap.vue'
@@ -215,18 +214,6 @@ onUnmounted(() => {
         :completed-today="completedTodayCount"
         :total-active="activeHabits.length"
         :loading="store.loading"
-      />
-    </div>
-
-    <!-- Toolbar (desktop only) -->
-    <div class="hidden sm:block px-4 sm:px-6 pb-4 shrink-0">
-      <HabitToolbar
-        :filter-state="filterState"
-        :search="filterState.search.value"
-        v-model:view-mode="viewMode"
-        :loading="store.loading"
-        @create="openCreate()"
-        @update:search="filterState.search.value = $event"
       />
     </div>
 
