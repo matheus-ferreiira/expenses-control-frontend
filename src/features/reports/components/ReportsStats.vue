@@ -9,6 +9,7 @@ defineProps<{
   tasksCompleted: number
   tasksCompletedDelta: number | null
   habitsLogged: number
+  habitsLoggedDelta: number | null
   financeNet: number
   financeNetDelta: number | null
   activeGoals: number
@@ -53,18 +54,29 @@ defineProps<{
       </template>
     </div>
 
-    <!-- Hábitos completados -->
+    <!-- Consistência de hábitos -->
     <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-20 mb-3" />
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
-        <div class="flex items-center gap-1.5 mb-2">
-          <Activity :size="12" class="text-orange-400/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-            Registros de hábito
-          </p>
+        <div class="flex items-center justify-between gap-1.5 mb-2">
+          <div class="flex items-center gap-1.5">
+            <Activity :size="12" class="text-orange-400/70 shrink-0" />
+            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+              Consistência hábitos
+            </p>
+          </div>
+          <span
+            v-if="habitsLoggedDelta !== null"
+            :class="[
+              'text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0',
+              habitsLoggedDelta >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive/80',
+            ]"
+          >
+            {{ habitsLoggedDelta >= 0 ? '+' : '' }}{{ habitsLoggedDelta }}%
+          </span>
         </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ habitsLogged }}

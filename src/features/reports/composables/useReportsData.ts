@@ -62,11 +62,24 @@ export function useReportsData() {
   })
 
   const habitsLoggedCount = ref(0)
+  const habitsLoggedPrev = ref(0)
+
+  const habitsLoggedDelta = computed(() => {
+    const curr = habitsLoggedCount.value
+    const prev = habitsLoggedPrev.value
+    if (prev === 0) return null
+    return Math.round(((curr - prev) / prev) * 100)
+  })
 
   async function fetchHabitsLogCount() {
     try {
-      const result = await reportsApi.habitsLogCount(startDate.value)
-      habitsLoggedCount.value = result.count
+      const [curr, all] = await Promise.all([
+        reportsApi.habitsLogCount(startDate.value),
+        reportsApi.habitsLogCount(prevStartDate.value),
+      ])
+      habitsLoggedCount.value = curr.count
+      // Previous period = total since prevStart minus total since start
+      habitsLoggedPrev.value = Math.max(0, all.count - curr.count)
     } catch {
       // non-fatal — keep previous value
     }
@@ -265,6 +278,7 @@ export function useReportsData() {
     tasksCompletedCount,
     tasksCompletedDelta,
     habitsLoggedCount,
+    habitsLoggedDelta,
     financeNet,
     financeNetDelta,
     activeGoalsCount,
