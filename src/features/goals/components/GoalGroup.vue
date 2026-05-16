@@ -15,17 +15,22 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div>
+  <div class="rounded-lg border border-border/50 overflow-hidden">
     <!-- Group header -->
-    <div class="flex items-center justify-between px-1 mb-2">
-      <span class="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-card border-b border-border/40">
+      <span class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60">
         {{ label }}
       </span>
-      <span class="text-[10px] text-muted-foreground/30 tabular-nums">{{ goals.length }}</span>
+      <span
+        class="text-[10px] font-medium tabular-nums px-1.5 py-0.5 rounded-full"
+        style="background: hsl(var(--muted) / 0.6); color: hsl(var(--muted-foreground) / 0.5)"
+      >
+        {{ goals.length }}
+      </span>
     </div>
 
-    <!-- Goals container -->
-    <div class="space-y-3">
+    <!-- Goals list -->
+    <div class="divide-y divide-border/25">
       <GoalRow
         v-for="goal in goals"
         :key="goal.id"
