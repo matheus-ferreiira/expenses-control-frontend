@@ -92,5 +92,6 @@ export function formatLogDate(date: string): string {
 }
 
 export function getCompletionRateLabel(rate: number): string {
+  if (rate == null || isNaN(rate)) return '0%'
   return `${Math.round(rate)}%`
 }
