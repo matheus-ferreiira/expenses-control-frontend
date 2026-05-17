@@ -7,11 +7,10 @@ import {
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
-import { MoreHorizontal, Pencil, Trash2, ArrowLeftRight } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
-import { transactionAmountClass, transactionAmountPrefix } from '../utils/financeHelpers'
-import CategoryBadge from './CategoryBadge.vue'
+import { findIcon } from '@/lib/icons'
 
 defineProps<{
   transaction: Transaction
@@ -30,52 +29,66 @@ function sourceName(t: Transaction): string {
 </script>
 
 <template>
-  <div class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base">
+  <div class="group flex items-center gap-3 pl-4 pr-4 py-3 hover:bg-accent/20 transition-colors">
 
-    <!-- Dot indicator — 8px, no background circle -->
-    <div class="shrink-0 flex items-center justify-center w-5">
-      <span
-        v-if="transaction.type === 'transfer'"
-        class="text-muted-foreground/40"
-      >
-        <ArrowLeftRight :size="11" />
-      </span>
-      <span
-        v-else
-        class="h-2 w-2 rounded-full"
-        :style="transaction.category
-          ? { backgroundColor: transaction.category?.color }
-          : transaction.type === 'income'
-            ? { backgroundColor: 'hsl(var(--success))' }
-            : { backgroundColor: 'hsl(var(--destructive) / 0.7)' }
-        "
+    <!-- IconSwatch — 36px -->
+    <span
+      v-if="transaction.type !== 'transfer'"
+      class="rounded-lg grid place-items-center shrink-0 w-9 h-9"
+      :style="{
+        background: transaction.category?.color ? transaction.category.color + '22' : (transaction.type === 'income' ? 'hsl(var(--success) / 0.13)' : 'hsl(var(--destructive) / 0.13)'),
+        color: transaction.category?.color ?? (transaction.type === 'income' ? 'hsl(var(--success))' : 'hsl(var(--destructive))'),
+      }"
+    >
+      <component
+        v-if="transaction.category?.icon && findIcon(transaction.category.icon)"
+        :is="findIcon(transaction.category.icon)!.component"
+        :size="20"
+        :stroke-width="1.9"
       />
-    </div>
+      <span v-else class="text-xs font-bold">
+        {{ transaction.description.charAt(0).toUpperCase() }}
+      </span>
+    </span>
+    <span
+      v-else
+      class="rounded-lg grid place-items-center shrink-0 w-9 h-9 text-muted-foreground"
+      style="background: hsl(var(--muted) / 0.6)"
+    >
+      <ArrowLeftRight :size="16" :stroke-width="1.9" />
+    </span>
 
-    <!-- Description + meta -->
+    <!-- Description + subtitle -->
     <div class="flex-1 min-w-0">
-      <p class="text-[13px] font-medium text-foreground/90 truncate leading-none mb-0.5">
+      <p class="text-sm truncate text-foreground">
         {{ transaction.description }}
       </p>
-      <div class="flex items-center gap-2">
-        <CategoryBadge v-if="transaction.category" :category="transaction.category" size="xs" />
-        <span
-          v-if="sourceName(transaction)"
-          class="text-[10px] text-muted-foreground/40"
-        >
-          {{ sourceName(transaction) }}
-        </span>
-      </div>
+      <p class="text-[11px] text-muted-foreground truncate">
+        <template v-if="transaction.category">{{ transaction.category.name }}</template>
+        <template v-else>—</template>
+        <template v-if="sourceName(transaction)"> · {{ sourceName(transaction) }}</template>
+      </p>
     </div>
 
-    <!-- Amount -->
+    <!-- Type badge (hidden on mobile) -->
     <span
-      :class="[
-        'shrink-0 text-[13px] font-medium tabular-nums',
-        transactionAmountClass(transaction.type),
-      ]"
+      v-if="transaction.type !== 'transfer'"
+      class="hidden sm:inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium border shrink-0"
+      :class="transaction.type === 'income'
+        ? 'bg-success/10 text-success border-success/30'
+        : 'bg-destructive/10 text-destructive border-destructive/30'"
     >
-      {{ transactionAmountPrefix(transaction.type) }}{{ formatCurrency(transaction.amount) }}
+      {{ transaction.type === 'income' ? 'Receita' : 'Despesa' }}
+    </span>
+
+    <!-- Amount with arrow icon -->
+    <span
+      class="inline-flex items-center gap-0.5 text-sm tabular-nums font-medium shrink-0"
+      :class="transaction.type === 'income' ? 'text-success' : transaction.type === 'expense' ? 'text-destructive' : 'text-muted-foreground'"
+    >
+      <ArrowUp v-if="transaction.type === 'income'" :size="12" />
+      <ArrowDown v-else-if="transaction.type === 'expense'" :size="12" />
+      {{ formatCurrency(transaction.amount) }}
     </span>
 
     <!-- Menu (appears on hover) -->
