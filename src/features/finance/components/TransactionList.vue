@@ -23,7 +23,7 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
 
 <template>
   <!-- Loading -->
-  <div v-if="loading" class="rounded-lg border border-border/50 overflow-hidden divide-y divide-border/40">
+  <div v-if="loading" class="rounded-lg border border-border overflow-hidden divide-y divide-border">
     <div v-for="i in 3" :key="i">
       <div class="flex items-center justify-between px-4 py-2 bg-muted/20">
         <Skeleton class="h-2.5 w-14" />
@@ -49,11 +49,11 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
   />
 
   <!-- Grouped list -->
-  <div v-else class="rounded-lg border border-border/50 overflow-hidden">
+  <div v-else class="rounded-md border border-border overflow-hidden">
     <template v-for="group in groups" :key="group.date">
       <!-- Date header -->
-      <div class="flex items-center justify-between px-4 py-2 bg-muted/20 border-b border-border/40 sticky top-0">
-        <span class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50">
+      <div class="sticky top-12 lg:top-0 z-10 flex items-center justify-between px-4 py-1.5 bg-muted/60 backdrop-blur border-b border-border">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {{ group.label }}
         </span>
         <span
@@ -68,7 +68,7 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
       </div>
 
       <!-- Transactions -->
-      <div class="divide-y divide-border/30">
+      <div class="divide-y divide-border">
         <TransactionCard
           v-for="t in group.transactions"
           :key="t.id"
