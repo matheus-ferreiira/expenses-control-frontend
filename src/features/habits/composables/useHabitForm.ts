@@ -7,6 +7,7 @@ export interface HabitFormData {
   description: string
   frequency: HabitFrequency
   target_days: number[]
+  category: string | null
   color: string
   icon: string
 }
@@ -21,6 +22,7 @@ const DEFAULTS: HabitFormData = {
   description: '',
   frequency: 'daily',
   target_days: [],
+  category: null,
   color: HABIT_COLORS[0]?.value ?? '#8b5cf6',
   icon: '',
 }
@@ -35,6 +37,7 @@ export function useHabitForm() {
     form.description = habit.description ?? ''
     form.frequency = habit.frequency
     form.target_days = [...habit.target_days]
+    form.category = habit.category ?? null
     form.color = habit.color ?? HABIT_COLORS[0]?.value ?? '#8b5cf6'
     form.icon = habit.icon ?? ''
     Object.assign(errors, {})
@@ -69,6 +72,7 @@ export function useHabitForm() {
     }
     if (form.description.trim()) payload.description = form.description.trim()
     if (form.target_days.length) payload.target_days = [...form.target_days]
+    if (form.category) payload.category = form.category
     if (form.color) payload.color = form.color
     if (form.icon.trim()) payload.icon = form.icon.trim()
     return payload

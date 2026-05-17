@@ -7,7 +7,7 @@ import {
 } from '@ui/dialog'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
-import { Loader2, ArrowLeft, Activity, Check } from 'lucide-vue-next'
+import { Loader2, ArrowLeft, Activity, Check, Heart, Brain, BookOpen, Target, Wallet } from 'lucide-vue-next'
 import type { Habit } from '@/types/habits'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
 import { WEEKDAY_LABELS } from '../types'
@@ -16,6 +16,14 @@ import { useHabitStore } from '@/stores/habits'
 import { useToast } from '@/composables/useToast'
 import { IconPicker, ColorPicker } from '@/components/shared'
 import { findIcon } from '@/lib/icons'
+
+const CATEGORIES = [
+  { label: 'Saúde', icon: Heart, color: 'hsl(var(--destructive))' },
+  { label: 'Mente', icon: Brain, color: 'hsl(217 91% 68%)' },
+  { label: 'Aprendizado', icon: BookOpen, color: 'hsl(var(--chart-1, 220 70% 60%))' },
+  { label: 'Foco', icon: Target, color: 'hsl(var(--warning))' },
+  { label: 'Finanças', icon: Wallet, color: 'hsl(var(--success))' },
+] as const
 
 const props = defineProps<{
   open: boolean
@@ -74,13 +82,18 @@ const previewIcon = computed(() => {
   if (form.icon) return findIcon(form.icon)?.component
   return Activity
 })
+
+const selectedCategoryColor = computed(() => {
+  const cat = CATEGORIES.find((c) => c.label === form.category)
+  return cat?.color ?? null
+})
 </script>
 
 <template>
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogContent
       hide-close
-      class="fixed inset-0 w-screen h-screen max-w-none max-h-none rounded-none border-0 p-0 flex flex-col translate-x-0 translate-y-0 left-0 top-0"
+      class="fixed bottom-0 left-0 right-0 top-auto max-w-none w-full max-h-[92vh] rounded-t-2xl rounded-b-none border-0 border-t border-border/40 p-0 flex flex-col translate-x-0 translate-y-0 gap-0"
     >
       <!-- Header -->
       <div class="flex items-center gap-3 px-4 h-14 border-b border-border/40 shrink-0">
@@ -98,8 +111,8 @@ const previewIcon = computed(() => {
 
           <!-- Live preview card -->
           <div
-            class="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-card/50"
-            :style="{ borderColor: form.color + '40' }"
+            class="flex items-center gap-3 p-3 rounded-lg border border-border/60 bg-muted/40"
+            :style="{ borderColor: (selectedCategoryColor ?? form.color) + '40' }"
           >
             <span
               class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
@@ -112,7 +125,7 @@ const previewIcon = computed(() => {
                 {{ form.name || 'Nome do hábito' }}
               </p>
               <p class="text-xs text-muted-foreground mt-0.5">
-                {{ HABIT_FREQUENCY_LABELS[form.frequency] ?? form.frequency }}
+                {{ form.category ?? HABIT_FREQUENCY_LABELS[form.frequency] ?? form.frequency }}
               </p>
             </div>
           </div>
@@ -127,7 +140,10 @@ const previewIcon = computed(() => {
               v-model="form.name"
               placeholder="Ex: Meditar 10 minutos"
               autofocus
-              :class="errors.name && 'border-destructive'"
+              :class="[
+                'h-11 bg-muted/50 border-transparent focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0',
+                errors.name && 'border-destructive',
+              ]"
             />
             <p v-if="errors.name" class="text-xs text-destructive">{{ errors.name }}</p>
           </div>
@@ -143,7 +159,7 @@ const previewIcon = computed(() => {
                 :key="f"
                 type="button"
                 :class="[
-                  'h-8 rounded-md text-xs font-medium border transition-all',
+                  'h-9 rounded-md text-xs font-medium border transition-all',
                   form.frequency === f
                     ? 'bg-foreground text-background border-transparent'
                     : 'border-border text-muted-foreground hover:bg-accent',
@@ -151,6 +167,28 @@ const previewIcon = computed(() => {
                 @click="form.frequency = f"
               >
                 {{ HABIT_FREQUENCY_LABELS[f] }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Category chips -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Categoria
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="cat in CATEGORIES"
+                :key="cat.label"
+                type="button"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all"
+                :style="form.category === cat.label
+                  ? `background: color-mix(in oklab, ${cat.color} 18%, transparent); color: ${cat.color}; border-color: color-mix(in oklab, ${cat.color} 40%, transparent)`
+                  : 'border-color: hsl(var(--border)); color: hsl(var(--muted-foreground))'"
+                @click="form.category = form.category === cat.label ? null : cat.label"
+              >
+                <component :is="cat.icon" :size="12" />
+                {{ cat.label }}
               </button>
             </div>
           </div>
@@ -201,7 +239,7 @@ const previewIcon = computed(() => {
       <div class="shrink-0 px-5 py-4 border-t border-border/40">
         <div class="max-w-lg mx-auto">
           <Button
-            class="w-full h-10 text-sm font-medium bg-success text-white hover:bg-success/90"
+            class="w-full h-12 text-sm font-medium rounded-lg bg-success text-background hover:bg-success/90"
             :disabled="submitting"
             @click="submit"
           >
