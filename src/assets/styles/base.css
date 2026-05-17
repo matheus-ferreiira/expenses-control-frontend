@@ -11,6 +11,7 @@
 
   --color-background:           hsl(var(--background));
   --color-foreground:           hsl(var(--foreground));
+  --color-surface:              hsl(var(--surface));
   --color-card:                 hsl(var(--card));
   --color-card-foreground:      hsl(var(--card-foreground));
   --color-popover:              hsl(var(--popover));
@@ -30,6 +31,27 @@
   --color-ring:                 hsl(var(--ring));
   --color-success:              hsl(var(--success));
   --color-warning:              hsl(var(--warning));
+  --color-info:                 hsl(var(--info));
+
+  /* Tone tokens — for category badges, ItemRow accents, status indicators */
+  --color-tone-danger:          hsl(var(--tone-danger));
+  --color-tone-warn:            hsl(var(--tone-warn));
+  --color-tone-attn:            hsl(var(--tone-attn));
+  --color-tone-success:         hsl(var(--tone-success));
+  --color-tone-info:            hsl(var(--tone-info));
+
+  /* Chart colors */
+  --color-chart-1:              hsl(var(--chart-1));
+  --color-chart-2:              hsl(var(--chart-2));
+  --color-chart-3:              hsl(var(--chart-3));
+  --color-chart-4:              hsl(var(--chart-4));
+  --color-chart-5:              hsl(var(--chart-5));
+
+  /* Sidebar */
+  --color-sidebar:              hsl(var(--sidebar));
+  --color-sidebar-foreground:   hsl(var(--sidebar-foreground));
+  --color-sidebar-border:       hsl(var(--sidebar-border));
+  --color-sidebar-accent:       hsl(var(--sidebar-accent));
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -78,6 +100,72 @@
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+/* -----------------------------------------------------------------------
+   KEYFRAMES — matching Lovable animations exactly
+   ----------------------------------------------------------------------- */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes check-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes streak-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 hsl(var(--warning))); opacity: 1; }
+  50%       { filter: drop-shadow(0 0 6px hsl(var(--warning))); opacity: 0.85; }
+}
+
+/* -----------------------------------------------------------------------
+   UTILITY CLASSES — matching Lovable primitives
+   ----------------------------------------------------------------------- */
+
+/* Typography helpers */
+@utility subtle-meta {
+  font-size: 11px;
+  color: color-mix(in oklab, hsl(var(--muted-foreground)) 70%, transparent);
+}
+
+@utility col-label {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: color-mix(in oklab, hsl(var(--muted-foreground)) 90%, transparent);
+}
+
+@utility section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Animations */
+@utility animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+@utility animate-check-pop {
+  animation: check-pop 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@utility streak-glow {
+  animation: streak-pulse 2s ease-in-out infinite;
+}
+
+/* Hover-lift for clickable cards */
+@utility hover-lift {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+@utility hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -10px rgb(0 0 0 / 0.4);
 }
 
 @layer base {

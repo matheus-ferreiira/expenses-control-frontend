@@ -1,137 +1,173 @@
 /* =====================================================================
-   Design Tokens — Productivity Control
+   Design Tokens — VaultOS
    =====================================================================
-   All CSS custom properties used in the application.
+   Values are HSL triplets (no hsl() wrapper) — Tailwind wraps them
+   via @theme inline in base.css:  --color-primary: hsl(var(--primary))
 
-   - Values are HSL triplets (no hsl() wrapper).
-     Tailwind adds the wrapper via @theme inline in base.css:
-       --color-primary: hsl(var(--primary))
-   - Dark mode is the default (:root).
-   - Light mode is applied via class .light on the root element.
-   - Tailwind utility aliases (bg-primary, text-foreground, etc.) are
-     defined in the @theme inline block in base.css — not here.
+   Converted from Lovable vault-clarity-lab/src/styles.css (oklch → HSL)
+   so every token visually matches the Lovable reference exactly.
    ===================================================================== */
 
 /* -----------------------------------------------------------------------
-   BORDER RADIUS
-   --radius is the base unit (6px). Derived scales live in @theme inline.
-     --radius-sm  = 2px  (calc(--radius - 4px))
-     --radius-md  = 4px  (calc(--radius - 2px))
-     --radius-lg  = 6px  (var(--radius))
-     --radius-xl  = 10px (calc(--radius + 4px))
-   Tighter than default — matches Linear/Arc aesthetic, no bubble feel.
+   SHARED GEOMETRY & MOTION
    ----------------------------------------------------------------------- */
 :root {
   --radius: 0.5rem; /* 8px — matches Lovable */
 
-  /* ---- Motion ---------------------------------------------------------- */
-  --duration-fast:   100ms;  /* micro: icon swap, color pop */
-  --duration-base:   160ms;  /* standard: hover bg, border, text color */
-  --duration-slow:   240ms;  /* enter/exit: dropdown, popover, sheet */
-  --duration-layout: 280ms;  /* layout: sidebar, panel resize */
+  --duration-fast:   100ms;
+  --duration-base:   160ms;
+  --duration-slow:   240ms;
+  --duration-layout: 280ms;
 
-  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);   /* material standard */
-  --ease-out:    cubic-bezier(0, 0, 0.2, 1);      /* decelerate — elements entering */
-  --ease-in:     cubic-bezier(0.4, 0, 1, 1);      /* accelerate — elements leaving */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
 }
 
 /* -----------------------------------------------------------------------
    DARK MODE (DEFAULT)
-   Neutral zinc/gray palette — no blue or violet tint.
-   Primary is white; accent colors reserved for semantic data only.
+   Graphite palette — matches Lovable oklch values converted to HSL.
+   Primary = blue-violet (NOT pure violet/roxo).
+   Card is LIGHTER than background so cards stand out visually.
    ----------------------------------------------------------------------- */
 :root {
-  /* --- Surfaces --- */
-  --background:             240  5% 10%;  /* closer to Lovable oklch(16.5% .005 270) */
-  --foreground:               0  0% 96%;  /* near-white text */
+  /* --- Surfaces ---
+     background: oklch(0.165 0.005 270) → ~hsl(240 5% 10%)
+     card:       oklch(0.205 0.005 270) → ~hsl(240 5% 13%)  ← lighter than bg
+     surface:    same as card
+  */
+  --background:             240  5% 10%;
+  --foreground:             240  3% 96%;
 
-  --card:                   240  4%  9%;  /* card surface */
-  --card-foreground:          0  0% 96%;
+  --surface:                240  5% 13%;
+  --card:                   240  5% 13%;
+  --card-foreground:        240  3% 96%;
 
-  --popover:                240  4% 10%;  /* popover / dropdown surface */
-  --popover-foreground:       0  0% 96%;
+  --popover:                240  5% 13%;
+  --popover-foreground:     240  3% 96%;
 
-  /* --- Brand — violet (matches Lovable oklch(70% .13 245)) --- */
-  --primary:                262 83% 58%;  /* violet-500 */
-  --primary-foreground:     240  5%  7%;  /* dark text on violet */
+  /* --- Brand — blue-violet (matches Lovable oklch(0.7 0.13 245))
+     oklch hue 245 ≈ cornflower-blue, NOT purple
+     Local was 262 83% 58% (violet/roxo) — now corrected
+  */
+  --primary:                218 77% 64%;
+  --primary-foreground:     240  5% 10%;
 
   /* --- Secondary --- */
-  --secondary:              240  4% 11%;  /* secondary backgrounds */
-  --secondary-foreground:     0  0% 96%;
+  --secondary:              240  5% 15%;
+  --secondary-foreground:   240  3% 96%;
 
-  /* --- Muted / disabled --- */
-  --muted:                  240  4% 10%;
-  --muted-foreground:       240  5% 65%;  /* placeholder, helper text — matches Lovable oklch(66%) */
+  /* --- Muted / disabled ---
+     muted: oklch(0.225 0.005 270) → ~hsl(240 4% 14%)
+  */
+  --muted:                  240  4% 14%;
+  --muted-foreground:       240  5% 65%;
 
-  /* --- Accent — violet (same as primary, for hover highlights) --- */
-  --accent:                 262 83% 58%;  /* violet — matches Lovable */
-  --accent-foreground:      240  5%  7%;  /* dark text on violet */
+  /* --- Accent — same as primary (blue-violet) --- */
+  --accent:                 218 77% 64%;
+  --accent-foreground:      240  5% 10%;
 
-  /* --- Destructive --- */
-  --destructive:             10 65% 52%;  /* orange-red matches Lovable */
+  /* --- Destructive --- oklch(0.62 0.18 25) → ~hsl(5 72% 50%) */
+  --destructive:              5 72% 50%;
   --destructive-foreground:   0  0% 98%;
 
   /* --- Structural --- */
-  --border:                 240  4% 17%;  /* subtle dividers (softer than before) */
-  --input:                  240  4% 17%;  /* input border */
-  --ring:                   262 83% 58%;  /* violet focus ring */
+  --border:                 240  4% 17%;   /* solid approx of oklch(1 0 0 / 0.07) */
+  --input:                  240  4% 17%;
+  --ring:                   218 77% 64%;   /* same hue as primary */
 
-  /* --- Sidebar --- */
-  --sidebar:                240  4% 13%;  /* closer to Lovable oklch(0.18 .005 270) */
-  --sidebar-foreground:       0  0% 96%;
-  --sidebar-border:         240  4% 10%;  /* barely-there separator */
-  --sidebar-accent:         240  4% 11%;  /* hover / active row */
+  /* --- Sidebar ---
+     sidebar:        oklch(0.18 0.005 270) → ~hsl(240 5% 11%)  ← darker than card
+     sidebar-accent: oklch(0.235 0.005 270) → ~hsl(240 4% 15%)
+  */
+  --sidebar:                240  5% 11%;
+  --sidebar-foreground:     240  3% 96%;
+  --sidebar-border:         240  4% 10%;
+  --sidebar-accent:         240  4% 15%;
 
-  /* --- Semantic status --- */
-  --success:                142 45% 46%;  /* green matches Lovable */
-  --warning:                 40 65% 56%;  /* amber matches Lovable */
-  --info:                   217 91% 60%;  /* blue (informational only) */
+  /* --- Semantic status ---
+     success: oklch(0.68 0.13 155) → ~hsl(145 50% 50%)
+     warning: oklch(0.78 0.14 80)  → ~hsl(38 80% 60%)
+     info:    blue for informational
+  */
+  --success:                145 50% 50%;
+  --warning:                 38 80% 60%;
+  --info:                   217 91% 60%;
+
+  /* --- Tone tokens (used by ItemRow, badges, category icons) ---
+     These match Lovable's --tone-* variables exactly.
+     tone-danger:  oklch(0.66 0.2 18)  → rose-red
+     tone-warn:    oklch(0.78 0.16 60) → amber
+     tone-attn:    oklch(0.84 0.16 90) → yellow
+     tone-success: oklch(0.7 0.15 155) → emerald
+     tone-info:    oklch(0.65 0.18 270)→ violet
+  */
+  --tone-danger:              3 72% 55%;
+  --tone-warn:               35 80% 62%;
+  --tone-attn:               53 90% 65%;
+  --tone-success:           152 52% 52%;
+  --tone-info:              258 62% 56%;
+
+  /* --- Chart colors (matches Lovable --chart-1 through --chart-5) --- */
+  --chart-1:                218 77% 64%;  /* primary blue-violet */
+  --chart-2:                145 50% 50%;  /* success green */
+  --chart-3:                 38 80% 60%;  /* warning amber */
+  --chart-4:                  5 72% 50%;  /* destructive red */
+  --chart-5:                240  5% 45%;  /* muted neutral */
 }
 
 /* -----------------------------------------------------------------------
    LIGHT MODE
-   Applied when the root element has class `.light`.
-   Primary stays white — only surfaces and text change.
+   Applied when root element has class `.light`.
    ----------------------------------------------------------------------- */
 .light {
-  /* --- Surfaces --- */
-  --background:             0   0% 100%;  /* white */
-  --foreground:             222 47% 11%;  /* near-black text */
+  --background:               0   0% 100%;
+  --foreground:             222  47% 11%;
 
-  --card:                   0   0% 100%;
-  --card-foreground:        222 47% 11%;
+  --surface:                  0   0% 100%;
+  --card:                     0   0% 100%;
+  --card-foreground:        222  47% 11%;
 
-  --popover:                0   0% 100%;
-  --popover-foreground:     222 47% 11%;
+  --popover:                  0   0% 100%;
+  --popover-foreground:     222  47% 11%;
 
-  /* --- Brand --- */
-  --primary:                262 83% 58%;
-  --primary-foreground:     210 20% 98%;
+  --primary:                218  77% 52%;
+  --primary-foreground:     210  20% 98%;
 
-  /* --- Secondary --- */
-  --secondary:              210 40% 96%;
-  --secondary-foreground:   222 47% 11%;
+  --secondary:              210  40% 96%;
+  --secondary-foreground:   222  47% 11%;
 
-  /* --- Muted --- */
-  --muted:                  210 40% 96%;
-  --muted-foreground:       215 16% 47%;
+  --muted:                  210  40% 96%;
+  --muted-foreground:       215  16% 47%;
 
-  /* --- Accent --- */
-  --accent:                 210 40% 96%;
-  --accent-foreground:      222 47% 11%;
+  --accent:                 218  77% 52%;
+  --accent-foreground:      210  20% 98%;
 
-  /* --- Destructive --- */
-  --destructive:              0 84% 60%;
-  --destructive-foreground:  210 40% 98%;
+  --destructive:              0  84% 60%;
+  --destructive-foreground:  210  40% 98%;
 
-  /* --- Structural --- */
-  --border:                 214 32% 91%;
-  --input:                  214 32% 91%;
-  --ring:                   262 83% 58%;
+  --border:                 214  32% 91%;
+  --input:                  214  32% 91%;
+  --ring:                   218  77% 52%;
 
-  /* --- Sidebar --- */
-  --sidebar:                210 40% 98%;
-  --sidebar-foreground:     222 47% 11%;
-  --sidebar-border:         214 32% 91%;
-  --sidebar-accent:         210 40% 94%;
+  --sidebar:                210  40% 98%;
+  --sidebar-foreground:     222  47% 11%;
+  --sidebar-border:         214  32% 91%;
+  --sidebar-accent:         210  40% 94%;
+
+  --success:                145  50% 42%;
+  --warning:                 38  80% 52%;
+  --info:                   217  91% 55%;
+
+  --tone-danger:              3  72% 50%;
+  --tone-warn:               35  80% 55%;
+  --tone-attn:               53  90% 55%;
+  --tone-success:           152  52% 44%;
+  --tone-info:              258  62% 50%;
+
+  --chart-1:                218  77% 52%;
+  --chart-2:                145  50% 42%;
+  --chart-3:                 38  80% 52%;
+  --chart-4:                  5  72% 50%;
+  --chart-5:                240   5% 50%;
 }
