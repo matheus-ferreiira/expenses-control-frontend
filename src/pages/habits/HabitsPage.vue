@@ -287,6 +287,15 @@ onUnmounted(() => {
 
   </div>
 
+  <!-- Mobile FAB -->
+  <button
+    class="lg:hidden fixed right-4 bottom-24 h-14 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg z-40"
+    @click="openCreate"
+  >
+    <Plus :size="18" />
+    <span class="text-sm font-medium">Hábito</span>
+  </button>
+
   <!-- Form dialog -->
   <HabitFormDialog
     v-model:open="formOpen"
