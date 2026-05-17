@@ -153,23 +153,16 @@ async function handleLog() {
     </div>
 
     <!-- Esta semana — 7 squares (desktop) -->
-    <div class="hidden sm:flex items-end gap-[3px] shrink-0 w-[123px]" @click.stop>
+    <div class="hidden sm:flex items-center gap-[3px] shrink-0 w-[123px]" @click.stop>
       <div
-        v-for="(dot, i) in weeklyDots"
+        v-for="dot in weeklyDots"
         :key="dot.date"
-        class="flex flex-col items-center gap-[2px]"
-      >
-        <div
-          :class="[
-            'h-[15px] w-[15px] rounded-sm transition-base',
-            dot.isFuture ? 'bg-border/15' : dot.isLogged ? 'opacity-90' : 'bg-border/30',
-          ]"
-          :style="dot.isLogged && !dot.isFuture && habit.color ? `background: ${habit.color}` : undefined"
-        />
-        <span class="text-[8px] leading-none" style="color: hsl(var(--muted-foreground) / 0.25)">
-          {{ ['S','T','Q','Q','S','S','D'][i] }}
-        </span>
-      </div>
+        :class="[
+          'h-4 w-4 rounded-sm transition-base',
+          dot.isFuture ? 'bg-border/10' : dot.isLogged ? 'opacity-80' : 'bg-muted border border-border',
+        ]"
+        :style="dot.isLogged && !dot.isFuture && habit.color ? `background: ${habit.color}` : undefined"
+      />
     </div>
 
     <!-- Streak -->

@@ -112,7 +112,7 @@ const emit = defineEmits<{
     </div>
 
     <!-- Rows -->
-    <div class="divide-y divide-border/30">
+    <div class="divide-y divide-border">
       <HabitRow
         v-for="habit in habits"
         :key="habit.id"

@@ -44,7 +44,7 @@ const consistencyColor = computed(() =>
     <!-- Maior streak — amber tint -->
     <div
       class="rounded-md border border-border p-3.5 relative overflow-hidden"
-      style="background: linear-gradient(135deg, hsl(var(--card)) 60%, hsl(40 65% 56% / 0.1) 100%)"
+      style="background: linear-gradient(135deg, hsl(var(--card)) 60%, hsl(var(--warning) / 0.1) 100%)"
     >
       <template v-if="loading">
         <Skeleton class="h-2.5 w-20 mb-3" />
