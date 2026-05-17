@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus, Flame, CheckCircle2 } from 'lucide-vue-next'
-import { Button } from '@ui/button'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
 import HabitsRightPanel from '@/features/habits/components/HabitsRightPanel.vue'
 import HabitsHeatmap from '@/features/habits/components/HabitsHeatmap.vue'
@@ -163,29 +162,32 @@ onUnmounted(() => {
   <div class="flex flex-col min-h-full">
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-5 lg:px-8 pt-6 pb-5 border-b border-border mb-6 shrink-0">
       <div>
-        <p class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Rotina
         </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-8 mb-1">
+        <h1 class="text-xl md:text-2xl font-semibold tracking-tight text-foreground mt-0.5">
           Hábitos
         </h1>
-        <p class="text-sm text-muted-foreground">
+        <p class="text-sm text-muted-foreground mt-1">
           Construa consistência diária com acompanhamento visual e streaks.
         </p>
       </div>
-      <Button size="sm" class="hidden sm:inline-flex h-7 text-xs shrink-0 sm:mt-1" @click="openCreate">
-        <Plus :size="12" class="mr-1.5" />
+      <button
+        class="hidden md:inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-md bg-foreground text-background hover:opacity-90 transition-opacity shrink-0"
+        @click="openCreate"
+      >
+        <Plus :size="14" />
         Novo hábito
-      </Button>
+      </button>
     </div>
 
     <!-- Mobile compact stats bar -->
-    <div class="sm:hidden px-4 pb-4 shrink-0">
+    <div class="lg:hidden px-5 pb-4 shrink-0">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-1.5 text-sm">
-          <Flame :size="16" style="color: hsl(var(--warning))" />
+          <Flame :size="16" class="streak-glow" style="color: hsl(var(--warning))" />
           <span class="font-semibold tabular-nums" style="color: hsl(var(--warning))">{{ longestStreak }}</span>
           <span class="text-[11px] text-muted-foreground">streak</span>
         </div>
@@ -213,7 +215,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Stats row (desktop only) -->
-    <div class="hidden sm:block px-4 sm:px-6 pb-5 shrink-0">
+    <div class="hidden lg:block px-5 lg:px-8 pb-5 shrink-0">
       <HabitStatsRow
         :active-count="activeHabits.length"
         :longest-streak="longestStreak"
@@ -225,7 +227,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Main content: table + right panel -->
-    <div class="flex-1 flex gap-6 px-4 sm:px-6 pb-6 min-w-0">
+    <div class="flex-1 flex gap-5 px-5 lg:px-8 pb-6 min-w-0">
 
       <!-- Table view area -->
       <div class="flex-1 min-w-0">
@@ -274,7 +276,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Heatmap (desktop only, only when there are habits) -->
-    <div v-if="activeHabits.length > 0" class="hidden lg:block px-4 sm:px-6 mt-0 pb-8 shrink-0">
+    <div v-if="activeHabits.length > 0" class="hidden lg:block px-5 lg:px-8 mt-0 pb-8 shrink-0">
       <section class="bg-card border border-border rounded-md overflow-hidden">
         <header class="flex items-center justify-between px-4 py-3 border-b border-border">
           <h2 class="text-sm font-semibold text-foreground">Heatmap de consistência — últimas 12 semanas</h2>
