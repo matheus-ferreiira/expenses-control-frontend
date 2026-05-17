@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
 import { Check, Loader2, MoreHorizontal, Pencil, Archive, Trash2, Flame, Heart, Brain, BookOpen, Target, Wallet } from 'lucide-vue-next'
-import type { Habit, HabitFrequency } from '@/types/habits'
+import type { Habit } from '@/types/habits'
 import { isCompletedToday, getWeeklyDots } from '../utils/habitHelpers'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
 
@@ -49,16 +49,10 @@ const weeklyDots = computed(() => getWeeklyDots(props.habit))
 const categoryIcon = computed(() => CATEGORY_ICON[props.habit.category ?? ''] ?? Target)
 const categoryIconColor = computed(() => CATEGORY_COLOR[props.habit.category ?? ''] ?? 'hsl(var(--muted-foreground))')
 
-// Frequency badge colors (matching Lovable)
-const FREQ_BADGE: Record<HabitFrequency, { bg: string; text: string; border: string }> = {
-  daily:   { bg: 'hsl(217 91% 60% / 0.15)', text: 'hsl(217 91% 70%)', border: 'hsl(217 91% 60% / 0.3)' },
-  weekly:  { bg: 'hsl(40 65% 56% / 0.15)',  text: 'hsl(40 80% 65%)',  border: 'hsl(40 65% 56% / 0.3)' },
-  monthly: { bg: 'hsl(142 45% 46% / 0.15)', text: 'hsl(142 55% 55%)', border: 'hsl(142 45% 46% / 0.3)' },
-}
-
+// Meta badge uses category color (matching Lovable's CategoryBadge)
 const badgeStyle = computed(() => {
-  const c = FREQ_BADGE[props.habit.frequency]
-  return `background: ${c.bg}; color: ${c.text}; border-color: ${c.border}`
+  const color = categoryIconColor.value
+  return `background: color-mix(in oklab, ${color} 12%, transparent); color: ${color}; border-color: color-mix(in oklab, ${color} 30%, transparent)`
 })
 
 async function handleLog() {
