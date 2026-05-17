@@ -7,7 +7,7 @@ import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Menu, LayoutDashboard, CheckSquare, Flame, CreditCard, Plus } from 'lucide-vue-next'
+import { Menu, LayoutDashboard, CheckSquare, Activity, DollarSign, Plus } from 'lucide-vue-next'
 import { ROUTES } from '@/constants/routes'
 
 const ui = useUiStore()
@@ -27,11 +27,14 @@ function openQuickAdd() {
   ui.quickAddOpen = true
 }
 
-const bottomNavItems = [
+const bottomNavLeft = [
   { icon: LayoutDashboard, label: 'Hoje', route: ROUTES.DASHBOARD },
   { icon: CheckSquare, label: 'Tarefas', route: ROUTES.TASKS },
-  { icon: CreditCard, label: 'Finanças', route: ROUTES.FINANCE },
-  { icon: Flame, label: 'Hábitos', route: ROUTES.HABITS },
+] as const
+
+const bottomNavRight = [
+  { icon: DollarSign, label: 'Finanças', route: ROUTES.FINANCE },
+  { icon: Activity, label: 'Hábitos', route: ROUTES.HABITS },
 ] as const
 
 function isNavActive(routeName: string) {
@@ -99,49 +102,51 @@ function navTo(routeName: string) {
 
     <!-- ─── Mobile bottom navigation ───────────────────────── -->
     <nav
-      class="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center h-16"
-      style="background: hsl(var(--card)); border-top: 1px solid hsl(var(--border) / 0.6)"
+      class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-sidebar-border backdrop-blur"
+      style="background: hsl(var(--sidebar) / 0.95)"
     >
-      <!-- Left 2 items -->
-      <div class="flex flex-1 items-center justify-around">
+      <div class="relative grid grid-cols-5 h-16">
+        <!-- Left 2 items -->
         <button
-          v-for="item in bottomNavItems.slice(0, 2)"
+          v-for="item in bottomNavLeft"
           :key="item.route"
-          class="flex flex-col items-center gap-0.5 py-1 px-3 min-w-[52px] transition-colors"
-          :style="isNavActive(item.route)
-            ? 'color: hsl(var(--foreground))'
-            : 'color: hsl(var(--muted-foreground) / 0.5)'"
+          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] font-medium min-h-[56px] transition-colors"
+          :style="isNavActive(item.route) ? 'color: hsl(var(--foreground))' : 'color: hsl(var(--muted-foreground))'"
           @click="navTo(item.route)"
         >
-          <component :is="item.icon" :size="20" />
-          <span class="text-[10px] font-medium">{{ item.label }}</span>
+          <component
+            :is="item.icon"
+            :size="20"
+            :stroke-width="isNavActive(item.route) ? 2.25 : 1.75"
+          />
+          {{ item.label }}
         </button>
-      </div>
 
-      <!-- FAB center -->
-      <div class="flex-shrink-0 flex items-center justify-center w-20">
-        <button
-          class="flex items-center justify-center w-13 h-13 rounded-full shadow-lg shadow-blue-500/20 transition-transform active:scale-95"
-          style="background: #3b82f6; color: #fff; width: 52px; height: 52px"
-          @click="ui.quickAddOpen = true"
-        >
-          <Plus :size="24" />
-        </button>
-      </div>
+        <!-- FAB center — protrudes 24px above the bar -->
+        <div class="relative">
+          <button
+            class="absolute left-1/2 -translate-x-1/2 -top-6 size-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg ring-4 ring-background active:scale-95 transition-transform"
+            aria-label="Adicionar"
+            @click="ui.quickAddOpen = true"
+          >
+            <Plus :size="24" :stroke-width="2.5" />
+          </button>
+        </div>
 
-      <!-- Right 2 items -->
-      <div class="flex flex-1 items-center justify-around">
+        <!-- Right 2 items -->
         <button
-          v-for="item in bottomNavItems.slice(2)"
+          v-for="item in bottomNavRight"
           :key="item.route"
-          class="flex flex-col items-center gap-0.5 py-1 px-3 min-w-[52px] transition-colors"
-          :style="isNavActive(item.route)
-            ? 'color: hsl(var(--foreground))'
-            : 'color: hsl(var(--muted-foreground) / 0.5)'"
+          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] font-medium min-h-[56px] transition-colors"
+          :style="isNavActive(item.route) ? 'color: hsl(var(--foreground))' : 'color: hsl(var(--muted-foreground))'"
           @click="navTo(item.route)"
         >
-          <component :is="item.icon" :size="20" />
-          <span class="text-[10px] font-medium">{{ item.label }}</span>
+          <component
+            :is="item.icon"
+            :size="20"
+            :stroke-width="isNavActive(item.route) ? 2.25 : 1.75"
+          />
+          {{ item.label }}
         </button>
       </div>
     </nav>
