@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { Plus, Upload } from 'lucide-vue-next'
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
@@ -74,6 +74,18 @@ const topCategories = computed(() => {
     }))
 })
 
+// Budget usage: expenses as % of income
+const budgetPercent = computed(() =>
+  income.value > 0 ? Math.min(100, Math.round((expenses.value / income.value) * 100)) : 0,
+)
+
+// Month label for mobile summary
+const monthLabel = computed(() => {
+  const d = new Date(filterState.month.value + '-01')
+  return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    .replace(/^\w/, (c) => c.toUpperCase())
+})
+
 // Cards with due_day within the next 10 days
 const upcomingBills = computed(() =>
   store.activeCards
@@ -138,14 +150,13 @@ onMounted(async () => {
           Contas, cartões, despesas e receitas em uma única tela funcional.
         </p>
       </div>
-      <div class="flex items-center gap-2 sm:mt-1 shrink-0">
+      <div class="hidden md:flex items-center gap-2 sm:mt-1 shrink-0">
         <Button
           variant="outline"
           size="sm"
           class="h-8 text-[12px] text-muted-foreground/70 border-border/60 hover:text-foreground"
           disabled
         >
-          <Upload :size="12" class="mr-1.5" />
           Importar OFX
         </Button>
         <Button size="sm" class="h-8 text-[12px]" @click="openCreate">
@@ -157,6 +168,48 @@ onMounted(async () => {
 
     <!-- Sub-nav -->
     <FinanceSubNav />
+
+    <!-- Mobile Month Summary (lg:hidden) -->
+    <div class="lg:hidden bg-card border border-border rounded-lg p-4 mb-4 mt-4">
+      <div class="flex items-center justify-between mb-3">
+        <button
+          class="size-8 grid place-items-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
+          @click="filterState.prevMonth()"
+        >
+          <ChevronLeft :size="16" />
+        </button>
+        <p class="text-sm font-semibold">{{ monthLabel }}</p>
+        <button
+          class="size-8 grid place-items-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
+          @click="filterState.nextMonth()"
+        >
+          <ChevronRight :size="16" />
+        </button>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div>
+          <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+          <p class="text-sm font-semibold text-success tabular-nums mt-0.5">{{ formatCurrency(income) }}</p>
+        </div>
+        <div>
+          <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+          <p class="text-sm font-semibold text-destructive tabular-nums mt-0.5">{{ formatCurrency(expenses) }}</p>
+        </div>
+        <div>
+          <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+          <p class="text-sm font-semibold tabular-nums mt-0.5">{{ formatCurrency(income - expenses) }}</p>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+          <span>Orçamento do mês</span>
+          <span class="tabular-nums">{{ budgetPercent }}%</span>
+        </div>
+        <div class="h-1.5 bg-muted rounded-full overflow-hidden">
+          <div class="h-full bg-foreground rounded-full transition-all" :style="{ width: `${budgetPercent}%` }" />
+        </div>
+      </div>
+    </div>
 
     <!-- Summary cards -->
     <FinanceSummaryCards
@@ -374,6 +427,15 @@ onMounted(async () => {
     </div>
 
   </AppPageContainer>
+
+  <!-- Mobile FAB -->
+  <button
+    class="lg:hidden fixed right-4 bottom-24 h-14 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg z-40"
+    @click="openCreate"
+  >
+    <Plus :size="18" />
+    <span class="text-sm font-medium">Transação</span>
+  </button>
 
   <!-- Dialogs -->
   <TransactionFormDialog
