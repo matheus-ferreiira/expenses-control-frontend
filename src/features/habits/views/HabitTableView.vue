@@ -76,8 +76,8 @@ const emit = defineEmits<{
   <!-- Desktop -->
   <div class="hidden sm:block bg-card rounded-md border border-border overflow-hidden">
     <!-- "Seus hábitos" heading -->
-    <div class="flex items-center px-4 py-2.5 border-b border-border/40">
-      <span class="text-[13px] font-semibold text-foreground/80">Seus hábitos</span>
+    <div class="flex items-center px-4 py-3 border-b border-border">
+      <span class="text-sm font-semibold text-foreground">Seus hábitos</span>
     </div>
     <!-- Column headers -->
     <div class="flex items-center gap-3 px-4 py-2 border-b border-border">

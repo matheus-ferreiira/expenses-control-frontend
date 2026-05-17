@@ -123,7 +123,7 @@ async function handleLog() {
 
   <!-- ─── Desktop table row ───────────────────────────────────── -->
   <div
-    class="hidden sm:flex group items-center gap-3 px-4 py-2.5 hover:bg-foreground/[0.025] transition-base cursor-pointer relative overflow-hidden"
+    class="hidden sm:flex group items-center gap-3 px-4 py-2.5 hover:bg-muted/40 transition-base cursor-pointer relative overflow-hidden"
     @click="emit('open', habit)"
   >
     <!-- Left border accent -->
@@ -137,8 +137,8 @@ async function handleLog() {
       <p class="text-[14px] font-medium truncate text-foreground/90">
         {{ habit.name }}
       </p>
-      <p class="text-[11px] mt-0.5 truncate" style="color: hsl(var(--muted-foreground) / 0.45)">
-        {{ freqLabel }}
+      <p class="text-[11px] mt-0.5 truncate text-muted-foreground">
+        {{ habit.category ?? freqLabel }}
       </p>
     </div>
 
@@ -176,10 +176,10 @@ async function handleLog() {
     <div class="hidden md:flex items-center gap-1 shrink-0 min-w-[48px]" @click.stop>
       <span
         v-if="habit.current_streak > 0"
-        class="text-[12px] tabular-nums"
+        class="inline-flex items-center gap-1 text-[12px] tabular-nums"
         style="color: hsl(var(--warning) / 0.75)"
       >
-        🔥 {{ habit.current_streak }}
+        <Flame :size="13" />{{ habit.current_streak }}
       </span>
       <span v-else class="text-[12px]" style="color: hsl(var(--muted-foreground) / 0.25)">—</span>
     </div>

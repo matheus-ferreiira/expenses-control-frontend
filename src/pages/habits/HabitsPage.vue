@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Flame, CheckCircle2 } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
 import HabitsRightPanel from '@/features/habits/components/HabitsRightPanel.vue'
@@ -183,25 +183,32 @@ onUnmounted(() => {
 
     <!-- Mobile compact stats bar -->
     <div class="sm:hidden px-4 pb-4 shrink-0">
-      <div class="flex items-center gap-3 text-[12px]" style="color: hsl(var(--muted-foreground) / 0.65)">
-        <span v-if="longestStreak > 0">
-          <span style="color: hsl(var(--warning) / 0.9)">🔥 {{ longestStreak }}</span>
-          <span class="ml-1">streak</span>
-        </span>
-        <span v-if="longestStreak > 0" style="color: hsl(var(--border))">|</span>
-        <span>
-          <span :style="completedTodayCount === activeHabits.length && activeHabits.length > 0 ? 'color: hsl(var(--success))' : 'color: hsl(var(--foreground) / 0.8)'">
-            {{ completedTodayCount }}/{{ activeHabits.length }}
-          </span>
-          <span class="ml-1">hoje</span>
-        </span>
-        <span style="color: hsl(var(--border))">|</span>
-        <span>
-          <span :style="weeklyConsistency >= 80 ? 'color: hsl(var(--success))' : 'color: hsl(var(--foreground) / 0.8)'">
-            {{ weeklyConsistency }}%
-          </span>
-          <span class="ml-1">semana</span>
-        </span>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-1.5 text-sm">
+          <Flame :size="16" style="color: hsl(var(--warning))" />
+          <span class="font-semibold tabular-nums" style="color: hsl(var(--warning))">{{ longestStreak }}</span>
+          <span class="text-[11px] text-muted-foreground">streak</span>
+        </div>
+        <div class="h-4 w-px bg-border" />
+        <div class="flex items-center gap-1.5 text-sm">
+          <CheckCircle2
+            :size="16"
+            :style="completedTodayCount === activeHabits.length && activeHabits.length > 0 ? 'color: hsl(var(--success))' : 'color: hsl(var(--muted-foreground))'"
+          />
+          <span
+            class="font-semibold tabular-nums"
+            :style="completedTodayCount === activeHabits.length && activeHabits.length > 0 ? 'color: hsl(var(--success))' : ''"
+          >{{ completedTodayCount }}/{{ activeHabits.length }}</span>
+          <span class="text-[11px] text-muted-foreground">hoje</span>
+        </div>
+        <div class="h-4 w-px bg-border" />
+        <div class="text-sm">
+          <span
+            class="font-semibold tabular-nums"
+            :style="weeklyConsistency >= 80 ? 'color: hsl(var(--success))' : ''"
+          >{{ weeklyConsistency }}%</span>
+          <span class="text-[11px] text-muted-foreground ml-1">semana</span>
+        </div>
       </div>
     </div>
 
