@@ -278,21 +278,27 @@ onMounted(async () => {
           <div v-else-if="store.activeAccounts.length === 0" class="text-[12px] text-muted-foreground/40 py-2">
             Nenhuma conta cadastrada
           </div>
-          <div v-else class="space-y-2.5">
+          <div v-else class="space-y-3">
             <div
               v-for="account in store.activeAccounts.slice(0, 4)"
               :key="account.id"
-              class="flex items-center justify-between"
+              class="flex items-center gap-3"
             >
-              <div class="flex items-center gap-2 min-w-0">
-                <div
-                  class="h-2 w-2 rounded-full shrink-0"
-                  :style="{ background: account.color || 'hsl(var(--muted-foreground))' }"
-                />
-                <span class="text-[12px] text-foreground/80 truncate">{{ account.name }}</span>
+              <span
+                class="rounded-lg grid place-items-center shrink-0 w-9 h-9 text-xs font-bold"
+                :style="{
+                  background: (account.color || '#888') + '22',
+                  color: account.color || 'hsl(var(--muted-foreground))',
+                }"
+              >
+                {{ account.name.charAt(0).toUpperCase() }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-[12px] font-medium text-foreground/80 truncate">{{ account.name }}</p>
+                <p class="text-[10px] text-muted-foreground/60 truncate">{{ account.bank_name || account.type }}</p>
               </div>
               <span
-                :class="['text-[12px] font-medium tabular-nums shrink-0 ml-2', account.balance < 0 ? 'text-destructive/70' : 'text-foreground/70']"
+                :class="['text-[12px] font-medium tabular-nums shrink-0', account.balance < 0 ? 'text-destructive/70' : 'text-foreground/70']"
               >
                 {{ account.balance < 0 ? '-' : '' }}{{ formatCurrency(Math.abs(account.balance)) }}
               </span>
@@ -330,10 +336,22 @@ onMounted(async () => {
               v-for="card in store.activeCards.slice(0, 3)"
               :key="card.id"
             >
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-[12px] text-foreground/80 truncate">{{ card.name }}</span>
-                <span class="text-[11px] text-muted-foreground/50 shrink-0 ml-2">
-                  vence dia {{ card.due_day }}
+              <div class="flex items-center gap-3 mb-1.5">
+                <span
+                  class="rounded-lg grid place-items-center shrink-0 w-8 h-8 text-xs font-bold"
+                  :style="{
+                    background: (card.color || '#888') + '22',
+                    color: card.color || 'hsl(var(--muted-foreground))',
+                  }"
+                >
+                  {{ card.name.charAt(0).toUpperCase() }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-medium text-foreground/80 truncate">{{ card.name }}</p>
+                  <p class="text-[10px] text-muted-foreground/60">vence dia {{ card.due_day }}</p>
+                </div>
+                <span class="text-[11px] tabular-nums text-muted-foreground/50 shrink-0">
+                  {{ utilizationPercent(cardUsed(card.id), card.limit_amount) }}%
                 </span>
               </div>
               <div class="h-1 rounded-full overflow-hidden bg-muted/40">
