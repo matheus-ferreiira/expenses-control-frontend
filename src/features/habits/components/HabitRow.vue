@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, type Component } from 'vue'
 import { Button } from '@ui/button'
 import {
   DropdownMenu,
@@ -8,10 +8,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { Check, Loader2, MoreHorizontal, Pencil, Archive, Trash2, Activity } from 'lucide-vue-next'
+import { Check, Loader2, MoreHorizontal, Pencil, Archive, Trash2, Flame, Heart, Brain, BookOpen, Target, Wallet } from 'lucide-vue-next'
 import type { Habit, HabitFrequency } from '@/types/habits'
 import { isCompletedToday, getWeeklyDots } from '../utils/habitHelpers'
 import { HABIT_FREQUENCY_LABELS } from '@/types/habits'
+
+const CATEGORY_ICON: Record<string, Component> = {
+  'Saúde': Heart,
+  'Mente': Brain,
+  'Aprendizado': BookOpen,
+  'Foco': Target,
+  'Finanças': Wallet,
+}
+
+const CATEGORY_COLOR: Record<string, string> = {
+  'Saúde': 'hsl(var(--destructive))',
+  'Mente': 'hsl(217 91% 68%)',
+  'Aprendizado': 'hsl(var(--chart-1, 220 70% 60%))',
+  'Foco': 'hsl(var(--warning))',
+  'Finanças': 'hsl(var(--success))',
+}
 
 const props = defineProps<{
   habit: Habit
@@ -30,6 +46,8 @@ const logging = ref(false)
 const doneToday = computed(() => isCompletedToday(props.habit))
 const freqLabel = computed(() => HABIT_FREQUENCY_LABELS[props.habit.frequency])
 const weeklyDots = computed(() => getWeeklyDots(props.habit))
+const categoryIcon = computed(() => CATEGORY_ICON[props.habit.category ?? ''] ?? Target)
+const categoryIconColor = computed(() => CATEGORY_COLOR[props.habit.category ?? ''] ?? 'hsl(var(--muted-foreground))')
 
 // Frequency badge colors (matching Lovable)
 const FREQ_BADGE: Record<HabitFrequency, { bg: string; text: string; border: string }> = {
@@ -57,68 +75,50 @@ async function handleLog() {
 <template>
   <!-- ─── Mobile card layout ─────────────────────────────────── -->
   <div
-    class="sm:hidden flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-foreground/[0.03] transition-base"
+    class="sm:hidden bg-card border border-border rounded-lg p-3 flex items-center gap-3 cursor-pointer"
     @click="emit('open', habit)"
   >
-    <!-- Colored icon -->
-    <div
-      class="flex items-center justify-center h-10 w-10 rounded-xl shrink-0"
-      :style="{ background: habit.color ? `${habit.color}20` : 'hsl(var(--accent) / 0.15)' }"
-    >
-      <Activity :size="18" :style="{ color: habit.color ?? 'hsl(var(--primary))' }" />
-    </div>
+    <!-- Category icon -->
+    <span class="h-10 w-10 rounded-lg bg-muted grid place-items-center shrink-0">
+      <component :is="categoryIcon" :size="16" :style="{ color: categoryIconColor }" />
+    </span>
 
     <!-- Info + dots -->
     <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-2 mb-0.5">
-        <p :class="['text-[14px] font-medium leading-tight truncate', doneToday ? 'text-foreground/45' : 'text-foreground/90']">
-          {{ habit.name }}
-        </p>
-      </div>
-      <p class="text-[11px] text-muted-foreground/50 mb-2">
-        {{ freqLabel }}
-        <span v-if="habit.current_streak > 0" class="ml-2 tabular-nums" style="color: hsl(var(--warning) / 0.8)">
-          🔥 {{ habit.current_streak }}
+      <p class="text-sm font-medium truncate text-foreground">{{ habit.name }}</p>
+      <p class="text-[11px] text-muted-foreground mt-0.5">{{ habit.category ?? freqLabel }}</p>
+      <div class="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
+        <span>{{ freqLabel }}</span>
+        <span v-if="habit.current_streak > 0" class="inline-flex items-center gap-1 tabular-nums">
+          <Flame :size="12" style="color: hsl(var(--warning))" />{{ habit.current_streak }}
         </span>
-      </p>
-      <!-- Colored dots row (no labels) -->
-      <div class="flex items-center gap-1">
+      </div>
+      <!-- Week dots -->
+      <div class="flex items-center gap-1 mt-2">
         <div
           v-for="dot in weeklyDots"
           :key="dot.date"
-          class="h-[7px] w-[7px] rounded-full transition-base"
-          :style="
-            dot.isFuture
-              ? 'background: hsl(var(--border) / 0.4)'
-              : dot.isLogged && habit.color
-                ? `background: ${habit.color}`
-                : dot.isLogged
-                  ? 'background: hsl(var(--success) / 0.7)'
-                  : 'background: hsl(var(--border) / 0.5)'
-          "
+          class="h-2 w-2 rounded-full"
+          :class="dot.isLogged && !dot.isFuture ? 'bg-success' : 'bg-muted border border-border'"
         />
       </div>
     </div>
 
-    <!-- Large check button -->
-    <div class="shrink-0" @click.stop>
-      <button
-        :class="[
-          'flex items-center justify-center h-11 w-11 rounded-full border-2 transition-all active:scale-90',
-          doneToday ? 'border-transparent' : 'border-border/40 hover:border-success/60 hover:bg-success/10',
-        ]"
-        :style="doneToday ? `background: hsl(var(--success) / 0.2); border-color: hsl(var(--success) / 0.6)` : undefined"
-        :disabled="logging"
-        @click="handleLog"
-      >
-        <Loader2 v-if="logging" :size="18" class="animate-spin text-muted-foreground" />
-        <Check
-          v-else
-          :size="18"
-          :style="doneToday ? 'color: hsl(var(--success))' : 'color: hsl(var(--muted-foreground) / 0.3)'"
-        />
-      </button>
-    </div>
+    <!-- Check button -->
+    <button
+      class="h-12 w-12 rounded-full grid place-items-center shrink-0 border-2 transition-colors"
+      :class="doneToday ? 'bg-success border-success' : 'bg-transparent border-border hover:border-foreground/40'"
+      :disabled="logging"
+      @click.stop="handleLog"
+    >
+      <Loader2 v-if="logging" :size="18" class="animate-spin text-muted-foreground" />
+      <Check
+        v-else-if="doneToday"
+        :size="24"
+        :stroke-width="3"
+        style="color: hsl(var(--background))"
+      />
+    </button>
   </div>
 
   <!-- ─── Desktop table row ───────────────────────────────────── -->
@@ -134,12 +134,7 @@ async function handleLog() {
 
     <!-- Name + frequency as subtitle -->
     <div class="flex-1 min-w-0 pl-1">
-      <p
-        :class="[
-          'text-[13px] font-medium truncate',
-          doneToday ? 'line-through text-foreground/40' : 'text-foreground/90',
-        ]"
-      >
+      <p class="text-[14px] font-medium truncate text-foreground/90">
         {{ habit.name }}
       </p>
       <p class="text-[11px] mt-0.5 truncate" style="color: hsl(var(--muted-foreground) / 0.45)">
@@ -189,26 +184,21 @@ async function handleLog() {
       <span v-else class="text-[12px]" style="color: hsl(var(--muted-foreground) / 0.25)">—</span>
     </div>
 
-    <!-- Check today — rounded square, no border (Lovable style) -->
+    <!-- Check today — 24px, solid fill when done, semi-transparent border when not (Lovable) -->
     <div class="shrink-0" @click.stop>
       <button
-        :class="[
-          'grid place-items-center h-8 w-8 rounded-md transition-all active:scale-90',
-          doneToday ? '' : 'hover:bg-muted',
-        ]"
-        :style="doneToday && habit.color
-          ? `background: ${habit.color}25`
-          : doneToday
-            ? 'background: hsl(var(--success) / 0.15)'
-            : undefined"
+        class="grid place-items-center h-6 w-6 rounded-md border transition-all active:scale-90"
+        :style="doneToday
+          ? `background: ${habit.color ?? 'hsl(var(--primary))'}; border-color: ${habit.color ?? 'hsl(var(--primary))'}`
+          : 'background: transparent; border-color: hsl(var(--foreground) / 0.07)'"
         :disabled="logging"
         @click="handleLog"
       >
-        <Loader2 v-if="logging" :size="13" class="animate-spin text-muted-foreground" />
+        <Loader2 v-if="logging" :size="11" class="animate-spin text-muted-foreground" />
         <Check
           v-else
-          :size="13"
-          :style="doneToday && habit.color ? `color: ${habit.color}` : doneToday ? 'color: hsl(var(--success))' : 'color: hsl(var(--muted-foreground) / 0.4)'"
+          :size="11"
+          :style="doneToday ? 'color: hsl(var(--background))' : 'color: transparent'"
         />
       </button>
     </div>
