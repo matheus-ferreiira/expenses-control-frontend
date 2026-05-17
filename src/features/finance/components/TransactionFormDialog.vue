@@ -1,30 +1,13 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@ui/dialog'
-import { Button } from '@ui/button'
-import { Input } from '@ui/input'
+import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
-import { Textarea } from '@ui/textarea'
-import { Label } from '@ui/label'
 import { Checkbox } from '@ui/checkbox'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@ui/select'
-import { Loader2 } from 'lucide-vue-next'
-import { AppFormField } from '@/components/shared'
+import { Label } from '@ui/label'
+import { Textarea } from '@ui/textarea'
+import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import type { Transaction, TransactionType } from '@/types/finance'
-import { TRANSACTION_TYPE_LABELS } from '@/types/finance'
 import { useTransactionForm } from '../composables/useTransactionForm'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
@@ -45,13 +28,18 @@ const toast = useToast()
 const { form, errors, submitting, fromTransaction, reset, validate, toPayload } =
   useTransactionForm()
 
-const transactionTypes: TransactionType[] = ['expense', 'income', 'transfer']
+const segmentedTypes: TransactionType[] = ['expense', 'income']
 
 const filteredCategories = computed(() =>
   store.categories.filter(
     (c) => form.type !== 'transfer' && (!form.type || c.type === form.type),
   ),
 )
+
+const submitLabel = computed(() => {
+  if (props.transaction) return 'Salvar alterações'
+  return form.type === 'income' ? 'Registrar receita' : 'Salvar despesa'
+})
 
 watch(
   () => props.open,
@@ -69,16 +57,6 @@ watch(
     form.category_id = ''
   },
 )
-
-function onAccountChange(val: string) {
-  form.account_id = val === '__none__' ? '' : val
-  if (form.account_id) form.card_id = ''
-}
-
-function onCardChange(val: string) {
-  form.card_id = val === '__none__' ? '' : val
-  if (form.card_id) form.account_id = ''
-}
 
 function close() {
   emit('update:open', false)
@@ -107,158 +85,198 @@ async function submit() {
 </script>
 
 <template>
-  <Dialog :open="open" @update:open="emit('update:open', $event)">
-    <DialogContent class="max-w-md">
-      <DialogHeader>
-        <DialogTitle>
+  <Sheet :open="open" @update:open="emit('update:open', $event)">
+    <SheetContent
+      side="bottom"
+      class="rounded-t-2xl border-t border-border bg-card p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+    >
+      <!-- Drag handle -->
+      <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-muted-foreground/30 shrink-0" />
+
+      <!-- Sticky header -->
+      <div class="sticky top-0 bg-card z-10 flex items-center gap-3 px-4 py-3 border-b border-border shrink-0">
+        <button
+          type="button"
+          class="p-1.5 rounded-md hover:bg-accent transition-colors -ml-1"
+          @click="close"
+        >
+          <ArrowLeft :size="18" />
+        </button>
+        <h2 class="text-sm font-semibold">
           {{ transaction ? 'Editar transação' : 'Nova transação' }}
-        </DialogTitle>
-      </DialogHeader>
+        </h2>
+      </div>
 
-      <form class="space-y-4" @submit.prevent="submit">
-        <!-- Type toggle -->
-        <div class="flex gap-2">
-          <button
-            v-for="t in transactionTypes"
-            :key="t"
-            type="button"
-            :class="[
-              'flex-1 h-9 rounded-md text-sm font-medium border transition-all',
-              form.type === t
-                ? t === 'expense'
-                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/60'
-                  : t === 'income'
-                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/60'
-                    : 'bg-blue-500/20 text-blue-400 border-blue-500/60'
-                : 'border-border text-muted-foreground hover:bg-accent',
-            ]"
-            @click="form.type = t"
-          >
-            {{ TRANSACTION_TYPE_LABELS[t] }}
-          </button>
-        </div>
+      <!-- Scrollable body -->
+      <form class="flex-1 overflow-y-auto" @submit.prevent="submit">
+        <div class="px-4 py-4 space-y-5">
 
-        <!-- Title (= description field) -->
-        <AppFormField label="Título" :error="errors.description" required>
-          <Input v-model="form.description" placeholder="Onde/o quê? Ex: iFood, Salário" class="h-9" />
-        </AppFormField>
-
-        <!-- Amount -->
-        <AppFormField label="Valor (R$)" :error="errors.amount" required>
-          <Input
-            v-model="form.amount"
-            inputmode="decimal"
-            placeholder="0,00"
-            class="h-9"
-          />
-        </AppFormField>
-
-        <!-- Date -->
-        <AppFormField label="Data" :error="errors.transaction_date" required>
-          <DatePicker v-model="form.transaction_date" />
-        </AppFormField>
-
-        <!-- Category icon grid (hidden for transfer) -->
-        <AppFormField v-if="form.type !== 'transfer'" label="Categoria">
-          <div class="flex flex-wrap gap-2">
+          <!-- Segmented type toggle (Despesa / Receita) -->
+          <div class="grid grid-cols-2 gap-1 p-1 bg-muted/50 rounded-lg">
             <button
-              v-for="cat in filteredCategories"
-              :key="cat.id"
+              v-for="t in segmentedTypes"
+              :key="t"
               type="button"
-              :title="cat.name"
-              :class="[
-                'flex flex-col items-center gap-1 px-2 py-1.5 rounded-lg border-2 transition-all min-w-[52px]',
-                form.category_id === cat.id
-                  ? 'bg-accent/20'
-                  : 'border-border hover:border-foreground/20 hover:bg-accent/30',
-              ]"
-              :style="form.category_id === cat.id ? { borderColor: cat.color } : {}"
-              @click="form.category_id = form.category_id === cat.id ? '' : cat.id"
+              class="h-8 rounded-md text-sm font-medium transition-all"
+              :class="form.type === t
+                ? t === 'expense'
+                  ? 'bg-destructive/15 text-destructive'
+                  : 'bg-success/15 text-success'
+                : 'text-muted-foreground hover:text-foreground'"
+              @click="form.type = t"
             >
-              <span
-                class="flex items-center justify-center w-8 h-8 rounded-md"
-                :style="{ backgroundColor: cat.color + '25', color: cat.color }"
-              >
-                <component
-                  :is="cat.icon ? findIcon(cat.icon)?.component : null"
-                  v-if="cat.icon && findIcon(cat.icon)"
-                  :size="16"
-                />
-                <span v-else class="text-xs font-bold">{{ cat.name.charAt(0) }}</span>
-              </span>
-              <span class="text-[10px] text-muted-foreground leading-tight text-center line-clamp-1 max-w-[48px]">
-                {{ cat.name }}
-              </span>
+              {{ t === 'expense' ? 'Despesa' : 'Receita' }}
             </button>
           </div>
-        </AppFormField>
-
-        <!-- Account + Card -->
-        <div class="grid grid-cols-2 gap-3">
-          <AppFormField label="Conta">
-            <Select
-              :model-value="form.account_id || '__none__'"
-              @update:model-value="onAccountChange($event as string)"
+          <!-- Transfer as small secondary option -->
+          <div class="flex items-center justify-center -mt-2">
+            <button
+              type="button"
+              class="text-[11px] text-muted-foreground/60 hover:text-muted-foreground underline underline-offset-2 transition-colors"
+              @click="form.type = form.type === 'transfer' ? 'expense' : 'transfer'"
             >
-              <SelectTrigger class="h-9">
-                <SelectValue placeholder="—" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">—</SelectItem>
-                <SelectItem
-                  v-for="acc in store.activeAccounts"
-                  :key="acc.id"
-                  :value="acc.id"
-                >
-                  {{ acc.name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </AppFormField>
+              {{ form.type === 'transfer' ? 'Voltar para despesa/receita' : 'Registrar como transferência' }}
+            </button>
+          </div>
 
-          <AppFormField label="Cartão">
-            <Select
-              :model-value="form.card_id || '__none__'"
-              @update:model-value="onCardChange($event as string)"
+          <!-- Amount — large colored input -->
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Valor</p>
+            <div
+              class="text-3xl font-semibold tabular-nums flex items-center gap-1"
+              :class="form.type === 'expense' ? 'text-destructive' : form.type === 'income' ? 'text-success' : 'text-foreground'"
             >
-              <SelectTrigger class="h-9">
-                <SelectValue placeholder="—" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">—</SelectItem>
-                <SelectItem
-                  v-for="card in store.activeCards"
-                  :key="card.id"
-                  :value="card.id"
+              <span>R$</span>
+              <input
+                v-model="form.amount"
+                inputmode="decimal"
+                placeholder="0,00"
+                class="bg-transparent outline-none w-full text-3xl font-semibold tabular-nums placeholder:text-muted-foreground/40"
+              />
+            </div>
+            <p v-if="errors.amount" class="text-xs text-destructive mt-1">{{ errors.amount }}</p>
+          </div>
+
+          <!-- Title -->
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
+            <input
+              v-model="form.description"
+              placeholder="Onde/o quê? Ex: iFood, Salário"
+              class="w-full h-11 px-3 rounded-md bg-muted/50 border border-transparent focus:border-border outline-none text-sm transition-colors"
+            />
+            <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data</p>
+            <DatePicker v-model="form.transaction_date" />
+            <p v-if="errors.transaction_date" class="text-xs text-destructive mt-1">{{ errors.transaction_date }}</p>
+          </div>
+
+          <!-- Category grid (hidden for transfer) -->
+          <div v-if="form.type !== 'transfer' && filteredCategories.length > 0">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Categoria</p>
+            <div class="grid grid-cols-4 gap-2">
+              <button
+                v-for="cat in filteredCategories.slice(0, 8)"
+                :key="cat.id"
+                type="button"
+                class="h-20 rounded-lg border text-[11px] font-medium leading-tight px-1 flex flex-col items-center justify-center gap-1.5 transition-all"
+                :class="form.category_id === cat.id
+                  ? 'bg-muted text-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted/40'"
+                :style="form.category_id === cat.id ? { borderColor: cat.color } : {}"
+                @click="form.category_id = form.category_id === cat.id ? '' : cat.id"
+              >
+                <span
+                  class="flex items-center justify-center w-7 h-7 rounded-md"
+                  :style="{ backgroundColor: cat.color + '25', color: cat.color }"
                 >
-                  {{ card.name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </AppFormField>
-        </div>
+                  <component
+                    :is="cat.icon && findIcon(cat.icon) ? findIcon(cat.icon)!.component : null"
+                    v-if="cat.icon && findIcon(cat.icon)"
+                    :size="16"
+                  />
+                  <span v-else class="text-xs font-bold">{{ cat.name.charAt(0) }}</span>
+                </span>
+                <span class="truncate w-full text-center">{{ cat.name }}</span>
+              </button>
+            </div>
+          </div>
 
-        <!-- Notes -->
-        <AppFormField label="Observações">
-          <Textarea v-model="form.notes" placeholder="Opcional..." class="resize-none h-16 text-sm" />
-        </AppFormField>
+          <!-- Account pills -->
+          <div v-if="store.activeAccounts.length > 0">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Conta</p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="acc in store.activeAccounts"
+                :key="acc.id"
+                type="button"
+                class="h-9 px-3 rounded-full text-xs font-medium border transition-all"
+                :class="form.account_id === acc.id
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted/40'"
+                @click="form.account_id = form.account_id === acc.id ? '' : acc.id; form.card_id = ''"
+              >
+                {{ acc.name }}
+              </button>
+            </div>
+          </div>
 
-        <!-- Recurring -->
-        <div class="flex items-center gap-2">
-          <Checkbox id="recurring" v-model:checked="form.is_recurring" />
-          <Label for="recurring" class="text-sm font-normal cursor-pointer">
-            Transação recorrente
-          </Label>
+          <!-- Card pills -->
+          <div v-if="store.activeCards.length > 0">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Cartão</p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="card in store.activeCards"
+                :key="card.id"
+                type="button"
+                class="h-9 px-3 rounded-full text-xs font-medium border transition-all"
+                :class="form.card_id === card.id
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted/40'"
+                @click="form.card_id = form.card_id === card.id ? '' : card.id; form.account_id = ''"
+              >
+                {{ card.name }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Observações</p>
+            <Textarea v-model="form.notes" placeholder="Opcional..." class="resize-none h-16 text-sm bg-muted/50 border-transparent focus:border-border" />
+          </div>
+
+          <!-- Recurring -->
+          <div class="flex items-center gap-2 pb-2">
+            <Checkbox id="recurring" v-model:checked="form.is_recurring" />
+            <Label for="recurring" class="text-sm font-normal cursor-pointer">Transação recorrente</Label>
+          </div>
+
         </div>
       </form>
 
-      <DialogFooter class="gap-2">
-        <Button variant="outline" :disabled="submitting" @click="close">Cancelar</Button>
-        <Button :disabled="submitting" @click="submit">
-          <Loader2 v-if="submitting" :size="14" class="mr-1.5 animate-spin" />
-          {{ transaction ? 'Salvar' : 'Registrar' }}
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+      <!-- Sticky footer -->
+      <div class="sticky bottom-0 bg-card border-t border-border px-4 py-3 shrink-0">
+        <button
+          type="button"
+          class="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-opacity"
+          :class="form.type === 'income'
+            ? 'bg-success text-background hover:opacity-90'
+            : form.type === 'expense'
+              ? 'bg-destructive text-destructive-foreground hover:opacity-90'
+              : 'bg-foreground text-background hover:opacity-90'"
+          :disabled="submitting"
+          @click="submit"
+        >
+          <Loader2 v-if="submitting" :size="14" class="animate-spin" />
+          {{ submitLabel }}
+        </button>
+      </div>
+
+    </SheetContent>
+  </Sheet>
 </template>
