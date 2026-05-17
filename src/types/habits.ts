@@ -18,6 +18,7 @@ export interface Habit {
   id: string
   user_id: string
   name: string
+  category: string | null
   description: string | null
   frequency: HabitFrequency
   target_days: number[]
@@ -51,6 +52,7 @@ export interface HabitHeatmapEntry {
 
 export interface CreateHabitPayload {
   name: string
+  category?: string | null
   description?: string
   frequency_type: HabitFrequency
   target_days?: number[]

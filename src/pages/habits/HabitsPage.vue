@@ -165,17 +165,17 @@ onUnmounted(() => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
           Rotina
         </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-8 mb-1">
           Hábitos
         </h1>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-sm text-muted-foreground">
           Construa consistência diária com acompanhamento visual e streaks.
         </p>
       </div>
-      <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
+      <Button size="sm" class="hidden sm:inline-flex h-7 text-xs shrink-0 sm:mt-1" @click="openCreate">
         <Plus :size="12" class="mr-1.5" />
         Novo hábito
       </Button>
