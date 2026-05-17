@@ -16,7 +16,6 @@ interface HeatCell {
 }
 
 const cells = computed<HeatCell[]>(() => {
-  // Build a map of date → total logs across all habits
   const countMap = new Map<string, number>()
 
   for (const habit of props.habits) {
@@ -44,103 +43,43 @@ const cells = computed<HeatCell[]>(() => {
   return result
 })
 
-// Group cells into weeks (columns of 7)
-const weeks = computed(() => {
-  const result: HeatCell[][] = []
-  for (let w = 0; w < WEEKS; w++) {
-    result.push(cells.value.slice(w * 7, w * 7 + 7))
-  }
-  return result
-})
-
-// Month labels above heatmap
-const monthLabels = computed(() => {
-  const labels: { label: string; colIndex: number }[] = []
-  let lastMonth = -1
-
-  weeks.value.forEach((week, wi) => {
-    const firstCell = week[0]
-    if (!firstCell) return
-    const month = new Date(firstCell.date + 'T12:00:00').getMonth()
-    if (month !== lastMonth) {
-      lastMonth = month
-      const name = new Date(firstCell.date + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' })
-      labels.push({ label: name.charAt(0).toUpperCase() + name.slice(1, 3), colIndex: wi })
-    }
-  })
-
-  return labels
-})
-
 function cellStyle(count: number): string {
-  if (count === 0) return 'background: hsl(var(--border) / 0.25)'
-  if (count === 1) return 'background: hsl(var(--success) / 0.3)'
-  if (count <= 3) return 'background: hsl(var(--success) / 0.55)'
-  if (count <= 5) return 'background: hsl(var(--success) / 0.75)'
-  return 'background: hsl(var(--success))'
+  if (count === 0) return 'background: hsl(var(--muted))'
+  if (count === 1) return 'background: hsl(var(--success) / 0.2)'
+  if (count <= 3) return 'background: hsl(var(--success) / 0.4)'
+  if (count <= 5) return 'background: hsl(var(--success) / 0.6)'
+  return 'background: hsl(var(--success) / 0.8)'
 }
 </script>
 
 <template>
-  <div>
-    <p class="text-[11px] font-medium mb-4" style="color: hsl(var(--muted-foreground) / 0.5)">
-      Heatmap de consistência — últimas {{ WEEKS }} semanas
-    </p>
-
-    <div class="overflow-x-auto">
-      <div class="inline-flex flex-col min-w-max">
-        <!-- Month labels row -->
-        <div class="flex gap-[4px] mb-1.5 ml-8">
-          <template v-for="wi in WEEKS" :key="wi">
-            <div class="w-[28px] text-center">
-              <span
-                v-if="monthLabels.some(l => l.colIndex === wi - 1)"
-                class="text-[9px] font-medium"
-                style="color: hsl(var(--muted-foreground) / 0.4)"
-              >
-                {{ monthLabels.find(l => l.colIndex === wi - 1)?.label }}
-              </span>
-            </div>
-          </template>
-        </div>
-
-        <!-- Grid: day labels + week columns -->
-        <div class="flex gap-[4px]">
-          <!-- Weekday labels (every other row) -->
-          <div class="flex flex-col gap-[4px] mr-1 w-7">
-            <div
-              v-for="(dayLabel, di) in ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']"
-              :key="di"
-              class="h-[28px] flex items-center justify-end pr-1 text-[9px] font-medium"
-              style="color: hsl(var(--muted-foreground) / 0.4)"
-            >
-              {{ di % 2 === 0 ? dayLabel : '' }}
-            </div>
-          </div>
-
-          <!-- Week columns -->
-          <div
-            v-for="(week, wi) in weeks"
-            :key="wi"
-            class="flex flex-col gap-[4px]"
-          >
-            <div
-              v-for="cell in week"
-              :key="cell.date"
-              class="h-[28px] w-[28px] rounded-[4px] cursor-default transition-opacity hover:opacity-80"
-              :style="cellStyle(cell.count)"
-              :title="`${cell.label}: ${cell.count} hábito${cell.count !== 1 ? 's' : ''}`"
-            />
-          </div>
-        </div>
-
-        <!-- Legend -->
-        <div class="flex items-center gap-[4px] mt-3 ml-8 justify-start">
-          <span class="text-[9px] mr-1" style="color: hsl(var(--muted-foreground) / 0.4)">Menos</span>
-          <div v-for="n in [0, 1, 3, 5, 6]" :key="n" class="h-[12px] w-[12px] rounded-[2px]" :style="cellStyle(n)" />
-          <span class="text-[9px] ml-1" style="color: hsl(var(--muted-foreground) / 0.4)">Mais</span>
-        </div>
+  <div class="p-4">
+    <div class="grid grid-cols-[auto_1fr] gap-3">
+      <!-- Day labels: Seg / Qua / Sex / Dom -->
+      <div class="flex flex-col justify-between text-[10px] text-muted-foreground py-1">
+        <span>Seg</span>
+        <span>Qua</span>
+        <span>Sex</span>
+        <span>Dom</span>
       </div>
+
+      <!-- Heatmap grid: 7 rows × 12 cols -->
+      <div class="grid grid-rows-7 grid-flow-col gap-1">
+        <div
+          v-for="cell in cells"
+          :key="cell.date"
+          class="h-3 w-3 rounded-sm cursor-default transition-opacity hover:opacity-80"
+          :style="cellStyle(cell.count)"
+          :title="`${cell.label}: ${cell.count} hábito${cell.count !== 1 ? 's' : ''}`"
+        />
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="mt-3 flex items-center justify-end gap-2 text-[10px] text-muted-foreground">
+      Menos
+      <div v-for="n in [0, 1, 2, 3, 4]" :key="n" class="h-2.5 w-2.5 rounded-sm" :style="cellStyle(n)" />
+      Mais
     </div>
   </div>
 </template>

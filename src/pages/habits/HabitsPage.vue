@@ -266,11 +266,14 @@ onUnmounted(() => {
 
     </div>
 
-    <!-- Heatmap (only when there are habits) -->
-    <div v-if="activeHabits.length > 0" class="px-4 sm:px-6 pt-2 pb-8 shrink-0">
-      <div class="border-t border-border/30 pt-5">
+    <!-- Heatmap (desktop only, only when there are habits) -->
+    <div v-if="activeHabits.length > 0" class="hidden lg:block px-4 sm:px-6 mt-0 pb-8 shrink-0">
+      <section class="bg-card border border-border rounded-md overflow-hidden">
+        <header class="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h2 class="text-sm font-semibold text-foreground">Heatmap de consistência — últimas 12 semanas</h2>
+        </header>
         <HabitsHeatmap :habits="store.habits" />
-      </div>
+      </section>
     </div>
 
   </div>
