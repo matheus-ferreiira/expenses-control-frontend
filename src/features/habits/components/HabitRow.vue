@@ -80,10 +80,10 @@ async function handleLog() {
     <!-- Info + dots -->
     <div class="flex-1 min-w-0">
       <p class="text-sm font-medium truncate text-foreground">{{ habit.name }}</p>
-      <p class="text-[11px] text-muted-foreground mt-0.5">{{ habit.category ?? freqLabel }}</p>
+      <p class="text-[11px] text-muted-foreground mt-0.5">{{ habit.category }}</p>
       <div class="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
         <span>{{ freqLabel }}</span>
-        <span v-if="habit.current_streak > 0" class="inline-flex items-center gap-1 tabular-nums">
+        <span class="inline-flex items-center gap-1 tabular-nums">
           <Flame :size="12" style="color: hsl(var(--warning))" />{{ habit.current_streak }}
         </span>
       </div>
