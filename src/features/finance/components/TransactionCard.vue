@@ -73,7 +73,7 @@ function sourceName(t: Transaction): string {
     <!-- Type badge (hidden on mobile) -->
     <span
       v-if="transaction.type !== 'transfer'"
-      class="hidden sm:inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium border shrink-0"
+      class="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium border shrink-0"
       :class="transaction.type === 'income'
         ? 'bg-success/10 text-success border-success/30'
         : 'bg-destructive/10 text-destructive border-destructive/30'"
