@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Checkbox } from '@ui/checkbox'
 import { Button } from '@ui/button'
 import {
   DropdownMenu,
@@ -9,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Archive, Trash2, GripVertical } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Archive, Trash2, GripVertical, CheckCircle2 } from 'lucide-vue-next'
 import type { Task } from '@/types/tasks'
 import { formatDueDateShort, isTaskOverdue, isTaskDueToday } from '../utils/taskHelpers'
 
@@ -32,37 +31,33 @@ const overdue = computed(() => isTaskOverdue(props.task))
 const dueToday = computed(() => isTaskDueToday(props.task))
 const dueDateLabel = computed(() => formatDueDateShort(props.task.due_date))
 
-const priorityDotStyle = computed<string | null>(() => {
+// Color of the circular toggle button reflects priority
+const priorityColor = computed<string>(() => {
+  if (isCompleted.value) return 'hsl(var(--success) / 0.8)'
   switch (props.task.priority) {
-    case 'urgent': return 'background: hsl(var(--destructive))'
-    case 'high':   return 'background: hsl(var(--warning))'
-    case 'low':    return 'background: hsl(var(--muted-foreground) / 0.4)'
-    default:       return null
+    case 'urgent': return 'hsl(var(--destructive))'
+    case 'high':   return 'hsl(var(--warning))'
+    case 'low':    return 'hsl(var(--muted-foreground) / 0.35)'
+    default:       return 'hsl(var(--muted-foreground) / 0.5)'
   }
 })
 
-
-const statusIndicatorStyle = computed(() => {
-  if (isCompleted.value) return 'background: hsl(var(--success) / 0.7)'
-  if (overdue.value) return 'background: hsl(var(--destructive) / 0.7)'
-  return 'background: hsl(var(--info) / 0.6)'
+const toggleBtnStyle = computed(() => {
+  if (isCompleted.value) {
+    return `background: hsl(var(--success) / 0.8); border-color: hsl(var(--success) / 0.8)`
+  }
+  return `border-color: ${priorityColor.value}`
 })
 </script>
 
 <template>
   <div
     :class="[
-      'group flex items-center gap-2.5 px-4 py-2 hover:bg-accent/20 transition-base cursor-pointer border-b border-border/30 last:border-0',
+      'group flex items-center gap-2.5 px-4 py-2.5 hover:bg-accent/20 transition-base cursor-pointer border-b border-border/30 last:border-0',
       (isCompleted || isCancelled) && 'opacity-50',
     ]"
     @click="emit('open', task)"
   >
-    <!-- Status indicator -->
-    <div
-      class="h-2 w-2 rounded-full shrink-0"
-      :style="statusIndicatorStyle"
-    />
-
     <!-- Drag handle -->
     <div
       v-if="draggable"
@@ -73,21 +68,21 @@ const statusIndicatorStyle = computed(() => {
       <GripVertical :size="14" />
     </div>
 
-    <!-- Priority dot -->
-    <div
-      v-if="priorityDotStyle"
-      class="h-2 w-2 rounded-full shrink-0"
-      :style="priorityDotStyle"
-    />
-
-    <!-- Checkbox -->
-    <div class="shrink-0" @click.stop>
-      <Checkbox
-        :checked="isCompleted"
-        :disabled="isCancelled"
-        @update:checked="emit('toggle', task.id)"
+    <!-- Circular priority toggle button -->
+    <button
+      class="h-4 w-4 rounded-full grid place-items-center shrink-0 border-2 transition-colors flex-none"
+      :style="toggleBtnStyle"
+      :disabled="isCancelled"
+      :aria-label="isCompleted ? 'Desmarcar' : 'Concluir'"
+      @click.stop="emit('toggle', task.id)"
+    >
+      <CheckCircle2
+        v-if="isCompleted"
+        :size="10"
+        :stroke-width="3"
+        style="color: hsl(var(--background))"
       />
-    </div>
+    </button>
 
     <!-- Title -->
     <span
