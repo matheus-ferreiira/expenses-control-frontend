@@ -7,7 +7,7 @@ import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Menu, LayoutDashboard, CheckSquare, Activity, DollarSign, Plus } from 'lucide-vue-next'
+import { Menu, Search, LayoutDashboard, CheckSquare, Activity, DollarSign, Plus } from 'lucide-vue-next'
 import { ROUTES } from '@/constants/routes'
 
 const ui = useUiStore()
@@ -81,17 +81,24 @@ function navTo(routeName: string) {
     >
       <!-- Mobile top bar (only on small screens) -->
       <div
-        class="md:hidden flex items-center h-12 px-4 gap-3 shrink-0"
+        class="md:hidden flex items-center h-11 px-4 shrink-0"
         style="border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.95)"
       >
         <button
-          class="p-1.5 rounded-md transition-base"
-          style="color: hsl(var(--muted-foreground) / 0.6)"
+          class="p-1 rounded-md transition-base shrink-0"
+          style="color: hsl(var(--muted-foreground) / 0.5)"
           @click="mobileMenuOpen = true"
         >
-          <Menu :size="18" />
+          <Menu :size="17" />
         </button>
-        <span class="text-[14px] font-semibold text-foreground">Vault</span>
+        <span class="flex-1 text-center text-[14px] font-semibold text-foreground">Vault</span>
+        <button
+          class="p-1 rounded-md transition-base shrink-0"
+          style="color: hsl(var(--muted-foreground) / 0.5)"
+          @click="ui.commandOpen = true"
+        >
+          <Search :size="17" />
+        </button>
       </div>
 
       <!-- Page content — extra bottom padding on mobile for bottom nav -->
