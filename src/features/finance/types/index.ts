@@ -19,6 +19,7 @@ export interface CreateCreditCardPayload {
   due_day: number
   color?: string
   is_active?: boolean
+  bank_account_id?: string | null
 }
 
 export type UpdateCreditCardPayload = Partial<CreateCreditCardPayload>

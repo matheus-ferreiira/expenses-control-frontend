@@ -63,8 +63,8 @@ export const useCalendarStore = defineStore('calendar', () => {
     try {
       const event = await calendarApi.create(payload)
       events.value.push(event)
-      const d = new Date(event.start_date)
-      invalidateMonth(d.getFullYear(), d.getMonth())
+      const d = new Date(event.start_date.endsWith('Z') ? event.start_date : event.start_date + 'Z')
+      invalidateMonth(d.getUTCFullYear(), d.getUTCMonth())
       return event
     } catch (e: unknown) {
       error.value = 'Erro ao criar evento'

@@ -167,7 +167,7 @@ export const useFinanceStore = defineStore('finance', () => {
   async function createCard(payload: CreateCreditCardPayload): Promise<CreditCard> {
     try {
       const card = await financeApi.cards.create({
-        bank_account_id: null,
+        bank_account_id: payload.bank_account_id ?? null,
         name: payload.name,
         limit_amount: payload.limit_amount,
         closing_day: payload.closing_day,

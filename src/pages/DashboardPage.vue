@@ -44,9 +44,12 @@ async function handleLogHabit(id: string) {
   }
 }
 
-onMounted(() => {
-  dashboard.load()
-  goalStore.fetchGoals()
+onMounted(async () => {
+  try {
+    await Promise.all([dashboard.load(), goalStore.fetchGoals()])
+  } catch {
+    toast.error('Erro ao carregar dashboard')
+  }
 })
 </script>
 

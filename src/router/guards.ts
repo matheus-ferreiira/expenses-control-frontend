@@ -2,6 +2,13 @@ import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ROUTES } from '@/constants/routes'
 
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean
+    requiresGuest?: boolean
+  }
+}
+
 export function registerGuards(router: Router) {
   router.beforeEach((to) => {
     const auth = useAuthStore()

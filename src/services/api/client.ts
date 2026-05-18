@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import router from '@/router'
 import type { ApiResponse } from '@/types/api'
 
 const client: AxiosInstance = axios.create({
@@ -24,7 +25,7 @@ client.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token')
-      window.location.href = '/login'
+      router.push({ name: 'login' }).catch(() => {})
     }
     return Promise.reject(error)
   },
