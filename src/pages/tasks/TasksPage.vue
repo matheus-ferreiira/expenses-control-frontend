@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { Plus, PanelLeft } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { Sheet, SheetContent } from '@ui/sheet'
 import TasksLeftPanel from '@/features/tasks/components/TasksLeftPanel.vue'
@@ -142,6 +142,27 @@ const viewTitle = computed(() => {
   }
 })
 
+const mobileChipCounts = computed(() => {
+  const tasks = store.tasks
+  const today = todayStr()
+  const nextWeek = addDaysStr(7)
+  return {
+    today: tasks.filter((t) => t.due_date === today && t.status !== 'completed' && t.status !== 'cancelled').length,
+    upcoming: tasks.filter((t) => t.due_date && t.due_date > today && t.due_date <= nextWeek && t.status !== 'completed' && t.status !== 'cancelled').length,
+    overdue: tasks.filter((t) => isTaskOverdue(t)).length,
+    completed: tasks.filter((t) => t.status === 'completed').length,
+    noDate: tasks.filter((t) => !t.due_date && t.status !== 'completed' && t.status !== 'cancelled').length,
+  }
+})
+
+const mobileChips = computed(() => [
+  { id: 'today' as TaskViewId, label: 'Hoje', count: mobileChipCounts.value.today },
+  { id: 'upcoming' as TaskViewId, label: 'Próximas', count: mobileChipCounts.value.upcoming },
+  { id: 'overdue' as TaskViewId, label: 'Atrasadas', count: mobileChipCounts.value.overdue, tone: 'danger' as const },
+  { id: 'completed' as TaskViewId, label: 'Concluídas', count: mobileChipCounts.value.completed },
+  { id: 'no-date' as TaskViewId, label: 'Sem data', count: mobileChipCounts.value.noDate },
+])
+
 function openCreate() {
   editingTask.value = null
   formOpen.value = true
@@ -239,32 +260,44 @@ onUnmounted(() => {
     <div class="flex flex-col flex-1 min-w-0">
 
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
-        <div class="flex items-start gap-3">
-          <!-- Mobile panel trigger -->
-          <button
-            class="md:hidden mt-1 shrink-0 transition-base"
-            style="color: hsl(var(--muted-foreground) / 0.5)"
-            @click="mobileLeftOpen = true"
-          >
-            <PanelLeft :size="18" />
-          </button>
-          <div>
-            <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
-              Produtividade
-            </p>
-            <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
-              {{ viewTitle }}
-            </h1>
-            <p class="text-[13px] text-muted-foreground/50">
-              {{ displayTasks.length }} tarefa{{ displayTasks.length !== 1 ? 's' : '' }}
-            </p>
-          </div>
+      <div class="flex items-start justify-between px-4 sm:px-6 pt-6 pb-4 shrink-0">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+            Produtividade
+          </p>
+          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+            <span class="sm:hidden">Tarefas</span>
+            <span class="hidden sm:inline">{{ viewTitle }}</span>
+          </h1>
+          <p class="text-[13px] text-muted-foreground/50">
+            {{ displayTasks.length }} tarefa{{ displayTasks.length !== 1 ? 's' : '' }}
+          </p>
         </div>
-        <Button size="sm" class="h-8 text-[12px] sm:mt-1 shrink-0" @click="openCreate">
+        <Button size="sm" class="hidden sm:flex h-8 text-[12px] mt-1 shrink-0" @click="openCreate">
           <Plus :size="12" class="mr-1.5" />
           Nova tarefa
         </Button>
+      </div>
+
+      <!-- Mobile horizontal filter chips -->
+      <div class="sm:hidden -mx-0 px-4 pb-3 overflow-x-auto [scrollbar-width:none] shrink-0">
+        <div class="flex items-center gap-2 w-max">
+          <button
+            v-for="chip in mobileChips"
+            :key="chip.id"
+            class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border whitespace-nowrap transition-colors"
+            :class="selectedView === chip.id
+              ? 'bg-foreground text-background border-foreground'
+              : 'bg-card border-border text-muted-foreground'"
+            @click="selectedView = chip.id"
+          >
+            {{ chip.label }}
+            <span
+              class="text-[10px] tabular-nums"
+              :class="chip.tone === 'danger' && selectedView !== chip.id ? 'text-destructive' : ''"
+            >{{ chip.count }}</span>
+          </button>
+        </div>
       </div>
 
       <!-- Network error banner -->
