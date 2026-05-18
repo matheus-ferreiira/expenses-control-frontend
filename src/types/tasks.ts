@@ -64,6 +64,12 @@ export interface CreateTaskPayload {
 
 export type UpdateTaskPayload = Partial<CreateTaskPayload>
 
+export interface UpdateSubtaskPayload {
+  title?: string
+  completed?: boolean
+  position?: number
+}
+
 export interface TaskFilters {
   status?: TaskStatus | TaskStatus[]
   priority?: TaskPriority

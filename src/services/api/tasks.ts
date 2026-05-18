@@ -7,6 +7,7 @@ import type {
   TaskLabel,
   CreateTaskPayload,
   UpdateTaskPayload,
+  UpdateSubtaskPayload,
   TaskFilters,
 } from '@/types/tasks'
 
@@ -45,7 +46,7 @@ export const tasksApi = {
         .post<ApiResponse<Subtask>>(API_ENDPOINTS.TASKS.SUBTASKS(taskId), { title })
         .then(unwrap),
 
-    update: (taskId: string, id: string, payload: Partial<Subtask>) =>
+    update: (taskId: string, id: string, payload: UpdateSubtaskPayload) =>
       client
         .put<ApiResponse<Subtask>>(API_ENDPOINTS.TASKS.SUBTASK_DETAIL(taskId, id), payload)
         .then(unwrap),
