@@ -214,6 +214,7 @@ const selectedCategoryColor = computed(() => {
                 {{ WEEKDAY_LABELS[day]?.charAt(0) }}
               </button>
             </div>
+            <p v-if="errors.target_days" class="text-xs text-destructive">{{ errors.target_days }}</p>
           </div>
 
           <!-- Color -->

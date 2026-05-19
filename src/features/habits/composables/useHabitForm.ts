@@ -15,6 +15,7 @@ export interface HabitFormData {
 export interface HabitFormErrors {
   name?: string
   frequency?: string
+  target_days?: string
 }
 
 const DEFAULTS: HabitFormData = {
@@ -54,6 +55,10 @@ export function useHabitForm() {
     Object.assign(errors, {})
     if (!form.name.trim()) {
       errors.name = 'Nome é obrigatório'
+      return false
+    }
+    if (form.frequency !== 'daily' && form.target_days.length === 0) {
+      errors.target_days = 'Selecione pelo menos um dia'
       return false
     }
     return true
