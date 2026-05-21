@@ -162,10 +162,10 @@
 /* Hover-lift for clickable cards */
 @utility hover-lift {
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-}
-@utility hover-lift:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px -10px rgb(0 0 0 / 0.4);
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px -10px rgb(0 0 0 / 0.4);
+  }
 }
 
 @layer base {
