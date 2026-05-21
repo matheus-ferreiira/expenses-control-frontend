@@ -3,6 +3,11 @@ import { ROUTES } from '@/constants/routes'
 
 export const authRoutes: RouteRecordRaw[] = [
   {
+    path: '/auth/google/callback',
+    name: ROUTES.GOOGLE_CALLBACK,
+    component: () => import('@/pages/auth/GoogleCallbackPage.vue'),
+  },
+  {
     path: '/',
     component: () => import('@/layouts/AuthLayout.vue'),
     meta: { requiresGuest: true },

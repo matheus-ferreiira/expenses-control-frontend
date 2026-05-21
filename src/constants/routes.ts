@@ -33,6 +33,8 @@ export const ROUTES = {
   VAULT: 'vault',
 
   SETTINGS: 'settings',
+
+  GOOGLE_CALLBACK: 'google-callback',
 } as const
 
 export type RouteName = (typeof ROUTES)[keyof typeof ROUTES]

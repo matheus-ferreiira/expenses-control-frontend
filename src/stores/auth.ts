@@ -71,6 +71,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function loginWithToken(tokenValue: string) {
+    setToken(tokenValue)
+    loading.value = true
+    try {
+      user.value = await authApi.me()
+    } catch {
+      clearAuth()
+      throw new Error('Failed to fetch user')
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     user,
     token,
@@ -82,6 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     fetchMe,
     clearAuth,
+    loginWithToken,
   }
 })
 
