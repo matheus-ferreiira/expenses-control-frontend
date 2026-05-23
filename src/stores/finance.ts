@@ -97,6 +97,8 @@ export const useFinanceStore = defineStore('finance', () => {
     try {
       const t = await financeApi.transactions.create(payload)
       transactions.value.unshift(t)
+      // Refresh account balances since backend adjusts them on transaction create
+      fetchAccounts().catch(() => {})
       return t
     } catch (e: unknown) {
       error.value = 'Erro ao criar transação'
@@ -112,6 +114,8 @@ export const useFinanceStore = defineStore('finance', () => {
       const updated = await financeApi.transactions.update(id, payload)
       const idx = transactions.value.findIndex((t) => t.id === id)
       if (idx !== -1) transactions.value[idx] = updated
+      // Refresh account balances since backend may adjust them on transaction update
+      fetchAccounts().catch(() => {})
       return updated
     } catch (e: unknown) {
       error.value = 'Erro ao atualizar transação'
@@ -123,6 +127,8 @@ export const useFinanceStore = defineStore('finance', () => {
     try {
       await financeApi.transactions.delete(id)
       transactions.value = transactions.value.filter((t) => t.id !== id)
+      // Refresh account balances since backend reverses the balance on delete
+      fetchAccounts().catch(() => {})
     } catch (e: unknown) {
       error.value = 'Erro ao excluir transação'
       throw e
