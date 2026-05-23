@@ -222,8 +222,8 @@ onMounted(async () => {
       <!-- Main column -->
       <div class="xl:col-span-2 space-y-6">
 
-        <!-- Cashflow chart -->
-        <FinanceCashflowChart />
+        <!-- Cashflow chart — anchored to the selected month -->
+        <FinanceCashflowChart :month="filterState.month.value" />
 
         <!-- Month navigator + transactions -->
         <div>

@@ -13,6 +13,13 @@ interface CashflowPoint {
   expense: number
 }
 
+const props = withDefaults(defineProps<{
+  /** Selected month in YYYY-MM format. When set, chart anchors to end of that month instead of today. */
+  month?: string
+}>(), {
+  month: '',
+})
+
 const period = ref<Period>('1M')
 const PERIODS: Period[] = ['1M', '3M', '6M', '1A']
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -22,10 +29,22 @@ const loading = ref(false)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let chartInstance: any = null
 
+/** Returns the anchor Date — end of selected month, or today if no month is provided. */
+function getAnchor(): Date {
+  if (props.month) {
+    const parts = props.month.split('-')
+    const y = parseInt(parts[0] ?? '2000', 10)
+    const m = parseInt(parts[1] ?? '1', 10)
+    // new Date(y, m, 0) = last day of month m in year y
+    return new Date(y, m, 0)
+  }
+  return new Date()
+}
+
 function getPeriodDates(p: Period): { start_date: string; end_date: string } {
-  const now = new Date()
-  const end = now.toISOString().slice(0, 10)
-  const start = new Date(now)
+  const anchor = getAnchor()
+  const end = anchor.toISOString().slice(0, 10)
+  const start = new Date(anchor)
 
   if (p === '1M') start.setMonth(start.getMonth() - 1)
   else if (p === '3M') start.setMonth(start.getMonth() - 3)
@@ -50,13 +69,13 @@ async function loadChartData() {
 
 function computeCashflow(p: Period): CashflowPoint[] {
   const txs = localTransactions.value
-  const now = new Date()
+  const anchor = getAnchor()
 
   if (p === '1M') {
-    // Daily for last 30 days
+    // Daily for last 30 days from anchor
     const points: CashflowPoint[] = []
     for (let i = 29; i >= 0; i--) {
-      const d = new Date(now)
+      const d = new Date(anchor)
       d.setDate(d.getDate() - i)
       const key = d.toISOString().slice(0, 10)
       const dayTxs = txs.filter((t) => t.transaction_date === key)
@@ -70,10 +89,10 @@ function computeCashflow(p: Period): CashflowPoint[] {
   }
 
   if (p === '3M') {
-    // Weekly for last 12 weeks
+    // Weekly for last 12 weeks ending at anchor
     const points: CashflowPoint[] = []
     for (let i = 11; i >= 0; i--) {
-      const weekEnd = new Date(now)
+      const weekEnd = new Date(anchor)
       weekEnd.setDate(weekEnd.getDate() - i * 7)
       const weekStart = new Date(weekEnd)
       weekStart.setDate(weekStart.getDate() - 6)
@@ -89,11 +108,11 @@ function computeCashflow(p: Period): CashflowPoint[] {
     return points
   }
 
-  // 6M and 1A: monthly
+  // 6M and 1A: monthly ending at anchor month
   const monthCount = p === '6M' ? 6 : 12
   const points: CashflowPoint[] = []
   for (let i = monthCount - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const d = new Date(anchor.getFullYear(), anchor.getMonth() - i, 1)
     const ym = d.toISOString().slice(0, 7)
     const monthTxs = txs.filter((t) => t.transaction_date.startsWith(ym))
     points.push({
@@ -221,6 +240,9 @@ watch([cashflowData, loading], async ([, isLoading]) => {
 })
 
 watch(period, () => loadChartData())
+
+// Reload when parent changes the selected month
+watch(() => props.month, () => loadChartData())
 
 onMounted(() => loadChartData())
 
