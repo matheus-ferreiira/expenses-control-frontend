@@ -91,8 +91,8 @@ function sourceName(t: Transaction): string {
       {{ formatCurrency(transaction.amount) }}
     </span>
 
-    <!-- Menu (appears on hover) -->
-    <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" @click.stop>
+    <!-- Menu — always visible on mobile (no hover), appears on hover on desktop -->
+    <div class="shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" @click.stop>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="ghost" size="icon" class="h-6 w-6">
