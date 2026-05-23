@@ -134,19 +134,19 @@ async function submit() {
 
       <!-- Scrollable body -->
       <form class="flex-1 overflow-y-auto" @submit.prevent="submit">
-        <div class="px-4 py-4 space-y-5">
+        <div class="px-4 py-5 space-y-5">
 
           <!-- Segmented type toggle (Despesa / Receita) -->
-          <div class="grid grid-cols-2 gap-1 p-1 bg-muted/50 rounded-lg">
+          <div class="grid grid-cols-2 gap-1 p-1 bg-muted rounded-xl">
             <button
               v-for="t in segmentedTypes"
               :key="t"
               type="button"
-              class="h-8 rounded-md text-sm font-medium transition-all"
+              class="h-9 rounded-lg text-sm font-semibold transition-all"
               :class="form.type === t
                 ? t === 'expense'
-                  ? 'bg-destructive/15 text-destructive'
-                  : 'bg-success/15 text-success'
+                  ? 'bg-destructive/20 text-destructive shadow-sm'
+                  : 'bg-success/20 text-success shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'"
               @click="form.type = t"
             >
@@ -157,7 +157,7 @@ async function submit() {
           <div class="flex items-center justify-center -mt-2">
             <button
               type="button"
-              class="text-[11px] text-muted-foreground/60 hover:text-muted-foreground underline underline-offset-2 transition-colors"
+              class="text-[11px] text-muted-foreground/50 hover:text-muted-foreground underline underline-offset-2 transition-colors"
               @click="form.type = form.type === 'transfer' ? 'expense' : 'transfer'"
             >
               {{ form.type === 'transfer' ? 'Voltar para despesa/receita' : 'Registrar como transferência' }}
@@ -166,17 +166,25 @@ async function submit() {
 
           <!-- Amount — large colored input -->
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Valor</p>
+            <p class="text-xs font-medium text-muted-foreground mb-1.5">Valor</p>
             <div
-              class="text-3xl font-semibold tabular-nums flex items-center gap-1"
-              :class="form.type === 'expense' ? 'text-destructive' : form.type === 'income' ? 'text-success' : 'text-foreground'"
+              class="flex items-center gap-2 h-14 px-4 rounded-xl border-2 transition-colors"
+              :class="form.type === 'expense'
+                ? 'border-destructive/30 bg-destructive/5'
+                : form.type === 'income'
+                  ? 'border-success/30 bg-success/5'
+                  : 'border-border bg-muted/30'"
             >
-              <span>R$</span>
+              <span
+                class="text-2xl font-semibold shrink-0"
+                :class="form.type === 'expense' ? 'text-destructive/70' : form.type === 'income' ? 'text-success/70' : 'text-muted-foreground'"
+              >R$</span>
               <input
                 v-model="form.amount"
                 inputmode="decimal"
                 placeholder="0,00"
-                class="bg-transparent outline-none w-full text-3xl font-semibold tabular-nums placeholder:text-muted-foreground/40"
+                class="bg-transparent outline-none w-full text-2xl font-semibold tabular-nums placeholder:text-muted-foreground/30"
+                :class="form.type === 'expense' ? 'text-destructive' : form.type === 'income' ? 'text-success' : 'text-foreground'"
               />
             </div>
             <p v-if="errors.amount" class="text-xs text-destructive mt-1">{{ errors.amount }}</p>
@@ -184,39 +192,39 @@ async function submit() {
 
           <!-- Title -->
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
+            <p class="text-xs font-medium text-muted-foreground mb-1.5">Título</p>
             <input
               v-model="form.description"
               placeholder="Onde/o quê? Ex: iFood, Salário"
-              class="w-full h-11 px-3 rounded-md bg-muted/50 border border-transparent focus:border-border outline-none text-sm transition-colors"
+              class="w-full h-11 px-3.5 rounded-xl bg-muted border border-border/50 focus:border-border outline-none text-sm transition-colors"
             />
             <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
           </div>
 
           <!-- Date -->
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data</p>
+            <p class="text-xs font-medium text-muted-foreground mb-1.5">Data</p>
             <DatePicker v-model="form.transaction_date" />
             <p v-if="errors.transaction_date" class="text-xs text-destructive mt-1">{{ errors.transaction_date }}</p>
           </div>
 
           <!-- Category grid (hidden for transfer) -->
           <div v-if="form.type !== 'transfer' && filteredCategories.length > 0">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Categoria</p>
+            <p class="text-xs font-medium text-muted-foreground mb-2">Categoria</p>
             <div class="grid grid-cols-4 gap-2">
               <button
                 v-for="cat in filteredCategories.slice(0, 8)"
                 :key="cat.id"
                 type="button"
-                class="h-20 rounded-lg border text-[11px] font-medium leading-tight px-1 flex flex-col items-center justify-center gap-1.5 transition-all"
+                class="h-[72px] rounded-xl border text-[11px] font-medium leading-tight px-1 flex flex-col items-center justify-center gap-1.5 transition-all"
                 :class="form.category_id === cat.id
-                  ? 'bg-muted text-foreground'
-                  : 'border-border text-muted-foreground hover:bg-muted/40'"
+                  ? 'bg-muted text-foreground border-2'
+                  : 'border-border/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground'"
                 :style="form.category_id === cat.id ? { borderColor: cat.color } : {}"
                 @click="form.category_id = form.category_id === cat.id ? '' : cat.id"
               >
                 <span
-                  class="flex items-center justify-center w-7 h-7 rounded-md"
+                  class="flex items-center justify-center w-8 h-8 rounded-lg"
                   :style="{ backgroundColor: cat.color + '25', color: cat.color }"
                 >
                   <component
@@ -233,16 +241,16 @@ async function submit() {
 
           <!-- Account pills -->
           <div v-if="store.activeAccounts.length > 0">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Conta</p>
+            <p class="text-xs font-medium text-muted-foreground mb-2">Conta</p>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 type="button"
-                class="h-9 px-3 rounded-full text-xs font-medium border transition-all"
+                class="h-9 px-3.5 rounded-full text-xs font-medium border transition-all"
                 :class="form.account_id === acc.id
                   ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-muted-foreground hover:bg-muted/40'"
+                  : 'border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id; form.card_id = ''"
               >
                 {{ acc.name }}
@@ -252,16 +260,16 @@ async function submit() {
 
           <!-- Card pills -->
           <div v-if="store.activeCards.length > 0">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Cartão</p>
+            <p class="text-xs font-medium text-muted-foreground mb-2">Cartão</p>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="card in store.activeCards"
                 :key="card.id"
                 type="button"
-                class="h-9 px-3 rounded-full text-xs font-medium border transition-all"
+                class="h-9 px-3.5 rounded-full text-xs font-medium border transition-all"
                 :class="form.card_id === card.id
                   ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-muted-foreground hover:bg-muted/40'"
+                  : 'border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground'"
                 @click="form.card_id = form.card_id === card.id ? '' : card.id; form.account_id = ''"
               >
                 {{ card.name }}
@@ -271,8 +279,8 @@ async function submit() {
 
           <!-- Tags -->
           <div v-if="store.tags.length > 0 || true">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2 flex items-center gap-1">
-              <Tag :size="10" />
+            <p class="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+              <Tag :size="12" />
               Tags
             </p>
             <div class="flex flex-wrap gap-2">
@@ -281,10 +289,10 @@ async function submit() {
                 v-for="tag in store.tags"
                 :key="tag.id"
                 type="button"
-                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium border transition-all"
+                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-xs font-medium border transition-all"
                 :class="form.tag_ids.includes(tag.id)
                   ? 'border-transparent text-white'
-                  : 'border-border text-muted-foreground hover:border-border/80 bg-transparent'"
+                  : 'border-border/60 text-muted-foreground hover:border-border bg-transparent'"
                 :style="form.tag_ids.includes(tag.id) ? { background: tag.color } : {}"
                 @click="toggleTag(tag.id)"
               >
@@ -293,11 +301,11 @@ async function submit() {
               </button>
 
               <!-- Inline create -->
-              <div class="inline-flex items-center h-7 rounded-full border border-dashed border-border overflow-hidden">
+              <div class="inline-flex items-center h-7 rounded-full border border-dashed border-border/60 overflow-hidden bg-muted/30">
                 <input
                   v-model="newTagName"
                   placeholder="Nova tag..."
-                  class="bg-transparent text-[11px] pl-2.5 pr-1 outline-none text-muted-foreground w-24 placeholder:text-muted-foreground/40"
+                  class="bg-transparent text-xs pl-2.5 pr-1 outline-none text-muted-foreground w-24 placeholder:text-muted-foreground/40"
                   @keydown.enter.prevent="createInlineTag"
                 />
                 <button
@@ -315,14 +323,19 @@ async function submit() {
 
           <!-- Notes -->
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Observações</p>
-            <Textarea v-model="form.notes" placeholder="Opcional..." class="resize-none h-16 text-sm bg-muted/50 border-transparent focus:border-border" />
+            <p class="text-xs font-medium text-muted-foreground mb-1.5">Observações</p>
+            <Textarea
+              v-model="form.notes"
+              placeholder="Opcional..."
+              class="resize-none h-16 text-sm bg-muted border-border/50 focus:border-border rounded-xl"
+            />
           </div>
 
           <!-- Recurring -->
-          <div class="flex items-center gap-2 pb-2">
+          <div class="flex items-center gap-3 pb-2 pt-1 border-t border-border/30">
             <Checkbox id="recurring" v-model:checked="form.is_recurring" />
-            <Label for="recurring" class="text-sm font-normal cursor-pointer">Transação recorrente</Label>
+            <Label for="recurring" class="text-sm font-medium cursor-pointer">Transação recorrente</Label>
+            <span class="text-xs text-muted-foreground/50 ml-auto">Gera 60 meses</span>
           </div>
 
         </div>

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { Plus } from 'lucide-vue-next'
-import { Button } from '@ui/button'
 import { Sheet, SheetContent } from '@ui/sheet'
 import TasksLeftPanel from '@/features/tasks/components/TasksLeftPanel.vue'
 import TaskToolbar from '@/features/tasks/components/TaskToolbar.vue'
@@ -273,10 +271,6 @@ onUnmounted(() => {
             {{ displayTasks.length }} tarefa{{ displayTasks.length !== 1 ? 's' : '' }}
           </p>
         </div>
-        <Button size="sm" class="hidden sm:flex h-8 text-[12px] mt-1 shrink-0" @click="openCreate">
-          <Plus :size="12" class="mr-1.5" />
-          Nova tarefa
-        </Button>
       </div>
 
       <!-- Mobile horizontal filter chips -->

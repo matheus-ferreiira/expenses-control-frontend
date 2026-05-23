@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import { Button } from '@ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
@@ -106,11 +105,6 @@ async function loadTransactions() {
 
 watch(() => filterState.month.value, () => loadTransactions())
 
-function openCreate() {
-  editingTransaction.value = null
-  formOpen.value = true
-}
-
 function openEdit(t: Transaction) {
   editingTransaction.value = t
   formOpen.value = true
@@ -166,27 +160,22 @@ onMounted(async () => {
           Contas, cartões, despesas e receitas em uma única tela funcional.
         </p>
       </div>
-      <div class="hidden md:flex items-center gap-2 sm:mt-1 shrink-0">
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-8 text-[12px] text-muted-foreground/70 border-border/60 hover:text-foreground"
-          disabled
-        >
-          Importar OFX
-        </Button>
-        <Button size="sm" class="h-8 text-[12px]" @click="openCreate">
-          <Plus :size="12" class="mr-1.5" />
-          Transação
-        </Button>
-      </div>
     </div>
 
     <!-- Sub-nav -->
     <FinanceSubNav />
 
-    <!-- Mobile Month Summary (lg:hidden) -->
-    <div class="lg:hidden bg-card border border-border rounded-lg p-4 mb-4 mt-4">
+    <!-- Summary cards (4 KPI) — always first -->
+    <FinanceSummaryCards
+      :income="income"
+      :expenses="expenses"
+      :total-balance="totalBalance"
+      :loading="store.loading"
+      class="mt-4 mb-4"
+    />
+
+    <!-- Mobile Month Summary (lg:hidden) — below KPI cards -->
+    <div class="lg:hidden bg-card border border-border rounded-lg p-4 mb-4">
       <div class="flex items-center justify-between mb-3">
         <button
           class="size-8 grid place-items-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
@@ -226,15 +215,6 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-
-    <!-- Summary cards -->
-    <FinanceSummaryCards
-      :income="income"
-      :expenses="expenses"
-      :total-balance="totalBalance"
-      :loading="store.loading"
-      class="mb-6"
-    />
 
     <!-- 2-column layout: main (2/3) + sidebar (1/3) -->
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -461,15 +441,6 @@ onMounted(async () => {
     </div>
 
   </AppPageContainer>
-
-  <!-- Mobile FAB -->
-  <button
-    class="lg:hidden fixed right-4 bottom-24 h-14 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg z-40"
-    @click="openCreate"
-  >
-    <Plus :size="18" />
-    <span class="text-sm font-medium">Transação</span>
-  </button>
 
   <!-- Dialogs -->
   <TransactionFormDialog
