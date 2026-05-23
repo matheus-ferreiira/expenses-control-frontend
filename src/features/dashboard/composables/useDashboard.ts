@@ -4,8 +4,10 @@ import { useHabitStore } from '@/stores/habits'
 import { useFinanceStore } from '@/stores/finance'
 import { useCalendarStore } from '@/stores/calendar'
 import { useAuthStore } from '@/stores/auth'
+import { financeApi } from '@/services/api/finance'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { isToday, toISODate } from '@/utils/date'
+import type { Transaction } from '@/types/finance'
 import type { CashflowPeriod, CashflowPoint, UpcomingBill } from '../types'
 
 export function useDashboard() {
@@ -19,6 +21,10 @@ export function useDashboard() {
   // don't cause a premature loading=false while some data is still in-flight.
   const dashboardLoading = ref(false)
   const loading = computed(() => dashboardLoading.value)
+
+  // Dashboard uses its own isolated transaction list so Finance page filters
+  // (month, per_page: 20) cannot overwrite the data needed here.
+  const dashboardTxs = ref<Transaction[]>([])
 
   // ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -93,7 +99,7 @@ export function useDashboard() {
   const monthTransactions = computed(() => {
     const now = new Date()
     const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
-    return financeStore.transactions.filter((t) => t.transaction_date >= monthStart && t.type !== 'transfer')
+    return dashboardTxs.value.filter((t) => t.transaction_date >= monthStart && t.type !== 'transfer')
   })
 
   const monthIncome = computed(() =>
@@ -109,7 +115,7 @@ export function useDashboard() {
   )
 
   const recentTransactions = computed(() =>
-    [...financeStore.transactions]
+    [...dashboardTxs.value]
       .filter((t) => t.type !== 'transfer')
       .sort((a, b) => b.transaction_date.localeCompare(a.transaction_date))
       .slice(0, 5),
@@ -117,7 +123,7 @@ export function useDashboard() {
 
   function computeCashflow(period: CashflowPeriod): CashflowPoint[] {
     const now = new Date()
-    const txs = financeStore.transactions.filter((t) => t.type !== 'transfer')
+    const txs = dashboardTxs.value.filter((t) => t.type !== 'transfer')
 
     if (period === '1S') {
       return Array.from({ length: 7 }, (_, i) => {
@@ -232,16 +238,25 @@ export function useDashboard() {
       const yearAgo = new Date(now)
       yearAgo.setFullYear(now.getFullYear() - 1)
 
+      // Fetch transactions into an isolated local ref — avoids the Finance page
+      // month-filter overwriting shared financeStore.transactions before this resolves.
+      const txFetch = financeApi.transactions
+        .list({
+          start_date: toISODate(yearAgo),
+          end_date: toISODate(now),
+          per_page: 500,
+        })
+        .then((res) => {
+          dashboardTxs.value = res.data
+        })
+        .catch(() => {})
+
       await Promise.allSettled([
         taskStore.fetchTasks(),
         habitStore.fetchHabits(),
         financeStore.fetchAccounts(),
         financeStore.fetchCards(),
-        financeStore.fetchTransactions({
-          start_date: toISODate(yearAgo),
-          end_date: toISODate(now),
-          per_page: 500,
-        }),
+        txFetch,
         calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
       ])
     } finally {
