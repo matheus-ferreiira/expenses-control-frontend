@@ -11,13 +11,11 @@ import DashboardBillsCard from '@/features/dashboard/components/DashboardBillsCa
 import DashboardConsistencyCard from '@/features/dashboard/components/DashboardConsistencyCard.vue'
 import DashboardGoalsProgressCard from '@/features/dashboard/components/DashboardGoalsProgressCard.vue'
 import { useDashboard } from '@/features/dashboard/composables/useDashboard'
-import { useUiStore } from '@/stores/ui'
 import { useToast } from '@/composables/useToast'
 import { useGoalStore } from '@/stores/goals'
 import { formatDate } from '@/utils/date'
 
 const dashboard = useDashboard()
-const ui = useUiStore()
 const toast = useToast()
 const goalStore = useGoalStore()
 const activeGoals = computed(() => goalStore.goals.filter((g) => g.status === 'active'))
@@ -74,54 +72,6 @@ onMounted(async () => {
           </p>
         </div>
 
-        <!-- Quick actions: compact on desktop, large tiles on mobile -->
-        <div class="hidden sm:flex items-center gap-1.5 shrink-0 sm:mt-0.5">
-          <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
-            @click="ui.quickAddOpen = true"
-          >
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
-              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            Tarefa
-          </button>
-          <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
-            @click="ui.quickAddOpen = true"
-          >
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
-              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            Evento
-          </button>
-          <button
-            class="flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground border border-border hover:bg-foreground/[0.05] hover:text-foreground transition-base"
-            @click="ui.quickAddOpen = true"
-          >
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" class="shrink-0">
-              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            Transação
-          </button>
-        </div>
-        <!-- Mobile quick actions: large tiles -->
-        <div class="grid grid-cols-3 gap-2 w-full sm:hidden mt-1">
-          <button
-            v-for="action in [
-              { label: 'Tarefa', icon: 'task' },
-              { label: 'Evento', icon: 'event' },
-              { label: 'Transação', icon: 'money' },
-            ]"
-            :key="action.label"
-            class="flex flex-col items-center justify-center gap-1.5 h-[68px] rounded-xl border border-border/60 bg-card text-foreground/70 hover:text-foreground hover:bg-accent transition-base"
-            @click="ui.quickAddOpen = true"
-          >
-            <svg width="20" height="20" viewBox="0 0 12 12" fill="none" class="shrink-0">
-              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <span class="text-[12px] font-medium">{{ action.label }}</span>
-          </button>
-        </div>
       </div>
     </div>
 
