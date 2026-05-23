@@ -1,5 +1,11 @@
 export type TransactionType = 'income' | 'expense' | 'transfer'
 export type AccountType = 'checking' | 'savings' | 'investment' | 'wallet'
+export type TransactionStatus = 'confirmed' | 'pending'
+
+export const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
+  confirmed: 'Confirmada',
+  pending: 'Agendada',
+}
 
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   income: 'Receita',
@@ -61,6 +67,8 @@ export interface Transaction {
   transaction_date: string
   is_recurring: boolean
   recurrence_config: Record<string, unknown> | null
+  status: TransactionStatus
+  recurrence_group_id: string | null
   installment_number: number | null
   total_installments: number | null
   installment_group_id: string | null

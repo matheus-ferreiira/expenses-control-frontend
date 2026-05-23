@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
-import { MoreHorizontal, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
@@ -29,7 +29,10 @@ function sourceName(t: Transaction): string {
 </script>
 
 <template>
-  <div class="group flex items-center gap-3 pl-4 pr-4 py-3 hover:bg-accent/20 transition-colors">
+  <div
+    class="group flex items-center gap-3 pl-4 pr-4 py-3 hover:bg-accent/20 transition-colors"
+    :class="transaction.status === 'pending' ? 'opacity-60' : ''"
+  >
 
     <!-- IconSwatch — 36px -->
     <span
@@ -70,16 +73,23 @@ function sourceName(t: Transaction): string {
       </p>
     </div>
 
-    <!-- Type badge (hidden on mobile) -->
-    <span
-      v-if="transaction.type !== 'transfer'"
-      class="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium border shrink-0"
-      :class="transaction.type === 'income'
-        ? 'bg-success/10 text-success border-success/30'
-        : 'bg-destructive/10 text-destructive border-destructive/30'"
-    >
-      {{ transaction.type === 'income' ? 'Receita' : 'Despesa' }}
-    </span>
+    <!-- Status badge — "Agendada" for pending, type badge for confirmed -->
+    <template v-if="transaction.status === 'pending'">
+      <span class="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium border shrink-0 bg-muted/40 text-muted-foreground border-border/60">
+        <Clock :size="9" :stroke-width="2" />
+        Agendada
+      </span>
+    </template>
+    <template v-else-if="transaction.type !== 'transfer'">
+      <span
+        class="inline-flex items-center h-5 px-1.5 rounded text-[10px] font-medium border shrink-0"
+        :class="transaction.type === 'income'
+          ? 'bg-success/10 text-success border-success/30'
+          : 'bg-destructive/10 text-destructive border-destructive/30'"
+      >
+        {{ transaction.type === 'income' ? 'Receita' : 'Despesa' }}
+      </span>
+    </template>
 
     <!-- Amount with arrow icon -->
     <span

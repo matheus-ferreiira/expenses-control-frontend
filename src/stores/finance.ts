@@ -119,6 +119,11 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  /** Remove all locally-cached transactions belonging to a recurrence group (called after cascade delete). */
+  function removeTransactionGroup(groupId: string): void {
+    transactions.value = transactions.value.filter((t) => t.recurrence_group_id !== groupId)
+  }
+
   // ── Accounts CRUD ────────────────────────────────────────────────────────
 
   async function createAccount(payload: CreateAccountPayload): Promise<BankAccount> {
@@ -222,6 +227,7 @@ export const useFinanceStore = defineStore('finance', () => {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    removeTransactionGroup,
     createAccount,
     updateAccount,
     deleteAccount,

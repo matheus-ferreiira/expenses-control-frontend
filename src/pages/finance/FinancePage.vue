@@ -24,8 +24,15 @@ const toast = useToast()
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
 const deleteOpen = ref(false)
-const deletingId = ref<string | null>(null)
+const deletingTransaction = ref<Transaction | null>(null)
 const deleting = ref(false)
+
+const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
+const deleteDescription = computed(() =>
+  isRecurringDelete.value
+    ? 'Esta é uma transação recorrente. Todas as ocorrências (passadas e futuras) serão excluídas permanentemente. Esta ação não pode ser desfeita.'
+    : 'Esta ação não pode ser desfeita.',
+)
 
 // Monthly income/expenses from loaded transactions
 const income = computed(() =>
@@ -110,18 +117,27 @@ function openEdit(t: Transaction) {
 }
 
 function openDelete(id: string) {
-  deletingId.value = id
+  const t = store.transactions.find((t) => t.id === id) ?? null
+  deletingTransaction.value = t
   deleteOpen.value = true
 }
 
 async function confirmDelete() {
-  if (!deletingId.value) return
+  if (!deletingTransaction.value) return
   deleting.value = true
+  const isRecurring = isRecurringDelete.value
+  const groupId = deletingTransaction.value.recurrence_group_id
+  const id = deletingTransaction.value.id
   try {
-    await store.deleteTransaction(deletingId.value)
-    toast.success('Transação excluída')
+    await store.deleteTransaction(id)
+    // If recurring, the backend cascade-deleted all occurrences.
+    // Clean them all from local state too so UI is immediately consistent.
+    if (isRecurring && groupId) {
+      store.removeTransactionGroup(groupId)
+    }
+    toast.success(isRecurring ? 'Série recorrente excluída' : 'Transação excluída')
     deleteOpen.value = false
-    deletingId.value = null
+    deletingTransaction.value = null
   } catch {
     toast.error('Erro ao excluir transação')
   } finally {
@@ -465,9 +481,9 @@ onMounted(async () => {
 
   <ConfirmDialog
     v-model:open="deleteOpen"
-    title="Excluir transação"
-    description="Esta ação não pode ser desfeita."
-    confirm-label="Excluir"
+    :title="isRecurringDelete ? 'Excluir série recorrente' : 'Excluir transação'"
+    :description="deleteDescription"
+    :confirm-label="isRecurringDelete ? 'Excluir todas' : 'Excluir'"
     variant="destructive"
     :loading="deleting"
     @confirm="confirmDelete"
