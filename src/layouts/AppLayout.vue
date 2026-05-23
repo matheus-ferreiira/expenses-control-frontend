@@ -70,6 +70,7 @@ function navTo(routeName: string) {
           @toggle="mobileMenuOpen = false"
           @search="openSearch"
           @quick-add="openQuickAdd"
+          @navigate="mobileMenuOpen = false"
         />
       </SheetContent>
     </Sheet>

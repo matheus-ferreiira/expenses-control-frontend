@@ -32,6 +32,7 @@ const emit = defineEmits<{
   toggle: []
   search: []
   quickAdd: []
+  navigate: []
 }>()
 
 const route = useRoute()
@@ -204,6 +205,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
             :key="item.route"
             :to="{ name: item.route }"
             class="group flex items-center gap-2 px-2 h-7 rounded mb-px transition-base"
+            @click="emit('navigate')"
             :class="[
               open ? 'text-[13px]' : 'justify-center',
             ]"
