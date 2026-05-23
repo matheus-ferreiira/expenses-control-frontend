@@ -15,9 +15,10 @@ export function useDashboard() {
   const calendarStore = useCalendarStore()
   const authStore = useAuthStore()
 
-  const loading = computed(
-    () => taskStore.loading || habitStore.loading || financeStore.loading,
-  )
+  // Use a dedicated loading flag so parallel fetches (fetchAccounts + fetchTransactions)
+  // don't cause a premature loading=false while some data is still in-flight.
+  const dashboardLoading = ref(false)
+  const loading = computed(() => dashboardLoading.value)
 
   // ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -225,22 +226,27 @@ export function useDashboard() {
   const cashflowPeriod = ref<CashflowPeriod>('1M')
 
   async function load(): Promise<void> {
-    const now = new Date()
-    const yearAgo = new Date(now)
-    yearAgo.setFullYear(now.getFullYear() - 1)
+    dashboardLoading.value = true
+    try {
+      const now = new Date()
+      const yearAgo = new Date(now)
+      yearAgo.setFullYear(now.getFullYear() - 1)
 
-    await Promise.allSettled([
-      taskStore.fetchTasks(),
-      habitStore.fetchHabits(),
-      financeStore.fetchAccounts(),
-      financeStore.fetchCards(),
-      financeStore.fetchTransactions({
-        start_date: toISODate(yearAgo),
-        end_date: toISODate(now),
-        per_page: 300,
-      }),
-      calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
-    ])
+      await Promise.allSettled([
+        taskStore.fetchTasks(),
+        habitStore.fetchHabits(),
+        financeStore.fetchAccounts(),
+        financeStore.fetchCards(),
+        financeStore.fetchTransactions({
+          start_date: toISODate(yearAgo),
+          end_date: toISODate(now),
+          per_page: 500,
+        }),
+        calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
+      ])
+    } finally {
+      dashboardLoading.value = false
+    }
   }
 
   return {
