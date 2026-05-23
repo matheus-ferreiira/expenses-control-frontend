@@ -109,7 +109,11 @@ export interface CreateTransactionPayload {
   tag_ids?: string[]
 }
 
-export type UpdateTransactionPayload = Partial<CreateTransactionPayload>
+export type RecurrenceUpdateScope = 'this_only' | 'this_and_future' | 'all'
+
+export type UpdateTransactionPayload = Partial<CreateTransactionPayload> & {
+  scope?: RecurrenceUpdateScope
+}
 
 export interface TransactionFilters {
   type?: TransactionType

@@ -7,10 +7,11 @@ import { Label } from '@ui/label'
 import { Textarea } from '@ui/textarea'
 import { ArrowLeft, Loader2, Plus, Tag, X } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
-import type { Transaction, TransactionType } from '@/types/finance'
+import type { Transaction, TransactionType, RecurrenceUpdateScope } from '@/types/finance'
 import { useTransactionForm } from '../composables/useTransactionForm'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
+import RecurringEditScopeDialog from './RecurringEditScopeDialog.vue'
 
 const props = defineProps<{
   open: boolean
@@ -29,6 +30,14 @@ const { form, errors, submitting, fromTransaction, reset, validate, toPayload } 
   useTransactionForm()
 
 const segmentedTypes: TransactionType[] = ['expense', 'income']
+
+// ── Recurring scope dialog ───────────────────────────────────────────────────
+const scopeDialogOpen = ref(false)
+
+/** True when the transaction being edited belongs to a recurrence group */
+const isEditingRecurring = computed(
+  () => !!props.transaction?.recurrence_group_id,
+)
 
 // ── Tags ────────────────────────────────────────────────────────────────────
 const newTagName = ref('')
@@ -89,10 +98,26 @@ function close() {
 
 async function submit() {
   if (!validate()) return
+
+  // Editing a recurring series: ask user which scope to apply
+  if (props.transaction && isEditingRecurring.value) {
+    scopeDialogOpen.value = true
+    return
+  }
+
+  await doSubmit()
+}
+
+async function handleScopeConfirm(scope: RecurrenceUpdateScope) {
+  await doSubmit(scope)
+}
+
+async function doSubmit(scope?: RecurrenceUpdateScope) {
   submitting.value = true
   try {
     if (props.transaction) {
-      const updated = await store.updateTransaction(props.transaction.id, toPayload())
+      const payload = scope ? { ...toPayload(), scope } : toPayload()
+      const updated = await store.updateTransaction(props.transaction.id, payload)
       emit('updated', updated)
       toast.success('Transação atualizada')
     } else {
@@ -361,4 +386,10 @@ async function submit() {
 
     </SheetContent>
   </Sheet>
+
+  <!-- Recurring scope picker — shown before submitting an edit on a recurring series -->
+  <RecurringEditScopeDialog
+    v-model:open="scopeDialogOpen"
+    @confirm="handleScopeConfirm"
+  />
 </template>
