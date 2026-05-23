@@ -75,6 +75,7 @@ const txForm = reactive({
   transaction_date: new Date().toLocaleDateString('en-CA'),
   category_id: '',
   account_id: '',
+  is_recurring: false,
 })
 
 function resetTxForm() {
@@ -84,6 +85,7 @@ function resetTxForm() {
   txForm.transaction_date = new Date().toLocaleDateString('en-CA')
   txForm.category_id = ''
   txForm.account_id = ''
+  txForm.is_recurring = false
 }
 
 const txCategories = computed(() =>
@@ -116,6 +118,7 @@ async function submitTx() {
       transaction_date: txForm.transaction_date,
       ...(txForm.category_id ? { category_id: txForm.category_id } : {}),
       ...(txForm.account_id ? { account_id: txForm.account_id } : {}),
+      ...(txForm.is_recurring ? { is_recurring: true } : {}),
     })
     toast.success(txForm.type === 'income' ? 'Receita registrada' : 'Despesa registrada')
     close()
@@ -380,6 +383,26 @@ const QUICK_ACTIONS = [
                   {{ acc.name }}
                 </button>
               </div>
+            </div>
+
+            <!-- Recurring toggle -->
+            <div class="flex items-center justify-between pt-1 pb-0.5 border-t border-border/30">
+              <span class="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Repeat :size="12" />
+                Transação recorrente
+                <span class="text-[10px] text-muted-foreground/40">(60 meses)</span>
+              </span>
+              <button
+                type="button"
+                class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
+                :class="txForm.is_recurring ? 'bg-primary' : 'bg-muted'"
+                @click="txForm.is_recurring = !txForm.is_recurring"
+              >
+                <span
+                  class="size-5 rounded-full bg-background shadow transition-transform"
+                  :class="txForm.is_recurring ? 'translate-x-5' : 'translate-x-0'"
+                />
+              </button>
             </div>
           </div>
 
