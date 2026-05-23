@@ -20,6 +20,13 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   wallet: 'Carteira',
 }
 
+export interface TransactionTag {
+  id: string
+  name: string
+  color: string
+  created_at: string
+}
+
 export interface TransactionCategory {
   id: string
   user_id: string | null
@@ -75,6 +82,7 @@ export interface Transaction {
   category?: TransactionCategory
   account?: BankAccount
   card?: CreditCard
+  tags?: TransactionTag[]
   created_at: string
   updated_at: string
 }
@@ -98,6 +106,7 @@ export interface CreateTransactionPayload {
   is_recurring?: boolean
   recurrence_config?: Record<string, unknown>
   total_installments?: number
+  tag_ids?: string[]
 }
 
 export type UpdateTransactionPayload = Partial<CreateTransactionPayload>

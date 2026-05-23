@@ -6,6 +6,7 @@ import type {
   CreditCard,
   Transaction,
   TransactionCategory,
+  TransactionTag,
   TransactionFilters,
   CreateTransactionPayload,
   UpdateTransactionPayload,
@@ -22,6 +23,7 @@ export const useFinanceStore = defineStore('finance', () => {
   const cards = ref<CreditCard[]>([])
   const transactions = ref<Transaction[]>([])
   const categories = ref<TransactionCategory[]>([])
+  const tags = ref<TransactionTag[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -77,8 +79,16 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function fetchTags() {
+    try {
+      tags.value = await financeApi.tags.list()
+    } catch {
+      error.value = 'Erro ao carregar tags'
+    }
+  }
+
   async function fetchAll() {
-    await Promise.all([fetchAccounts(), fetchCards(), fetchCategories()])
+    await Promise.all([fetchAccounts(), fetchCards(), fetchCategories(), fetchTags()])
   }
 
   // ── Transactions CRUD ────────────────────────────────────────────────────
@@ -122,6 +132,41 @@ export const useFinanceStore = defineStore('finance', () => {
   /** Remove all locally-cached transactions belonging to a recurrence group (called after cascade delete). */
   function removeTransactionGroup(groupId: string): void {
     transactions.value = transactions.value.filter((t) => t.recurrence_group_id !== groupId)
+  }
+
+  // ── Tags CRUD ────────────────────────────────────────────────────────────
+
+  async function createTag(payload: Pick<TransactionTag, 'name' | 'color'>): Promise<TransactionTag> {
+    try {
+      const tag = await financeApi.tags.create(payload)
+      tags.value.push(tag)
+      return tag
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar tag'
+      throw e
+    }
+  }
+
+  async function updateTag(id: string, payload: Partial<Pick<TransactionTag, 'name' | 'color'>>): Promise<TransactionTag> {
+    try {
+      const updated = await financeApi.tags.update(id, payload)
+      const idx = tags.value.findIndex((t) => t.id === id)
+      if (idx !== -1) tags.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar tag'
+      throw e
+    }
+  }
+
+  async function deleteTag(id: string): Promise<void> {
+    try {
+      await financeApi.tags.delete(id)
+      tags.value = tags.value.filter((t) => t.id !== id)
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir tag'
+      throw e
+    }
   }
 
   // ── Accounts CRUD ────────────────────────────────────────────────────────
@@ -228,6 +273,11 @@ export const useFinanceStore = defineStore('finance', () => {
     updateTransaction,
     deleteTransaction,
     removeTransactionGroup,
+    tags,
+    fetchTags,
+    createTag,
+    updateTag,
+    deleteTag,
     createAccount,
     updateAccount,
     deleteAccount,

@@ -61,7 +61,7 @@ function sourceName(t: Transaction): string {
       <ArrowLeftRight :size="16" :stroke-width="1.9" />
     </span>
 
-    <!-- Description + subtitle -->
+    <!-- Description + subtitle + tags -->
     <div class="flex-1 min-w-0">
       <p class="text-sm truncate text-foreground">
         {{ transaction.description }}
@@ -71,6 +71,23 @@ function sourceName(t: Transaction): string {
         <template v-else>—</template>
         <template v-if="sourceName(transaction)"> · {{ sourceName(transaction) }}</template>
       </p>
+      <!-- Tag chips -->
+      <div v-if="transaction.tags && transaction.tags.length > 0" class="flex flex-wrap gap-1 mt-0.5">
+        <span
+          v-for="tag in transaction.tags.slice(0, 3)"
+          :key="tag.id"
+          class="inline-flex items-center h-4 px-1.5 rounded-full text-[9px] font-medium text-white"
+          :style="{ background: tag.color }"
+        >
+          {{ tag.name }}
+        </span>
+        <span
+          v-if="transaction.tags.length > 3"
+          class="inline-flex items-center h-4 px-1.5 rounded-full text-[9px] font-medium bg-muted text-muted-foreground"
+        >
+          +{{ transaction.tags.length - 3 }}
+        </span>
+      </div>
     </div>
 
     <!-- Status badge — "Agendada" for pending, type badge for confirmed -->

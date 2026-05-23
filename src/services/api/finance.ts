@@ -6,6 +6,7 @@ import type {
   CreditCard,
   Transaction,
   TransactionCategory,
+  TransactionTag,
   FinanceSummary,
   CreateTransactionPayload,
   UpdateTransactionPayload,
@@ -114,6 +115,28 @@ export const financeApi = {
     delete: (id: string) =>
       client
         .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.CATEGORY_DETAIL(id))
+        .then(unwrap),
+  },
+
+  tags: {
+    list: () =>
+      client
+        .get<ApiResponse<TransactionTag[]>>(API_ENDPOINTS.FINANCE.TAGS)
+        .then(unwrap),
+
+    create: (payload: Pick<TransactionTag, 'name' | 'color'>) =>
+      client
+        .post<ApiResponse<TransactionTag>>(API_ENDPOINTS.FINANCE.TAGS, payload)
+        .then(unwrap),
+
+    update: (id: string, payload: Partial<Pick<TransactionTag, 'name' | 'color'>>) =>
+      client
+        .put<ApiResponse<TransactionTag>>(API_ENDPOINTS.FINANCE.TAG_DETAIL(id), payload)
+        .then(unwrap),
+
+    delete: (id: string) =>
+      client
+        .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.TAG_DETAIL(id))
         .then(unwrap),
   },
 

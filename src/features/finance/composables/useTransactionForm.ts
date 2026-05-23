@@ -12,6 +12,7 @@ export interface TransactionFormData {
   card_id: string
   notes: string
   is_recurring: boolean
+  tag_ids: string[]
 }
 
 export interface TransactionFormErrors {
@@ -30,6 +31,7 @@ const DEFAULTS: TransactionFormData = {
   card_id: '',
   notes: '',
   is_recurring: false,
+  tag_ids: [],
 }
 
 export function useTransactionForm() {
@@ -47,6 +49,7 @@ export function useTransactionForm() {
     form.card_id = t.card_id ?? ''
     form.notes = t.notes ?? ''
     form.is_recurring = t.is_recurring
+    form.tag_ids = t.tags?.map((tag) => tag.id) ?? []
     Object.assign(errors, {})
   }
 
@@ -88,6 +91,7 @@ export function useTransactionForm() {
     if (form.card_id) payload.card_id = form.card_id
     if (form.notes.trim()) payload.notes = form.notes.trim()
     if (form.is_recurring) payload.is_recurring = true
+    if (form.tag_ids.length > 0) payload.tag_ids = [...form.tag_ids]
     return payload
   }
 

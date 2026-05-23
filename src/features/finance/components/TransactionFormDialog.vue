@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
 import { Checkbox } from '@ui/checkbox'
 import { Label } from '@ui/label'
 import { Textarea } from '@ui/textarea'
-import { ArrowLeft, Loader2 } from 'lucide-vue-next'
+import { ArrowLeft, Loader2, Plus, Tag, X } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import type { Transaction, TransactionType } from '@/types/finance'
 import { useTransactionForm } from '../composables/useTransactionForm'
@@ -29,6 +29,31 @@ const { form, errors, submitting, fromTransaction, reset, validate, toPayload } 
   useTransactionForm()
 
 const segmentedTypes: TransactionType[] = ['expense', 'income']
+
+// ── Tags ────────────────────────────────────────────────────────────────────
+const newTagName = ref('')
+const creatingTag = ref(false)
+
+function toggleTag(id: string) {
+  const idx = form.tag_ids.indexOf(id)
+  if (idx === -1) form.tag_ids.push(id)
+  else form.tag_ids.splice(idx, 1)
+}
+
+async function createInlineTag() {
+  const name = newTagName.value.trim()
+  if (!name) return
+  creatingTag.value = true
+  try {
+    const tag = await store.createTag({ name, color: '#6b7280' })
+    form.tag_ids.push(tag.id)
+    newTagName.value = ''
+  } catch {
+    toast.error('Erro ao criar tag')
+  } finally {
+    creatingTag.value = false
+  }
+}
 
 const filteredCategories = computed(() =>
   store.categories.filter(
@@ -241,6 +266,50 @@ async function submit() {
               >
                 {{ card.name }}
               </button>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div v-if="store.tags.length > 0 || true">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2 flex items-center gap-1">
+              <Tag :size="10" />
+              Tags
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <!-- Existing tags — toggle selection -->
+              <button
+                v-for="tag in store.tags"
+                :key="tag.id"
+                type="button"
+                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium border transition-all"
+                :class="form.tag_ids.includes(tag.id)
+                  ? 'border-transparent text-white'
+                  : 'border-border text-muted-foreground hover:border-border/80 bg-transparent'"
+                :style="form.tag_ids.includes(tag.id) ? { background: tag.color } : {}"
+                @click="toggleTag(tag.id)"
+              >
+                {{ tag.name }}
+                <X v-if="form.tag_ids.includes(tag.id)" :size="9" :stroke-width="2.5" />
+              </button>
+
+              <!-- Inline create -->
+              <div class="inline-flex items-center h-7 rounded-full border border-dashed border-border overflow-hidden">
+                <input
+                  v-model="newTagName"
+                  placeholder="Nova tag..."
+                  class="bg-transparent text-[11px] pl-2.5 pr-1 outline-none text-muted-foreground w-24 placeholder:text-muted-foreground/40"
+                  @keydown.enter.prevent="createInlineTag"
+                />
+                <button
+                  type="button"
+                  class="h-full px-2 text-muted-foreground hover:text-foreground transition-colors"
+                  :disabled="creatingTag || !newTagName.trim()"
+                  @click="createInlineTag"
+                >
+                  <Loader2 v-if="creatingTag" :size="10" class="animate-spin" />
+                  <Plus v-else :size="10" :stroke-width="2.5" />
+                </button>
+              </div>
             </div>
           </div>
 
