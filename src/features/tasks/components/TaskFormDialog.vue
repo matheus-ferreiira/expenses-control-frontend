@@ -133,7 +133,7 @@ function toggleLabel(id: string) {
           <Input
             id="task-title"
             v-model="form.title"
-            placeholder="O que precisa ser feito?"
+            placeholder='Ex: "Ligar Pedro amanhã !p1 #trabalho"'
             autofocus
             :class="errors.title && 'border-destructive'"
             @keydown.enter="submit"

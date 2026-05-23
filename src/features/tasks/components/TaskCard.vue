@@ -10,7 +10,7 @@ import {
 } from '@ui/dropdown-menu'
 import { MoreHorizontal, Pencil, Archive, Trash2, GripVertical, CheckCircle2 } from 'lucide-vue-next'
 import type { Task } from '@/types/tasks'
-import { formatDueDateShort, isTaskOverdue, isTaskDueToday } from '../utils/taskHelpers'
+import { formatDueDateShort, isTaskOverdue, isTaskDueToday, isTaskDueTomorrow, getSubtaskProgress } from '../utils/taskHelpers'
 
 const props = defineProps<{
   task: Task
@@ -29,7 +29,9 @@ const isCompleted = computed(() => props.task.status === 'completed')
 const isCancelled = computed(() => props.task.status === 'cancelled')
 const overdue = computed(() => isTaskOverdue(props.task))
 const dueToday = computed(() => isTaskDueToday(props.task))
+const dueTomorrow = computed(() => isTaskDueTomorrow(props.task))
 const dueDateLabel = computed(() => formatDueDateShort(props.task.due_date))
+const subtaskProgress = computed(() => getSubtaskProgress(props.task))
 
 // Color of the circular toggle button reflects priority
 const priorityColor = computed<string>(() => {
@@ -84,15 +86,28 @@ const toggleBtnStyle = computed(() => {
       />
     </button>
 
-    <!-- Title -->
-    <span
-      :class="[
-        'flex-1 min-w-0 text-[13px] font-medium truncate',
-        isCompleted || isCancelled ? 'line-through text-muted-foreground/50' : 'text-foreground/90',
-      ]"
-    >
-      {{ task.title }}
-    </span>
+    <!-- Title + subtask progress -->
+    <div class="flex-1 min-w-0 flex flex-col gap-1">
+      <span
+        :class="[
+          'text-[13px] font-medium truncate',
+          isCompleted || isCancelled ? 'line-through text-muted-foreground/50' : 'text-foreground/90',
+        ]"
+      >
+        {{ task.title }}
+      </span>
+      <!-- Subtask progress bar -->
+      <div
+        v-if="task.subtasks_count > 0"
+        class="h-0.5 w-full rounded-full bg-muted/50 overflow-hidden"
+      >
+        <div
+          class="h-full rounded-full transition-all"
+          :class="subtaskProgress === 100 ? 'bg-success/70' : 'bg-muted-foreground/30'"
+          :style="{ width: `${subtaskProgress}%` }"
+        />
+      </div>
+    </div>
 
     <!-- Meta (right side) -->
     <div class="flex items-center gap-2.5 shrink-0">
@@ -104,6 +119,7 @@ const toggleBtnStyle = computed(() => {
       >
         {{ task.completed_subtasks_count }}/{{ task.subtasks_count }}
       </span>
+
 
       <!-- Label dots -->
       <div v-if="task.labels.length > 0" class="flex items-center gap-1">
@@ -128,6 +144,13 @@ const toggleBtnStyle = computed(() => {
           class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-warning/15 text-warning/80 select-none"
         >
           Hoje
+        </span>
+        <span
+          v-else-if="dueTomorrow"
+          class="text-[10px] font-medium px-1.5 py-0.5 rounded select-none"
+          style="background: hsl(var(--primary) / 0.12); color: hsl(var(--primary) / 0.75)"
+        >
+          Amanhã
         </span>
         <span
           v-else

@@ -61,6 +61,11 @@ export function isTaskDueToday(task: Task): boolean {
   return isToday(task.due_date)
 }
 
+export function isTaskDueTomorrow(task: Task): boolean {
+  if (!task.due_date) return false
+  return isTomorrow(task.due_date)
+}
+
 export function formatDueDate(dueDate: string | null): string {
   if (!dueDate) return ''
   if (isToday(dueDate)) return 'Hoje'
