@@ -49,17 +49,17 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
   />
 
   <!-- Grouped list -->
-  <div v-else class="rounded-md border border-border overflow-hidden">
+  <div v-else class="rounded-md border border-border overflow-clip">
     <template v-for="group in groups" :key="group.date">
       <!-- Date header -->
-      <div class="sticky top-12 lg:top-0 z-10 flex items-center justify-between px-4 py-1.5 bg-muted/60 backdrop-blur border-b border-border">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div class="sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-1.5 bg-muted/60 backdrop-blur-sm border-b border-border">
+        <span class="flex-1 min-w-0 truncate text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {{ group.label }}
         </span>
         <span
           v-if="group.income !== 0 || group.expenses !== 0"
           :class="[
-            'text-[11px] tabular-nums',
+            'shrink-0 text-[11px] tabular-nums',
             transactionAmountClass(group.income >= group.expenses ? 'income' : 'expense'),
           ]"
         >
