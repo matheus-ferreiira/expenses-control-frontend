@@ -10,7 +10,7 @@ import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
-import { useTransactionFilters } from '@/features/finance/composables/useTransactionFilters'
+import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent, monthLabel as getMonthLabel } from '@/features/finance/utils/financeHelpers'
@@ -102,11 +102,22 @@ const upcomingBills = computed(() =>
     .sort((a, b) => a.due_day - b.due_day),
 )
 
+// Quick filter pill definitions
+const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
+  { id: 'all', label: 'Todas' },
+  { id: 'income', label: 'Receitas' },
+  { id: 'expense', label: 'Despesas' },
+  { id: 'fix', label: 'Fixas' },
+  { id: 'pending', label: 'Pendentes' },
+]
+
 async function loadTransactions() {
   await store.fetchTransactions(filterState.toApiFilters())
 }
 
+// Reload when month or quick-filter changes
 watch(() => filterState.month.value, () => loadTransactions())
+watch(() => filterState.quickFilter.value, () => loadTransactions())
 
 function openEdit(t: Transaction) {
   editingTransaction.value = t
@@ -243,6 +254,22 @@ onMounted(async () => {
               @reset="filterState.resetToCurrentMonth()"
             />
           </div>
+          <!-- Quick filter pills: Todas | Receitas | Despesas | Fixas | Pendentes -->
+          <div class="-mx-0 flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
+            <button
+              v-for="f in QUICK_FILTERS"
+              :key="f.id"
+              type="button"
+              class="h-7 px-3 rounded-full text-[11px] font-medium whitespace-nowrap border transition-all shrink-0"
+              :class="filterState.quickFilter.value === f.id
+                ? 'bg-foreground text-background border-foreground'
+                : 'border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground bg-transparent'"
+              @click="filterState.setQuickFilter(f.id)"
+            >
+              {{ f.label }}
+            </button>
+          </div>
+
           <TransactionList
             :transactions="store.transactions"
             :loading="store.loading"
