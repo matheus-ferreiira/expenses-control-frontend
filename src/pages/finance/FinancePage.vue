@@ -8,6 +8,7 @@ import FinanceCashflowChart from '@/features/finance/components/FinanceCashflowC
 import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
+import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
@@ -25,6 +26,23 @@ const editingTransaction = ref<Transaction | null>(null)
 const deleteOpen = ref(false)
 const deletingTransaction = ref<Transaction | null>(null)
 const deleting = ref(false)
+
+// Detail sheet
+const detailOpen = ref(false)
+const detailTransaction = ref<Transaction | null>(null)
+
+function openDetail(t: Transaction) {
+  detailTransaction.value = t
+  detailOpen.value = true
+}
+
+function onDetailEdit(t: Transaction) {
+  openEdit(t)
+}
+
+function onDetailDelete(id: string) {
+  openDelete(id)
+}
 
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
 const deleteDescription = computed(() =>
@@ -273,8 +291,7 @@ onMounted(async () => {
           <TransactionList
             :transactions="store.transactions"
             :loading="store.loading"
-            @edit="openEdit"
-            @delete="openDelete"
+            @select="openDetail"
           />
         </div>
 
@@ -489,5 +506,13 @@ onMounted(async () => {
     variant="destructive"
     :loading="deleting"
     @confirm="confirmDelete"
+  />
+
+  <!-- Transaction detail bottom sheet -->
+  <TransactionDetailSheet
+    v-model:open="detailOpen"
+    :transaction="detailTransaction"
+    @edit="onDetailEdit"
+    @delete="onDetailDelete"
   />
 </template>

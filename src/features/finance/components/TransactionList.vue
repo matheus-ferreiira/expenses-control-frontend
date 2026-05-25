@@ -14,8 +14,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  edit: [transaction: Transaction]
-  delete: [id: string]
+  select: [transaction: Transaction]
 }>()
 
 const groups = computed(() => groupTransactionsByDate(props.transactions))
@@ -73,8 +72,7 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
           v-for="t in group.transactions"
           :key="t.id"
           :transaction="t"
-          @edit="emit('edit', $event)"
-          @delete="emit('delete', $event)"
+          @select="emit('select', $event)"
         />
       </div>
     </template>

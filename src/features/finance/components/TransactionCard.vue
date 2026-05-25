@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@ui/dropdown-menu'
-import { Button } from '@ui/button'
-import { MoreHorizontal, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, ArrowLeftRight, Clock } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
@@ -17,21 +9,16 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  edit: [transaction: Transaction]
-  delete: [id: string]
+  select: [transaction: Transaction]
 }>()
-
-function sourceName(t: Transaction): string {
-  if (t.account) return t.account.name
-  if (t.card) return t.card.name
-  return ''
-}
 </script>
 
 <template>
-  <div
-    class="group flex items-center gap-3 pl-4 pr-4 py-3 hover:bg-accent/20 transition-colors"
+  <button
+    type="button"
+    class="w-full text-left group flex items-center gap-3 pl-4 pr-4 py-3 hover:bg-accent/20 active:bg-accent/30 transition-colors cursor-pointer"
     :class="transaction.status === 'pending' ? 'opacity-60' : ''"
+    @click="emit('select', transaction)"
   >
 
     <!-- IconSwatch — 36px -->
@@ -69,7 +56,8 @@ function sourceName(t: Transaction): string {
       <p class="text-[11px] text-muted-foreground truncate">
         <template v-if="transaction.category">{{ transaction.category.name }}</template>
         <template v-else>—</template>
-        <template v-if="sourceName(transaction)"> · {{ sourceName(transaction) }}</template>
+        <template v-if="transaction.account"> · {{ transaction.account.name }}</template>
+        <template v-else-if="transaction.card"> · {{ transaction.card.name }}</template>
       </p>
       <!-- Tag chips -->
       <div v-if="transaction.tags && transaction.tags.length > 0" class="flex flex-wrap gap-1 mt-0.5">
@@ -118,30 +106,5 @@ function sourceName(t: Transaction): string {
       {{ formatCurrency(transaction.amount) }}
     </span>
 
-    <!-- Menu — always visible on mobile (no hover), appears on hover on desktop -->
-    <div class="shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" @click.stop>
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon" class="h-6 w-6">
-            <MoreHorizontal :size="13" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="w-32">
-          <DropdownMenuItem @click="emit('edit', transaction)">
-            <Pencil :size="12" class="mr-2" />
-            Editar
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            class="text-destructive focus:text-destructive"
-            @click="emit('delete', transaction.id)"
-          >
-            <Trash2 :size="12" class="mr-2" />
-            Excluir
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-
-  </div>
+  </button>
 </template>
