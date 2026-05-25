@@ -90,7 +90,7 @@ export function useTransactionForm() {
     if (form.account_id) payload.account_id = form.account_id
     if (form.card_id) payload.card_id = form.card_id
     if (form.notes.trim()) payload.notes = form.notes.trim()
-    if (form.is_recurring) payload.is_recurring = true
+    payload.is_recurring = form.is_recurring  // always send — needed to unmark on updates
     if (form.tag_ids.length > 0) payload.tag_ids = [...form.tag_ids]
     return payload
   }

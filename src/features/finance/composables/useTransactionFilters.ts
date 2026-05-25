@@ -1,6 +1,9 @@
 import { ref, computed } from 'vue'
-import type { TransactionType, TransactionFilters } from '@/types/finance'
+import type { TransactionType, TransactionStatus, TransactionFilters } from '@/types/finance'
 import { currentMonth, monthStart, monthEnd, addMonths } from '../utils/financeHelpers'
+
+/** Quick-filter tabs that map to API filter params. */
+export type QuickFilter = 'all' | 'income' | 'expense' | 'fix' | 'pending'
 
 export function useTransactionFilters() {
   const search = ref('')
@@ -8,10 +11,25 @@ export function useTransactionFilters() {
   const category_id = ref<string | undefined>(undefined)
   const account_id = ref<string | undefined>(undefined)
   const month = ref<string>(currentMonth())
+  // Quick-filter pill selection: 'all' | 'income' | 'expense' | 'fix' | 'pending'
+  const quickFilter = ref<QuickFilter>('all')
+
+  /** Derived from quickFilter — these are what get sent to the API. */
+  const is_recurring = computed<boolean | undefined>(() =>
+    quickFilter.value === 'fix' ? true : undefined,
+  )
+  const status = computed<TransactionStatus | undefined>(() =>
+    quickFilter.value === 'pending' ? 'pending' : undefined,
+  )
+  const quickType = computed<TransactionType | undefined>(() => {
+    if (quickFilter.value === 'income') return 'income'
+    if (quickFilter.value === 'expense') return 'expense'
+    return undefined
+  })
 
   const activeCount = computed(() => {
     let n = 0
-    if (type.value) n++
+    if (quickFilter.value !== 'all') n++
     if (category_id.value) n++
     if (account_id.value) n++
     if (search.value.trim()) n++
@@ -21,14 +39,22 @@ export function useTransactionFilters() {
   const hasActiveFilters = computed(() => activeCount.value > 0)
 
   function toApiFilters(): TransactionFilters {
-    return {
-      type: type.value,
+    const filters: TransactionFilters = {
       category_id: category_id.value,
       account_id: account_id.value,
       start_date: monthStart(month.value),
       end_date: monthEnd(month.value),
       per_page: 100,
     }
+
+    // Apply quick-filter derived values (override manual type if set via pill)
+    if (quickType.value) filters.type = quickType.value
+    else if (type.value) filters.type = type.value
+
+    if (is_recurring.value !== undefined) filters.is_recurring = is_recurring.value
+    if (status.value) filters.status = status.value
+
+    return filters
   }
 
   function prevMonth() {
@@ -47,6 +73,12 @@ export function useTransactionFilters() {
     month.value = currentMonth()
   }
 
+  function setQuickFilter(f: QuickFilter) {
+    quickFilter.value = f
+    // Clear manual type filter when using quick pills
+    type.value = undefined
+  }
+
   function setType(t: TransactionType | undefined) {
     type.value = t
     category_id.value = undefined
@@ -61,6 +93,7 @@ export function useTransactionFilters() {
   }
 
   function reset() {
+    quickFilter.value = 'all'
     type.value = undefined
     category_id.value = undefined
     account_id.value = undefined
@@ -73,6 +106,9 @@ export function useTransactionFilters() {
     category_id,
     account_id,
     month,
+    quickFilter,
+    is_recurring,
+    status,
     activeCount,
     hasActiveFilters,
     toApiFilters,
@@ -80,6 +116,7 @@ export function useTransactionFilters() {
     nextMonth,
     isCurrentMonth,
     resetToCurrentMonth,
+    setQuickFilter,
     setType,
     setCategoryId,
     setAccountId,

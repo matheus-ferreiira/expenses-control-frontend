@@ -125,4 +125,6 @@ export interface TransactionFilters {
   search?: string
   page?: number
   per_page?: number
+  is_recurring?: boolean
+  status?: TransactionStatus
 }
