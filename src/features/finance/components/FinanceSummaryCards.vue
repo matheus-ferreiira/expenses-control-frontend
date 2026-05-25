@@ -9,9 +9,12 @@ const props = defineProps<{
   expenses: number
   totalBalance: number
   loading?: boolean
+  /** Short label for the selected month, e.g. "maio 2026" or "abril 2026". Falls back to "este mês". */
+  monthLabel?: string
 }>()
 
 const monthNet = computed(() => props.income - props.expenses)
+const periodLabel = computed(() => props.monthLabel ?? 'este mês')
 </script>
 
 <template>
@@ -53,7 +56,7 @@ const monthNet = computed(() => props.income - props.expenses)
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ formatCurrency(income) }}
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">este mês</p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">{{ periodLabel }}</p>
       </template>
     </div>
 
@@ -73,7 +76,7 @@ const monthNet = computed(() => props.income - props.expenses)
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ formatCurrency(expenses) }}
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">este mês</p>
+        <p class="text-[11px] text-muted-foreground/40 mt-1">{{ periodLabel }}</p>
       </template>
     </div>
 

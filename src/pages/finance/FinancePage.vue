@@ -13,7 +13,7 @@ import { useFinanceStore } from '@/stores/finance'
 import { useTransactionFilters } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
-import { utilizationPercent } from '@/features/finance/utils/financeHelpers'
+import { utilizationPercent, monthLabel as getMonthLabel } from '@/features/finance/utils/financeHelpers'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -85,11 +85,14 @@ const budgetPercent = computed(() =>
   income.value > 0 ? Math.min(100, Math.round((expenses.value / income.value) * 100)) : 0,
 )
 
-// Month label for mobile summary
-const monthLabel = computed(() => {
-  const d = new Date(filterState.month.value + '-01')
-  return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-    .replace(/^\w/, (c) => c.toUpperCase())
+// Month label for mobile summary (long, e.g. "Maio de 2026")
+// Uses local-time constructor via getMonthLabel to avoid UTC timezone shift
+const monthLabel = computed(() => getMonthLabel(filterState.month.value))
+
+// Short label for KPI cards — "este mês" when current, otherwise "abril de 2026"
+const kpiMonthLabel = computed(() => {
+  if (filterState.isCurrentMonth()) return 'este mês'
+  return getMonthLabel(filterState.month.value).toLowerCase()
 })
 
 // Cards with due_day within the next 10 days
@@ -171,6 +174,7 @@ onMounted(async () => {
       :expenses="expenses"
       :total-balance="totalBalance"
       :loading="store.loading"
+      :month-label="kpiMonthLabel"
       class="mt-4 mb-4"
     />
 
