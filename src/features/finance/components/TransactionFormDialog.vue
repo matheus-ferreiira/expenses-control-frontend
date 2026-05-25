@@ -359,8 +359,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- Recurring -->
           <div class="flex items-center gap-3 pb-2 pt-1 border-t border-border/30">
             <Checkbox id="recurring" v-model:checked="form.is_recurring" />
-            <Label for="recurring" class="text-sm font-medium cursor-pointer">Transação recorrente</Label>
-            <span class="text-xs text-muted-foreground/50 ml-auto">Gera 60 meses</span>
+            <Label for="recurring" class="text-sm font-medium cursor-pointer">Transação fix</Label>
+            <span class="text-xs text-muted-foreground/50 ml-auto">Gera 60 meses automaticamente</span>
           </div>
 
         </div>

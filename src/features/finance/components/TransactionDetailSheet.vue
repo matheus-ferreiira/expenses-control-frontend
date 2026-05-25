@@ -175,7 +175,7 @@ const amountClass = computed(() => {
             <span class="text-[12px] text-muted-foreground shrink-0">Tipo</span>
             <span class="inline-flex items-center gap-1 text-[13px] font-medium text-violet-400">
               <Repeat2 :size="12" />
-              Fix (recorrente)
+              Fix
             </span>
           </div>
 

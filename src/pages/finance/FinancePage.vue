@@ -47,7 +47,7 @@ function onDetailDelete(id: string) {
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
 const deleteDescription = computed(() =>
   isRecurringDelete.value
-    ? 'Esta é uma transação recorrente. Todas as ocorrências (passadas e futuras) serão excluídas permanentemente. Esta ação não pode ser desfeita.'
+    ? 'Esta é uma transação fix. Todas as ocorrências (passadas e futuras) serão excluídas permanentemente. Esta ação não pode ser desfeita.'
     : 'Esta ação não pode ser desfeita.',
 )
 
@@ -161,7 +161,7 @@ async function confirmDelete() {
     if (isRecurring && groupId) {
       store.removeTransactionGroup(groupId)
     }
-    toast.success(isRecurring ? 'Série recorrente excluída' : 'Transação excluída')
+    toast.success(isRecurring ? 'Série fix excluída' : 'Transação excluída')
     deleteOpen.value = false
     deletingTransaction.value = null
   } catch {
@@ -500,7 +500,7 @@ onMounted(async () => {
 
   <ConfirmDialog
     v-model:open="deleteOpen"
-    :title="isRecurringDelete ? 'Excluir série recorrente' : 'Excluir transação'"
+    :title="isRecurringDelete ? 'Excluir série fix' : 'Excluir transação'"
     :description="deleteDescription"
     :confirm-label="isRecurringDelete ? 'Excluir todas' : 'Excluir'"
     variant="destructive"

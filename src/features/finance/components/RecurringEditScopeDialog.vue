@@ -62,7 +62,7 @@ function cancel() {
               <RefreshCw :size="16" />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-foreground">Editar transação recorrente</h3>
+              <h3 class="text-sm font-semibold text-foreground">Editar transação fix</h3>
               <p class="text-[11px] text-muted-foreground/60 mt-0.5">Qual o escopo da alteração?</p>
             </div>
           </div>
