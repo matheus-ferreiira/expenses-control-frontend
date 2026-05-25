@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Skeleton } from '@ui/skeleton'
-import { Wallet, TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-vue-next'
+import { Wallet, TrendingUp, TrendingDown, ArrowLeftRight, CalendarClock } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 
 const props = defineProps<{
   income: number
   expenses: number
   totalBalance: number
+  /** Projected end-of-month balance: current balance + pending income − pending expenses */
+  projectedBalance?: number
+  /** True when viewing the current month — controls projected balance visibility */
+  isCurrentMonth?: boolean
   loading?: boolean
   /** Short label for the selected month, e.g. "maio 2026" or "abril 2026". Falls back to "este mês". */
   monthLabel?: string
@@ -15,6 +19,7 @@ const props = defineProps<{
 
 const monthNet = computed(() => props.income - props.expenses)
 const periodLabel = computed(() => props.monthLabel ?? 'este mês')
+const showProjected = computed(() => props.isCurrentMonth && props.projectedBalance !== undefined)
 </script>
 
 <template>
@@ -25,6 +30,7 @@ const periodLabel = computed(() => props.monthLabel ?? 'este mês')
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-6 w-24" />
+        <Skeleton class="h-2.5 w-20 mt-2" />
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2">
@@ -37,6 +43,23 @@ const periodLabel = computed(() => props.monthLabel ?? 'este mês')
           {{ formatCurrency(totalBalance) }}
         </p>
         <p class="text-[11px] text-muted-foreground/40 mt-1">em contas ativas</p>
+        <!-- Projected end-of-month balance (current month only) -->
+        <template v-if="showProjected">
+          <div class="mt-2.5 pt-2.5 border-t border-border/40">
+            <div class="flex items-center gap-1 mb-1">
+              <CalendarClock :size="10" class="text-muted-foreground/40 shrink-0" />
+              <p class="text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/40">
+                Previsto fim do mês
+              </p>
+            </div>
+            <p
+              :class="['text-sm font-semibold tabular-nums leading-none', projectedBalance! >= totalBalance ? 'text-success/80' : 'text-destructive/70']"
+            >
+              {{ formatCurrency(projectedBalance!) }}
+            </p>
+            <p class="text-[10px] text-muted-foreground/35 mt-0.5">incluindo agendadas</p>
+          </div>
+        </template>
       </template>
     </div>
 

@@ -71,6 +71,18 @@ const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
 
+// Projected end-of-month balance = current balance + pending income - pending expenses
+// Only meaningful for the current month (pending transactions from other months are historical)
+const projectedBalance = computed(() => {
+  const pendingIncome = store.transactions
+    .filter((t) => t.status === 'pending' && t.type === 'income')
+    .reduce((s, t) => s + t.amount, 0)
+  const pendingExpense = store.transactions
+    .filter((t) => t.status === 'pending' && t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0)
+  return totalBalance.value + pendingIncome - pendingExpense
+})
+
 const today = new Date().getDate()
 
 // Top 5 expense categories this month with percentage
@@ -202,6 +214,8 @@ onMounted(async () => {
       :income="income"
       :expenses="expenses"
       :total-balance="totalBalance"
+      :projected-balance="projectedBalance"
+      :is-current-month="filterState.isCurrentMonth()"
       :loading="store.loading"
       :month-label="kpiMonthLabel"
       class="mt-4 mb-4"
