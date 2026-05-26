@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { AppPageContainer, ConfirmDialog } from '@/components/shared'
+import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
@@ -119,22 +119,14 @@ onMounted(async () => {
     </div>
 
     <!-- Empty -->
-    <div
+    <EmptyState
       v-else-if="store.cards.length === 0"
-      class="flex flex-col items-center justify-center py-16 text-center"
-    >
-      <div class="p-3 rounded-lg bg-muted mb-3">
-        <CreditCard :size="22" class="text-muted-foreground" />
-      </div>
-      <p class="text-sm font-medium text-foreground">Nenhum cartão cadastrado</p>
-      <p class="text-xs text-muted-foreground mt-0.5 mb-4">
-        Adicione seus cartões de crédito para acompanhar a fatura.
-      </p>
-      <Button size="sm" @click="openCreate">
-        <Plus :size="14" class="mr-1.5" />
-        Novo cartão
-      </Button>
-    </div>
+      :icon="CreditCard"
+      title="Nenhum cartão cadastrado"
+      description="Adicione seus cartões de crédito para acompanhar a fatura."
+      cta-label="Novo cartão"
+      @cta="openCreate"
+    />
 
     <!-- Grid -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
