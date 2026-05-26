@@ -7,7 +7,7 @@ import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCar
 import FinanceCashflowChart from '@/features/finance/components/FinanceCashflowChart.vue'
 import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
-import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
+import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
@@ -23,6 +23,7 @@ const toast = useToast()
 
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
+const transactionPrefill = ref<TransactionPrefill | null>(null)
 const deleteOpen = ref(false)
 const deletingTransaction = ref<Transaction | null>(null)
 const deleting = ref(false)
@@ -110,6 +111,59 @@ const topCategories = computed(() => {
     }))
 })
 
+// Quick shortcuts: top 5 most frequent transactions
+const quickShortcuts = computed(() => {
+  type ShortcutEntry = {
+    description: string
+    type: string
+    categoryId?: string
+    categoryName?: string
+    categoryColor?: string
+    accountId?: string
+    amounts: number[]
+    count: number
+  }
+  const map = new Map<string, ShortcutEntry>()
+
+  store.transactions.forEach((t) => {
+    if (t.type === 'transfer') return
+    const key = t.description.toLowerCase().trim()
+    const entry = map.get(key)
+    if (entry) {
+      entry.count++
+      if (entry.amounts.length < 10) entry.amounts.push(t.amount)
+    } else {
+      map.set(key, {
+        description: t.description,
+        type: t.type,
+        categoryId: t.category_id ?? undefined,
+        categoryName: t.category?.name,
+        categoryColor: t.category?.color,
+        accountId: t.account_id ?? undefined,
+        amounts: [t.amount],
+        count: 1,
+      })
+    }
+  })
+
+  return Array.from(map.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+    .map((s) => {
+      const recent = s.amounts.slice(0, 3)
+      const avg = recent.reduce((sum, v) => sum + v, 0) / recent.length
+      return {
+        description: s.description,
+        type: s.type,
+        categoryId: s.categoryId,
+        categoryName: s.categoryName,
+        categoryColor: s.categoryColor,
+        accountId: s.accountId,
+        avgAmount: avg,
+      }
+    })
+})
+
 // Budget usage: expenses as % of income
 const budgetPercent = computed(() =>
   income.value > 0 ? Math.min(100, Math.round((expenses.value / income.value) * 100)) : 0,
@@ -151,6 +205,13 @@ watch(() => filterState.quickFilter.value, () => loadTransactions())
 
 function openEdit(t: Transaction) {
   editingTransaction.value = t
+  transactionPrefill.value = null
+  formOpen.value = true
+}
+
+function openWithPrefill(prefill: TransactionPrefill) {
+  editingTransaction.value = null
+  transactionPrefill.value = prefill
   formOpen.value = true
 }
 
@@ -286,6 +347,42 @@ onMounted(async () => {
               @reset="filterState.resetToCurrentMonth()"
             />
           </div>
+          <!-- Quick shortcuts — top 5 frequent transactions -->
+          <div v-if="quickShortcuts.length > 0" class="mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+                Atalhos
+              </p>
+              <span class="text-[10px] text-muted-foreground/35">Toque para registrar</span>
+            </div>
+            <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+              <button
+                v-for="shortcut in quickShortcuts"
+                :key="shortcut.description"
+                type="button"
+                class="flex flex-col items-start gap-1 shrink-0 rounded-xl border border-border/50 bg-card px-3 py-2.5 hover:bg-accent/20 active:bg-accent/30 transition-colors text-left min-w-[96px] max-w-[120px]"
+                @click="openWithPrefill({
+                  type: shortcut.type as 'expense' | 'income',
+                  description: shortcut.description,
+                  category_id: shortcut.categoryId,
+                  account_id: shortcut.accountId,
+                  amount: shortcut.avgAmount.toFixed(2).replace('.', ','),
+                })"
+              >
+                <span
+                  class="flex items-center justify-center size-7 rounded-lg text-xs font-bold text-white shrink-0"
+                  :style="{ background: shortcut.categoryColor || 'hsl(var(--muted-foreground) / 0.3)' }"
+                >
+                  {{ shortcut.description.charAt(0).toUpperCase() }}
+                </span>
+                <p class="text-[12px] font-medium text-foreground truncate w-full">{{ shortcut.description }}</p>
+                <p class="text-[10px] text-muted-foreground/50 tabular-nums">
+                  R$&nbsp;{{ shortcut.avgAmount.toFixed(0) }}
+                </p>
+              </button>
+            </div>
+          </div>
+
           <!-- Quick filter pills: Todas | Receitas | Despesas | Fixas | Pendentes -->
           <div class="-mx-0 flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
             <button
@@ -508,6 +605,7 @@ onMounted(async () => {
   <TransactionFormDialog
     v-model:open="formOpen"
     :transaction="editingTransaction"
+    :prefill="transactionPrefill"
     @created="loadTransactions"
     @updated="loadTransactions"
   />

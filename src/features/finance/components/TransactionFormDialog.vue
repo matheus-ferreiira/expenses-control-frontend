@@ -11,9 +11,18 @@ import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import RecurringEditScopeDialog from './RecurringEditScopeDialog.vue'
 
+export interface TransactionPrefill {
+  type?: TransactionType
+  description?: string
+  amount?: string
+  category_id?: string
+  account_id?: string
+}
+
 const props = defineProps<{
   open: boolean
   transaction?: Transaction | null
+  prefill?: TransactionPrefill | null
 }>()
 
 const emit = defineEmits<{
@@ -95,7 +104,18 @@ watch(
   (isOpen) => {
     if (isOpen) {
       if (props.transaction) fromTransaction(props.transaction)
-      else reset()
+      else {
+        reset()
+        // Apply optional prefill for quick shortcuts
+        if (props.prefill) {
+          const p = props.prefill
+          if (p.type) form.type = p.type
+          if (p.description) form.description = p.description
+          if (p.amount) form.amount = p.amount
+          if (p.category_id) form.category_id = p.category_id
+          if (p.account_id) form.account_id = p.account_id
+        }
+      }
       // Auto-focus amount field after sheet animation
       nextTick(() => setTimeout(() => amountInputRef.value?.focus(), 150))
     }
