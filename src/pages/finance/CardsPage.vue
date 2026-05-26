@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { AppPageContainer, ConfirmDialog } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
@@ -51,10 +51,29 @@ async function confirmDelete() {
   }
 }
 
+/** Card usage = current month's expense transactions with that card_id */
+function cardUsed(cardId: string): number {
+  return store.transactions
+    .filter((t) => t.card_id === cardId && t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0)
+}
+
+const currentMonth = computed(() => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+})
+
 onMounted(async () => {
   loading.value = true
   try {
-    await store.fetchCards()
+    await Promise.all([
+      store.fetchCards(),
+      store.fetchTransactions({
+        start_date: `${currentMonth.value}-01`,
+        end_date: `${currentMonth.value}-31`,
+        per_page: 500,
+      }),
+    ])
   } finally {
     loading.value = false
   }
@@ -123,8 +142,10 @@ onMounted(async () => {
         v-for="card in store.activeCards"
         :key="card.id"
         :card="card"
+        :used-amount="cardUsed(card.id)"
         @edit="openEdit"
         @delete="openDelete"
+        @pay="openEdit"
       />
     </div>
   </AppPageContainer>
