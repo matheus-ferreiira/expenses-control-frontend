@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
 import { Textarea } from '@ui/textarea'
@@ -28,6 +28,23 @@ const { form, errors, submitting, fromTransaction, reset, validate, toPayload } 
   useTransactionForm()
 
 const segmentedTypes: TransactionType[] = ['expense', 'income']
+
+// ── Amount field ref for auto-focus ─────────────────────────────────────────
+const amountInputRef = ref<HTMLInputElement | null>(null)
+
+// ── Form validity (for disabling submit) ─────────────────────────────────────
+const isFormValid = computed(() => {
+  const parsed = parseFloat(form.amount.replace(',', '.'))
+  return form.description.trim().length > 0 && !isNaN(parsed) && parsed > 0
+})
+
+// ── Quick amount increments ───────────────────────────────────────────────────
+const QUICK_INCREMENTS = [10, 50, 100, 500]
+
+function addAmount(inc: number) {
+  const current = parseFloat(form.amount.replace(',', '.')) || 0
+  form.amount = (current + inc).toFixed(2).replace('.', ',')
+}
 
 // ── Recurring scope dialog ───────────────────────────────────────────────────
 const scopeDialogOpen = ref(false)
@@ -79,6 +96,8 @@ watch(
     if (isOpen) {
       if (props.transaction) fromTransaction(props.transaction)
       else reset()
+      // Auto-focus amount field after sheet animation
+      nextTick(() => setTimeout(() => amountInputRef.value?.focus(), 150))
     }
   },
 )
@@ -122,6 +141,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       const created = await store.createTransaction(toPayload())
       emit('created', created)
       toast.success('Transação registrada')
+      // Haptic feedback on mobile
+      if ('vibrate' in navigator) navigator.vibrate(50)
     }
     close()
   } catch {
@@ -203,6 +224,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 :class="form.type === 'expense' ? 'text-destructive/70' : form.type === 'income' ? 'text-success/70' : 'text-muted-foreground'"
               >R$</span>
               <input
+                ref="amountInputRef"
                 v-model="form.amount"
                 inputmode="decimal"
                 placeholder="0,00"
@@ -211,6 +233,18 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               />
             </div>
             <p v-if="errors.amount" class="text-xs text-destructive mt-1">{{ errors.amount }}</p>
+            <!-- Quick amount increment pills -->
+            <div class="flex gap-1.5 mt-2">
+              <button
+                v-for="inc in QUICK_INCREMENTS"
+                :key="inc"
+                type="button"
+                class="flex-1 h-7 rounded-lg text-[11px] font-medium bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border/30"
+                @click="addAmount(inc)"
+              >
+                +{{ inc }}
+              </button>
+            </div>
           </div>
 
           <!-- Title -->
@@ -392,13 +426,16 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       <div class="sticky bottom-0 bg-card border-t border-border px-4 py-3 shrink-0">
         <button
           type="button"
-          class="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-opacity"
-          :class="form.type === 'income'
-            ? 'bg-success text-background hover:opacity-90'
-            : form.type === 'expense'
-              ? 'bg-destructive text-destructive-foreground hover:opacity-90'
-              : 'bg-foreground text-background hover:opacity-90'"
-          :disabled="submitting"
+          class="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+          :class="[
+            form.type === 'income'
+              ? 'bg-success text-background'
+              : form.type === 'expense'
+                ? 'bg-destructive text-destructive-foreground'
+                : 'bg-foreground text-background',
+            (!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90',
+          ]"
+          :disabled="submitting || !isFormValid"
           @click="submit"
         >
           <Loader2 v-if="submitting" :size="14" class="animate-spin" />
