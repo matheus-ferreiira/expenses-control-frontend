@@ -80,7 +80,7 @@ const amountClass = computed(() => {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-2xl max-h-[88vh] overflow-y-auto p-0 border-t border-border focus:outline-none"
+      class="rounded-t-2xl max-h-[88vh] overflow-y-auto p-0 border-t border-border focus:outline-none [&>button]:hidden"
     >
       <template v-if="transaction">
         <!-- Drag handle -->
