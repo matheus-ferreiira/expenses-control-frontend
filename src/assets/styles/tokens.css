@@ -1,18 +1,18 @@
 /* =====================================================================
    Design Tokens — VaultOS
    =====================================================================
-   Values are HSL triplets (no hsl() wrapper) — Tailwind wraps them
-   via @theme inline in base.css:  --color-primary: hsl(var(--primary))
+   Values are HSL triplets (no hsl() wrapper) — base.css wraps them
+   via @theme inline:  --color-primary: hsl(var(--primary))
 
-   Converted from Lovable vault-clarity-lab/src/styles.css (oklch → HSL)
-   so every token visually matches the Lovable reference exactly.
+   Source of truth: vault-clarity-lab/src/styles.css (oklch → HSL)
+   Each value annotated with its Lovable oklch equivalent.
    ===================================================================== */
 
 /* -----------------------------------------------------------------------
    SHARED GEOMETRY & MOTION
    ----------------------------------------------------------------------- */
 :root {
-  --radius: 0.5rem; /* 8px — matches Lovable */
+  --radius: 0.375rem; /* matches Lovable --radius-md: 6px */
 
   --duration-fast:   100ms;
   --duration-base:   160ms;
@@ -26,103 +26,117 @@
 
 /* -----------------------------------------------------------------------
    DARK MODE (DEFAULT)
-   Graphite palette — matches Lovable oklch values converted to HSL.
-   Primary = blue-violet (NOT pure violet/roxo).
-   Card is LIGHTER than background so cards stand out visually.
+   Source: Lovable vault-clarity-lab styles.css :root block
+   Background is very deep (~7% lightness) so cards and surfaces pop.
+   Primary = blue-violet (oklch hue ~250 ≈ HSL ~225).
    ----------------------------------------------------------------------- */
 :root {
   /* --- Surfaces ---
-     background: oklch(0.165 0.005 270) → ~hsl(240 5% 10%)
-     card:       oklch(0.205 0.005 270) → ~hsl(240 5% 13%)  ← lighter than bg
-     surface:    same as card
+     background: oklch(0.145 0.005 270)  → very dark near-black
+     surface:    oklch(0.18  0.005 270)  → slightly above background
+     card:       oklch(0.195 0.005 270)  → cards lift off the background
+     popover:    oklch(0.215 0.005 270)  → popover/dropdown, above card
   */
-  --background:             240  5% 10%;
-  --foreground:             240  3% 96%;
+  --background:             240  5%  7%;
+  --foreground:             240  3% 96%;   /* oklch(0.955 0.003 270) */
 
-  --surface:                240  5% 13%;
-  --card:                   240  5% 13%;
+  --surface:                240  5% 10%;   /* oklch(0.18  0.005 270) */
+  --card:                   240  5% 11%;   /* oklch(0.195 0.005 270) */
   --card-foreground:        240  3% 96%;
 
-  --popover:                240  5% 13%;
+  --popover:                240  5% 13%;   /* oklch(0.215 0.005 270) */
   --popover-foreground:     240  3% 96%;
 
-  /* --- Brand — blue-violet (matches Lovable oklch(0.7 0.13 245))
-     oklch hue 245 ≈ cornflower-blue, NOT purple
-     Local was 262 83% 58% (violet/roxo) — now corrected
-  */
-  --primary:                218 77% 64%;
-  --primary-foreground:     240  5% 10%;
+  /* --- Brand — blue-violet (oklch(0.7 0.12 250) — hue 250 ≈ HSL ~225) --- */
+  --primary:                225 70% 60%;
+  --primary-foreground:     240  5%  7%;   /* oklch(0.14 0.005 270) */
 
-  /* --- Secondary --- */
-  --secondary:              240  5% 15%;
+  /* --- Secondary / Muted ---
+     secondary: oklch(0.235 0.005 270) → barely above card
+     muted:     oklch(0.22  0.005 270) → same family
+     muted-fg:  oklch(0.62  0.008 270) → medium-tone secondary text (~58%)
+  */
+  --secondary:              240  4% 15%;
   --secondary-foreground:   240  3% 96%;
-
-  /* --- Muted / disabled ---
-     muted: oklch(0.225 0.005 270) → ~hsl(240 4% 14%)
-  */
   --muted:                  240  4% 14%;
-  --muted-foreground:       240  5% 65%;
+  --muted-foreground:       240  4% 58%;   /* oklch(0.62 0.008 270) — darker than before */
 
-  /* --- Accent — same as primary (blue-violet) --- */
-  --accent:                 218 77% 64%;
-  --accent-foreground:      240  5% 10%;
+  /* --- Accent — same hue as primary --- */
+  --accent:                 225 70% 60%;
+  --accent-foreground:      240  5%  7%;
 
-  /* --- Destructive --- oklch(0.62 0.18 25) → ~hsl(5 72% 50%) */
-  --destructive:              5 72% 50%;
+  /* --- Destructive --- oklch(0.62 0.16 22) → warm red */
+  --destructive:              5 62% 50%;
   --destructive-foreground:   0  0% 98%;
 
-  /* --- Structural --- */
-  --border:                 240  4% 17%;   /* solid approx of oklch(1 0 0 / 0.07) */
-  --input:                  240  4% 17%;
-  --ring:                   218 77% 64%;   /* same hue as primary */
+  /* --- Status ---
+     success: oklch(0.66 0.11 155) → medium emerald
+     warning: oklch(0.76 0.12 80)  → amber
+  */
+  --success:                145 45% 48%;
+  --warning:                 38 75% 58%;
+  --info:                   225 70% 62%;
+
+  /* --- Structural ---
+     Lovable border = oklch(1 0 0 / 0.05) = white at 5% opacity on dark bg.
+     Solid HSL approximation on a 7% background: ~13% lightness.
+     Much more subtle than the previous 17% — borders barely visible.
+  */
+  --border:                 240  4% 13%;
+  --input:                  240  4% 14%;   /* oklch(1 0 0 / 0.06) */
+  --ring:                   225 70% 60%;   /* same hue as primary */
 
   /* --- Sidebar ---
-     sidebar:        oklch(0.18 0.005 270) → ~hsl(240 5% 11%)  ← darker than card
-     sidebar-accent: oklch(0.235 0.005 270) → ~hsl(240 4% 15%)
+     sidebar:        oklch(0.16 0.005 270) → slightly darker than background
+     sidebar-accent: oklch(0.22 0.005 270) → same as muted
+     sidebar-border: oklch(1 0 0 / 0.045) → very subtle
   */
-  --sidebar:                240  5% 11%;
+  --sidebar:                240  5%  9%;
   --sidebar-foreground:     240  3% 96%;
-  --sidebar-border:         240  4% 10%;
-  --sidebar-accent:         240  4% 15%;
+  --sidebar-primary:        225 70% 60%;
+  --sidebar-primary-foreground: 240 5% 7%;
+  --sidebar-accent:         240  4% 14%;   /* oklch(0.22 0.005 270) */
+  --sidebar-accent-foreground:  240 3% 96%;
+  --sidebar-border:         240  4% 11%;   /* oklch(1 0 0 / 0.045) */
+  --sidebar-ring:           225 70% 60%;
 
-  /* --- Semantic status ---
-     success: oklch(0.68 0.13 155) → ~hsl(145 50% 50%)
-     warning: oklch(0.78 0.14 80)  → ~hsl(38 80% 60%)
-     info:    blue for informational
+  /* --- Tone tokens (category badges, row accents, status indicators)
+     oklch → HSL approximate:
+     tone-danger:  oklch(0.64 0.16 18)  → rose-red
+     tone-warn:    oklch(0.76 0.13 60)  → amber-orange
+     tone-attn:    oklch(0.82 0.13 90)  → golden-yellow
+     tone-success: oklch(0.68 0.12 155) → emerald
+     tone-info:    oklch(0.66 0.14 260) → periwinkle-violet
   */
-  --success:                145 50% 50%;
-  --warning:                 38 80% 60%;
-  --info:                   217 91% 60%;
+  --tone-danger:              3 65% 52%;
+  --tone-warn:               38 78% 60%;
+  --tone-attn:               52 85% 65%;
+  --tone-success:           150 50% 53%;
+  --tone-info:              252 60% 60%;
 
-  /* --- Tone tokens (used by ItemRow, badges, category icons) ---
-     These match Lovable's --tone-* variables exactly.
-     tone-danger:  oklch(0.66 0.2 18)  → rose-red
-     tone-warn:    oklch(0.78 0.16 60) → amber
-     tone-attn:    oklch(0.84 0.16 90) → yellow
-     tone-success: oklch(0.7 0.15 155) → emerald
-     tone-info:    oklch(0.65 0.18 270)→ violet
+  /* --- Chart ---
+     chart-1: oklch(0.7  0.13 245) → blue
+     chart-2: oklch(0.68 0.13 155) → green
+     chart-3: oklch(0.78 0.14 80)  → amber
+     chart-4: oklch(0.62 0.18 25)  → red
+     chart-5: oklch(0.6  0.05 270) → neutral gray-blue
   */
-  --tone-danger:              3 72% 55%;
-  --tone-warn:               35 80% 62%;
-  --tone-attn:               53 90% 65%;
-  --tone-success:           152 52% 52%;
-  --tone-info:              258 62% 56%;
-
-  /* --- Chart colors (matches Lovable --chart-1 through --chart-5) --- */
-  --chart-1:                218 77% 64%;  /* primary blue-violet */
-  --chart-2:                145 50% 50%;  /* success green */
-  --chart-3:                 38 80% 60%;  /* warning amber */
-  --chart-4:                  5 72% 50%;  /* destructive red */
-  --chart-5:                240  5% 45%;  /* muted neutral */
+  --chart-1:                225 70% 60%;
+  --chart-2:                145 46% 52%;
+  --chart-3:                 38 76% 60%;
+  --chart-4:                  5 70% 52%;
+  --chart-5:                240  5% 46%;
 }
 
 /* -----------------------------------------------------------------------
    LIGHT MODE
    Applied when root element has class `.light`.
+   Source: Lovable vault-clarity-lab styles.css .light block
    ----------------------------------------------------------------------- */
 .light {
-  --background:               0   0% 100%;
-  --foreground:             222  47% 11%;
+  /* oklch(0.99 0.002 270) → near-white with faint cool tint */
+  --background:               0   0% 98%;
+  --foreground:             222  47% 11%;   /* oklch(0.18 0.008 270) */
 
   --surface:                  0   0% 100%;
   --card:                     0   0% 100%;
@@ -131,43 +145,49 @@
   --popover:                  0   0% 100%;
   --popover-foreground:     222  47% 11%;
 
-  --primary:                218  77% 52%;
-  --primary-foreground:     210  20% 98%;
+  /* oklch(0.5 0.16 245) → vibrant blue-violet on light bg */
+  --primary:                225 70% 44%;
+  --primary-foreground:       0   0% 98%;
 
-  --secondary:              210  40% 96%;
+  --secondary:              240  10% 97%;   /* oklch(0.97 0.003 270) */
   --secondary-foreground:   222  47% 11%;
 
-  --muted:                  210  40% 96%;
-  --muted-foreground:       215  16% 47%;
+  --muted:                  240  10% 96%;   /* oklch(0.965 0.003 270) */
+  --muted-foreground:       240   5% 46%;   /* oklch(0.5 0.01 270) */
 
-  --accent:                 218  77% 52%;
-  --accent-foreground:      210  20% 98%;
+  --accent:                 225 70% 44%;
+  --accent-foreground:        0   0% 98%;
 
-  --destructive:              0  84% 60%;
-  --destructive-foreground:  210  40% 98%;
+  --destructive:              5 68% 54%;    /* oklch(0.55 0.2 25) */
+  --destructive-foreground:   0   0% 98%;
 
-  --border:                 214  32% 91%;
-  --input:                  214  32% 91%;
-  --ring:                   218  77% 52%;
+  --success:                145 52% 40%;    /* oklch(0.55 0.14 155) */
+  --warning:                 38 80% 52%;    /* oklch(0.7 0.16 80) */
+  --info:                   225 70% 50%;
 
-  --sidebar:                210  40% 98%;
+  /* oklch(0 0 0 / 0.08) = black at 8% on white → subtle border */
+  --border:                 240   6% 88%;
+  --input:                  240   6% 88%;
+  --ring:                   225 70% 44%;
+
+  --sidebar:                240   5% 98%;   /* oklch(0.985 0.002 270) */
   --sidebar-foreground:     222  47% 11%;
-  --sidebar-border:         214  32% 91%;
-  --sidebar-accent:         210  40% 94%;
-
-  --success:                145  50% 42%;
-  --warning:                 38  80% 52%;
-  --info:                   217  91% 55%;
+  --sidebar-primary:        225 70% 44%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent:         240   5% 95%;   /* oklch(0.96 0.003 270) */
+  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-border:         240   6% 90%;   /* oklch(0 0 0 / 0.06) */
+  --sidebar-ring:           225 70% 44%;
 
   --tone-danger:              3  72% 50%;
   --tone-warn:               35  80% 55%;
-  --tone-attn:               53  90% 55%;
-  --tone-success:           152  52% 44%;
-  --tone-info:              258  62% 50%;
+  --tone-attn:               52  88% 58%;
+  --tone-success:           150  52% 44%;
+  --tone-info:              252  60% 55%;
 
-  --chart-1:                218  77% 52%;
-  --chart-2:                145  50% 42%;
-  --chart-3:                 38  80% 52%;
-  --chart-4:                  5  72% 50%;
+  --chart-1:                225 70% 52%;
+  --chart-2:                145 46% 44%;
+  --chart-3:                 38 76% 52%;
+  --chart-4:                  5 68% 50%;
   --chart-5:                240   5% 50%;
 }

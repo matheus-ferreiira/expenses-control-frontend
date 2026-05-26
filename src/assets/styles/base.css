@@ -94,12 +94,12 @@
 @utility skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    hsl(var(--border) / 0.5) 25%,
-    hsl(var(--border) / 0.8) 50%,
-    hsl(var(--border) / 0.5) 75%
+    hsl(var(--muted) / 1.0) 0%,
+    hsl(var(--foreground) / 0.06) 50%,
+    hsl(var(--muted) / 1.0) 100%
   );
   background-size: 200% 100%;
-  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  animation: skeleton-shimmer 1.8s linear infinite;
 }
 
 /* -----------------------------------------------------------------------
@@ -107,6 +107,11 @@
    ----------------------------------------------------------------------- */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -121,34 +126,76 @@
   50%       { filter: drop-shadow(0 0 6px hsl(var(--warning))); opacity: 0.85; }
 }
 
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* -----------------------------------------------------------------------
    UTILITY CLASSES — matching Lovable primitives
    ----------------------------------------------------------------------- */
 
-/* Typography helpers */
-@utility subtle-meta {
-  font-size: 11px;
-  color: color-mix(in oklab, hsl(var(--muted-foreground)) 70%, transparent);
-}
+/* -----------------------------------------------------------------------
+   TYPOGRAPHY UTILITIES — matching Lovable responsive helpers
+   Desktop (≥1024px): compact sizes. Mobile: larger, more readable.
+   ----------------------------------------------------------------------- */
 
+/* Caps section label */
 @utility col-label {
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   font-weight: 600;
-  color: color-mix(in oklab, hsl(var(--muted-foreground)) 90%, transparent);
+  color: color-mix(in oklab, hsl(var(--muted-foreground)) 85%, transparent);
+  @media (min-width: 1024px) { font-size: 10px; }
 }
 
+/* Section / card title */
 @utility section-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.005em;
+  @media (min-width: 1024px) { font-size: 12px; }
+}
+
+/* Secondary / meta text */
+@utility subtle-meta {
+  font-size: 12.5px;
+  color: color-mix(in oklab, hsl(var(--muted-foreground)) 75%, transparent);
+  @media (min-width: 1024px) { font-size: 11px; }
+}
+
+/* Large display heading — page H1 */
+@utility display-h1 {
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+  @media (min-width: 1024px) { font-size: 18px; }
+}
+
+/* Medium display heading */
+@utility display-h2 {
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  @media (min-width: 1024px) { font-size: 15px; }
+}
+
+/* Tabular numbers helper */
+@utility num {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Animations */
 @utility animate-fade-in {
   animation: fade-in 0.3s ease-out both;
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.28s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
 @utility animate-check-pop {
@@ -159,12 +206,41 @@
   animation: streak-pulse 2s ease-in-out infinite;
 }
 
-/* Hover-lift for clickable cards */
+/* Hover-lift for clickable cards — matches Lovable .hover-lift */
 @utility hover-lift {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  transition: transform 140ms ease, border-color 140ms ease, background-color 140ms ease;
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px -10px rgb(0 0 0 / 0.4);
+    border-color: hsl(var(--border) / 1.8);
+  }
+}
+
+/* Subtle horizontal scroll fade for chip rows — matches Lovable .scroll-fade-x */
+@utility scroll-fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+}
+
+/* Premium card surface — borda + inset highlight — matches Lovable .surface-card */
+@utility surface-card {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+}
+
+/* Minimum tap target for mobile — matches Lovable .tap-target */
+@utility tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* List row default density — matches Lovable .row-dense */
+@utility row-dense {
+  min-height: 48px;
+  padding-block: 10px;
+  @media (min-width: 1024px) {
+    min-height: 36px;
+    padding-block: 6px;
   }
 }
 
@@ -173,9 +249,18 @@
     @apply border-border outline-ring/50;
   }
 
-  body {
+  html, body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
+    /* Mobile-first: 15px base, compact at desktop */
+    font-size: 15px;
+    @media (min-width: 1024px) {
+      font-size: 13px;
+    }
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.28);
   }
 
   h1, h2, h3, h4, h5, h6 {
