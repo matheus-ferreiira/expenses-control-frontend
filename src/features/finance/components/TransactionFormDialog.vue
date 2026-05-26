@@ -2,10 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
-import { Checkbox } from '@ui/checkbox'
-import { Label } from '@ui/label'
 import { Textarea } from '@ui/textarea'
-import { ArrowLeft, Loader2, Plus, Tag, X } from 'lucide-vue-next'
+import { ArrowLeft, Loader2, Plus, Repeat2, Tag, X } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import type { Transaction, TransactionType, RecurrenceUpdateScope } from '@/types/finance'
 import { useTransactionForm } from '../composables/useTransactionForm'
@@ -356,11 +354,35 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             />
           </div>
 
-          <!-- Recurring -->
-          <div class="flex items-center gap-3 pb-2 pt-1 border-t border-border/30">
-            <Checkbox id="recurring" v-model:checked="form.is_recurring" />
-            <Label for="recurring" class="text-sm font-medium cursor-pointer">Transação fix</Label>
-            <span class="text-xs text-muted-foreground/50 ml-auto">Gera 60 meses automaticamente</span>
+          <!-- Recurring toggle (fix) -->
+          <div
+            class="flex items-center justify-between gap-4 pb-2 pt-3 border-t border-border/30 cursor-pointer"
+            @click="form.is_recurring = !form.is_recurring"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span
+                class="flex items-center justify-center size-8 rounded-lg shrink-0 transition-colors"
+                :class="form.is_recurring ? 'bg-violet-500/15 text-violet-400' : 'bg-muted text-muted-foreground/50'"
+              >
+                <Repeat2 :size="15" />
+              </span>
+              <div class="min-w-0">
+                <p class="text-sm font-medium leading-none mb-0.5">Transação fix</p>
+                <p class="text-[11px] text-muted-foreground/50 leading-none">Gera 60 meses automaticamente</p>
+              </div>
+            </div>
+            <!-- Toggle switch -->
+            <button
+              type="button"
+              class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
+              :class="form.is_recurring ? 'bg-violet-500' : 'bg-muted'"
+              @click.stop="form.is_recurring = !form.is_recurring"
+            >
+              <span
+                class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
+                :class="form.is_recurring ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
           </div>
 
         </div>
