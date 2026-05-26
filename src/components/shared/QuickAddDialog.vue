@@ -385,21 +385,31 @@ const QUICK_ACTIONS = [
               </div>
             </div>
 
-            <!-- Recurring toggle -->
-            <div class="flex items-center justify-between pt-1 pb-0.5 border-t border-border/30">
-              <span class="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                <Repeat :size="12" />
-                Transação recorrente
-                <span class="text-[10px] text-muted-foreground/40">(60 meses)</span>
-              </span>
+            <!-- Recurring toggle (fix) -->
+            <div
+              class="flex items-center justify-between gap-4 pt-1 pb-0.5 border-t border-border/30 cursor-pointer"
+              @click="txForm.is_recurring = !txForm.is_recurring"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <span
+                  class="flex items-center justify-center size-7 rounded-md shrink-0 transition-colors"
+                  :class="txForm.is_recurring ? 'bg-violet-500/15 text-violet-400' : 'bg-muted text-muted-foreground/50'"
+                >
+                  <Repeat :size="13" />
+                </span>
+                <div class="min-w-0">
+                  <p class="text-xs font-medium leading-none mb-0.5">Transação fix</p>
+                  <p class="text-[10px] text-muted-foreground/50 leading-none">Gera 60 meses automaticamente</p>
+                </div>
+              </div>
               <button
                 type="button"
                 class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
-                :class="txForm.is_recurring ? 'bg-primary' : 'bg-muted'"
-                @click="txForm.is_recurring = !txForm.is_recurring"
+                :class="txForm.is_recurring ? 'bg-violet-500' : 'bg-muted'"
+                @click.stop="txForm.is_recurring = !txForm.is_recurring"
               >
                 <span
-                  class="size-5 rounded-full bg-background shadow transition-transform"
+                  class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
                   :class="txForm.is_recurring ? 'translate-x-5' : 'translate-x-0'"
                 />
               </button>
