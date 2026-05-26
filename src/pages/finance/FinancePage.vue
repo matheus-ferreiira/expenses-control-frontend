@@ -265,12 +265,47 @@ const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
   { id: 'pending', label: 'Pendentes' },
 ]
 
+// ── Previous month comparison ─────────────────────────────────────────────
+const prevMonthReport = ref<{ income: number; expenses: number } | null>(null)
+
+const expenseDelta = computed(() => {
+  if (!prevMonthReport.value) return null
+  return expenses.value - prevMonthReport.value.expenses
+})
+
+const incomeDelta = computed(() => {
+  if (!prevMonthReport.value) return null
+  return income.value - prevMonthReport.value.income
+})
+
+async function loadPrevMonthReport() {
+  const current = filterState.month.value
+  const d = new Date(current + '-01')
+  d.setMonth(d.getMonth() - 1)
+  const prevYear = d.getFullYear()
+  const prevMonth = d.getMonth() + 1
+  try {
+    const { financeApi } = await import('@/services/api/finance')
+    prevMonthReport.value = await financeApi.monthlyReport(prevYear, prevMonth)
+  } catch {
+    prevMonthReport.value = null
+  }
+}
+
+// ── First exceeded category (for alert banner) ────────────────────────────
+const exceededCategory = computed(() =>
+  topCategories.value.find((c) => c.budgetPercent != null && c.budgetPercent >= 100) ?? null
+)
+
 async function loadTransactions() {
   await store.fetchTransactions(filterState.toApiFilters())
 }
 
 // Reload when month or quick-filter changes
-watch(() => filterState.month.value, () => loadTransactions())
+watch(() => filterState.month.value, () => {
+  loadTransactions()
+  loadPrevMonthReport()
+})
 watch(() => filterState.quickFilter.value, () => loadTransactions())
 
 function openEdit(t: Transaction) {
@@ -315,7 +350,7 @@ async function confirmDelete() {
 }
 
 onMounted(async () => {
-  await Promise.all([store.fetchAll(), loadTransactions()])
+  await Promise.all([store.fetchAll(), loadTransactions(), loadPrevMonthReport()])
 })
 </script>
 
@@ -441,6 +476,33 @@ onMounted(async () => {
           <div class="h-full bg-foreground rounded-full transition-all" :style="{ width: `${budgetPercent}%` }" />
         </div>
       </div>
+    </div>
+
+    <!-- Alert banner — category budget exceeded -->
+    <div
+      v-if="exceededCategory && !store.loading"
+      class="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-destructive/10 border border-destructive/20"
+    >
+      <span class="text-destructive shrink-0">⚠</span>
+      <p class="text-[12px] text-destructive/90 font-medium leading-snug">
+        <span class="font-semibold">{{ exceededCategory.name }}</span>
+        ultrapassou a meta em {{ formatCurrency(exceededCategory.total - (exceededCategory.monthlyLimit ?? 0)) }}
+      </p>
+    </div>
+
+    <!-- Month comparison line -->
+    <div
+      v-if="expenseDelta !== null && !store.loading"
+      class="flex items-center gap-1.5 mb-4 text-[12px]"
+    >
+      <span class="text-muted-foreground/50">vs mês anterior:</span>
+      <span
+        class="flex items-center gap-0.5 font-medium tabular-nums"
+        :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
+      >
+        {{ expenseDelta <= 0 ? '↘' : '↗' }}
+        {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
+      </span>
     </div>
 
     <!-- 2-column layout: main (2/3) + sidebar (1/3) -->
