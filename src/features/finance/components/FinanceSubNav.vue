@@ -10,6 +10,7 @@ const tabs = [
   { label: 'Transações', route: ROUTES.FINANCE_TRANSACTIONS },
   { label: 'Contas', route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões', route: ROUTES.FINANCE_CARDS },
+  { label: 'Relatório mensal', route: ROUTES.FINANCE_REPORTS },
 ]
 
 function isActive(routeName: string): boolean {
@@ -18,12 +19,12 @@ function isActive(routeName: string): boolean {
 </script>
 
 <template>
-  <div class="flex gap-1 border-b border-border/60 mb-5">
+  <div class="flex gap-1 border-b border-border/60 mb-5 overflow-x-auto scrollbar-none">
     <button
       v-for="tab in tabs"
       :key="tab.route"
       :class="[
-        'px-3 py-2 text-[13px] font-medium transition-base border-b-2 -mb-px',
+        'px-3 py-2 text-[13px] font-medium transition-base border-b-2 -mb-px shrink-0 whitespace-nowrap',
         isActive(tab.route)
           ? 'border-primary text-foreground'
           : 'border-transparent text-muted-foreground/60 hover:text-foreground',
