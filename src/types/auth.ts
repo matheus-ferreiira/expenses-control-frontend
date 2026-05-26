@@ -8,6 +8,8 @@ export interface User {
   timezone: string
   settings: Record<string, unknown>
   created_at: string
+  current_streak: number
+  last_transaction_date: string | null
 }
 
 export interface LoginCredentials {

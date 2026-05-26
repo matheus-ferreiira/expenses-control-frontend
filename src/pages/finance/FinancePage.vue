@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, Pencil, Check, X } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Pencil, Check, X, Plus, Upload } from 'lucide-vue-next'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
@@ -11,6 +11,7 @@ import TransactionFormDialog, { type TransactionPrefill } from '@/features/finan
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
+import { useAuthStore } from '@/stores/auth'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
@@ -18,8 +19,37 @@ import { utilizationPercent, monthLabel as getMonthLabel } from '@/features/fina
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
+const authStore = useAuthStore()
 const filterState = useTransactionFilters()
 const toast = useToast()
+
+// ── Streak ───────────────────────────────────────────────────────────────────
+const streakSheetOpen = ref(false)
+const streak = computed(() => authStore.user?.current_streak ?? 0)
+const streakActive = computed(() => {
+  const last = authStore.user?.last_transaction_date
+  if (!last) return false
+  const today = new Date()
+  const d = new Date(last + 'T00:00:00')
+  return d.getFullYear() === today.getFullYear()
+    && d.getMonth() === today.getMonth()
+    && d.getDate() === today.getDate()
+})
+
+// ── OFX import ───────────────────────────────────────────────────────────────
+const ofxInputRef = ref<HTMLInputElement | null>(null)
+
+function triggerOfxImport() {
+  ofxInputRef.value?.click()
+}
+
+function handleOfxFile(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  toast.success(`Arquivo "${file.name}" selecionado — importação em breve!`)
+  // Reset so same file can be selected again
+  ;(event.target as HTMLInputElement).value = ''
+}
 
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
@@ -292,18 +322,67 @@ onMounted(async () => {
 <template>
   <AppPageContainer>
 
+    <!-- Hidden OFX file input -->
+    <input
+      ref="ofxInputRef"
+      type="file"
+      accept=".ofx,.csv,.OFX,.CSV"
+      class="hidden"
+      @change="handleOfxFile"
+    />
+
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-3 sm:gap-0">
-      <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
-          Finanças
-        </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
-          Visão geral
-        </h1>
-        <p class="text-[13px] text-muted-foreground/50">
-          Contas, cartões, despesas e receitas em uma única tela funcional.
-        </p>
+    <div class="mb-6">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+            Finanças
+          </p>
+          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+            Visão geral
+          </h1>
+          <p class="text-[13px] text-muted-foreground/50">
+            Contas, cartões, despesas e receitas em uma única tela funcional.
+          </p>
+        </div>
+      </div>
+
+      <!-- Action row: streak + buttons -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Streak badge -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[12px] font-medium transition-colors shrink-0"
+          :class="streakActive
+            ? 'bg-amber-500/15 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+            : 'bg-muted/40 border-border/50 text-muted-foreground/50 hover:bg-muted'"
+          @click="streakSheetOpen = true"
+        >
+          <span>{{ streakActive ? '🔥' : '🩶' }}</span>
+          <span>{{ streak }} dia{{ streak !== 1 ? 's' : '' }}</span>
+        </button>
+
+        <div class="flex-1" />
+
+        <!-- Importar OFX -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium border border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+          @click="triggerOfxImport"
+        >
+          <Upload :size="12" />
+          Importar OFX
+        </button>
+
+        <!-- Nova transação -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+          @click="editingTransaction = null; transactionPrefill = null; formOpen = true"
+        >
+          <Plus :size="12" />
+          Transação
+        </button>
       </div>
     </div>
 
@@ -741,4 +820,39 @@ onMounted(async () => {
     @edit="onDetailEdit"
     @delete="onDetailDelete"
   />
+
+  <!-- Streak info sheet -->
+  <Teleport to="body">
+    <Transition name="sheet-fade">
+      <div
+        v-if="streakSheetOpen"
+        class="fixed inset-0 z-50 flex items-end"
+        @click.self="streakSheetOpen = false"
+      >
+        <div class="absolute inset-0 bg-black/50" @click="streakSheetOpen = false" />
+        <div class="relative w-full rounded-t-2xl bg-card border-t border-border p-6 pb-8 z-10">
+          <div class="flex flex-col items-center text-center gap-3">
+            <span class="text-5xl">{{ streakActive ? '🔥' : '🩶' }}</span>
+            <div>
+              <p class="text-xl font-semibold text-foreground">
+                {{ streakActive
+                  ? `Você está registrando há ${streak} dia${streak !== 1 ? 's' : ''} seguidos!`
+                  : 'Nenhum registro hoje ainda.' }}
+              </p>
+              <p class="text-[13px] text-muted-foreground/60 mt-1">
+                {{ streakActive ? 'Continue assim! 💪' : 'Registre uma transação para começar seu streak.' }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="mt-2 h-9 px-5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              @click="streakSheetOpen = false; editingTransaction = null; transactionPrefill = null; formOpen = true"
+            >
+              + Registrar agora
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
