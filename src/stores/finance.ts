@@ -239,6 +239,18 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function updateCategory(id: string, payload: Partial<TransactionCategory>): Promise<TransactionCategory> {
+    try {
+      const updated = await financeApi.categories.update(id, payload)
+      const idx = categories.value.findIndex((c) => c.id === id)
+      if (idx !== -1) categories.value[idx] = updated
+      return updated
+    } catch (e: unknown) {
+      error.value = 'Erro ao atualizar categoria'
+      throw e
+    }
+  }
+
   async function updateCard(id: string, payload: UpdateCreditCardPayload): Promise<CreditCard> {
     try {
       const updated = await financeApi.cards.update(id, payload)
@@ -284,6 +296,7 @@ export const useFinanceStore = defineStore('finance', () => {
     createTag,
     updateTag,
     deleteTag,
+    updateCategory,
     createAccount,
     updateAccount,
     deleteAccount,

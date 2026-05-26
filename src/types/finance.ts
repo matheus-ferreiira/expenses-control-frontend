@@ -35,6 +35,7 @@ export interface TransactionCategory {
   color: string
   icon: string | null
   is_default: boolean
+  monthly_limit: number | null
   created_at: string
 }
 

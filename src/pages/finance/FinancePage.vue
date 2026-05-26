@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Pencil, Check, X } from 'lucide-vue-next'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
@@ -27,6 +27,36 @@ const transactionPrefill = ref<TransactionPrefill | null>(null)
 const deleteOpen = ref(false)
 const deletingTransaction = ref<Transaction | null>(null)
 const deleting = ref(false)
+
+// Budget editing state
+const editingBudgetCatId = ref<string | null>(null)
+const editingBudgetValue = ref('')
+const savingBudget = ref(false)
+
+function startEditBudget(catId: string, currentLimit: number | null) {
+  editingBudgetCatId.value = catId
+  editingBudgetValue.value = currentLimit != null ? String(currentLimit) : ''
+}
+
+function cancelEditBudget() {
+  editingBudgetCatId.value = null
+  editingBudgetValue.value = ''
+}
+
+async function saveBudget(catId: string) {
+  savingBudget.value = true
+  try {
+    const raw = editingBudgetValue.value.replace(',', '.').trim()
+    const limit: number | null = raw === '' ? null : parseFloat(raw)
+    await store.updateCategory(catId, { monthly_limit: limit } as Parameters<typeof store.updateCategory>[1])
+    toast.success('Meta atualizada')
+    editingBudgetCatId.value = null
+  } catch {
+    toast.error('Erro ao salvar meta')
+  } finally {
+    savingBudget.value = false
+  }
+}
 
 // Detail sheet
 const detailOpen = ref(false)
@@ -86,20 +116,27 @@ const projectedBalance = computed(() => {
 
 const today = new Date().getDate()
 
-// Top 5 expense categories this month with percentage
+// Top 5 expense categories this month with percentage + budget limit
 const topCategories = computed(() => {
   const totalExpenses = store.transactions
     .filter((t) => t.type === 'expense')
     .reduce((s, t) => s + t.amount, 0)
 
-  const map = new Map<string, { name: string; color: string; total: number }>()
+  const map = new Map<string, { id: string; name: string; color: string; total: number; monthlyLimit: number | null }>()
   store.transactions
     .filter((t) => t.type === 'expense' && t.category)
     .forEach((t) => {
       const cat = t.category!
+      const storeCat = store.categories.find((c) => c.id === cat.id)
       const entry = map.get(cat.id)
       if (entry) entry.total += t.amount
-      else map.set(cat.id, { name: cat.name, color: cat.color, total: t.amount })
+      else map.set(cat.id, {
+        id: cat.id,
+        name: cat.name,
+        color: cat.color,
+        total: t.amount,
+        monthlyLimit: storeCat?.monthly_limit ?? null,
+      })
     })
 
   return Array.from(map.values())
@@ -108,6 +145,9 @@ const topCategories = computed(() => {
     .map((c) => ({
       ...c,
       percent: totalExpenses > 0 ? Math.round((c.total / totalExpenses) * 100) : 0,
+      budgetPercent: c.monthlyLimit != null && c.monthlyLimit > 0
+        ? Math.min(100, Math.round((c.total / c.monthlyLimit) * 100))
+        : null,
     }))
 })
 
@@ -526,7 +566,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Category spending — top 5 -->
+        <!-- Category spending — top 5 with budget limits -->
         <div class="rounded-lg border border-border/50 bg-card p-4">
           <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
             Gastos por categoria
@@ -543,21 +583,95 @@ onMounted(async () => {
           <div v-else-if="topCategories.length === 0" class="text-[12px] text-muted-foreground/40 py-2">
             Sem despesas este mês
           </div>
-          <div v-else class="space-y-2.5">
+          <div v-else class="space-y-3">
             <div v-for="cat in topCategories" :key="cat.name">
-              <div class="flex items-center justify-between mb-1">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <span class="h-1.5 w-1.5 rounded-full shrink-0" :style="{ background: cat.color }" />
-                  <span class="text-[12px] text-foreground/70 truncate">{{ cat.name }}</span>
-                </div>
-                <span class="text-[11px] text-muted-foreground/50 shrink-0 ml-2">{{ cat.percent }}%</span>
-              </div>
-              <div class="h-1 rounded-full overflow-hidden bg-muted/40">
-                <div
-                  class="h-full rounded-full transition-all"
-                  :style="{ width: cat.percent + '%', background: cat.color + '99' }"
+              <!-- Inline budget editor -->
+              <div v-if="editingBudgetCatId === cat.id" class="flex items-center gap-1.5 mb-1.5">
+                <span class="h-1.5 w-1.5 rounded-full shrink-0" :style="{ background: cat.color }" />
+                <span class="text-[12px] text-foreground/70 truncate flex-1">{{ cat.name }}</span>
+                <input
+                  v-model="editingBudgetValue"
+                  type="number"
+                  min="0"
+                  step="10"
+                  placeholder="Limite"
+                  class="w-20 h-6 text-[11px] px-1.5 rounded border border-border bg-background text-foreground text-right"
+                  @keyup.enter="saveBudget(cat.id)"
+                  @keyup.escape="cancelEditBudget"
                 />
+                <button
+                  type="button"
+                  class="size-6 flex items-center justify-center rounded text-success hover:bg-success/10 transition-colors"
+                  :disabled="savingBudget"
+                  @click="saveBudget(cat.id)"
+                >
+                  <Check :size="12" />
+                </button>
+                <button
+                  type="button"
+                  class="size-6 flex items-center justify-center rounded text-muted-foreground hover:bg-muted transition-colors"
+                  @click="cancelEditBudget"
+                >
+                  <X :size="12" />
+                </button>
               </div>
+
+              <!-- Normal display -->
+              <template v-else>
+                <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="h-1.5 w-1.5 rounded-full shrink-0" :style="{ background: cat.color }" />
+                    <span class="text-[12px] text-foreground/70 truncate">{{ cat.name }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                    <span class="text-[11px] text-muted-foreground/50">{{ cat.percent }}%</span>
+                    <button
+                      type="button"
+                      class="size-4 flex items-center justify-center rounded text-muted-foreground/30 hover:text-muted-foreground transition-colors"
+                      title="Definir meta"
+                      @click="startEditBudget(cat.id, cat.monthlyLimit)"
+                    >
+                      <Pencil :size="9" />
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Budget bar (if limit set) -->
+                <template v-if="cat.budgetPercent != null">
+                  <div class="h-1 rounded-full overflow-hidden bg-muted/40 mb-0.5">
+                    <div
+                      class="h-full rounded-full transition-all"
+                      :class="
+                        cat.budgetPercent >= 90 ? 'bg-destructive' :
+                        cat.budgetPercent >= 70 ? 'bg-warning' : 'bg-success'
+                      "
+                      :style="{ width: cat.budgetPercent + '%' }"
+                    />
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-muted-foreground/40 tabular-nums">
+                      {{ formatCurrency(cat.total) }} de {{ formatCurrency(cat.monthlyLimit!) }}
+                    </span>
+                    <span
+                      v-if="cat.budgetPercent >= 100"
+                      class="text-[9px] font-medium text-destructive/80"
+                    >
+                      Meta estourada
+                    </span>
+                    <span v-else class="text-[10px] text-muted-foreground/40 tabular-nums">
+                      {{ cat.budgetPercent }}% da meta
+                    </span>
+                  </div>
+                </template>
+
+                <!-- Simple bar (no limit) -->
+                <div v-else class="h-1 rounded-full overflow-hidden bg-muted/40">
+                  <div
+                    class="h-full rounded-full transition-all"
+                    :style="{ width: cat.percent + '%', background: cat.color + '99' }"
+                  />
+                </div>
+              </template>
             </div>
           </div>
         </div>
