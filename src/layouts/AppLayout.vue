@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { useKeyboardShortcut } from '@/composables/useKeyboardShortcut'
@@ -7,7 +7,7 @@ import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Menu, Search, LayoutDashboard, CheckSquare, Activity, DollarSign, Plus } from 'lucide-vue-next'
+import { Menu, Search, LayoutDashboard, Calendar, DollarSign, AlignJustify, Plus } from 'lucide-vue-next'
 import { ROUTES } from '@/constants/routes'
 
 const ui = useUiStore()
@@ -29,21 +29,40 @@ function openQuickAdd() {
 
 const bottomNavLeft = [
   { icon: LayoutDashboard, label: 'Hoje', route: ROUTES.DASHBOARD },
-  { icon: CheckSquare, label: 'Tarefas', route: ROUTES.TASKS },
+  { icon: Calendar, label: 'Agenda', route: ROUTES.TASKS },
 ] as const
 
 const bottomNavRight = [
   { icon: DollarSign, label: 'Finanças', route: ROUTES.FINANCE },
-  { icon: Activity, label: 'Hábitos', route: ROUTES.HABITS },
+  { icon: AlignJustify, label: 'Mais', route: ROUTES.HABITS },
 ] as const
 
+/** Active: match exact route OR prefix for sub-routes (finance/*) */
 function isNavActive(routeName: string) {
-  return route.name === routeName
+  const current = String(route.name)
+  if (routeName === ROUTES.FINANCE) return current.startsWith('finance')
+  if (routeName === ROUTES.TASKS) return current.startsWith('task')
+  if (routeName === ROUTES.HABITS) return current.startsWith('habit')
+  return current === routeName
 }
 
 function navTo(routeName: string) {
   router.push({ name: routeName })
 }
+
+/** Dynamic mobile header title based on current route */
+const mobileHeaderTitle = computed(() => {
+  const name = String(route.name)
+  if (name.startsWith('finance')) return 'Finanças'
+  if (name === ROUTES.DASHBOARD) return 'Hoje'
+  if (name.startsWith('task')) return 'Agenda'
+  if (name.startsWith('habit')) return 'Mais'
+  if (name === ROUTES.GOALS || name === ROUTES.GOAL_DETAIL) return 'Metas'
+  if (name === ROUTES.CALENDAR) return 'Calendário'
+  if (name === ROUTES.REPORTS) return 'Relatórios'
+  if (name === ROUTES.NOTES) return 'Notas'
+  return 'Vault'
+})
 </script>
 
 <template>
@@ -83,7 +102,7 @@ function navTo(routeName: string) {
       <!-- Mobile top bar (only on small screens) -->
       <div
         class="md:hidden flex items-center h-11 px-4 shrink-0"
-        style="border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.95)"
+        style="background: transparent"
       >
         <button
           class="p-1 rounded-md transition-base shrink-0"
@@ -92,7 +111,7 @@ function navTo(routeName: string) {
         >
           <Menu :size="17" />
         </button>
-        <span class="flex-1 text-center text-[14px] font-semibold text-foreground">Vault</span>
+        <span class="flex-1 text-center text-[14px] font-semibold text-foreground">{{ mobileHeaderTitle }}</span>
         <button
           class="p-1 rounded-md transition-base shrink-0"
           style="color: hsl(var(--muted-foreground) / 0.5)"
@@ -118,8 +137,10 @@ function navTo(routeName: string) {
         <button
           v-for="item in bottomNavLeft"
           :key="item.route"
-          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] font-medium min-h-[56px] transition-colors"
-          :style="isNavActive(item.route) ? 'color: hsl(var(--foreground))' : 'color: hsl(var(--muted-foreground))'"
+          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2"
+          :class="isNavActive(item.route)
+            ? 'border-blue-400 text-blue-400 font-semibold'
+            : 'border-transparent text-muted-foreground/60 font-medium'"
           @click="navTo(item.route)"
         >
           <component
@@ -145,8 +166,10 @@ function navTo(routeName: string) {
         <button
           v-for="item in bottomNavRight"
           :key="item.route"
-          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] font-medium min-h-[56px] transition-colors"
-          :style="isNavActive(item.route) ? 'color: hsl(var(--foreground))' : 'color: hsl(var(--muted-foreground))'"
+          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2"
+          :class="isNavActive(item.route)
+            ? 'border-blue-400 text-blue-400 font-semibold'
+            : 'border-transparent text-muted-foreground/60 font-medium'"
           @click="navTo(item.route)"
         >
           <component
