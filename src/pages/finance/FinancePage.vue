@@ -266,7 +266,11 @@ const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
 ]
 
 // ── Previous month comparison ─────────────────────────────────────────────
-const prevMonthReport = ref<{ income: number; expenses: number } | null>(null)
+const prevMonthReport = ref<{
+  income: number
+  expenses: number
+  expenses_by_category: Array<{ category: string; color: string; total: number; count: number; percentage: number }>
+} | null>(null)
 
 const expenseDelta = computed(() => {
   if (!prevMonthReport.value) return null
@@ -276,6 +280,14 @@ const expenseDelta = computed(() => {
 const incomeDelta = computed(() => {
   if (!prevMonthReport.value) return null
   return income.value - prevMonthReport.value.income
+})
+
+/** Map of category name → previous month total for quick lookup */
+const prevCategoryMap = computed<Map<string, number>>(() => {
+  const m = new Map<string, number>()
+  if (!prevMonthReport.value) return m
+  prevMonthReport.value.expenses_by_category.forEach((c) => m.set(c.category, c.total))
+  return m
 })
 
 async function loadPrevMonthReport() {
@@ -765,6 +777,17 @@ onMounted(async () => {
                     <span class="text-[12px] text-foreground/70 truncate">{{ cat.name }}</span>
                   </div>
                   <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                    <!-- Month-over-month delta for this category -->
+                    <template v-if="prevCategoryMap.size > 0">
+                      <span
+                        v-if="prevCategoryMap.has(cat.name)"
+                        class="text-[10px] font-medium tabular-nums"
+                        :class="(cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? 'text-destructive/70' : 'text-success/70'"
+                      >
+                        {{ (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? '↑' : '↓' }}
+                        {{ formatCurrency(Math.abs(cat.total - (prevCategoryMap.get(cat.name) ?? 0))) }}
+                      </span>
+                    </template>
                     <span class="text-[11px] text-muted-foreground/50">{{ cat.percent }}%</span>
                     <button
                       type="button"
