@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import { isAxiosError } from 'axios'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
 import { Textarea } from '@ui/textarea'
@@ -33,7 +34,7 @@ const emit = defineEmits<{
 
 const store = useFinanceStore()
 const toast = useToast()
-const { form, errors, submitting, fromTransaction, reset, validate, toPayload } =
+const { form, errors, submitting, fromTransaction, reset, validate, applyApiErrors, toPayload } =
   useTransactionForm()
 
 const segmentedTypes: TransactionType[] = ['expense', 'income']
@@ -44,7 +45,8 @@ const amountInputRef = ref<HTMLInputElement | null>(null)
 // ── Form validity (for disabling submit) ─────────────────────────────────────
 const isFormValid = computed(() => {
   const parsed = parseFloat(form.amount.replace(',', '.'))
-  return form.description.trim().length > 0 && !isNaN(parsed) && parsed > 0
+  const hasInstrument = !!form.account_id || !!form.card_id
+  return form.description.trim().length > 0 && !isNaN(parsed) && parsed > 0 && hasInstrument
 })
 
 // ── Quick amount increments ───────────────────────────────────────────────────
@@ -165,8 +167,13 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       if ('vibrate' in navigator) navigator.vibrate(50)
     }
     close()
-  } catch {
-    toast.error('Erro ao salvar transação')
+  } catch (err: unknown) {
+    if (isAxiosError(err) && err.response?.status === 422) {
+      applyApiErrors(err.response.data?.errors ?? {})
+      toast.error('Verifique os campos do formulário')
+    } else {
+      toast.error('Erro ao salvar transação')
+    }
   } finally {
     submitting.value = false
   }
@@ -317,8 +324,11 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           </div>
 
           <!-- Account pills -->
-          <div v-if="store.activeAccounts.length > 0">
-            <p class="text-xs font-medium text-muted-foreground mb-2">Conta</p>
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-2">
+              Conta
+              <span class="text-destructive ml-0.5">*</span>
+            </p>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="acc in store.activeAccounts"
@@ -332,7 +342,11 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               >
                 {{ acc.name }}
               </button>
+              <span v-if="store.activeAccounts.length === 0" class="text-[11px] text-muted-foreground/60">
+                Nenhuma conta cadastrada
+              </span>
             </div>
+            <p v-if="errors.account_id" class="text-xs text-destructive mt-1">{{ errors.account_id }}</p>
           </div>
 
           <!-- Card pills -->

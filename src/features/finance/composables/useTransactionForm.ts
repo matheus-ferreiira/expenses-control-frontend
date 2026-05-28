@@ -19,6 +19,7 @@ export interface TransactionFormErrors {
   description?: string
   amount?: string
   transaction_date?: string
+  account_id?: string
 }
 
 const DEFAULTS: TransactionFormData = {
@@ -75,7 +76,18 @@ export function useTransactionForm() {
       errors.transaction_date = 'Data é obrigatória'
       valid = false
     }
+    if (!form.account_id && !form.card_id) {
+      errors.account_id = 'Selecione uma conta ou cartão'
+      valid = false
+    }
     return valid
+  }
+
+  function applyApiErrors(apiErrors: Record<string, string[]>) {
+    if (apiErrors.description) errors.description = apiErrors.description[0]
+    if (apiErrors.amount) errors.amount = apiErrors.amount[0]
+    if (apiErrors.transaction_date) errors.transaction_date = apiErrors.transaction_date[0]
+    if (apiErrors.account_id) errors.account_id = apiErrors.account_id[0]
   }
 
   function toPayload(): CreateTransactionPayload {
@@ -102,6 +114,7 @@ export function useTransactionForm() {
     fromTransaction,
     reset,
     validate,
+    applyApiErrors,
     toPayload,
   }
 }
