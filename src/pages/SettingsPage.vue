@@ -7,10 +7,11 @@ import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
 import { Skeleton } from '@ui/skeleton'
 import {
-  Plus, Pencil, Trash2, Loader2,
+  Plus, Pencil, Trash2, Loader2, X,
   CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
+import { formatCurrency } from '@/utils/currency'
 import CategoryColorPicker from '@/features/finance/components/CategoryColorPicker.vue'
 import CategoryIconPicker from '@/features/finance/components/CategoryIconPicker.vue'
 import type { TransactionCategory } from '@/types/finance'
@@ -98,11 +99,14 @@ async function addCategory() {
   }
 }
 
+const editCatLimit = ref('')
+
 function startEdit(cat: TransactionCategory) {
   editingCatId.value = cat.id
   editCatName.value = cat.name
   editCatColor.value = cat.color ?? '#6b7280'
   editCatIcon.value = cat.icon ?? ''
+  editCatLimit.value = cat.monthly_limit != null ? String(cat.monthly_limit) : ''
 }
 
 function cancelEdit() {
@@ -112,10 +116,13 @@ function cancelEdit() {
 async function saveEdit(cat: TransactionCategory) {
   savingCat.value = true
   try {
+    const raw = editCatLimit.value.replace(',', '.').trim()
+    const monthly_limit: number | null = raw === '' ? null : parseFloat(raw)
     await financeStore.updateCategory(cat.id, {
       name: editCatName.value.trim(),
       color: editCatColor.value,
       icon: editCatIcon.value || null,
+      monthly_limit: isNaN(monthly_limit as number) ? null : monthly_limit,
     })
     editingCatId.value = null
     toast.success('Categoria atualizada')
@@ -336,6 +343,29 @@ function openAddForm() {
                       <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Ícone</p>
                       <CategoryIconPicker v-model="editCatIcon" :color="editCatColor" />
                     </div>
+                    <!-- Meta mensal -->
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Meta mensal (opcional)</p>
+                      <div class="flex items-center gap-2 h-9 px-3 rounded-lg bg-muted border border-border/60 focus-within:border-border transition-colors">
+                        <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
+                        <input
+                          v-model="editCatLimit"
+                          type="number"
+                          min="0"
+                          step="10"
+                          placeholder="Sem meta"
+                          class="flex-1 bg-transparent text-sm outline-none tabular-nums"
+                        />
+                        <button
+                          v-if="editCatLimit"
+                          type="button"
+                          class="text-muted-foreground/50 hover:text-foreground transition-colors"
+                          @click="editCatLimit = ''"
+                        >
+                          <X :size="12" />
+                        </button>
+                      </div>
+                    </div>
                     <!-- Actions -->
                     <div class="flex gap-2 pt-1">
                       <button type="button" class="flex-1 h-8 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors" @click="cancelEdit">
@@ -378,11 +408,18 @@ function openAddForm() {
                       </p>
                       <p v-else class="text-[11px] text-muted-foreground/50 mt-0.5 italic">Sem ícone</p>
                     </div>
-                    <!-- Color dot -->
+                    <!-- Meta mensal badge -->
                     <span
-                      class="size-2.5 rounded-full shrink-0"
-                      :style="{ background: cat.color ?? '#6b7280' }"
-                    />
+                      v-if="cat.monthly_limit"
+                      class="text-[11px] tabular-nums font-medium px-2 py-0.5 rounded-md border shrink-0"
+                      :style="{ color: cat.color ?? '#6b7280', borderColor: (cat.color ?? '#6b7280') + '40', background: (cat.color ?? '#6b7280') + '12' }"
+                    >
+                      {{ formatCurrency(cat.monthly_limit) }}
+                    </span>
+                    <span
+                      v-else
+                      class="text-[11px] text-muted-foreground/30 shrink-0"
+                    >Sem meta</span>
                     <!-- Actions -->
                     <button
                       type="button"
