@@ -849,6 +849,7 @@ onMounted(async () => {
             :loading="store.loading"
             :nested="true"
             :has-filter="filterState.quickFilter.value !== 'all' || !!filterState.search.value"
+            :total-balance="totalBalance"
             @select="openDetail"
             @add-new="formOpen = true"
           />

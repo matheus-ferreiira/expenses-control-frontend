@@ -14,6 +14,8 @@ const props = defineProps<{
   nested?: boolean
   /** Show when there are no results due to search/filter (vs truly empty). */
   hasFilter?: boolean
+  /** Total account balance for computing end-of-day running balance. */
+  totalBalance?: number
 }>()
 
 const emit = defineEmits<{
@@ -21,7 +23,7 @@ const emit = defineEmits<{
   addNew: []
 }>()
 
-const groups = computed(() => groupTransactionsByDate(props.transactions))
+const groups = computed(() => groupTransactionsByDate(props.transactions, props.totalBalance))
 </script>
 
 <template>
@@ -75,13 +77,19 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
         <span class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
           {{ group.label }}
         </span>
-        <span
-          v-if="group.income !== 0 || group.expenses !== 0"
-          class="text-[10px] tabular-nums"
-          :class="group.income >= group.expenses ? 'text-success/70' : 'text-destructive/70'"
-        >
-          {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
-        </span>
+        <div class="text-[10px] tabular-nums flex items-center gap-2">
+          <!-- Daily net (income - expenses) -->
+          <span
+            v-if="group.income !== 0 || group.expenses !== 0"
+            :class="group.income >= group.expenses ? 'text-success/70' : 'text-destructive/70'"
+          >
+            {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
+          </span>
+          <!-- End-of-day balance (considering prior transactions) -->
+          <span v-if="group.endBalance !== undefined" class="text-muted-foreground/50">
+            → {{ formatCurrency(group.endBalance) }}
+          </span>
+        </div>
       </div>
 
       <!-- Transactions -->
