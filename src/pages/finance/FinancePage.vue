@@ -160,6 +160,15 @@ const projectedBalance = computed(() => {
   return totalBalance.value + pendingIncome - pendingExpense
 })
 
+// Spendable = current account balance minus all pending (scheduled) expenses this month
+// Answers: "how much can I safely spend without missing any scheduled bills?"
+const pendingExpenses = computed(() =>
+  store.transactions
+    .filter((t) => t.status === 'pending' && t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0),
+)
+const spendable = computed(() => totalBalance.value - pendingExpenses.value)
+
 const today = new Date().getDate()
 
 // Top 5 expense categories this month with percentage + budget limit
@@ -540,6 +549,27 @@ onMounted(async () => {
 
       <!-- Main column -->
       <div class="lg:col-span-2 space-y-6">
+
+        <!-- Spendable amount banner -->
+        <div
+          v-if="!store.loading && pendingExpenses > 0"
+          class="flex items-center justify-between gap-3 rounded-md px-4 py-2.5 bg-card border border-border"
+        >
+          <div class="min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+              Disponível para gastar
+            </p>
+            <p class="text-[11px] text-muted-foreground/60 mt-0.5">
+              Saldo atual descontando {{ formatCurrency(pendingExpenses) }} em despesas agendadas
+            </p>
+          </div>
+          <p
+            class="text-[18px] font-semibold tabular-nums shrink-0"
+            :class="spendable >= 0 ? 'text-success' : 'text-destructive'"
+          >
+            {{ formatCurrency(spendable) }}
+          </p>
+        </div>
 
         <!-- Cashflow chart — anchored to the selected month -->
         <div class="hidden lg:block">
