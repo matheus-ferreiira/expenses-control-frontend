@@ -9,7 +9,7 @@ import { useToast } from '@/composables/useToast'
 import { Sheet, SheetContent } from '@ui/sheet'
 import {
   CheckSquare, TrendingDown, TrendingUp, Repeat, CalendarPlus,
-  ArrowLeft, Loader2, Check,
+  ArrowLeft, Loader2, Check, CheckCircle, Wallet,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
@@ -273,161 +273,205 @@ const QUICK_ACTIONS = [
       <!-- ── Transaction Form (expense / income) ── -->
       <template v-else-if="action === 'expense' || action === 'income'">
         <form class="flex flex-col" @submit.prevent="submitTx">
-          <!-- Sticky header -->
-          <header class="flex items-center gap-2 px-3 pt-1 pb-3 border-b border-border sticky top-0 bg-card z-10">
-            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-muted text-muted-foreground" @click="goBack">
-              <ArrowLeft :size="16" />
+          <!-- Header -->
+          <header class="flex items-center gap-2 px-4 pt-3 pb-0 sticky top-0 bg-card z-10">
+            <button type="button" class="p-1.5 rounded-lg hover:bg-muted text-muted-foreground" @click="goBack">
+              <ArrowLeft :size="18" />
             </button>
-            <h3 class="text-sm font-semibold">Nova transação</h3>
+            <div class="flex-1">
+              <h3 class="text-[15px] font-semibold leading-none">Nova transação</h3>
+              <p class="text-[11px] mt-0.5" :class="txForm.type === 'expense' ? 'text-destructive' : 'text-success'">
+                {{ txForm.type === 'expense' ? 'Despesa' : 'Receita' }}
+              </p>
+            </div>
           </header>
 
-          <div class="px-5 py-4 space-y-4">
-            <!-- Segmented toggle -->
-            <div class="flex rounded-lg overflow-hidden border border-border p-0.5 bg-muted/30 gap-0.5">
-              <button
-                v-for="t in (['expense', 'income'] as TransactionType[])"
-                :key="t"
-                type="button"
-                class="flex-1 h-8 rounded-md text-xs font-medium transition-all"
-                :class="txForm.type === t
-                  ? t === 'expense'
-                    ? 'bg-destructive/15 text-destructive'
-                    : 'bg-success/15 text-success'
-                  : 'text-muted-foreground hover:text-foreground'"
-                @click="onTxTypeChange(t)"
-              >
-                {{ t === 'expense' ? 'Despesa' : 'Receita' }}
-              </button>
-            </div>
+          <!-- Type pills -->
+          <div class="grid grid-cols-2 gap-1 p-1 mx-4 mt-3 bg-muted/60 rounded-xl">
+            <button
+              v-for="t in (['expense', 'income'] as TransactionType[])"
+              :key="t"
+              type="button"
+              class="flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-semibold transition-all"
+              :class="txForm.type === t
+                ? t === 'expense'
+                  ? 'bg-destructive/15 text-destructive shadow-sm'
+                  : 'bg-success/15 text-success shadow-sm'
+                : 'text-muted-foreground/60'"
+              @click="onTxTypeChange(t)"
+            >
+              <component :is="t === 'expense' ? TrendingDown : TrendingUp" :size="13" />
+              {{ t === 'expense' ? 'Despesa' : 'Receita' }}
+            </button>
+          </div>
 
-            <!-- Amount — large colored input -->
-            <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Valor</p>
-              <div
-                class="text-3xl font-semibold tabular-nums flex items-center gap-1"
-                :class="txForm.type === 'expense' ? 'text-destructive' : 'text-success'"
-              >
-                <span>R$</span>
+          <div class="px-4 py-4 space-y-5">
+            <!-- Value — hero -->
+            <div class="text-center">
+              <div class="flex items-center justify-center gap-2 mb-3">
+                <span
+                  class="text-xl font-semibold"
+                  :class="txForm.amount && parseFloat(txForm.amount.replace(',','.')) > 0
+                    ? (txForm.type === 'expense' ? 'text-destructive' : 'text-success')
+                    : 'text-muted-foreground/30'"
+                >R$</span>
                 <input
                   v-model="txForm.amount"
                   inputmode="decimal"
                   placeholder="0,00"
                   autofocus
-                  class="bg-transparent outline-none w-full text-3xl font-semibold tabular-nums placeholder:text-muted-foreground/40"
+                  class="bg-transparent outline-none text-5xl font-bold tabular-nums w-auto max-w-[200px] text-center transition-colors"
+                  :class="txForm.amount && parseFloat(txForm.amount.replace(',','.')) > 0
+                    ? (txForm.type === 'expense' ? 'text-destructive' : 'text-success')
+                    : 'text-muted-foreground/20 placeholder:text-muted-foreground/20'"
+                  size="8"
                   @input="(e: Event) => { txForm.amount = (e.target as HTMLInputElement).value.replace(/[^\d.,]/g, '') }"
                 />
+              </div>
+              <!-- Quick increments -->
+              <div class="flex gap-1.5 justify-center">
+                <button
+                  v-for="inc in [10, 50, 100, 500]"
+                  :key="inc"
+                  type="button"
+                  class="h-7 px-3 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
+                  :class="txForm.type === 'expense'
+                    ? 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20'
+                    : 'bg-success/10 text-success hover:bg-success/20 border-success/20'"
+                  @click="() => {
+                    const cur = parseFloat(txForm.amount.replace(',','.')) || 0
+                    txForm.amount = (cur + inc).toFixed(2).replace('.', ',')
+                  }"
+                >+{{ inc }}</button>
+              </div>
+            </div>
+
+            <!-- Category grid -->
+            <div v-if="txCategories.length > 0">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2.5">Categoria</p>
+              <div class="grid grid-cols-4 gap-2">
+                <button
+                  v-for="cat in txCategories"
+                  :key="cat.id"
+                  type="button"
+                  class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3 px-1 text-[11px] font-medium leading-tight transition-all active:scale-95"
+                  :class="txForm.category_id === cat.id
+                    ? 'border-2 shadow-sm'
+                    : 'border-border/40 text-muted-foreground hover:border-border/80 hover:bg-muted/40'"
+                  :style="txForm.category_id === cat.id
+                    ? { borderColor: cat.color, background: cat.color + '18', color: cat.color }
+                    : {}"
+                  @click="txForm.category_id = txForm.category_id === cat.id ? '' : cat.id"
+                >
+                  <span
+                    class="flex items-center justify-center size-9 rounded-xl"
+                    :style="{ backgroundColor: cat.color + '25', color: cat.color }"
+                  >
+                    <component
+                      v-if="cat.icon && findIcon(cat.icon)"
+                      :is="findIcon(cat.icon)!.component"
+                      :size="18"
+                      :stroke-width="1.8"
+                    />
+                    <span v-else class="text-sm font-bold">{{ cat.name.charAt(0) }}</span>
+                  </span>
+                  <span class="truncate w-full text-center text-[10.5px]">{{ cat.name }}</span>
+                </button>
               </div>
             </div>
 
             <!-- Title -->
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">Título</p>
               <input
                 v-model="txForm.description"
                 placeholder="Onde/o quê? Ex: iFood, Salário"
-                class="w-full h-11 px-3 rounded-md bg-muted/50 border border-transparent focus:border-border outline-none text-sm"
+                class="w-full h-12 px-4 rounded-2xl bg-muted/60 border border-border/40 focus:border-border/80 outline-none text-sm transition-colors"
               />
             </div>
 
-            <!-- Date -->
+            <!-- Account cards -->
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data</p>
-              <DatePicker v-model="txForm.transaction_date" />
-            </div>
-
-            <!-- Category grid -->
-            <div v-if="txCategories.length > 0">
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Categoria</p>
-              <div class="grid grid-cols-4 gap-2">
-                <button
-                  v-for="cat in txCategories.slice(0, 8)"
-                  :key="cat.id"
-                  type="button"
-                  class="h-20 rounded-lg border text-[11px] font-medium leading-tight px-1 flex flex-col items-center justify-center gap-1.5 transition-all"
-                  :class="txForm.category_id === cat.id
-                    ? 'bg-muted text-foreground'
-                    : 'border-border text-muted-foreground hover:bg-muted/40'"
-                  :style="txForm.category_id === cat.id ? { borderColor: cat.color } : {}"
-                  @click="txForm.category_id = txForm.category_id === cat.id ? '' : cat.id"
-                >
-                  <span
-                    class="flex items-center justify-center w-7 h-7 rounded-md"
-                    :style="{ backgroundColor: cat.color + '25', color: cat.color }"
-                  >
-                    <component
-                      :is="cat.icon && findIcon(cat.icon) ? findIcon(cat.icon)!.component : null"
-                      v-if="cat.icon && findIcon(cat.icon)"
-                      :size="16"
-                    />
-                    <span v-else class="text-xs font-bold">{{ cat.name.charAt(0) }}</span>
-                  </span>
-                  <span class="truncate w-full text-center">{{ cat.name }}</span>
-                </button>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+                Conta
+              </p>
+              <div v-if="financeStore.activeAccounts.length === 0" class="flex items-center gap-2 py-3 text-muted-foreground/50">
+                <Wallet :size="16" />
+                <span class="text-[12px]">Nenhuma conta cadastrada</span>
               </div>
-            </div>
-
-            <!-- Account pills -->
-            <div v-if="financeStore.activeAccounts.length > 0">
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">Conta</p>
-              <div class="flex flex-wrap gap-2">
+              <div v-else class="flex gap-2 overflow-x-auto pb-1">
                 <button
                   v-for="acc in financeStore.activeAccounts"
                   :key="acc.id"
                   type="button"
-                  class="h-9 px-3 rounded-full text-xs font-medium border transition-all"
+                  class="flex-shrink-0 flex items-center gap-2 h-11 pl-3 pr-4 rounded-2xl border text-left transition-all"
                   :class="txForm.account_id === acc.id
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'border-border text-muted-foreground hover:bg-muted/40'"
+                    ? txForm.type === 'expense'
+                      ? 'bg-destructive/15 text-destructive border-transparent shadow-sm'
+                      : 'bg-success/15 text-success border-transparent shadow-sm'
+                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'"
                   @click="txForm.account_id = txForm.account_id === acc.id ? '' : acc.id"
                 >
-                  {{ acc.name }}
+                  <span class="flex items-center justify-center size-7 rounded-xl text-xs font-bold uppercase shrink-0 bg-muted text-foreground">
+                    {{ acc.name.charAt(0) }}
+                  </span>
+                  <div>
+                    <p class="text-[12px] font-semibold leading-none">{{ acc.name }}</p>
+                    <p class="text-[10px] opacity-60 mt-0.5 leading-none">{{ acc.type }}</p>
+                  </div>
                 </button>
               </div>
             </div>
 
-            <!-- Recurring toggle (fix) -->
+            <!-- Recurring toggle -->
             <div
-              class="flex items-center justify-between gap-4 pt-1 pb-0.5 border-t border-border/30 cursor-pointer"
+              class="rounded-2xl border border-border/40 bg-muted/20 p-3 cursor-pointer transition-all"
+              :class="txForm.is_recurring ? 'border-violet-500/30 bg-violet-500/5' : ''"
               @click="txForm.is_recurring = !txForm.is_recurring"
             >
-              <div class="flex items-center gap-2 min-w-0">
-                <span
-                  class="flex items-center justify-center size-7 rounded-md shrink-0 transition-colors"
-                  :class="txForm.is_recurring ? 'bg-violet-500/15 text-violet-400' : 'bg-muted text-muted-foreground/50'"
-                >
-                  <Repeat :size="13" />
-                </span>
-                <div class="min-w-0">
-                  <p class="text-xs font-medium leading-none mb-0.5">Transação fix</p>
-                  <p class="text-[10px] text-muted-foreground/50 leading-none">Gera 60 meses automaticamente</p>
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span
+                    class="flex items-center justify-center size-8 rounded-xl shrink-0 transition-colors"
+                    :class="txForm.is_recurring ? 'bg-violet-500/15 text-violet-400' : 'bg-muted text-muted-foreground/40'"
+                  >
+                    <Repeat :size="14" />
+                  </span>
+                  <div>
+                    <p class="text-[12px] font-semibold leading-none">Transação fixa</p>
+                    <p class="text-[10px] text-muted-foreground/50 mt-0.5">Gera 60 meses automaticamente</p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  class="h-6 w-11 rounded-full transition-all flex items-center px-0.5 shrink-0"
+                  :class="txForm.is_recurring ? 'bg-violet-500' : 'bg-muted'"
+                  @click.stop="txForm.is_recurring = !txForm.is_recurring"
+                >
+                  <span
+                    class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
+                    :class="txForm.is_recurring ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </button>
               </div>
-              <button
-                type="button"
-                class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
-                :class="txForm.is_recurring ? 'bg-violet-500' : 'bg-muted'"
-                @click.stop="txForm.is_recurring = !txForm.is_recurring"
-              >
-                <span
-                  class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
-                  :class="txForm.is_recurring ? 'translate-x-5' : 'translate-x-0'"
-                />
-              </button>
             </div>
           </div>
 
-          <!-- Sticky footer -->
-          <div class="sticky bottom-0 bg-card border-t border-border px-4 py-3">
+          <!-- CTA footer -->
+          <div class="sticky bottom-0 bg-card px-4 pt-2 pb-5">
             <button
               type="submit"
-              class="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-opacity"
+              class="w-full h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] text-white"
               :class="txForm.type === 'expense'
-                ? 'bg-destructive text-destructive-foreground hover:opacity-90'
-                : 'bg-success text-background hover:opacity-90'"
+                ? 'bg-destructive hover:opacity-90'
+                : 'bg-success hover:opacity-90'"
               :disabled="submitting"
             >
-              <Loader2 v-if="submitting" :size="14" class="animate-spin" />
-              Salvar {{ txForm.type === 'expense' ? 'despesa' : 'receita' }}
+              <Loader2 v-if="submitting" :size="18" class="animate-spin" />
+              <template v-else>
+                <CheckCircle :size="18" :stroke-width="2.5" />
+                Salvar {{ txForm.type === 'expense' ? 'Despesa' : 'Receita' }}
+              </template>
             </button>
           </div>
         </form>
