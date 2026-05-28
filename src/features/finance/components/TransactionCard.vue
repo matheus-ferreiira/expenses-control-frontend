@@ -15,10 +15,9 @@ const emit = defineEmits<{
 
 /** Category color or type fallback */
 const sideColor = computed(() => {
+  // Use category color when available; otherwise neutral slate (matches Lovable #64748b fallback)
   if (props.transaction.category?.color) return props.transaction.category.color
-  if (props.transaction.type === 'income') return 'oklch(0.66 0.11 155)'
-  if (props.transaction.type === 'expense') return 'oklch(0.62 0.16 22)'
-  return 'oklch(0.5 0.008 270)'
+  return '#64748b'
 })
 
 const isPending = computed(() => props.transaction.status === 'pending')
@@ -39,7 +38,7 @@ const isPending = computed(() => props.transaction.status === 'pending')
   >
     <button
       type="button"
-      class="w-full flex items-center gap-3 pl-4 pr-4 py-3 min-h-[56px] lg:min-h-[48px] text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer"
+      class="w-full flex items-center gap-3 pl-4 pr-4 py-3 min-h-[56px] lg:min-h-[48px] text-left hover:bg-foreground/[0.025] active:bg-foreground/[0.04] transition-colors cursor-pointer"
       :class="isPending ? 'opacity-65' : ''"
       @click="emit('select', transaction)"
     >
