@@ -7,7 +7,7 @@ import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Menu, Search, LayoutDashboard, Calendar, DollarSign, AlignJustify, Plus } from 'lucide-vue-next'
+import { Search, LayoutDashboard, Calendar, DollarSign, AlignJustify, Plus } from 'lucide-vue-next'
 import { ROUTES } from '@/constants/routes'
 
 const ui = useUiStore()
@@ -34,7 +34,6 @@ const bottomNavLeft = [
 
 const bottomNavRight = [
   { icon: DollarSign, label: 'Finanças', route: ROUTES.FINANCE },
-  { icon: AlignJustify, label: 'Mais', route: ROUTES.HABITS },
 ] as const
 
 /** Active: match exact route OR prefix for sub-routes (finance/*) */
@@ -104,13 +103,14 @@ const mobileHeaderTitle = computed(() => {
         class="md:hidden flex items-center h-11 px-4 shrink-0"
         style="background: transparent"
       >
-        <button
-          class="p-1 rounded-md transition-base shrink-0"
-          style="color: hsl(var(--muted-foreground) / 0.5)"
-          @click="mobileMenuOpen = true"
-        >
-          <Menu :size="17" />
-        </button>
+        <!-- Logo in place of hamburger -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
+          <span
+            class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none"
+            style="color: hsl(var(--muted-foreground) / 0.4); border-color: hsl(var(--border))"
+          >Beta</span>
+        </div>
         <span class="flex-1 text-center text-[14px] font-semibold text-foreground">{{ mobileHeaderTitle }}</span>
         <button
           class="p-1 rounded-md transition-base shrink-0"
@@ -162,7 +162,7 @@ const mobileHeaderTitle = computed(() => {
           </button>
         </div>
 
-        <!-- Right 2 items -->
+        <!-- Right items -->
         <button
           v-for="item in bottomNavRight"
           :key="item.route"
@@ -178,6 +178,15 @@ const mobileHeaderTitle = computed(() => {
             :stroke-width="isNavActive(item.route) ? 2.25 : 1.75"
           />
           {{ item.label }}
+        </button>
+
+        <!-- "Mais" — opens mobile sidebar -->
+        <button
+          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2 border-transparent text-muted-foreground/60 font-medium"
+          @click="mobileMenuOpen = true"
+        >
+          <AlignJustify :size="20" :stroke-width="1.75" />
+          Mais
         </button>
       </div>
     </nav>
