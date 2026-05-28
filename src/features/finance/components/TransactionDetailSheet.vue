@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { Button } from '@ui/button'
-import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat2 } from 'lucide-vue-next'
+import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat2, CheckCircle2 } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
+import { financeApi } from '@/services/api/finance'
 
 const props = defineProps<{
   transaction: Transaction | null
@@ -16,7 +17,21 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
   edit: [transaction: Transaction]
   delete: [id: string]
+  confirmed: [transaction: Transaction]
 }>()
+
+const confirming = ref(false)
+async function handleConfirm() {
+  if (!props.transaction || confirming.value) return
+  confirming.value = true
+  try {
+    const updated = await financeApi.transactions.confirm(props.transaction.id)
+    emit('confirmed', updated)
+    close()
+  } finally {
+    confirming.value = false
+  }
+}
 
 function close() {
   emit('update:open', false)
@@ -202,19 +217,32 @@ const amountClass = computed(() => {
         </div>
 
         <!-- Footer actions -->
-        <div class="flex gap-3 px-4 pt-1 pb-8">
-          <Button
-            variant="outline"
-            class="flex-1 gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40"
-            @click="onDelete"
+        <div class="grid gap-2 px-4 pt-1 pb-8">
+          <!-- "Marcar como paga" — only for pending transactions -->
+          <button
+            v-if="transaction.status === 'pending'"
+            type="button"
+            :disabled="confirming"
+            class="h-11 rounded-md bg-success text-background text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60"
+            @click="handleConfirm"
           >
-            <Trash2 :size="14" />
-            Excluir
-          </Button>
-          <Button class="flex-1 gap-2" @click="onEdit">
-            <Pencil :size="14" />
-            Editar
-          </Button>
+            <CheckCircle2 :size="16" />
+            {{ confirming ? 'Confirmando...' : 'Marcar como paga' }}
+          </button>
+          <div class="flex gap-2">
+            <Button
+              variant="outline"
+              class="flex-1 gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40"
+              @click="onDelete"
+            >
+              <Trash2 :size="14" />
+              Excluir
+            </Button>
+            <Button class="flex-1 gap-2" @click="onEdit">
+              <Pencil :size="14" />
+              Editar
+            </Button>
+          </div>
         </div>
       </template>
     </SheetContent>

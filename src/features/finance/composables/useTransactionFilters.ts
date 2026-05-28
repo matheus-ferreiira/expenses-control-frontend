@@ -69,6 +69,7 @@ export function useTransactionFilters() {
 
     if (is_recurring.value !== undefined) filters.is_recurring = is_recurring.value
     if (status.value) filters.status = status.value
+    if (search.value.trim()) filters.search = search.value.trim()
 
     return filters
   }

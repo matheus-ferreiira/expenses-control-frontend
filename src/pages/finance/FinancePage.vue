@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, Pencil, Check, X, Plus, Upload, Flame, MoreHorizontal } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Pencil, Check, X, Plus, Upload, Flame, MoreHorizontal, Search } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -290,6 +290,18 @@ const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
   { id: 'pending', label: 'Pendentes' },
 ]
 
+// Search toggle for transaction container
+const txSearchOpen = ref(false)
+function closeSearch() {
+  txSearchOpen.value = false
+  filterState.search.value = ''
+  loadTransactions()
+}
+watch(filterState.search, () => loadTransactions())
+
+// Date range row toggle
+const txPeriodOpen = ref(false)
+
 // ── Previous month comparison ─────────────────────────────────────────────
 const prevMonthReport = ref<{
   income: number
@@ -576,106 +588,104 @@ onMounted(async () => {
           <FinanceCashflowChart :month="filterState.month.value" />
         </div>
 
-        <!-- Month navigator + transactions -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-              Transações
-            </h2>
-            <MonthNavigator
-              :month="filterState.month.value"
-              :is-current-month="filterState.isCurrentMonth()"
-              @prev="filterState.prevMonth()"
-              @next="filterState.nextMonth()"
-              @reset="filterState.resetToCurrentMonth()"
-            />
-          </div>
-          <!-- Quick shortcuts — top 5 frequent transactions -->
-          <div v-if="quickShortcuts.length > 0" class="mb-3">
-            <div class="flex items-center justify-between mb-2">
-              <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-                Atalhos
-              </p>
-              <span class="text-[10px] text-muted-foreground/35">Toque para registrar</span>
-            </div>
-            <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-              <button
-                v-for="shortcut in quickShortcuts"
-                :key="shortcut.description"
-                type="button"
-                class="flex flex-col items-start gap-1 shrink-0 rounded-xl border border-border/50 bg-card px-3 py-2.5 hover:bg-accent/20 active:bg-accent/30 transition-colors text-left min-w-[96px] max-w-[120px]"
-                @click="openWithPrefill({
-                  type: shortcut.type as 'expense' | 'income',
-                  description: shortcut.description,
-                  category_id: shortcut.categoryId,
-                  account_id: shortcut.accountId,
-                  amount: shortcut.avgAmount.toFixed(2).replace('.', ','),
-                })"
-              >
-                <span
-                  class="flex items-center justify-center size-7 rounded-lg text-xs font-bold text-white shrink-0"
-                  :style="{ background: shortcut.categoryColor || 'hsl(var(--muted-foreground) / 0.3)' }"
+        <!-- Transactions — Lovable-style self-contained container -->
+        <div class="bg-card border border-border rounded-md overflow-hidden">
+
+          <!-- Header row: title + month nav + search -->
+          <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
+            <template v-if="!txSearchOpen">
+              <h2 class="text-sm font-semibold">Transações</h2>
+              <div class="flex items-center gap-1">
+                <MonthNavigator
+                  :month="filterState.month.value"
+                  :is-current-month="filterState.isCurrentMonth()"
+                  @prev="filterState.prevMonth()"
+                  @next="filterState.nextMonth()"
+                  @reset="filterState.resetToCurrentMonth()"
+                />
+                <button
+                  type="button"
+                  aria-label="Buscar"
+                  class="size-9 grid place-items-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  @click="txSearchOpen = true"
                 >
-                  {{ shortcut.description.charAt(0).toUpperCase() }}
-                </span>
-                <p class="text-[12px] font-medium text-foreground truncate w-full">{{ shortcut.description }}</p>
-                <p class="text-[10px] text-muted-foreground/50 tabular-nums">
-                  R$&nbsp;{{ shortcut.avgAmount.toFixed(0) }}
-                </p>
+                  <Search :size="16" />
+                </button>
+              </div>
+            </template>
+            <template v-else>
+              <div class="flex items-center gap-2 w-full animate-fade-in">
+                <Search :size="14" class="text-muted-foreground shrink-0" />
+                <input
+                  v-model="filterState.search.value"
+                  autofocus
+                  placeholder="Buscar transação..."
+                  class="flex-1 bg-transparent outline-none text-sm h-9"
+                />
+                <button
+                  type="button"
+                  class="size-9 grid place-items-center rounded-md hover:bg-muted text-muted-foreground"
+                  @click="closeSearch"
+                >
+                  <X :size="16" />
+                </button>
+              </div>
+            </template>
+          </div>
+
+          <!-- Filter chips — inside container with border-b -->
+          <div class="px-3 py-2 border-b border-border overflow-x-auto scrollbar-none scroll-fade-x">
+            <div class="flex items-center gap-1.5 w-max">
+              <button
+                v-for="f in QUICK_FILTERS"
+                :key="f.id"
+                type="button"
+                class="h-8 px-3 rounded-full text-[12px] font-medium whitespace-nowrap border transition-colors shrink-0"
+                :class="filterState.quickFilter.value === f.id
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-muted-foreground hover:text-foreground'"
+                @click="filterState.setQuickFilter(f.id)"
+              >
+                {{ f.label }}
               </button>
             </div>
           </div>
 
-          <!-- Date range filter — desktop only -->
-          <div class="hidden lg:flex items-center gap-2 mb-3">
-            <span class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 shrink-0">
-              Período
-            </span>
+          <!-- Date range filter — desktop only, toggled via header -->
+          <div
+            v-if="txPeriodOpen"
+            class="hidden lg:flex items-center gap-2 px-4 py-2 border-b border-border"
+          >
+            <span class="text-[10px] text-muted-foreground/50 shrink-0">Período:</span>
             <input
               v-model="filterState.customStartDate.value"
               type="date"
-              class="h-7 px-2 rounded-md border border-border/60 bg-muted/30 text-[11px] text-foreground/80 outline-none focus:border-border transition-colors"
+              class="h-6 px-1.5 rounded border border-border/60 bg-transparent text-[11px] text-foreground/80 outline-none focus:border-border"
             />
-            <span class="text-[10px] text-muted-foreground/40">até</span>
+            <span class="text-[10px] text-muted-foreground/40">–</span>
             <input
               v-model="filterState.customEndDate.value"
               type="date"
-              class="h-7 px-2 rounded-md border border-border/60 bg-muted/30 text-[11px] text-foreground/80 outline-none focus:border-border transition-colors"
+              class="h-6 px-1.5 rounded border border-border/60 bg-transparent text-[11px] text-foreground/80 outline-none focus:border-border"
             />
             <button
               type="button"
-              class="h-7 px-3 rounded-md text-[11px] font-medium transition-all"
-              :class="filterState.useCustomRange.value
-                ? 'bg-foreground text-background'
-                : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60'"
+              class="h-6 px-2.5 rounded text-[11px] font-medium transition-all"
+              :class="filterState.useCustomRange.value ? 'bg-foreground text-background' : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border/60'"
               @click="filterState.useCustomRange.value ? (filterState.clearCustomRange(), loadTransactions()) : (filterState.applyCustomRange(), loadTransactions())"
             >
               {{ filterState.useCustomRange.value ? 'Limpar' : 'Filtrar' }}
             </button>
           </div>
 
-          <!-- Quick filter pills: Todas | Receitas | Despesas | Fixas | Pendentes -->
-          <div class="-mx-0 flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
-            <button
-              v-for="f in QUICK_FILTERS"
-              :key="f.id"
-              type="button"
-              class="h-7 px-3 rounded-full text-[11px] font-medium whitespace-nowrap border transition-all shrink-0"
-              :class="filterState.quickFilter.value === f.id
-                ? 'bg-foreground text-background border-foreground'
-                : 'border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground bg-transparent'"
-              @click="filterState.setQuickFilter(f.id)"
-            >
-              {{ f.label }}
-            </button>
-          </div>
-
+          <!-- Transaction list — nested inside bg-card, no outer border -->
           <TransactionList
             :transactions="store.transactions"
             :loading="store.loading"
-            :total-balance="totalBalance"
+            :nested="true"
+            :has-filter="filterState.quickFilter.value !== 'all' || !!filterState.search.value"
             @select="openDetail"
-            @confirmed="handleTransactionConfirmed"
+            @add-new="formOpen = true"
           />
         </div>
 
@@ -1004,6 +1014,7 @@ onMounted(async () => {
     :transaction="detailTransaction"
     @edit="onDetailEdit"
     @delete="onDetailDelete"
+    @confirmed="handleTransactionConfirmed"
   />
 
   <!-- Streak info sheet -->
