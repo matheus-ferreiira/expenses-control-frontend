@@ -13,6 +13,10 @@ export function useTransactionFilters() {
   const month = ref<string>(currentMonth())
   // Quick-filter pill selection: 'all' | 'income' | 'expense' | 'fix' | 'pending'
   const quickFilter = ref<QuickFilter>('all')
+  // Custom date range (overrides month when active)
+  const customStartDate = ref('')
+  const customEndDate = ref('')
+  const useCustomRange = ref(false)
 
   /** Derived from quickFilter — these are what get sent to the API. */
   const is_recurring = computed<boolean | undefined>(() =>
@@ -38,12 +42,24 @@ export function useTransactionFilters() {
 
   const hasActiveFilters = computed(() => activeCount.value > 0)
 
+  function applyCustomRange() {
+    if (customStartDate.value && customEndDate.value) {
+      useCustomRange.value = true
+    }
+  }
+
+  function clearCustomRange() {
+    customStartDate.value = ''
+    customEndDate.value = ''
+    useCustomRange.value = false
+  }
+
   function toApiFilters(): TransactionFilters {
     const filters: TransactionFilters = {
       category_id: category_id.value,
       account_id: account_id.value,
-      start_date: monthStart(month.value),
-      end_date: monthEnd(month.value),
+      start_date: useCustomRange.value && customStartDate.value ? customStartDate.value : monthStart(month.value),
+      end_date: useCustomRange.value && customEndDate.value ? customEndDate.value : monthEnd(month.value),
       per_page: 100,
     }
 
@@ -111,6 +127,9 @@ export function useTransactionFilters() {
     status,
     activeCount,
     hasActiveFilters,
+    customStartDate,
+    customEndDate,
+    useCustomRange,
     toApiFilters,
     prevMonth,
     nextMonth,
@@ -120,6 +139,8 @@ export function useTransactionFilters() {
     setType,
     setCategoryId,
     setAccountId,
+    applyCustomRange,
+    clearCustomRange,
     reset,
   }
 }

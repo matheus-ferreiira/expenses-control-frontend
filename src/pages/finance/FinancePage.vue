@@ -596,6 +596,34 @@ onMounted(async () => {
             </div>
           </div>
 
+          <!-- Date range filter — desktop only -->
+          <div class="hidden lg:flex items-center gap-2 mb-3">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 shrink-0">
+              Período
+            </span>
+            <input
+              v-model="filterState.customStartDate.value"
+              type="date"
+              class="h-7 px-2 rounded-md border border-border/60 bg-muted/30 text-[11px] text-foreground/80 outline-none focus:border-border transition-colors"
+            />
+            <span class="text-[10px] text-muted-foreground/40">até</span>
+            <input
+              v-model="filterState.customEndDate.value"
+              type="date"
+              class="h-7 px-2 rounded-md border border-border/60 bg-muted/30 text-[11px] text-foreground/80 outline-none focus:border-border transition-colors"
+            />
+            <button
+              type="button"
+              class="h-7 px-3 rounded-md text-[11px] font-medium transition-all"
+              :class="filterState.useCustomRange.value
+                ? 'bg-foreground text-background'
+                : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60'"
+              @click="filterState.useCustomRange.value ? (filterState.clearCustomRange(), loadTransactions()) : (filterState.applyCustomRange(), loadTransactions())"
+            >
+              {{ filterState.useCustomRange.value ? 'Limpar' : 'Filtrar' }}
+            </button>
+          </div>
+
           <!-- Quick filter pills: Todas | Receitas | Despesas | Fixas | Pendentes -->
           <div class="-mx-0 flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
             <button
