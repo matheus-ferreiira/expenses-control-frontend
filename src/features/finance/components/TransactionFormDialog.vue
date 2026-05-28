@@ -201,6 +201,10 @@ watch(
           if (p.category_id) form.category_id = p.category_id
           if (p.account_id) form.account_id = p.account_id
         }
+        // Auto-select the first account so the save button is immediately usable
+        if (!form.account_id && store.activeAccounts.length > 0) {
+          form.account_id = store.activeAccounts[0].id
+        }
       }
       nextTick(() => setTimeout(() => amountInputRef.value?.focus(), 150))
     }
