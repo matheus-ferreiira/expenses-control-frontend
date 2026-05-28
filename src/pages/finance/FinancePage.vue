@@ -596,13 +596,16 @@ onMounted(async () => {
             <template v-if="!txSearchOpen">
               <h2 class="text-sm font-semibold">Transações</h2>
               <div class="flex items-center gap-1">
-                <MonthNavigator
-                  :month="filterState.month.value"
-                  :is-current-month="filterState.isCurrentMonth()"
-                  @prev="filterState.prevMonth()"
-                  @next="filterState.nextMonth()"
-                  @reset="filterState.resetToCurrentMonth()"
-                />
+                <!-- Month nav only on desktop — mobile uses the summary card nav -->
+                <div class="hidden lg:flex items-center">
+                  <MonthNavigator
+                    :month="filterState.month.value"
+                    :is-current-month="filterState.isCurrentMonth()"
+                    @prev="filterState.prevMonth()"
+                    @next="filterState.nextMonth()"
+                    @reset="filterState.resetToCurrentMonth()"
+                  />
+                </div>
                 <button
                   type="button"
                   aria-label="Buscar"
@@ -807,14 +810,21 @@ onMounted(async () => {
                     <span
                       class="inline-flex items-center h-6 px-2 rounded-md text-[11px] font-semibold border"
                       :class="
-                        (card.due_day - today) < 3
+                        card.due_day < today
                           ? 'bg-destructive/20 text-destructive border-destructive/40 font-bold'
-                          : (card.due_day - today) <= 10
-                            ? 'bg-warning/15 text-warning border-warning/30'
-                            : 'bg-success/15 text-success border-success/30'
+                          : (card.due_day - today) < 3
+                            ? 'bg-destructive/20 text-destructive border-destructive/40 font-bold'
+                            : (card.due_day - today) <= 10
+                              ? 'bg-warning/15 text-warning border-warning/30'
+                              : 'bg-success/15 text-success border-success/30'
                       "
                     >
-                      {{ card.due_day - today === 0 ? 'Vence hoje' : card.due_day - today === 1 ? 'Vence amanhã' : `Vence em ${card.due_day - today} dias` }}
+                      {{
+                        card.due_day < today ? 'Vencida' :
+                        card.due_day - today === 0 ? 'Vence hoje' :
+                        card.due_day - today === 1 ? 'Vence amanhã' :
+                        `Vence em ${card.due_day - today} dias`
+                      }}
                     </span>
                   </div>
                 </div>
