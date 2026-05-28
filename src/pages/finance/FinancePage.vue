@@ -81,13 +81,18 @@ function cancelEditBudget() {
   editingBudgetValue.value = ''
 }
 
-async function saveBudget(catId: string) {
+async function saveBudget(catId: string, remove = false) {
   savingBudget.value = true
   try {
-    const raw = editingBudgetValue.value.replace(',', '.').trim()
-    const limit: number | null = raw === '' ? null : parseFloat(raw)
+    const limit: number | null = remove
+      ? null
+      : (() => {
+          const raw = editingBudgetValue.value.replace(',', '.').trim()
+          const v = parseFloat(raw)
+          return raw === '' || isNaN(v) ? null : v
+        })()
     await store.updateCategory(catId, { monthly_limit: limit } as Parameters<typeof store.updateCategory>[1])
-    toast.success('Meta atualizada')
+    toast.success(remove ? 'Meta removida' : 'Meta atualizada')
     editingBudgetCatId.value = null
   } catch {
     toast.error('Erro ao salvar meta')
@@ -172,41 +177,74 @@ const spendable = computed(() => totalBalance.value - pendingExpenses.value)
 
 const today = new Date().getDate()
 
-// Top 5 expense categories this month with percentage + budget limit
-const topCategories = computed(() => {
+// Grouped categories panel:
+// Group A — categories WITH monthly_limit (always shown, even R$0 spent)
+// Group B — categories with transactions but NO monthly_limit (show with "Definir meta" CTA)
+type CategoryEntry = {
+  id: string; name: string; color: string; icon: string | null
+  total: number; monthlyLimit: number | null
+  percent: number; budgetPercent: number | null
+}
+
+const categoriesWithMeta = computed<CategoryEntry[]>(() => {
+  // Sum transactions per category
+  const spent = new Map<string, number>()
+  store.transactions
+    .filter((t) => t.type === 'expense' && t.category)
+    .forEach((t) => {
+      spent.set(t.category!.id, (spent.get(t.category!.id) ?? 0) + t.amount)
+    })
+
+  const totalExpenses = Array.from(spent.values()).reduce((s, v) => s + v, 0)
+
+  return store.categories
+    .filter((c) => c.type === 'expense' && c.monthly_limit != null && c.monthly_limit > 0)
+    .map((c) => {
+      const total = spent.get(c.id) ?? 0
+      const budgetPercent = Math.min(150, Math.round((total / c.monthly_limit!) * 100))
+      return {
+        id: c.id, name: c.name, color: c.color, icon: c.icon ?? null,
+        total, monthlyLimit: c.monthly_limit,
+        percent: totalExpenses > 0 ? Math.round((total / totalExpenses) * 100) : 0,
+        budgetPercent,
+      }
+    })
+    .sort((a, b) => b.budgetPercent! - a.budgetPercent!)
+})
+
+const categoriesWithoutMeta = computed<CategoryEntry[]>(() => {
   const totalExpenses = store.transactions
     .filter((t) => t.type === 'expense')
     .reduce((s, t) => s + t.amount, 0)
 
-  const map = new Map<string, { id: string; name: string; color: string; icon: string | null; total: number; monthlyLimit: number | null }>()
+  const map = new Map<string, CategoryEntry>()
   store.transactions
     .filter((t) => t.type === 'expense' && t.category)
     .forEach((t) => {
       const cat = t.category!
       const storeCat = store.categories.find((c) => c.id === cat.id)
+      if (storeCat?.monthly_limit) return // already covered in categoriesWithMeta
       const entry = map.get(cat.id)
-      if (entry) entry.total += t.amount
-      else map.set(cat.id, {
-        id: cat.id,
-        name: cat.name,
-        color: cat.color,
+      if (entry) { entry.total += t.amount; return }
+      map.set(cat.id, {
+        id: cat.id, name: cat.name, color: cat.color,
         icon: storeCat?.icon ?? cat.icon ?? null,
-        total: t.amount,
-        monthlyLimit: storeCat?.monthly_limit ?? null,
+        total: t.amount, monthlyLimit: null,
+        percent: 0, budgetPercent: null,
       })
     })
 
   return Array.from(map.values())
+    .map((c) => ({ ...c, percent: totalExpenses > 0 ? Math.round((c.total / totalExpenses) * 100) : 0 }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 5)
-    .map((c) => ({
-      ...c,
-      percent: totalExpenses > 0 ? Math.round((c.total / totalExpenses) * 100) : 0,
-      budgetPercent: c.monthlyLimit != null && c.monthlyLimit > 0
-        ? Math.min(100, Math.round((c.total / c.monthlyLimit) * 100))
-        : null,
-    }))
 })
+
+// Keep for backward-compat references (exceededCategory alert)
+const topCategories = computed<CategoryEntry[]>(() => [
+  ...categoriesWithMeta.value,
+  ...categoriesWithoutMeta.value,
+])
 
 // Budget usage: expenses as % of income
 const budgetPercent = computed(() =>
@@ -960,91 +998,180 @@ onMounted(async () => {
           <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
             <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Categorias do mês</h2>
           </header>
+
+          <!-- Loading skeleton -->
           <div v-if="store.loading" class="divide-y divide-border">
-            <div v-for="i in 4" :key="i" class="flex items-center gap-3 px-4 py-3">
-              <div class="size-7 rounded-md bg-muted/60 animate-pulse shrink-0" />
-              <div class="flex-1 space-y-1.5">
-                <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
-                <div class="h-1.5 w-full rounded-full bg-muted/60 animate-pulse mt-2" />
+            <div v-for="i in 3" :key="i" class="px-4 py-3 space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="size-7 rounded-md bg-muted/60 animate-pulse shrink-0" />
+                <div class="flex-1 h-3 rounded bg-muted/60 animate-pulse" />
+                <div class="h-3 w-16 rounded bg-muted/60 animate-pulse" />
               </div>
+              <div class="ml-10 h-1.5 w-full rounded-full bg-muted/60 animate-pulse" />
             </div>
           </div>
-          <div v-else-if="topCategories.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
-            Sem despesas este mês
+
+          <!-- Empty state: nenhuma meta configurada E nenhum gasto -->
+          <div
+            v-else-if="categoriesWithMeta.length === 0 && categoriesWithoutMeta.length === 0"
+            class="px-4 py-6 text-center"
+          >
+            <p class="text-[12px] text-muted-foreground/60 mb-2">Sem despesas este mês</p>
           </div>
-          <ul v-else class="divide-y divide-border">
-            <li v-for="cat in topCategories" :key="cat.name">
-              <button
-                type="button"
-                class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/30"
-                @click="startEditBudget(cat.id, cat.monthlyLimit)"
-              >
-                <div class="flex items-center gap-3">
-                  <!-- Category icon swatch (28px, matches Lovable IconSwatch size={28}) -->
-                  <span
-                    class="size-7 rounded-md grid place-items-center shrink-0"
-                    :style="{ background: cat.color + '22', color: cat.color }"
-                  >
-                    <component
-                      v-if="cat.icon && findIcon(cat.icon)"
-                      :is="findIcon(cat.icon)!.component"
-                      :size="14"
-                      :stroke-width="1.9"
+
+          <!-- Empty state: tem gastos mas nenhuma meta -->
+          <div
+            v-else-if="categoriesWithMeta.length === 0 && categoriesWithoutMeta.length > 0"
+            class="px-4 py-4"
+          >
+            <p class="text-[12px] text-muted-foreground/70 mb-1.5">Nenhuma meta configurada.</p>
+            <p class="text-[11px] text-muted-foreground/50 mb-3 leading-snug">
+              Defina limites em Configurações para acompanhar seu orçamento.
+            </p>
+            <RouterLink
+              :to="{ name: 'settings' }"
+              class="inline-flex items-center gap-1 text-[11px] font-medium text-foreground/70 hover:text-foreground border border-border/60 rounded-md px-2.5 py-1.5 hover:bg-muted transition-colors"
+            >
+              Ir para Configurações →
+            </RouterLink>
+          </div>
+
+          <div v-else>
+            <!-- Grupo A: Com meta definida -->
+            <ul v-if="categoriesWithMeta.length > 0" class="divide-y divide-border">
+              <li v-for="cat in categoriesWithMeta" :key="cat.id">
+                <button
+                  type="button"
+                  class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/30"
+                  @click="startEditBudget(cat.id, cat.monthlyLimit)"
+                >
+                  <!-- Row: icon + name + amounts -->
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="size-7 rounded-md grid place-items-center shrink-0"
+                      :style="{ background: cat.color + '22', color: cat.color }"
+                    >
+                      <component v-if="cat.icon && findIcon(cat.icon)" :is="findIcon(cat.icon)!.component" :size="14" :stroke-width="1.9" />
+                      <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
+                    </span>
+                    <span class="flex-1 text-sm">{{ cat.name }}</span>
+                    <div class="text-right">
+                      <span class="block text-[12px] tabular-nums font-semibold">{{ formatCurrency(cat.total) }}</span>
+                      <span class="block text-[10px] text-muted-foreground tabular-nums">de {{ formatCurrency(cat.monthlyLimit!) }}</span>
+                    </div>
+                  </div>
+                  <!-- Progress bar — dynamic color -->
+                  <div class="mt-2 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      class="h-full rounded-full transition-all duration-700"
+                      :style="{
+                        width: Math.min(100, cat.budgetPercent!) + '%',
+                        background: cat.budgetPercent! >= 100 ? 'var(--color-destructive)'
+                          : cat.budgetPercent! >= 90 ? '#f97316'
+                          : cat.budgetPercent! >= 70 ? 'var(--color-warning)'
+                          : 'var(--color-success)',
+                      }"
                     />
-                    <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
-                  </span>
-                  <span class="flex-1 text-sm">{{ cat.name }}</span>
-                  <div class="text-right">
-                    <span class="block text-sm tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
-                    <span v-if="cat.monthlyLimit" class="block text-[10.5px] text-muted-foreground tabular-nums">
-                      de {{ formatCurrency(cat.monthlyLimit) }}
+                  </div>
+                  <!-- Status row -->
+                  <div class="mt-1 ml-10 flex items-center justify-between text-[11px]">
+                    <span
+                      v-if="cat.budgetPercent! >= 100"
+                      class="inline-flex items-center gap-1 px-1.5 h-5 rounded text-[10px] font-bold border bg-destructive/15 text-destructive border-destructive/30"
+                    >
+                      Excedeu {{ formatCurrency(cat.total - cat.monthlyLimit!) }}
+                    </span>
+                    <span v-else-if="cat.budgetPercent! >= 70" class="text-warning tabular-nums font-medium">
+                      {{ cat.budgetPercent }}% · faltam {{ formatCurrency(cat.monthlyLimit! - cat.total) }}
+                    </span>
+                    <span v-else class="text-muted-foreground tabular-nums">
+                      {{ cat.budgetPercent }}% · faltam {{ formatCurrency(cat.monthlyLimit! - cat.total) }}
+                    </span>
+                    <!-- Delta vs anterior -->
+                    <span
+                      v-if="prevCategoryMap.has(cat.name)"
+                      class="inline-flex items-center gap-0.5 font-semibold tabular-nums text-[10px]"
+                      :class="(cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? 'text-destructive' : 'text-success'"
+                    >
+                      {{ (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? '+' : '-' }}{{ formatCurrency(Math.abs(cat.total - (prevCategoryMap.get(cat.name) ?? 0))) }}
                     </span>
                   </div>
-                </div>
-                <!-- Budget progress bar -->
-                <div class="mt-1.5 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    class="h-full rounded-full transition-all"
-                    :style="{
-                      width: (cat.budgetPercent != null ? cat.budgetPercent : cat.percent) + '%',
-                      background: (cat.budgetPercent != null && cat.budgetPercent >= 100) ? 'var(--destructive)'
-                        : (cat.budgetPercent != null && cat.budgetPercent >= 70) ? 'var(--warning)'
-                        : cat.color,
-                    }"
-                  />
-                </div>
-                <div class="mt-1 ml-10 flex items-center justify-between text-[11px]">
-                  <span
-                    v-if="cat.budgetPercent != null && cat.budgetPercent >= 100"
-                    class="inline-flex items-center gap-1 px-1.5 h-5 rounded text-[10px] font-bold border bg-destructive/15 text-destructive border-destructive/30"
-                  >
-                    Meta estourada
-                  </span>
-                  <span v-else class="text-muted-foreground tabular-nums">
-                    {{ cat.budgetPercent != null ? cat.budgetPercent + '% da meta' : cat.percent + '% do total' }}
-                  </span>
-                  <!-- Delta vs mês anterior -->
-                  <span
-                    v-if="prevCategoryMap.has(cat.name)"
-                    class="inline-flex items-center gap-0.5 font-semibold tabular-nums"
-                    :class="(cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? 'text-destructive' : (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) < 0 ? 'text-success' : 'text-muted-foreground'"
-                  >
-                    {{ (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? '+' : '-' }}{{ formatCurrency(Math.abs(cat.total - (prevCategoryMap.get(cat.name) ?? 0))) }}
-                  </span>
-                </div>
-              </button>
-            </li>
-          </ul>
+                </button>
+              </li>
+            </ul>
+
+            <!-- Grupo B: Com gasto mas sem meta -->
+            <div v-if="categoriesWithoutMeta.length > 0">
+              <div v-if="categoriesWithMeta.length > 0" class="px-4 pt-3 pb-1">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Sem meta</p>
+              </div>
+              <ul class="divide-y divide-border">
+                <li v-for="cat in categoriesWithoutMeta" :key="cat.id">
+                  <div class="flex items-center gap-3 px-4 py-3">
+                    <span
+                      class="size-7 rounded-md grid place-items-center shrink-0"
+                      :style="{ background: cat.color + '22', color: cat.color }"
+                    >
+                      <component v-if="cat.icon && findIcon(cat.icon)" :is="findIcon(cat.icon)!.component" :size="14" :stroke-width="1.9" />
+                      <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
+                    </span>
+                    <span class="flex-1 text-sm">{{ cat.name }}</span>
+                    <span class="text-[12px] tabular-nums font-medium mr-2">{{ formatCurrency(cat.total) }}</span>
+                    <button
+                      type="button"
+                      class="text-[11px] font-medium px-2 py-0.5 rounded-md border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+                      @click="startEditBudget(cat.id, null)"
+                    >
+                      Definir meta
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
 
-        <!-- Budget edit sheet (replaces inline editor) -->
+        <!-- Budget edit sheet (improved) -->
         <Sheet :open="editingBudgetCatId !== null" @update:open="(v) => { if (!v) cancelEditBudget() }">
           <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
             <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
             <SheetHeader class="text-left mb-4">
-              <SheetTitle class="text-base">Meta de {{ topCategories.find(c => c.id === editingBudgetCatId)?.name }}</SheetTitle>
-              <SheetDescription class="text-xs">Defina o limite mensal para esta categoria.</SheetDescription>
+              <SheetTitle class="text-base">
+                Meta de {{ topCategories.find(c => c.id === editingBudgetCatId)?.name }}
+              </SheetTitle>
+              <SheetDescription class="text-xs">
+                <template v-if="topCategories.find(c => c.id === editingBudgetCatId)?.total">
+                  Você gastou {{ formatCurrency(topCategories.find(c => c.id === editingBudgetCatId)!.total) }} este mês nessa categoria.
+                </template>
+                <template v-else>
+                  Nenhum gasto registrado este mês nessa categoria.
+                </template>
+              </SheetDescription>
             </SheetHeader>
+
+            <!-- Preview progress bar while typing -->
+            <div
+              v-if="editingBudgetValue && parseFloat(editingBudgetValue) > 0"
+              class="mb-4"
+            >
+              <div class="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-300"
+                  :style="{
+                    width: Math.min(100, Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100)) + '%',
+                    background: Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100) >= 100
+                      ? 'var(--color-destructive)'
+                      : Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100) >= 70
+                        ? 'var(--color-warning)'
+                        : 'var(--color-success)',
+                  }"
+                />
+              </div>
+              <p class="text-[11px] text-muted-foreground mt-1 tabular-nums">
+                {{ Math.min(100, Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100)) }}% da meta
+              </p>
+            </div>
+
             <label class="block text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">Meta mensal</label>
             <div class="flex items-center gap-2">
               <span class="text-sm text-muted-foreground">R$</span>
@@ -1061,14 +1188,21 @@ onMounted(async () => {
             <div class="flex gap-2 mt-5">
               <button
                 type="button"
-                class="flex-1 h-9 px-3 text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium inline-flex items-center justify-center rounded-md border border-border bg-transparent hover:bg-muted/60 text-foreground transition-colors"
+                class="h-9 px-3 text-[12px] font-medium inline-flex items-center justify-center rounded-md border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors"
+                @click="editingBudgetCatId && saveBudget(editingBudgetCatId, true)"
+              >
+                Remover
+              </button>
+              <button
+                type="button"
+                class="flex-1 h-9 px-3 text-[13px] font-medium inline-flex items-center justify-center rounded-md border border-border bg-transparent hover:bg-muted/60 text-foreground transition-colors"
                 @click="cancelEditBudget"
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                class="flex-1 h-9 px-3 text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium inline-flex items-center justify-center rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors"
+                class="flex-1 h-9 px-3 text-[13px] font-medium inline-flex items-center justify-center rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors"
                 :disabled="savingBudget"
                 @click="editingBudgetCatId && saveBudget(editingBudgetCatId)"
               >
