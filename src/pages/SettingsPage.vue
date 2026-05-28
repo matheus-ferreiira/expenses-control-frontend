@@ -7,10 +7,10 @@ import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
 import { Skeleton } from '@ui/skeleton'
 import {
-  Plus, Pencil, Trash2, Check, X, Loader2,
+  Plus, Pencil, Trash2, X, Loader2, Search,
   CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock,
 } from 'lucide-vue-next'
-import { findIcon } from '@/lib/icons'
+import { findIcon, ICON_CATEGORIES } from '@/lib/icons'
 import type { TransactionCategory } from '@/types/finance'
 
 const auth = useAuthStore()
@@ -36,7 +36,7 @@ async function toggleModule(key: string) {
   savingModule.value = key
   try {
     const current = (auth.user?.settings as { modules?: Record<string, boolean> })?.modules ?? {}
-    const enabled = current[key] !== false // default true
+    const enabled = current[key] !== false
     await auth.updateSettings({ modules: { ...current, [key]: !enabled } })
     toast.success(`Módulo ${!enabled ? 'ativado' : 'desativado'}`)
   } catch {
@@ -53,12 +53,18 @@ const deletingCat = ref<string | null>(null)
 
 const newCatName = ref('')
 const newCatType = ref<'expense' | 'income'>('expense')
-const newCatColor = ref('#6b7280')
+const newCatColor = ref('#8b5cf6')
+const newCatIcon = ref('')
 const showAddForm = ref(false)
+const showNewIconPicker = ref(false)
 
 const editingCatId = ref<string | null>(null)
 const editCatName = ref('')
 const editCatColor = ref('')
+const editCatIcon = ref('')
+const showEditIconPicker = ref(false)
+
+const iconSearch = ref('')
 
 const categories = computed(() => financeStore.categories)
 
@@ -71,6 +77,18 @@ onMounted(async () => {
   }
 })
 
+// Filter icons by search query across all categories
+const filteredIconCategories = computed(() => {
+  const q = iconSearch.value.trim().toLowerCase()
+  if (!q) return ICON_CATEGORIES
+  return ICON_CATEGORIES
+    .map((cat) => ({
+      ...cat,
+      icons: cat.icons.filter((i) => i.label.toLowerCase().includes(q) || i.name.toLowerCase().includes(q)),
+    }))
+    .filter((cat) => cat.icons.length > 0)
+})
+
 async function addCategory() {
   if (!newCatName.value.trim()) return
   savingCat.value = true
@@ -79,11 +97,13 @@ async function addCategory() {
       name: newCatName.value.trim(),
       type: newCatType.value,
       color: newCatColor.value,
-      icon: null,
+      icon: newCatIcon.value || null,
       monthly_limit: null,
     })
     newCatName.value = ''
+    newCatIcon.value = ''
     showAddForm.value = false
+    showNewIconPicker.value = false
     toast.success('Categoria criada')
   } catch {
     toast.error('Erro ao criar categoria')
@@ -96,10 +116,14 @@ function startEdit(cat: TransactionCategory) {
   editingCatId.value = cat.id
   editCatName.value = cat.name
   editCatColor.value = cat.color ?? '#6b7280'
+  editCatIcon.value = cat.icon ?? ''
+  showEditIconPicker.value = false
 }
 
 function cancelEdit() {
   editingCatId.value = null
+  showEditIconPicker.value = false
+  iconSearch.value = ''
 }
 
 async function saveEdit(cat: TransactionCategory) {
@@ -108,8 +132,11 @@ async function saveEdit(cat: TransactionCategory) {
     await financeStore.updateCategory(cat.id, {
       name: editCatName.value.trim(),
       color: editCatColor.value,
+      icon: editCatIcon.value || null,
     })
     editingCatId.value = null
+    showEditIconPicker.value = false
+    iconSearch.value = ''
     toast.success('Categoria atualizada')
   } catch {
     toast.error('Erro ao atualizar categoria')
@@ -138,6 +165,16 @@ const PRESET_COLORS = [
 
 const expenseCategories = computed(() => categories.value.filter((c) => c.type === 'expense'))
 const incomeCategories = computed(() => categories.value.filter((c) => c.type === 'income'))
+
+function openAddForm() {
+  showAddForm.value = true
+  showNewIconPicker.value = false
+  newCatName.value = ''
+  newCatIcon.value = ''
+  newCatColor.value = '#8b5cf6'
+  newCatType.value = 'expense'
+  iconSearch.value = ''
+}
 </script>
 
 <template>
@@ -172,8 +209,8 @@ const incomeCategories = computed(() => categories.value.filter((c) => c.type ==
             class="flex items-center gap-4 px-4 py-3"
           >
             <span
-              class="flex items-center justify-center size-8 rounded-lg shrink-0 text-muted-foreground"
-              :class="auth.moduleEnabled(mod.key) ? 'bg-primary/10 text-primary' : 'bg-muted/40'"
+              class="flex items-center justify-center size-8 rounded-lg shrink-0"
+              :class="auth.moduleEnabled(mod.key) ? 'bg-primary/10 text-primary' : 'bg-muted/40 text-muted-foreground'"
             >
               <component :is="mod.icon" :size="15" :stroke-width="1.9" />
             </span>
@@ -200,210 +237,535 @@ const incomeCategories = computed(() => categories.value.filter((c) => c.type ==
 
       <!-- ── Categorias de transação ────────────────────────────────────── -->
       <section>
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between mb-4">
           <div>
             <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
               Categorias de transação
             </h2>
+            <p class="text-[12px] text-muted-foreground/60 mt-0.5">
+              Personalize com nome, cor e ícone.
+            </p>
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 h-7 px-3 rounded-md text-[11px] font-medium bg-foreground text-background hover:opacity-90 transition-opacity"
-            @click="showAddForm = !showAddForm"
+            class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium bg-foreground text-background hover:opacity-90 transition-opacity"
+            @click="openAddForm"
           >
-            <Plus :size="12" />
+            <Plus :size="13" />
             Nova categoria
           </button>
         </div>
 
-        <!-- Add form -->
-        <div v-if="showAddForm" class="bg-card border border-border rounded-md p-4 mb-3 space-y-3">
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <p class="text-[10px] text-muted-foreground/70 mb-1">Nome</p>
-              <input
-                v-model="newCatName"
-                placeholder="Ex: Restaurante"
-                class="w-full h-8 px-3 rounded-md bg-muted border border-border/60 text-sm outline-none focus:border-border transition-colors"
-                @keydown.enter="addCategory"
-              />
+        <!-- ── Add form ─────────────────────────────────────────────────── -->
+        <Transition name="slide-down">
+          <div v-if="showAddForm" class="bg-card border border-border rounded-xl p-4 mb-4 space-y-4">
+            <!-- Row: nome + tipo -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Nome</p>
+                <input
+                  v-model="newCatName"
+                  placeholder="Ex: Restaurante"
+                  class="w-full h-9 px-3 rounded-lg bg-muted border border-border/60 text-sm outline-none focus:border-border transition-colors"
+                  @keydown.enter="addCategory"
+                />
+              </div>
+              <div>
+                <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Tipo</p>
+                <div class="grid grid-cols-2 gap-1 p-0.5 bg-muted rounded-lg">
+                  <button
+                    type="button"
+                    class="h-8 rounded-md text-[12px] font-medium transition-all"
+                    :class="newCatType === 'expense' ? 'bg-destructive/20 text-destructive' : 'text-muted-foreground'"
+                    @click="newCatType = 'expense'"
+                  >Despesa</button>
+                  <button
+                    type="button"
+                    class="h-8 rounded-md text-[12px] font-medium transition-all"
+                    :class="newCatType === 'income' ? 'bg-success/20 text-success' : 'text-muted-foreground'"
+                    @click="newCatType = 'income'"
+                  >Receita</button>
+                </div>
+              </div>
             </div>
+
+            <!-- Row: cor + preview -->
             <div>
-              <p class="text-[10px] text-muted-foreground/70 mb-1">Tipo</p>
-              <div class="grid grid-cols-2 gap-1 p-0.5 bg-muted rounded-md">
+              <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Cor</p>
+              <div class="flex items-center gap-2 flex-wrap">
                 <button
+                  v-for="c in PRESET_COLORS"
+                  :key="c"
                   type="button"
-                  class="h-7 rounded text-[11px] font-medium transition-all"
-                  :class="newCatType === 'expense' ? 'bg-destructive/20 text-destructive' : 'text-muted-foreground'"
-                  @click="newCatType = 'expense'"
-                >Despesa</button>
-                <button
-                  type="button"
-                  class="h-7 rounded text-[11px] font-medium transition-all"
-                  :class="newCatType === 'income' ? 'bg-success/20 text-success' : 'text-muted-foreground'"
-                  @click="newCatType = 'income'"
-                >Receita</button>
+                  class="size-7 rounded-full transition-all hover:scale-110"
+                  :style="{
+                    background: c,
+                    outline: newCatColor === c ? `2px solid ${c}` : 'none',
+                    outlineOffset: '2px',
+                  }"
+                  @click="newCatColor = c"
+                />
+              </div>
+            </div>
+
+            <!-- Icon picker -->
+            <div>
+              <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Ícone</p>
+              <!-- Trigger button: shows selected icon or placeholder -->
+              <button
+                type="button"
+                class="flex items-center gap-2.5 h-9 px-3 rounded-lg border border-border/60 bg-muted text-sm hover:border-border transition-colors w-full text-left"
+                @click="showNewIconPicker = !showNewIconPicker"
+              >
+                <span
+                  class="flex items-center justify-center size-6 rounded-md shrink-0"
+                  :style="newCatIcon
+                    ? { background: newCatColor + '30', color: newCatColor }
+                    : {}"
+                >
+                  <component
+                    v-if="newCatIcon && findIcon(newCatIcon)"
+                    :is="findIcon(newCatIcon)!.component"
+                    :size="14"
+                  />
+                  <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
+                </span>
+                <span class="flex-1 text-[13px]" :class="newCatIcon ? 'text-foreground' : 'text-muted-foreground'">
+                  {{ newCatIcon && findIcon(newCatIcon) ? findIcon(newCatIcon)!.label : 'Escolher ícone' }}
+                </span>
+                <span class="text-muted-foreground/40 text-[11px]">{{ showNewIconPicker ? '▲' : '▼' }}</span>
+              </button>
+
+              <!-- Icon grid panel -->
+              <div v-if="showNewIconPicker" class="mt-2 border border-border/60 rounded-xl bg-muted/30 overflow-hidden">
+                <!-- Search -->
+                <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+                  <Search :size="13" class="text-muted-foreground shrink-0" />
+                  <input
+                    v-model="iconSearch"
+                    placeholder="Buscar ícone..."
+                    class="flex-1 bg-transparent text-[12px] outline-none placeholder:text-muted-foreground/50"
+                  />
+                  <button v-if="newCatIcon" type="button" class="text-muted-foreground/50 hover:text-foreground" @click="newCatIcon = ''">
+                    <X :size="12" />
+                  </button>
+                </div>
+                <!-- Scrollable icon grid -->
+                <div class="max-h-48 overflow-y-auto p-2 space-y-3">
+                  <div v-for="cat in filteredIconCategories" :key="cat.id">
+                    <p class="text-[9px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1">{{ cat.label }}</p>
+                    <div class="grid grid-cols-8 gap-1">
+                      <button
+                        v-for="icon in cat.icons"
+                        :key="icon.name"
+                        type="button"
+                        :title="icon.label"
+                        class="flex items-center justify-center size-8 rounded-lg transition-all hover:scale-110"
+                        :style="newCatIcon === icon.name
+                          ? { background: newCatColor + '30', color: newCatColor, outline: `1.5px solid ${newCatColor}` }
+                          : {}"
+                        :class="newCatIcon !== icon.name ? 'hover:bg-muted text-muted-foreground' : ''"
+                        @click="newCatIcon = icon.name; showNewIconPicker = false; iconSearch = ''"
+                      >
+                        <component :is="icon.component" :size="15" />
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="filteredIconCategories.length === 0" class="py-4 text-center text-[12px] text-muted-foreground/50">
+                    Nenhum ícone encontrado
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 pt-1">
+              <button
+                type="button"
+                class="flex-1 h-9 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"
+                @click="showAddForm = false; showNewIconPicker = false"
+              >Cancelar</button>
+              <button
+                type="button"
+                :disabled="savingCat || !newCatName.trim()"
+                class="flex-1 h-9 rounded-lg bg-foreground text-background text-[12px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+                @click="addCategory"
+              >
+                <Loader2 v-if="savingCat" :size="12" class="animate-spin inline mr-1" />
+                Criar categoria
+              </button>
+            </div>
+          </div>
+        </Transition>
+
+        <!-- ── Category lists ────────────────────────────────────────────── -->
+        <div v-if="loadingCats" class="space-y-2">
+          <Skeleton v-for="i in 4" :key="i" class="h-16 w-full rounded-xl" />
+        </div>
+
+        <div v-else class="space-y-5">
+
+          <!-- Expenses -->
+          <div v-if="expenseCategories.length > 0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40 mb-2">Despesas</p>
+            <div class="space-y-2">
+              <div
+                v-for="cat in expenseCategories"
+                :key="cat.id"
+                class="bg-card border border-border rounded-xl overflow-hidden"
+              >
+                <!-- Edit mode -->
+                <template v-if="editingCatId === cat.id">
+                  <div class="p-4 space-y-3">
+                    <!-- Name -->
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Nome</p>
+                      <input
+                        v-model="editCatName"
+                        class="w-full h-9 px-3 rounded-lg bg-muted border border-border/60 text-sm outline-none focus:border-border transition-colors"
+                        @keydown.enter="saveEdit(cat)"
+                        @keydown.escape="cancelEdit"
+                      />
+                    </div>
+                    <!-- Color -->
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Cor</p>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <button
+                          v-for="c in PRESET_COLORS"
+                          :key="c"
+                          type="button"
+                          class="size-7 rounded-full transition-all hover:scale-110"
+                          :style="{
+                            background: c,
+                            outline: editCatColor === c ? `2px solid ${c}` : 'none',
+                            outlineOffset: '2px',
+                          }"
+                          @click="editCatColor = c"
+                        />
+                      </div>
+                    </div>
+                    <!-- Icon picker -->
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Ícone</p>
+                      <button
+                        type="button"
+                        class="flex items-center gap-2.5 h-9 px-3 rounded-lg border border-border/60 bg-muted text-sm hover:border-border transition-colors w-full text-left"
+                        @click="showEditIconPicker = !showEditIconPicker"
+                      >
+                        <span
+                          class="flex items-center justify-center size-6 rounded-md shrink-0"
+                          :style="editCatIcon ? { background: editCatColor + '30', color: editCatColor } : {}"
+                        >
+                          <component
+                            v-if="editCatIcon && findIcon(editCatIcon)"
+                            :is="findIcon(editCatIcon)!.component"
+                            :size="14"
+                          />
+                          <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
+                        </span>
+                        <span class="flex-1 text-[13px]" :class="editCatIcon ? 'text-foreground' : 'text-muted-foreground'">
+                          {{ editCatIcon && findIcon(editCatIcon) ? findIcon(editCatIcon)!.label : 'Escolher ícone' }}
+                        </span>
+                        <span class="text-muted-foreground/40 text-[11px]">{{ showEditIconPicker ? '▲' : '▼' }}</span>
+                      </button>
+                      <div v-if="showEditIconPicker" class="mt-2 border border-border/60 rounded-xl bg-muted/30 overflow-hidden">
+                        <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+                          <Search :size="13" class="text-muted-foreground shrink-0" />
+                          <input
+                            v-model="iconSearch"
+                            placeholder="Buscar ícone..."
+                            class="flex-1 bg-transparent text-[12px] outline-none placeholder:text-muted-foreground/50"
+                          />
+                          <button v-if="editCatIcon" type="button" class="text-muted-foreground/50 hover:text-foreground" @click="editCatIcon = ''">
+                            <X :size="12" />
+                          </button>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto p-2 space-y-3">
+                          <div v-for="iconCat in filteredIconCategories" :key="iconCat.id">
+                            <p class="text-[9px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1">{{ iconCat.label }}</p>
+                            <div class="grid grid-cols-8 gap-1">
+                              <button
+                                v-for="icon in iconCat.icons"
+                                :key="icon.name"
+                                type="button"
+                                :title="icon.label"
+                                class="flex items-center justify-center size-8 rounded-lg transition-all hover:scale-110"
+                                :style="editCatIcon === icon.name
+                                  ? { background: editCatColor + '30', color: editCatColor, outline: `1.5px solid ${editCatColor}` }
+                                  : {}"
+                                :class="editCatIcon !== icon.name ? 'hover:bg-muted text-muted-foreground' : ''"
+                                @click="editCatIcon = icon.name; showEditIconPicker = false; iconSearch = ''"
+                              >
+                                <component :is="icon.component" :size="15" />
+                              </button>
+                            </div>
+                          </div>
+                          <div v-if="filteredIconCategories.length === 0" class="py-4 text-center text-[12px] text-muted-foreground/50">
+                            Nenhum ícone encontrado
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="flex gap-2 pt-1">
+                      <button type="button" class="flex-1 h-8 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors" @click="cancelEdit">
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        :disabled="savingCat"
+                        class="flex-1 h-8 rounded-lg bg-foreground text-background text-[12px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+                        @click="saveEdit(cat)"
+                      >
+                        <Loader2 v-if="savingCat" :size="12" class="animate-spin inline mr-1" />
+                        Salvar
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- View mode -->
+                <template v-else>
+                  <div class="flex items-center gap-3 px-4 py-3">
+                    <!-- Icon swatch -->
+                    <span
+                      class="flex items-center justify-center size-10 rounded-xl shrink-0"
+                      :style="{ background: (cat.color ?? '#6b7280') + '22', color: cat.color ?? '#6b7280' }"
+                    >
+                      <component
+                        v-if="cat.icon && findIcon(cat.icon)"
+                        :is="findIcon(cat.icon)!.component"
+                        :size="18"
+                        :stroke-width="1.8"
+                      />
+                      <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
+                    </span>
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[13px] font-medium text-foreground">{{ cat.name }}</p>
+                      <p v-if="cat.icon && findIcon(cat.icon)" class="text-[11px] text-muted-foreground/50 mt-0.5">
+                        {{ findIcon(cat.icon)!.label }}
+                      </p>
+                      <p v-else class="text-[11px] text-muted-foreground/50 mt-0.5 italic">Sem ícone</p>
+                    </div>
+                    <!-- Color dot -->
+                    <span
+                      class="size-2.5 rounded-full shrink-0"
+                      :style="{ background: cat.color ?? '#6b7280' }"
+                    />
+                    <!-- Actions -->
+                    <button
+                      type="button"
+                      class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all"
+                      @click="startEdit(cat)"
+                    >
+                      <Pencil :size="13" />
+                    </button>
+                    <button
+                      type="button"
+                      :disabled="deletingCat === cat.id"
+                      class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all"
+                      @click="deleteCategory(cat.id)"
+                    >
+                      <Loader2 v-if="deletingCat === cat.id" :size="13" class="animate-spin" />
+                      <Trash2 v-else :size="13" />
+                    </button>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground/70 mb-1">Cor</p>
-            <div class="flex gap-1.5 flex-wrap">
-              <button
-                v-for="c in PRESET_COLORS"
-                :key="c"
-                type="button"
-                class="size-6 rounded-full transition-transform hover:scale-110"
-                :style="{ background: c, outline: newCatColor === c ? `2px solid ${c}` : 'none', outlineOffset: '2px' }"
-                @click="newCatColor = c"
-              />
-            </div>
-          </div>
-          <div class="flex gap-2 pt-1">
-            <button
-              type="button"
-              class="flex-1 h-8 rounded-md border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"
-              @click="showAddForm = false"
-            >Cancelar</button>
-            <button
-              type="button"
-              :disabled="savingCat || !newCatName.trim()"
-              class="flex-1 h-8 rounded-md bg-foreground text-background text-[12px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
-              @click="addCategory"
-            >
-              <Loader2 v-if="savingCat" :size="12" class="animate-spin inline mr-1" />
-              Criar
-            </button>
-          </div>
-        </div>
-
-        <!-- Expense categories -->
-        <div class="space-y-2">
-          <p v-if="expenseCategories.length > 0 || incomeCategories.length > 0" class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40 mb-1">
-            Despesas
-          </p>
-          <div v-if="loadingCats" class="space-y-2">
-            <Skeleton v-for="i in 3" :key="i" class="h-11 w-full rounded-md" />
-          </div>
-          <div v-else-if="expenseCategories.length === 0 && !loadingCats" class="text-[12px] text-muted-foreground/50 py-2">
+          <div v-else-if="!loadingCats" class="text-[12px] text-muted-foreground/50 py-2">
             Nenhuma categoria de despesa.
           </div>
-          <div v-else class="bg-card border border-border rounded-md overflow-hidden divide-y divide-border">
-            <div
-              v-for="cat in expenseCategories"
-              :key="cat.id"
-              class="flex items-center gap-3 px-3 py-2.5"
-            >
-              <template v-if="editingCatId === cat.id">
-                <input
-                  v-model="editCatColor"
-                  type="color"
-                  class="size-6 rounded cursor-pointer border-none bg-transparent"
-                />
-                <input
-                  v-model="editCatName"
-                  class="flex-1 h-7 px-2 rounded bg-muted text-sm outline-none border border-border/60 focus:border-border"
-                  @keydown.enter="saveEdit(cat)"
-                  @keydown.escape="cancelEdit"
-                />
-                <button type="button" class="text-success hover:text-success/80 p-1" @click="saveEdit(cat)">
-                  <Check :size="14" />
-                </button>
-                <button type="button" class="text-muted-foreground hover:text-foreground p-1" @click="cancelEdit">
-                  <X :size="14" />
-                </button>
-              </template>
-              <template v-else>
-                <span
-                  class="size-7 rounded-lg grid place-items-center shrink-0"
-                  :style="{ background: (cat.color ?? '#6b7280') + '22', color: cat.color ?? '#6b7280' }"
-                >
-                  <component
-                    v-if="cat.icon && findIcon(cat.icon)"
-                    :is="findIcon(cat.icon)!.component"
-                    :size="14"
-                    :stroke-width="1.9"
-                  />
-                  <span v-else class="text-[10px] font-bold">{{ cat.name.charAt(0) }}</span>
-                </span>
-                <span class="flex-1 text-[13px] text-foreground">{{ cat.name }}</span>
-                <button type="button" class="text-muted-foreground/50 hover:text-foreground p-1 transition-colors" @click="startEdit(cat)">
-                  <Pencil :size="12" />
-                </button>
-                <button
-                  type="button"
-                  :disabled="deletingCat === cat.id"
-                  class="text-muted-foreground/50 hover:text-destructive p-1 transition-colors"
-                  @click="deleteCategory(cat.id)"
-                >
-                  <Loader2 v-if="deletingCat === cat.id" :size="12" class="animate-spin" />
-                  <Trash2 v-else :size="12" />
-                </button>
-              </template>
+
+          <!-- Incomes -->
+          <div v-if="incomeCategories.length > 0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40 mb-2">Receitas</p>
+            <div class="space-y-2">
+              <div
+                v-for="cat in incomeCategories"
+                :key="cat.id"
+                class="bg-card border border-border rounded-xl overflow-hidden"
+              >
+                <!-- Edit mode -->
+                <template v-if="editingCatId === cat.id">
+                  <div class="p-4 space-y-3">
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Nome</p>
+                      <input
+                        v-model="editCatName"
+                        class="w-full h-9 px-3 rounded-lg bg-muted border border-border/60 text-sm outline-none focus:border-border transition-colors"
+                        @keydown.enter="saveEdit(cat)"
+                        @keydown.escape="cancelEdit"
+                      />
+                    </div>
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Cor</p>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <button
+                          v-for="c in PRESET_COLORS"
+                          :key="c"
+                          type="button"
+                          class="size-7 rounded-full transition-all hover:scale-110"
+                          :style="{
+                            background: c,
+                            outline: editCatColor === c ? `2px solid ${c}` : 'none',
+                            outlineOffset: '2px',
+                          }"
+                          @click="editCatColor = c"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-[10px] text-muted-foreground/70 mb-1.5 font-medium">Ícone</p>
+                      <button
+                        type="button"
+                        class="flex items-center gap-2.5 h-9 px-3 rounded-lg border border-border/60 bg-muted text-sm hover:border-border transition-colors w-full text-left"
+                        @click="showEditIconPicker = !showEditIconPicker"
+                      >
+                        <span
+                          class="flex items-center justify-center size-6 rounded-md shrink-0"
+                          :style="editCatIcon ? { background: editCatColor + '30', color: editCatColor } : {}"
+                        >
+                          <component
+                            v-if="editCatIcon && findIcon(editCatIcon)"
+                            :is="findIcon(editCatIcon)!.component"
+                            :size="14"
+                          />
+                          <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
+                        </span>
+                        <span class="flex-1 text-[13px]" :class="editCatIcon ? 'text-foreground' : 'text-muted-foreground'">
+                          {{ editCatIcon && findIcon(editCatIcon) ? findIcon(editCatIcon)!.label : 'Escolher ícone' }}
+                        </span>
+                        <span class="text-muted-foreground/40 text-[11px]">{{ showEditIconPicker ? '▲' : '▼' }}</span>
+                      </button>
+                      <div v-if="showEditIconPicker" class="mt-2 border border-border/60 rounded-xl bg-muted/30 overflow-hidden">
+                        <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
+                          <Search :size="13" class="text-muted-foreground shrink-0" />
+                          <input
+                            v-model="iconSearch"
+                            placeholder="Buscar ícone..."
+                            class="flex-1 bg-transparent text-[12px] outline-none placeholder:text-muted-foreground/50"
+                          />
+                          <button v-if="editCatIcon" type="button" class="text-muted-foreground/50 hover:text-foreground" @click="editCatIcon = ''">
+                            <X :size="12" />
+                          </button>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto p-2 space-y-3">
+                          <div v-for="iconCat in filteredIconCategories" :key="iconCat.id">
+                            <p class="text-[9px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1">{{ iconCat.label }}</p>
+                            <div class="grid grid-cols-8 gap-1">
+                              <button
+                                v-for="icon in iconCat.icons"
+                                :key="icon.name"
+                                type="button"
+                                :title="icon.label"
+                                class="flex items-center justify-center size-8 rounded-lg transition-all hover:scale-110"
+                                :style="editCatIcon === icon.name
+                                  ? { background: editCatColor + '30', color: editCatColor, outline: `1.5px solid ${editCatColor}` }
+                                  : {}"
+                                :class="editCatIcon !== icon.name ? 'hover:bg-muted text-muted-foreground' : ''"
+                                @click="editCatIcon = icon.name; showEditIconPicker = false; iconSearch = ''"
+                              >
+                                <component :is="icon.component" :size="15" />
+                              </button>
+                            </div>
+                          </div>
+                          <div v-if="filteredIconCategories.length === 0" class="py-4 text-center text-[12px] text-muted-foreground/50">
+                            Nenhum ícone encontrado
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                      <button type="button" class="flex-1 h-8 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors" @click="cancelEdit">
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        :disabled="savingCat"
+                        class="flex-1 h-8 rounded-lg bg-foreground text-background text-[12px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+                        @click="saveEdit(cat)"
+                      >
+                        <Loader2 v-if="savingCat" :size="12" class="animate-spin inline mr-1" />
+                        Salvar
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- View mode -->
+                <template v-else>
+                  <div class="flex items-center gap-3 px-4 py-3">
+                    <span
+                      class="flex items-center justify-center size-10 rounded-xl shrink-0"
+                      :style="{ background: (cat.color ?? '#22c55e') + '22', color: cat.color ?? '#22c55e' }"
+                    >
+                      <component
+                        v-if="cat.icon && findIcon(cat.icon)"
+                        :is="findIcon(cat.icon)!.component"
+                        :size="18"
+                        :stroke-width="1.8"
+                      />
+                      <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[13px] font-medium text-foreground">{{ cat.name }}</p>
+                      <p v-if="cat.icon && findIcon(cat.icon)" class="text-[11px] text-muted-foreground/50 mt-0.5">
+                        {{ findIcon(cat.icon)!.label }}
+                      </p>
+                      <p v-else class="text-[11px] text-muted-foreground/50 mt-0.5 italic">Sem ícone</p>
+                    </div>
+                    <span
+                      class="size-2.5 rounded-full shrink-0"
+                      :style="{ background: cat.color ?? '#22c55e' }"
+                    />
+                    <button
+                      type="button"
+                      class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all"
+                      @click="startEdit(cat)"
+                    >
+                      <Pencil :size="13" />
+                    </button>
+                    <button
+                      type="button"
+                      :disabled="deletingCat === cat.id"
+                      class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all"
+                      @click="deleteCategory(cat.id)"
+                    >
+                      <Loader2 v-if="deletingCat === cat.id" :size="13" class="animate-spin" />
+                      <Trash2 v-else :size="13" />
+                    </button>
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
 
-          <!-- Income categories -->
-          <p v-if="incomeCategories.length > 0" class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40 mt-4 mb-1">
-            Receitas
-          </p>
-          <div v-if="incomeCategories.length > 0" class="bg-card border border-border rounded-md overflow-hidden divide-y divide-border">
-            <div
-              v-for="cat in incomeCategories"
-              :key="cat.id"
-              class="flex items-center gap-3 px-3 py-2.5"
-            >
-              <template v-if="editingCatId === cat.id">
-                <input
-                  v-model="editCatColor"
-                  type="color"
-                  class="size-6 rounded cursor-pointer border-none bg-transparent"
-                />
-                <input
-                  v-model="editCatName"
-                  class="flex-1 h-7 px-2 rounded bg-muted text-sm outline-none border border-border/60 focus:border-border"
-                  @keydown.enter="saveEdit(cat)"
-                  @keydown.escape="cancelEdit"
-                />
-                <button type="button" class="text-success hover:text-success/80 p-1" @click="saveEdit(cat)">
-                  <Check :size="14" />
-                </button>
-                <button type="button" class="text-muted-foreground hover:text-foreground p-1" @click="cancelEdit">
-                  <X :size="14" />
-                </button>
-              </template>
-              <template v-else>
-                <span
-                  class="size-7 rounded-lg grid place-items-center shrink-0"
-                  :style="{ background: (cat.color ?? '#22c55e') + '22', color: cat.color ?? '#22c55e' }"
-                >
-                  <component
-                    v-if="cat.icon && findIcon(cat.icon)"
-                    :is="findIcon(cat.icon)!.component"
-                    :size="14"
-                    :stroke-width="1.9"
-                  />
-                  <span v-else class="text-[10px] font-bold">{{ cat.name.charAt(0) }}</span>
-                </span>
-                <span class="flex-1 text-[13px] text-foreground">{{ cat.name }}</span>
-                <button type="button" class="text-muted-foreground/50 hover:text-foreground p-1 transition-colors" @click="startEdit(cat)">
-                  <Pencil :size="12" />
-                </button>
-                <button
-                  type="button"
-                  :disabled="deletingCat === cat.id"
-                  class="text-muted-foreground/50 hover:text-destructive p-1 transition-colors"
-                  @click="deleteCategory(cat.id)"
-                >
-                  <Loader2 v-if="deletingCat === cat.id" :size="12" class="animate-spin" />
-                  <Trash2 v-else :size="12" />
-                </button>
-              </template>
-            </div>
-          </div>
         </div>
       </section>
 
     </div>
   </AppPageContainer>
 </template>
+
+<style scoped>
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-4px);
+}
+.slide-down-enter-to,
+.slide-down-leave-from {
+  opacity: 1;
+  max-height: 600px;
+}
+</style>
