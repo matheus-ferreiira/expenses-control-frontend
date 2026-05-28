@@ -39,36 +39,47 @@ const route = useRoute()
 const auth = useAuthStore()
 const ui = useUiStore()
 
-const navSections = [
+const ALL_NAV_SECTIONS = [
   {
     label: 'PRODUTIVIDADE',
     items: [
-      { label: 'Dashboard', icon: LayoutDashboard, route: ROUTES.DASHBOARD, shortcut: 'G D' },
-      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T' },
-      { label: 'Hábitos', icon: Flame, route: ROUTES.HABITS, shortcut: 'G H' },
-      { label: 'Metas', icon: Target, route: ROUTES.GOALS, shortcut: 'G M' },
-      { label: 'Agenda', icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A' },
-      { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F' },
-      { label: 'Relatórios', icon: BarChart3, route: ROUTES.REPORTS, shortcut: 'G R' },
+      { label: 'Dashboard', icon: LayoutDashboard, route: ROUTES.DASHBOARD, shortcut: 'G D', module: null },
+      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T', module: 'tasks' },
+      { label: 'Hábitos', icon: Flame, route: ROUTES.HABITS, shortcut: 'G H', module: 'habits' },
+      { label: 'Metas', icon: Target, route: ROUTES.GOALS, shortcut: 'G M', module: 'goals' },
+      { label: 'Agenda', icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A', module: 'calendar' },
+      { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F', module: null },
+      { label: 'Relatórios', icon: BarChart3, route: ROUTES.REPORTS, shortcut: 'G R', module: null },
     ],
   },
   {
     label: 'PESSOAL',
     items: [
-      { label: 'Notas', icon: FileText, route: ROUTES.NOTES, shortcut: 'G N' },
-      { label: 'Daily Log', icon: BookOpen, route: ROUTES.DAILY_LOG, shortcut: 'G L' },
-      { label: 'Bookmarks', icon: Bookmark, route: ROUTES.BOOKMARKS, shortcut: 'G B' },
-      { label: 'Compras', icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C' },
-      { label: 'Cofre', icon: Lock, route: ROUTES.VAULT, shortcut: 'G V' },
+      { label: 'Notas', icon: FileText, route: ROUTES.NOTES, shortcut: 'G N', module: 'notes' },
+      { label: 'Daily Log', icon: BookOpen, route: ROUTES.DAILY_LOG, shortcut: 'G L', module: 'daily_log' },
+      { label: 'Bookmarks', icon: Bookmark, route: ROUTES.BOOKMARKS, shortcut: 'G B', module: 'bookmarks' },
+      { label: 'Compras', icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
+      { label: 'Cofre', icon: Lock, route: ROUTES.VAULT, shortcut: 'G V', module: 'vault' },
     ],
   },
   {
     label: 'SISTEMA',
     items: [
-      { label: 'Configurações', icon: Settings, route: ROUTES.SETTINGS, shortcut: '' },
+      { label: 'Configurações', icon: Settings, route: ROUTES.SETTINGS, shortcut: '', module: null },
     ],
   },
 ]
+
+import { computed } from 'vue'
+
+const navSections = computed(() =>
+  ALL_NAV_SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter((item) =>
+      item.module === null || auth.moduleEnabled(item.module),
+    ),
+  })).filter((section) => section.items.length > 0),
+)
 
 function isActive(routeName: string): boolean {
   const name = String(route.name)

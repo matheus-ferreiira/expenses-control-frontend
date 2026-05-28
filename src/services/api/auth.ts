@@ -27,6 +27,11 @@ export const authApi = {
   me: () =>
     client.get<ApiResponse<User>>(API_ENDPOINTS.AUTH.ME).then(unwrap),
 
+  updateSettings: (settings: Record<string, unknown>) =>
+    client
+      .patch<ApiResponse<User>>(API_ENDPOINTS.AUTH.SETTINGS, { settings })
+      .then(unwrap),
+
   forgotPassword: (payload: ForgotPasswordPayload) =>
     client
       .post<ApiResponse<null>>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, payload)

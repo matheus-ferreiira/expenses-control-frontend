@@ -84,6 +84,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateSettings(settings: Record<string, unknown>) {
+    const updated = await authApi.updateSettings(settings)
+    user.value = updated
+    return updated
+  }
+
+  function moduleEnabled(moduleKey: string): boolean {
+    const modules = (user.value?.settings as { modules?: Record<string, boolean> } | undefined)
+      ?.modules
+    if (!modules || !(moduleKey in modules)) return true
+    return modules[moduleKey] !== false
+  }
+
   return {
     user,
     token,
@@ -96,6 +109,8 @@ export const useAuthStore = defineStore('auth', () => {
     fetchMe,
     clearAuth,
     loginWithToken,
+    updateSettings,
+    moduleEnabled,
   }
 })
 

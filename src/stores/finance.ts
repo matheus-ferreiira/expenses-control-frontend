@@ -239,6 +239,17 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function createCategory(payload: Omit<TransactionCategory, 'id' | 'user_id' | 'created_at'>): Promise<TransactionCategory> {
+    try {
+      const created = await financeApi.categories.create(payload)
+      categories.value.push(created)
+      return created
+    } catch (e: unknown) {
+      error.value = 'Erro ao criar categoria'
+      throw e
+    }
+  }
+
   async function updateCategory(id: string, payload: Partial<TransactionCategory>): Promise<TransactionCategory> {
     try {
       const updated = await financeApi.categories.update(id, payload)
@@ -296,6 +307,7 @@ export const useFinanceStore = defineStore('finance', () => {
     createTag,
     updateTag,
     deleteTag,
+    createCategory,
     updateCategory,
     createAccount,
     updateAccount,
