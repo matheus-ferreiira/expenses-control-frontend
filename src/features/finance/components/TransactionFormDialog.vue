@@ -10,6 +10,7 @@ import {
   CalendarCheck, Wallet, CheckCircle,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
+import CategoryQuickCreateSheet from './CategoryQuickCreateSheet.vue'
 import type { Transaction, TransactionType, RecurrenceUpdateScope } from '@/types/finance'
 import { useTransactionForm } from '../composables/useTransactionForm'
 import { useFinanceStore } from '@/stores/finance'
@@ -90,6 +91,9 @@ async function createInlineTag() {
     creatingTag.value = false
   }
 }
+
+// ── Quick-create category sheet ──────────────────────────────────────────────
+const showCategorySheet = ref(false)
 
 // ── Categories ───────────────────────────────────────────────────────────────
 const filteredCategories = computed(() =>
@@ -340,11 +344,10 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           </div>
 
           <!-- ── CATEGORIA — principal visual after value ──────── -->
-          <div v-if="form.type !== 'transfer' && filteredCategories.length > 0">
+          <div v-if="form.type !== 'transfer'">
             <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2.5">
               Categoria
             </p>
-            <!-- Scrollable horizontal grid — 4 cols wrap -->
             <div class="grid grid-cols-4 gap-2">
               <button
                 v-for="cat in filteredCategories"
@@ -373,8 +376,27 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 </span>
                 <span class="truncate w-full text-center text-[10.5px]">{{ cat.name }}</span>
               </button>
+
+              <!-- "+ Nova" button — always last in the grid -->
+              <button
+                type="button"
+                class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-border/50 py-3 px-1 text-[11px] font-medium text-muted-foreground/60 hover:border-border hover:text-muted-foreground hover:bg-muted/30 transition-all active:scale-95"
+                @click="showCategorySheet = true"
+              >
+                <span class="flex items-center justify-center size-9 rounded-xl bg-muted/40">
+                  <Plus :size="18" :stroke-width="1.8" />
+                </span>
+                <span class="text-[10.5px]">Nova</span>
+              </button>
             </div>
           </div>
+
+          <!-- Category quick-create sheet -->
+          <CategoryQuickCreateSheet
+            v-model:open="showCategorySheet"
+            :default-type="form.type !== 'transfer' ? form.type : 'expense'"
+            @created="(cat) => { form.category_id = cat.id }"
+          />
 
           <!-- ── TÍTULO ─────────────────────────────────────────── -->
           <div>
