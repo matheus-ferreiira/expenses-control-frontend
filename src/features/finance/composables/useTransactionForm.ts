@@ -76,8 +76,8 @@ export function useTransactionForm() {
       errors.transaction_date = 'Data é obrigatória'
       valid = false
     }
-    if (!form.account_id && !form.card_id) {
-      errors.account_id = 'Selecione uma conta ou cartão'
+    if (!form.account_id) {
+      errors.account_id = 'Selecione uma conta'
       valid = false
     }
     return valid
