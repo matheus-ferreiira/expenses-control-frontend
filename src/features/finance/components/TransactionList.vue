@@ -15,6 +15,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [transaction: Transaction]
+  confirmed: [transaction: Transaction]
 }>()
 
 const groups = computed(() => groupTransactionsByDate(props.transactions))
@@ -73,6 +74,7 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
           :key="t.id"
           :transaction="t"
           @select="emit('select', $event)"
+          @confirmed="emit('confirmed', $event)"
         />
       </div>
     </template>

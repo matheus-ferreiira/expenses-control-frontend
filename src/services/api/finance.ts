@@ -87,6 +87,14 @@ export const financeApi = {
         .put<ApiResponse<Transaction>>(API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id), payload)
         .then(unwrap),
 
+    confirm: (id: string) =>
+      client
+        .patch<ApiResponse<Transaction>>(
+          `${API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id)}/confirm`,
+          {},
+        )
+        .then(unwrap),
+
     delete: (id: string) =>
       client
         .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id))

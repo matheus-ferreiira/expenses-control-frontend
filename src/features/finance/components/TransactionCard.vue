@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat2 } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
+import { ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat2, CheckCircle2 } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
+import { financeApi } from '@/services/api/finance'
 
 const props = defineProps<{
   transaction: Transaction
@@ -11,7 +12,22 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [transaction: Transaction]
+  confirmed: [transaction: Transaction]
 }>()
+
+const confirming = ref(false)
+
+async function handleConfirm(e: MouseEvent) {
+  e.stopPropagation()
+  if (confirming.value) return
+  confirming.value = true
+  try {
+    const updated = await financeApi.transactions.confirm(props.transaction.id)
+    emit('confirmed', updated)
+  } finally {
+    confirming.value = false
+  }
+}
 
 /** Left accent bar color: category color > type color fallback */
 const accentColor = computed(() => {
@@ -26,7 +42,7 @@ const accentColor = computed(() => {
   <button
     type="button"
     class="w-full text-left group relative flex items-center gap-3 pl-4 pr-4 py-3 hover:bg-accent/20 active:bg-accent/30 transition-colors cursor-pointer"
-    :class="transaction.status === 'pending' ? 'opacity-60' : ''"
+    :class="transaction.status === 'pending' ? 'opacity-70' : ''"
     @click="emit('select', transaction)"
   >
 
@@ -108,7 +124,19 @@ const accentColor = computed(() => {
       </div>
     </div>
 
-    <!-- ── Pending badge (only for pending status) ───────────────── -->
+    <!-- ── Confirm button for pending transactions ───────────────── -->
+    <button
+      v-if="transaction.status === 'pending'"
+      type="button"
+      :disabled="confirming"
+      class="size-8 grid place-items-center rounded-full text-success hover:bg-success/10 active:scale-95 transition-all shrink-0"
+      title="Confirmar transação"
+      @click="handleConfirm"
+    >
+      <CheckCircle2 :size="18" :class="confirming ? 'opacity-40' : ''" />
+    </button>
+
+    <!-- ── Pending badge ──────────────────────────────────────────── -->
     <span
       v-if="transaction.status === 'pending'"
       class="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium border shrink-0 bg-muted/40 text-muted-foreground border-border/60"

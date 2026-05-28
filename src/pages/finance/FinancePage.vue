@@ -112,6 +112,15 @@ function onDetailDelete(id: string) {
   openDelete(id)
 }
 
+async function handleTransactionConfirmed(updated: Transaction) {
+  // Update the transaction in-place in the store
+  const idx = store.transactions.findIndex((t) => t.id === updated.id)
+  if (idx !== -1) store.transactions[idx] = updated
+  // Refresh accounts so the updated balance is reflected in sidebar + KPI cards
+  await store.fetchAll()
+  toast.success('Transação confirmada')
+}
+
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
 const deleteDescription = computed(() =>
   isRecurringDelete.value
@@ -607,6 +616,7 @@ onMounted(async () => {
             :transactions="store.transactions"
             :loading="store.loading"
             @select="openDetail"
+            @confirmed="handleTransactionConfirmed"
           />
         </div>
 
