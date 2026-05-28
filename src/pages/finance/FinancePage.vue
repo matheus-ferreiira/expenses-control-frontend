@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, Pencil, Check, X, Plus, Upload } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Pencil, Check, X, Plus, Upload, Flame, MoreHorizontal } from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
@@ -379,57 +386,58 @@ onMounted(async () => {
     />
 
     <!-- Header -->
-    <div class="mb-6">
-      <div class="flex items-start justify-between mb-3">
-        <div>
-          <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
-            Finanças
-          </p>
-          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
-            Visão geral
-          </h1>
-          <p class="text-[13px] text-muted-foreground/50">
-            Contas, cartões, despesas e receitas em uma única tela funcional.
-          </p>
-        </div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 mb-4 pb-3 border-b border-border">
+      <div>
+        <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/80 mb-0.5">
+          Finanças
+        </p>
+        <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
+          Visão geral
+        </h1>
+        <p class="text-[12px] text-muted-foreground mt-1 max-w-prose leading-relaxed">
+          Contas, cartões, despesas e receitas em uma única tela funcional.
+        </p>
       </div>
-
-      <!-- Action row: streak + buttons -->
-      <div class="flex items-center gap-2 flex-wrap">
-        <!-- Streak badge -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <!-- StreakChip -->
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[12px] font-medium transition-colors shrink-0"
-          :class="streakActive
-            ? 'bg-amber-500/15 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
-            : 'bg-muted/40 border-border/50 text-muted-foreground/50 hover:bg-muted'"
+          :aria-label="`Streak de ${streak} dias`"
+          class="inline-flex items-center gap-1 h-9 px-2.5 rounded-full border border-border bg-card text-[12px] font-semibold tabular-nums hover:bg-muted active:scale-95 transition-all"
+          :class="streakActive ? 'text-warning' : 'text-muted-foreground'"
           @click="streakSheetOpen = true"
         >
-          <span>{{ streakActive ? '🔥' : '🩶' }}</span>
-          <span>{{ streak }} dia{{ streak !== 1 ? 's' : '' }}</span>
+          <Flame class="size-3.5" :class="streakActive ? '' : 'opacity-50'" />
+          {{ streak }}
         </button>
 
-        <div class="flex-1" />
-
-        <!-- Importar OFX -->
+        <!-- Nova transação (hidden on mobile) -->
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium border border-border/60 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
-          @click="triggerOfxImport"
-        >
-          <Upload :size="12" />
-          Importar OFX
-        </button>
-
-        <!-- Nova transação -->
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
           @click="editingTransaction = null; transactionPrefill = null; formOpen = true"
         >
-          <Plus :size="12" />
+          <Plus class="size-3.5" />
           Transação
         </button>
+
+        <!-- More options dropdown (Importar OFX) -->
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <button
+              type="button"
+              aria-label="Mais opções"
+              class="min-w-9 h-9 grid place-items-center rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all"
+            >
+              <MoreHorizontal class="size-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="w-48">
+            <DropdownMenuItem class="cursor-pointer" @click="triggerOfxImport">
+              <Upload class="size-4 mr-2" /> Importar OFX
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
 
@@ -445,6 +453,7 @@ onMounted(async () => {
       :is-current-month="filterState.isCurrentMonth()"
       :loading="store.loading"
       :month-label="kpiMonthLabel"
+      :account-count="store.activeAccounts.length"
       class="mt-4 mb-4"
     />
 
@@ -601,272 +610,292 @@ onMounted(async () => {
 
       </div>
 
-      <!-- Sidebar column — contextual info (Sprint 3) -->
+      <!-- Sidebar column -->
       <div class="xl:col-span-1 space-y-4">
 
-        <!-- Accounts mini-list -->
-        <div class="rounded-lg border border-border/50 bg-card p-4">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-              Contas
-            </p>
+        <!-- Contas -->
+        <div class="bg-card border border-border rounded-md overflow-hidden">
+          <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
+            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Contas</h2>
             <RouterLink
               :to="{ name: 'finance-accounts' }"
-              class="text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-base"
+              class="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
             >
               Ver todas
             </RouterLink>
-          </div>
-          <div v-if="store.loading" class="space-y-2.5">
-            <div v-for="i in 3" :key="i" class="flex items-center justify-between">
-              <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
-              <div class="h-3 w-16 rounded bg-muted/60 animate-pulse" />
+          </header>
+          <div v-if="store.loading" class="divide-y divide-border">
+            <div v-for="i in 3" :key="i" class="flex items-center gap-3 px-4 py-3">
+              <div class="size-9 rounded-md bg-muted/60 animate-pulse shrink-0" />
+              <div class="flex-1 space-y-1.5">
+                <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
+                <div class="h-2.5 w-16 rounded bg-muted/60 animate-pulse" />
+              </div>
+              <div class="h-4 w-20 rounded bg-muted/60 animate-pulse" />
             </div>
           </div>
-          <div v-else-if="store.activeAccounts.length === 0" class="text-[12px] text-muted-foreground/40 py-2">
+          <div v-else-if="store.activeAccounts.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
             Nenhuma conta cadastrada
           </div>
-          <div v-else class="space-y-3">
-            <div
+          <ul v-else class="divide-y divide-border">
+            <li
               v-for="account in store.activeAccounts.slice(0, 4)"
               :key="account.id"
-              class="flex items-center gap-3"
+              class="relative flex items-center gap-3 px-4 py-3 pt-3.5"
             >
+              <!-- Brand color stripe at top -->
               <span
-                class="rounded-lg grid place-items-center shrink-0 w-9 h-9 text-xs font-bold"
+                class="absolute top-0 left-0 right-0 h-[2px]"
+                :style="{ background: account.color || 'hsl(var(--muted-foreground) / 0.3)' }"
+              />
+              <!-- Solid brand avatar -->
+              <span
+                class="size-9 rounded-md grid place-items-center font-bold text-[13px] shrink-0"
                 :style="{
-                  background: (account.color || '#888') + '22',
-                  color: account.color || 'hsl(var(--muted-foreground))',
+                  background: account.color || 'hsl(var(--muted-foreground) / 0.4)',
+                  color: 'hsl(var(--background))',
                 }"
               >
-                {{ account.name.charAt(0).toUpperCase() }}
+                {{ account.name.slice(0, 2).toUpperCase() }}
               </span>
               <div class="flex-1 min-w-0">
-                <p class="text-[12px] font-medium text-foreground/80 truncate">{{ account.name }}</p>
-                <p class="text-[10px] text-muted-foreground/60 truncate">{{ account.bank_name || account.type }}</p>
+                <p class="text-sm font-semibold truncate">{{ account.name }}</p>
+                <p class="text-[11px] text-muted-foreground">{{ account.bank_name || account.type }}</p>
               </div>
-              <span
-                :class="['text-[12px] font-medium tabular-nums shrink-0', account.balance < 0 ? 'text-destructive/70' : 'text-foreground/70']"
-              >
-                {{ account.balance < 0 ? '-' : '' }}{{ formatCurrency(Math.abs(account.balance)) }}
+              <span class="text-[20px] font-medium tabular-nums shrink-0">
+                {{ formatCurrency(account.balance) }}
               </span>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
 
-        <!-- Cards mini-list -->
-        <div class="rounded-lg border border-border/50 bg-card p-4">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-              Cartões
-            </p>
+        <!-- Cartões -->
+        <div class="bg-card border border-border rounded-md overflow-hidden">
+          <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
+            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Cartões</h2>
             <RouterLink
               :to="{ name: 'finance-cards' }"
-              class="text-[11px] text-muted-foreground/40 hover:text-muted-foreground transition-base"
+              class="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
             >
               Ver todos
             </RouterLink>
-          </div>
-          <div v-if="store.loading" class="space-y-2.5">
-            <div v-for="i in 2" :key="i" class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
-                <div class="h-3 w-12 rounded bg-muted/60 animate-pulse" />
-              </div>
-              <div class="h-1 w-full rounded bg-muted/60 animate-pulse" />
-            </div>
-          </div>
-          <div v-else-if="store.activeCards.length === 0" class="text-[12px] text-muted-foreground/40 py-2">
-            Nenhum cartão cadastrado
-          </div>
-          <div v-else class="space-y-3">
-            <div
-              v-for="card in store.activeCards.slice(0, 3)"
-              :key="card.id"
-            >
-              <div class="flex items-center gap-3 mb-1.5">
-                <span
-                  class="rounded-lg grid place-items-center shrink-0 w-8 h-8 text-xs font-bold"
-                  :style="{
-                    background: (card.color || '#888') + '22',
-                    color: card.color || 'hsl(var(--muted-foreground))',
-                  }"
-                >
-                  {{ card.name.charAt(0).toUpperCase() }}
-                </span>
-                <div class="flex-1 min-w-0">
-                  <p class="text-[12px] font-medium text-foreground/80 truncate">{{ card.name }}</p>
-                  <p class="text-[10px] text-muted-foreground/60">vence dia {{ card.due_day }}</p>
+          </header>
+          <div v-if="store.loading" class="divide-y divide-border">
+            <div v-for="i in 2" :key="i" class="px-4 py-3 space-y-2">
+              <div class="flex items-center gap-2">
+                <div class="size-8 rounded-md bg-muted/60 animate-pulse shrink-0" />
+                <div class="flex-1 space-y-1.5">
+                  <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
+                  <div class="h-2.5 w-20 rounded bg-muted/60 animate-pulse" />
                 </div>
-                <span class="text-[11px] tabular-nums text-muted-foreground/50 shrink-0">
-                  {{ utilizationPercent(cardUsed(card.id), card.limit_amount) }}%
-                </span>
-              </div>
-              <div class="h-1 rounded-full overflow-hidden bg-muted/40">
-                <div
-                  class="h-full rounded-full transition-all"
-                  :class="
-                    utilizationPercent(cardUsed(card.id), card.limit_amount) >= 80
-                      ? 'bg-destructive/60'
-                      : utilizationPercent(cardUsed(card.id), card.limit_amount) >= 50
-                        ? 'bg-warning/70'
-                        : 'bg-success/60'
-                  "
-                  :style="{ width: utilizationPercent(cardUsed(card.id), card.limit_amount) + '%' }"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category spending — top 5 with budget limits -->
-        <div class="rounded-lg border border-border/50 bg-card p-4">
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
-            Gastos por categoria
-          </p>
-          <div v-if="store.loading" class="space-y-2.5">
-            <div v-for="i in 5" :key="i" class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <div class="h-2.5 w-24 rounded bg-muted/60 animate-pulse" />
-                <div class="h-2.5 w-8 rounded bg-muted/60 animate-pulse" />
               </div>
               <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
             </div>
           </div>
-          <div v-else-if="topCategories.length === 0" class="text-[12px] text-muted-foreground/40 py-2">
-            Sem despesas este mês
+          <div v-else-if="store.activeCards.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
+            Nenhum cartão cadastrado
           </div>
-          <div v-else class="space-y-3">
-            <div v-for="cat in topCategories" :key="cat.name">
-              <!-- Inline budget editor -->
-              <div v-if="editingBudgetCatId === cat.id" class="flex items-center gap-1.5 mb-1.5">
-                <span class="h-1.5 w-1.5 rounded-full shrink-0" :style="{ background: cat.color }" />
-                <span class="text-[12px] text-foreground/70 truncate flex-1">{{ cat.name }}</span>
-                <input
-                  v-model="editingBudgetValue"
-                  type="number"
-                  min="0"
-                  step="10"
-                  placeholder="Limite"
-                  class="w-20 h-6 text-[11px] px-1.5 rounded border border-border bg-background text-foreground text-right"
-                  @keyup.enter="saveBudget(cat.id)"
-                  @keyup.escape="cancelEditBudget"
-                />
-                <button
-                  type="button"
-                  class="size-6 flex items-center justify-center rounded text-success hover:bg-success/10 transition-colors"
-                  :disabled="savingBudget"
-                  @click="saveBudget(cat.id)"
+          <ul v-else class="divide-y divide-border">
+            <li
+              v-for="card in store.activeCards.slice(0, 3)"
+              :key="card.id"
+              class="px-4 py-3 hover:bg-muted/30 transition-colors"
+              :style="{ boxShadow: `inset 3px 0 0 0 ${card.color || 'hsl(var(--muted-foreground) / 0.3)'}` }"
+            >
+              <div class="flex items-start gap-3 text-sm">
+                <!-- Solid color avatar -->
+                <span
+                  class="size-8 rounded-md grid place-items-center font-bold text-[11px] shrink-0"
+                  :style="{
+                    background: card.color || 'hsl(var(--muted-foreground) / 0.4)',
+                    color: 'hsl(var(--background))',
+                  }"
                 >
-                  <Check :size="12" />
-                </button>
-                <button
-                  type="button"
-                  class="size-6 flex items-center justify-center rounded text-muted-foreground hover:bg-muted transition-colors"
-                  @click="cancelEditBudget"
-                >
-                  <X :size="12" />
-                </button>
-              </div>
-
-              <!-- Normal display -->
-              <template v-else>
-                <div class="flex items-center justify-between mb-1">
-                  <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="h-1.5 w-1.5 rounded-full shrink-0" :style="{ background: cat.color }" />
-                    <span class="text-[12px] text-foreground/70 truncate">{{ cat.name }}</span>
+                  {{ card.name.slice(0, 2).toUpperCase() }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium truncate">{{ card.name }}</p>
+                  <p class="text-[11px] text-muted-foreground">vence dia {{ card.due_day }}</p>
+                  <!-- Fatura atual -->
+                  <div class="mt-1.5 flex items-baseline gap-1.5">
+                    <span class="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fatura:</span>
+                    <span class="text-[14px] font-medium tabular-nums">{{ formatCurrency(cardUsed(card.id)) }}</span>
                   </div>
-                  <div class="flex items-center gap-1.5 shrink-0 ml-2">
-                    <!-- Month-over-month delta for this category -->
-                    <template v-if="prevCategoryMap.size > 0">
-                      <span
-                        v-if="prevCategoryMap.has(cat.name)"
-                        class="text-[10px] font-medium tabular-nums"
-                        :class="(cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? 'text-destructive/70' : 'text-success/70'"
-                      >
-                        {{ (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? '↑' : '↓' }}
-                        {{ formatCurrency(Math.abs(cat.total - (prevCategoryMap.get(cat.name) ?? 0))) }}
-                      </span>
-                    </template>
-                    <span class="text-[11px] text-muted-foreground/50">{{ cat.percent }}%</span>
-                    <button
-                      type="button"
-                      class="size-4 flex items-center justify-center rounded text-muted-foreground/30 hover:text-muted-foreground transition-colors"
-                      title="Definir meta"
-                      @click="startEditBudget(cat.id, cat.monthlyLimit)"
-                    >
-                      <Pencil :size="9" />
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Budget bar (if limit set) -->
-                <template v-if="cat.budgetPercent != null">
-                  <div class="h-1 rounded-full overflow-hidden bg-muted/40 mb-0.5">
-                    <div
-                      class="h-full rounded-full transition-all"
-                      :class="
-                        cat.budgetPercent >= 90 ? 'bg-destructive' :
-                        cat.budgetPercent >= 70 ? 'bg-warning' : 'bg-success'
-                      "
-                      :style="{ width: cat.budgetPercent + '%' }"
-                    />
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-[10px] text-muted-foreground/40 tabular-nums">
-                      {{ formatCurrency(cat.total) }} de {{ formatCurrency(cat.monthlyLimit!) }}
-                    </span>
+                  <!-- DueBadge -->
+                  <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
                     <span
-                      v-if="cat.budgetPercent >= 100"
-                      class="text-[9px] font-medium text-destructive/80"
+                      class="inline-flex items-center h-6 px-2 rounded-md text-[11px] font-semibold border"
+                      :class="
+                        (card.due_day - today) < 3
+                          ? 'bg-destructive/20 text-destructive border-destructive/40 font-bold'
+                          : (card.due_day - today) <= 10
+                            ? 'bg-warning/15 text-warning border-warning/30'
+                            : 'bg-success/15 text-success border-success/30'
+                      "
                     >
-                      Meta estourada
-                    </span>
-                    <span v-else class="text-[10px] text-muted-foreground/40 tabular-nums">
-                      {{ cat.budgetPercent }}% da meta
+                      {{ card.due_day - today === 0 ? 'Vence hoje' : card.due_day - today === 1 ? 'Vence amanhã' : `Vence em ${card.due_day - today} dias` }}
                     </span>
                   </div>
-                </template>
-
-                <!-- Simple bar (no limit) -->
-                <div v-else class="h-1 rounded-full overflow-hidden bg-muted/40">
-                  <div
-                    class="h-full rounded-full transition-all"
-                    :style="{ width: cat.percent + '%', background: cat.color + '99' }"
-                  />
                 </div>
-              </template>
-            </div>
-          </div>
+              </div>
+              <!-- Utilization bar -->
+              <div class="h-1 bg-muted rounded-full overflow-hidden mt-2.5">
+                <div
+                  class="h-full transition-all duration-500"
+                  :class="
+                    utilizationPercent(cardUsed(card.id), card.limit_amount) >= 76 ? 'bg-destructive' :
+                    utilizationPercent(cardUsed(card.id), card.limit_amount) >= 51 ? 'bg-warning' : 'bg-success'
+                  "
+                  :style="{ width: utilizationPercent(cardUsed(card.id), card.limit_amount) + '%' }"
+                />
+              </div>
+              <div class="flex justify-between text-[10.5px] text-muted-foreground/80 mt-1 tabular-nums">
+                <span>{{ formatCurrency(cardUsed(card.id)) }} / {{ formatCurrency(card.limit_amount) }}</span>
+                <span>{{ utilizationPercent(cardUsed(card.id), card.limit_amount) }}%</span>
+              </div>
+            </li>
+          </ul>
         </div>
 
-        <!-- Upcoming bills — cards due within 10 days -->
-        <div v-if="!store.loading && upcomingBills.length > 0" class="rounded-lg border border-border/50 bg-card p-4">
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
-            Próximos vencimentos
-          </p>
-          <div class="space-y-2.5">
+        <!-- Categorias do mês -->
+        <div class="bg-card border border-border rounded-md overflow-hidden">
+          <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
+            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Categorias do mês</h2>
+          </header>
+          <div v-if="store.loading" class="divide-y divide-border">
+            <div v-for="i in 4" :key="i" class="flex items-center gap-3 px-4 py-3">
+              <div class="size-7 rounded-md bg-muted/60 animate-pulse shrink-0" />
+              <div class="flex-1 space-y-1.5">
+                <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
+                <div class="h-1.5 w-full rounded-full bg-muted/60 animate-pulse mt-2" />
+              </div>
+            </div>
+          </div>
+          <div v-else-if="topCategories.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
+            Sem despesas este mês
+          </div>
+          <ul v-else class="divide-y divide-border">
+            <li v-for="cat in topCategories" :key="cat.name">
+              <button
+                type="button"
+                class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/30"
+                @click="startEditBudget(cat.id, cat.monthlyLimit)"
+              >
+                <div class="flex items-center gap-3">
+                  <!-- Color swatch -->
+                  <span
+                    class="size-7 rounded-md grid place-items-center shrink-0 text-[11px] font-bold"
+                    :style="{ background: cat.color + '22', color: cat.color }"
+                  >
+                    {{ cat.name.charAt(0).toUpperCase() }}
+                  </span>
+                  <span class="flex-1 text-sm">{{ cat.name }}</span>
+                  <div class="text-right">
+                    <span class="block text-sm tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
+                    <span v-if="cat.monthlyLimit" class="block text-[10.5px] text-muted-foreground tabular-nums">
+                      de {{ formatCurrency(cat.monthlyLimit) }}
+                    </span>
+                  </div>
+                </div>
+                <!-- Budget progress bar -->
+                <div class="mt-1.5 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all"
+                    :style="{
+                      width: (cat.budgetPercent != null ? cat.budgetPercent : cat.percent) + '%',
+                      background: (cat.budgetPercent != null && cat.budgetPercent >= 100) ? 'var(--destructive)'
+                        : (cat.budgetPercent != null && cat.budgetPercent >= 70) ? 'var(--warning)'
+                        : cat.color,
+                    }"
+                  />
+                </div>
+                <div class="mt-1 ml-10 flex items-center justify-between text-[11px]">
+                  <span
+                    v-if="cat.budgetPercent != null && cat.budgetPercent >= 100"
+                    class="inline-flex items-center gap-1 px-1.5 h-5 rounded text-[10px] font-bold border bg-destructive/15 text-destructive border-destructive/30"
+                  >
+                    Meta estourada
+                  </span>
+                  <span v-else class="text-muted-foreground tabular-nums">
+                    {{ cat.budgetPercent != null ? cat.budgetPercent + '% da meta' : cat.percent + '% do total' }}
+                  </span>
+                  <!-- Delta vs mês anterior -->
+                  <span
+                    v-if="prevCategoryMap.has(cat.name)"
+                    class="inline-flex items-center gap-0.5 font-semibold tabular-nums"
+                    :class="(cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? 'text-destructive' : (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) < 0 ? 'text-success' : 'text-muted-foreground'"
+                  >
+                    {{ (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? '+' : '-' }}{{ formatCurrency(Math.abs(cat.total - (prevCategoryMap.get(cat.name) ?? 0))) }}
+                  </span>
+                </div>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Budget edit sheet (replaces inline editor) -->
+        <Sheet :open="editingBudgetCatId !== null" @update:open="(v) => { if (!v) cancelEditBudget() }">
+          <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
+            <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
+            <SheetHeader class="text-left mb-4">
+              <SheetTitle class="text-base">Meta de {{ topCategories.find(c => c.id === editingBudgetCatId)?.name }}</SheetTitle>
+              <SheetDescription class="text-xs">Defina o limite mensal para esta categoria.</SheetDescription>
+            </SheetHeader>
+            <label class="block text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">Meta mensal</label>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-muted-foreground">R$</span>
+              <input
+                v-model="editingBudgetValue"
+                type="number"
+                min="0"
+                step="10"
+                placeholder="0"
+                class="flex-1 h-10 text-lg font-semibold tabular-nums bg-background border border-input rounded-md px-3 text-foreground"
+                @keyup.enter="editingBudgetCatId && saveBudget(editingBudgetCatId)"
+              />
+            </div>
+            <div class="flex gap-2 mt-5">
+              <button
+                type="button"
+                class="flex-1 h-9 px-3 text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium inline-flex items-center justify-center rounded-md border border-border bg-transparent hover:bg-muted/60 text-foreground transition-colors"
+                @click="cancelEditBudget"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="flex-1 h-9 px-3 text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium inline-flex items-center justify-center rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors"
+                :disabled="savingBudget"
+                @click="editingBudgetCatId && saveBudget(editingBudgetCatId)"
+              >
+                Salvar meta
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <!-- Upcoming bills — within 10 days -->
+        <div v-if="!store.loading && upcomingBills.length > 0" class="bg-card border border-border rounded-md overflow-hidden">
+          <header class="flex items-center px-3.5 h-9 border-b border-border">
+            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Próximos vencimentos</h2>
+          </header>
+          <div class="divide-y divide-border">
             <div
               v-for="card in upcomingBills"
               :key="card.id"
-              class="flex items-center justify-between"
+              class="flex items-center justify-between px-4 py-3"
             >
               <div class="flex items-center gap-2 min-w-0">
-                <div
-                  class="h-2 w-2 rounded-full shrink-0"
-                  :style="{ background: card.color || 'hsl(var(--muted-foreground))' }"
-                />
+                <div class="h-2 w-2 rounded-full shrink-0" :style="{ background: card.color || 'hsl(var(--muted-foreground))' }" />
                 <span class="text-[12px] text-foreground/80 truncate">{{ card.name }}</span>
               </div>
               <span
-                :class="[
-                  'text-[11px] shrink-0 ml-2 font-medium',
-                  card.due_day - today === 0
-                    ? 'text-destructive/80'
-                    : card.due_day - today <= 3
-                      ? 'text-warning/80'
-                      : 'text-muted-foreground/50',
-                ]"
+                class="text-[11px] shrink-0 ml-2 font-medium"
+                :class="
+                  card.due_day - today === 0 ? 'text-destructive/80' :
+                  card.due_day - today <= 3 ? 'text-warning/80' :
+                  'text-muted-foreground/50'
+                "
               >
                 {{ card.due_day - today === 0 ? 'vence hoje' : `dia ${card.due_day}` }}
               </span>
@@ -907,37 +936,28 @@ onMounted(async () => {
   />
 
   <!-- Streak info sheet -->
-  <Teleport to="body">
-    <Transition name="sheet-fade">
-      <div
-        v-if="streakSheetOpen"
-        class="fixed inset-0 z-50 flex items-end"
-        @click.self="streakSheetOpen = false"
+  <Sheet v-model:open="streakSheetOpen">
+    <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
+      <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
+      <SheetHeader class="text-left">
+        <SheetTitle class="text-base flex items-center gap-2">
+          <Flame class="size-4 text-warning" />
+          {{ streak }} dias seguidos
+        </SheetTitle>
+        <SheetDescription class="text-xs">
+          {{ streakActive
+            ? 'Você está registrando há vários dias seguidos. Continue assim!'
+            : 'Você ainda não registrou nada hoje. Registre uma transação para manter sua sequência.' }}
+        </SheetDescription>
+      </SheetHeader>
+      <button
+        v-if="!streakActive"
+        type="button"
+        class="w-full mt-4 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-md text-[14.5px] lg:h-8 lg:px-2.5 lg:text-[12.5px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
+        @click="streakSheetOpen = false; editingTransaction = null; transactionPrefill = null; formOpen = true"
       >
-        <div class="absolute inset-0 bg-black/50" @click="streakSheetOpen = false" />
-        <div class="relative w-full rounded-t-2xl bg-card border-t border-border p-6 pb-8 z-10">
-          <div class="flex flex-col items-center text-center gap-3">
-            <span class="text-5xl">{{ streakActive ? '🔥' : '🩶' }}</span>
-            <div>
-              <p class="text-xl font-semibold text-foreground">
-                {{ streakActive
-                  ? `Você está registrando há ${streak} dia${streak !== 1 ? 's' : ''} seguidos!`
-                  : 'Nenhum registro hoje ainda.' }}
-              </p>
-              <p class="text-[13px] text-muted-foreground/60 mt-1">
-                {{ streakActive ? 'Continue assim! 💪' : 'Registre uma transação para começar seu streak.' }}
-              </p>
-            </div>
-            <button
-              type="button"
-              class="mt-2 h-9 px-5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-              @click="streakSheetOpen = false; editingTransaction = null; transactionPrefill = null; formOpen = true"
-            >
-              + Registrar agora
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+        <Plus class="size-4" /> Registrar agora
+      </button>
+    </SheetContent>
+  </Sheet>
 </template>
