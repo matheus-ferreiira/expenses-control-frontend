@@ -23,6 +23,7 @@ import { useTransactionFilters, type QuickFilter } from '@/features/finance/comp
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent, monthLabel as getMonthLabel } from '@/features/finance/utils/financeHelpers'
+import { findIcon } from '@/lib/icons'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -177,7 +178,7 @@ const topCategories = computed(() => {
     .filter((t) => t.type === 'expense')
     .reduce((s, t) => s + t.amount, 0)
 
-  const map = new Map<string, { id: string; name: string; color: string; total: number; monthlyLimit: number | null }>()
+  const map = new Map<string, { id: string; name: string; color: string; icon: string | null; total: number; monthlyLimit: number | null }>()
   store.transactions
     .filter((t) => t.type === 'expense' && t.category)
     .forEach((t) => {
@@ -189,6 +190,7 @@ const topCategories = computed(() => {
         id: cat.id,
         name: cat.name,
         color: cat.color,
+        icon: storeCat?.icon ?? cat.icon ?? null,
         total: t.amount,
         monthlyLimit: storeCat?.monthly_limit ?? null,
       })
@@ -204,59 +206,6 @@ const topCategories = computed(() => {
         ? Math.min(100, Math.round((c.total / c.monthlyLimit) * 100))
         : null,
     }))
-})
-
-// Quick shortcuts: top 5 most frequent transactions
-const quickShortcuts = computed(() => {
-  type ShortcutEntry = {
-    description: string
-    type: string
-    categoryId?: string
-    categoryName?: string
-    categoryColor?: string
-    accountId?: string
-    amounts: number[]
-    count: number
-  }
-  const map = new Map<string, ShortcutEntry>()
-
-  store.transactions.forEach((t) => {
-    if (t.type === 'transfer') return
-    const key = t.description.toLowerCase().trim()
-    const entry = map.get(key)
-    if (entry) {
-      entry.count++
-      if (entry.amounts.length < 10) entry.amounts.push(t.amount)
-    } else {
-      map.set(key, {
-        description: t.description,
-        type: t.type,
-        categoryId: t.category_id ?? undefined,
-        categoryName: t.category?.name,
-        categoryColor: t.category?.color,
-        accountId: t.account_id ?? undefined,
-        amounts: [t.amount],
-        count: 1,
-      })
-    }
-  })
-
-  return Array.from(map.values())
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5)
-    .map((s) => {
-      const recent = s.amounts.slice(0, 3)
-      const avg = recent.reduce((sum, v) => sum + v, 0) / recent.length
-      return {
-        description: s.description,
-        type: s.type,
-        categoryId: s.categoryId,
-        categoryName: s.categoryName,
-        categoryColor: s.categoryColor,
-        accountId: s.accountId,
-        avgAmount: avg,
-      }
-    })
 })
 
 // Budget usage: expenses as % of income
@@ -358,10 +307,8 @@ const expenseDelta = computed(() => {
   return expenses.value - prevMonthReport.value.expenses
 })
 
-const incomeDelta = computed(() => {
-  if (!prevMonthReport.value) return null
-  return income.value - prevMonthReport.value.income
-})
+// incomeDelta reserved for future use
+// const incomeDelta = computed(() => prevMonthReport.value ? income.value - prevMonthReport.value.income : null)
 
 /** Map of category name → previous month total for quick lookup */
 const prevCategoryMap = computed<Map<string, number>>(() => {
@@ -407,11 +354,8 @@ function openEdit(t: Transaction) {
   formOpen.value = true
 }
 
-function openWithPrefill(prefill: TransactionPrefill) {
-  editingTransaction.value = null
-  transactionPrefill.value = prefill
-  formOpen.value = true
-}
+// openWithPrefill reserved for quick-shortcut feature
+// function openWithPrefill(prefill: TransactionPrefill) { ... }
 
 function openDelete(id: string) {
   const t = store.transactions.find((t) => t.id === id) ?? null
@@ -1036,12 +980,18 @@ onMounted(async () => {
                 @click="startEditBudget(cat.id, cat.monthlyLimit)"
               >
                 <div class="flex items-center gap-3">
-                  <!-- Color swatch -->
+                  <!-- Category icon swatch (28px, matches Lovable IconSwatch size={28}) -->
                   <span
-                    class="size-7 rounded-md grid place-items-center shrink-0 text-[11px] font-bold"
+                    class="size-7 rounded-md grid place-items-center shrink-0"
                     :style="{ background: cat.color + '22', color: cat.color }"
                   >
-                    {{ cat.name.charAt(0).toUpperCase() }}
+                    <component
+                      v-if="cat.icon && findIcon(cat.icon)"
+                      :is="findIcon(cat.icon)!.component"
+                      :size="14"
+                      :stroke-width="1.9"
+                    />
+                    <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
                   </span>
                   <span class="flex-1 text-sm">{{ cat.name }}</span>
                   <div class="text-right">
