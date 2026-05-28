@@ -271,6 +271,26 @@ const daysLeftInMonth = computed(() => {
   return lastDay - now.getDate()
 })
 
+// Custom period picker for desktop
+const showPeriodPicker = ref(false)
+const periodStartDate = ref('')
+const periodEndDate = ref('')
+
+function applyCustomPeriod() {
+  if (periodStartDate.value && periodEndDate.value) {
+    filterState.customStartDate.value = periodStartDate.value
+    filterState.customEndDate.value = periodEndDate.value
+    filterState.applyCustomRange()
+    showPeriodPicker.value = false
+  }
+}
+
+function clearCustomPeriod() {
+  filterState.clearCustomRange()
+  periodStartDate.value = ''
+  periodEndDate.value = ''
+}
+
 // Mobile status chip — mirrors the Lovable MonthSummary status logic
 const mobileStatus = computed(() => {
   if (exceededCategory.value) {
@@ -692,7 +712,7 @@ onMounted(async () => {
               <h2 class="text-sm font-semibold">Transações</h2>
               <div class="flex items-center gap-1">
                 <!-- Month nav only on desktop — mobile uses the summary card nav -->
-                <div class="hidden lg:flex items-center">
+                <div class="hidden lg:flex items-center gap-1">
                   <MonthNavigator
                     :month="filterState.month.value"
                     :is-current-month="filterState.isCurrentMonth()"
@@ -700,6 +720,53 @@ onMounted(async () => {
                     @next="filterState.nextMonth()"
                     @reset="filterState.resetToCurrentMonth()"
                   />
+                  <!-- Custom period picker button -->
+                  <DropdownMenu v-model:open="showPeriodPicker">
+                    <DropdownMenuTrigger class="size-9 grid place-items-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" asChild>
+                      <button type="button" aria-label="Período personalizado" :class="filterState.useCustomRange ? 'text-foreground' : ''">
+                        <Calendar :size="16" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" class="w-64 p-3 space-y-2">
+                      <div class="text-xs font-semibold text-foreground mb-2">Período personalizado</div>
+                      <div class="space-y-2">
+                        <div class="flex flex-col">
+                          <label class="text-xs text-muted-foreground mb-1">De:</label>
+                          <input
+                            v-model="periodStartDate"
+                            type="date"
+                            class="px-2 py-1.5 rounded text-sm bg-background border border-border"
+                          />
+                        </div>
+                        <div class="flex flex-col">
+                          <label class="text-xs text-muted-foreground mb-1">Até:</label>
+                          <input
+                            v-model="periodEndDate"
+                            type="date"
+                            class="px-2 py-1.5 rounded text-sm bg-background border border-border"
+                          />
+                        </div>
+                      </div>
+                      <div class="flex gap-2 pt-2">
+                        <button
+                          type="button"
+                          @click="applyCustomPeriod"
+                          :disabled="!periodStartDate || !periodEndDate"
+                          class="flex-1 px-2 py-1.5 rounded text-xs font-medium bg-primary text-primary-foreground disabled:opacity-50 hover:opacity-90"
+                        >
+                          Aplicar
+                        </button>
+                        <button
+                          v-if="filterState.useCustomRange"
+                          type="button"
+                          @click="clearCustomPeriod"
+                          class="flex-1 px-2 py-1.5 rounded text-xs font-medium border border-border hover:bg-muted"
+                        >
+                          Limpar
+                        </button>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <button
                   type="button"
