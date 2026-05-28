@@ -19,19 +19,23 @@ function isActive(routeName: string): boolean {
 </script>
 
 <template>
-  <div class="flex gap-1 border-b border-border/60 mb-5 overflow-x-auto scrollbar-none">
-    <button
-      v-for="tab in tabs"
-      :key="tab.route"
-      :class="[
-        'px-3 py-2 text-[13px] font-medium transition-base border-b-2 -mb-px shrink-0 whitespace-nowrap',
-        isActive(tab.route)
-          ? 'border-primary text-foreground'
-          : 'border-transparent text-muted-foreground/60 hover:text-foreground',
-      ]"
-      @click="router.push({ name: tab.route })"
-    >
-      {{ tab.label }}
-    </button>
+  <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none scroll-fade-x">
+    <div class="flex items-center gap-1 w-max border-b border-border">
+      <button
+        v-for="tab in tabs"
+        :key="tab.route"
+        :class="[
+          'relative px-3 h-10 text-sm font-medium whitespace-nowrap transition-colors shrink-0',
+          isActive(tab.route) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+        ]"
+        @click="router.push({ name: tab.route })"
+      >
+        {{ tab.label }}
+        <span
+          v-if="isActive(tab.route)"
+          class="absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-primary"
+        />
+      </button>
+    </div>
   </div>
 </template>

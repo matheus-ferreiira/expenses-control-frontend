@@ -527,13 +527,15 @@ onMounted(async () => {
     </div>
 
     <!-- 2-column layout: main (2/3) + sidebar (1/3) -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       <!-- Main column -->
-      <div class="xl:col-span-2 space-y-6">
+      <div class="lg:col-span-2 space-y-6">
 
         <!-- Cashflow chart — anchored to the selected month -->
-        <FinanceCashflowChart :month="filterState.month.value" />
+        <div class="hidden lg:block">
+          <FinanceCashflowChart :month="filterState.month.value" />
+        </div>
 
         <!-- Month navigator + transactions -->
         <div>
@@ -611,7 +613,7 @@ onMounted(async () => {
       </div>
 
       <!-- Sidebar column -->
-      <div class="xl:col-span-1 space-y-4">
+      <div class="lg:col-span-1 space-y-4">
 
         <!-- Contas -->
         <div class="bg-card border border-border rounded-md overflow-hidden">
