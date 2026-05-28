@@ -3,7 +3,12 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { Skeleton } from '@ui/skeleton'
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Receipt, PieChart } from 'lucide-vue-next'
+import {
+  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Receipt, PieChart,
+  AlertTriangle, Sparkles,
+  ShoppingCart, UtensilsCrossed, Car, Home, Heart, Tv2, Repeat, Tag,
+  Zap, Dumbbell, Book, Plane, Baby, PawPrint, Banknote, Briefcase, GraduationCap,
+} from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
 
@@ -126,10 +131,65 @@ const maxCategoryTotal = computed(() =>
   Math.max(...(report.value?.expenses_by_category.map((c) => c.total) ?? [1]), 1)
 )
 
-function barColor(pct: number): string {
-  if (pct < 50) return 'bg-success'
-  if (pct < 75) return 'bg-warning'
-  return 'bg-destructive'
+/** Narrative banner */
+const narrative = computed(() => {
+  if (!report.value) return null
+  const { income, expenses, expenses_by_category } = report.value
+  const diff = expenses - income
+  const topCat = expenses_by_category[0]?.category ?? null
+  if (diff > 0) {
+    return {
+      tone: 'danger' as const,
+      icon: AlertTriangle,
+      text: `Em ${monthLabel.value} você gastou ${formatCurrency(diff)} a mais do que recebeu.${topCat ? ` ${topCat} foi o principal fator.` : ''}`,
+    }
+  }
+  if (income > 0 && expenses <= income * 0.8) {
+    return {
+      tone: 'ok' as const,
+      icon: TrendingUp,
+      text: `Ótimo mês! Você ficou ${formatCurrency(income - expenses)} abaixo das suas receitas em ${monthLabel.value}.`,
+    }
+  }
+  return {
+    tone: 'neutral' as const,
+    icon: Sparkles,
+    text: `${monthLabel.value} equilibrado. Despesas dentro das receitas em quase todas as categorias.`,
+  }
+})
+
+const narrativeCls = computed(() => {
+  if (!narrative.value) return ''
+  if (narrative.value.tone === 'danger') return 'bg-destructive/[0.08] text-destructive/90'
+  if (narrative.value.tone === 'ok') return 'bg-success/[0.08] text-success/90'
+  return 'bg-muted/50 text-foreground/80'
+})
+
+/** Map a category name to a Lucide icon component */
+const CATEGORY_ICONS: Record<string, object> = {
+  restaurante: UtensilsCrossed, alimentação: UtensilsCrossed, lanche: UtensilsCrossed,
+  padaria: UtensilsCrossed, café: UtensilsCrossed, bar: UtensilsCrossed,
+  supermercado: ShoppingCart, mercado: ShoppingCart, compras: ShoppingCart,
+  transporte: Car, uber: Car, ônibus: Car, combustível: Zap, gasolina: Zap,
+  moradia: Home, aluguel: Home, condomínio: Home,
+  saúde: Heart, farmácia: Heart, médico: Heart,
+  lazer: Tv2, entretenimento: Tv2, cinema: Tv2, streaming: Tv2,
+  assinaturas: Repeat, subscriptions: Repeat,
+  academia: Dumbbell, esporte: Dumbbell,
+  educação: GraduationCap, curso: GraduationCap, livro: Book,
+  viagem: Plane, hotel: Plane,
+  pets: PawPrint, animais: PawPrint,
+  bebê: Baby, filhos: Baby,
+  investimento: Banknote, poupança: Banknote,
+  trabalho: Briefcase, serviços: Briefcase,
+}
+
+function categoryIcon(name: string): object {
+  const key = name.toLowerCase().trim()
+  for (const [k, icon] of Object.entries(CATEGORY_ICONS)) {
+    if (key.includes(k)) return icon as object
+  }
+  return Tag
 }
 
 onMounted(() => load())
@@ -155,22 +215,31 @@ onMounted(() => load())
     <FinanceSubNav />
 
     <!-- Month navigator -->
-    <div class="flex items-center justify-between mb-5">
+    <div class="flex items-center justify-between bg-card border border-border rounded-lg px-2 py-1.5 mb-5">
       <button
         type="button"
-        class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-accent/40 transition-colors text-muted-foreground hover:text-foreground"
+        class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
         @click="prevMonth"
       >
-        <ChevronLeft :size="16" />
+        <ChevronLeft :size="18" />
       </button>
-      <span class="text-[14px] font-semibold text-foreground">{{ monthLabel }}</span>
+      <span class="text-[15px] font-semibold text-foreground">{{ monthLabel }}</span>
       <button
         type="button"
-        class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-accent/40 transition-colors text-muted-foreground hover:text-foreground"
+        class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
         @click="nextMonth"
       >
-        <ChevronRight :size="16" />
+        <ChevronRight :size="18" />
       </button>
+    </div>
+
+    <!-- Narrative banner -->
+    <div
+      v-if="!loading && narrative"
+      :class="['flex items-start gap-2.5 rounded-lg px-3.5 py-3 text-[12.5px] leading-snug font-medium mb-5', narrativeCls]"
+    >
+      <component :is="narrative.icon" :size="16" class="shrink-0 mt-0.5" />
+      <span>{{ narrative.text }}</span>
     </div>
 
     <!-- Loading -->
@@ -294,42 +363,41 @@ onMounted(() => load())
           </span>
         </div>
 
-        <div class="space-y-2">
-          <div
-            v-for="cat in report.expenses_by_category.sort((a, b) => b.total - a.total)"
+        <ul class="divide-y divide-border bg-card border border-border rounded-md overflow-hidden">
+          <li
+            v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total)"
             :key="cat.category"
-            class="rounded-lg border border-border/50 bg-card p-3.5"
+            class="px-4 py-3"
           >
-            <div class="flex items-start justify-between mb-2">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="size-2.5 rounded-full shrink-0 mt-0.5" :style="{ background: cat.color }" />
-                <div class="min-w-0">
-                  <p class="text-[13px] font-medium text-foreground truncate">{{ cat.category }}</p>
-                  <p class="text-[11px] text-muted-foreground/50">
-                    {{ cat.count }} transaç{{ cat.count !== 1 ? 'ões' : 'ão' }}
-                  </p>
-                </div>
-              </div>
-              <div class="text-right shrink-0 ml-3">
-                <p class="text-[14px] font-semibold tabular-nums text-foreground">
-                  {{ formatCurrency(cat.total) }}
-                </p>
-                <p class="text-[10px] text-muted-foreground/40 tabular-nums">
-                  {{ cat.percentage }}% do total
-                </p>
+            <div class="flex items-center gap-3">
+              <!-- IconSwatch-style -->
+              <span
+                class="size-7 rounded-lg grid place-items-center shrink-0"
+                :style="{ background: cat.color + '22', color: cat.color }"
+              >
+                <component :is="categoryIcon(cat.category)" :size="14" :stroke-width="1.9" />
+              </span>
+              <span class="flex-1 text-sm truncate">{{ cat.category }}</span>
+              <div class="text-right shrink-0">
+                <span class="block text-sm tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
+                <span class="block text-[10.5px] tabular-nums text-muted-foreground/70">{{ cat.percentage }}% do total</span>
               </div>
             </div>
-
-            <!-- Mini bar proportional to max category -->
-            <div class="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+            <!-- Bar using category color -->
+            <div class="mt-1.5 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
               <div
-                class="h-full rounded-full transition-all"
-                :class="barColor(cat.percentage)"
-                :style="{ width: `${Math.min(100, Math.round((cat.total / maxCategoryTotal) * 100))}%` }"
+                class="h-full rounded-full transition-all duration-500"
+                :style="{
+                  width: `${Math.min(100, Math.round((cat.total / maxCategoryTotal) * 100))}%`,
+                  background: cat.color,
+                }"
               />
             </div>
-          </div>
-        </div>
+            <p class="ml-10 mt-1 text-[10.5px] text-muted-foreground tabular-nums">
+              {{ cat.count }} transaç{{ cat.count !== 1 ? 'ões' : 'ão' }}
+            </p>
+          </li>
+        </ul>
       </div>
 
       <!-- Empty expenses -->
