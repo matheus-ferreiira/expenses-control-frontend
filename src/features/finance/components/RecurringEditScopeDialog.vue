@@ -46,7 +46,7 @@ function cancel() {
     <Transition name="fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center"
+        class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center"
       >
         <!-- Overlay -->
         <div
