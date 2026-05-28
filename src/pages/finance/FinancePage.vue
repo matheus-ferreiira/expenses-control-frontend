@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, Pencil, Check, X, Plus, Upload, Flame, MoreHorizontal, Search } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -264,6 +264,30 @@ const budgetPercent = computed(() =>
   income.value > 0 ? Math.min(100, Math.round((expenses.value / income.value) * 100)) : 0,
 )
 
+// Days remaining in the current month
+const daysLeftInMonth = computed(() => {
+  const now = new Date()
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  return lastDay - now.getDate()
+})
+
+// Mobile status chip — mirrors the Lovable MonthSummary status logic
+const mobileStatus = computed(() => {
+  if (exceededCategory.value) {
+    return {
+      tone: 'danger' as const,
+      text: `${exceededCategory.value.name} ultrapassou a meta em ${formatCurrency(exceededCategory.value.total - (exceededCategory.value.monthlyLimit ?? 0))}`,
+    }
+  }
+  if (budgetPercent.value >= 80) {
+    return {
+      tone: 'warn' as const,
+      text: `Já gastou ${budgetPercent.value}% — faltam ${daysLeftInMonth.value} dias no mês`,
+    }
+  }
+  return { tone: 'ok' as const, text: 'Você está no ritmo certo para este mês' }
+})
+
 // Month label for mobile summary (long, e.g. "Maio de 2026")
 // Uses local-time constructor via getMonthLabel to avoid UTC timezone shift
 const monthLabel = computed(() => getMonthLabel(filterState.month.value))
@@ -487,52 +511,123 @@ onMounted(async () => {
       class="mt-4 mb-4"
     />
 
-    <!-- Mobile Month Summary (lg:hidden) — below KPI cards -->
-    <div class="lg:hidden bg-card border border-border rounded-lg p-4 mb-4">
-      <div class="flex items-center justify-between mb-3">
-        <button
-          class="size-8 grid place-items-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
-          @click="filterState.prevMonth()"
+    <!-- Mobile Month Summary — lg:hidden, matches Lovable MonthSummary -->
+    <div class="lg:hidden mb-4 space-y-3">
+
+      <!-- Main card: month nav + stats + budget + status chip + vs mês anterior -->
+      <div class="bg-card border border-border rounded-lg p-4">
+        <div class="flex items-center justify-between mb-3">
+          <button
+            class="min-w-11 h-11 -m-1.5 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
+            @click="filterState.prevMonth()"
+          >
+            <ChevronLeft :size="20" />
+          </button>
+          <p class="text-[15px] font-semibold">{{ monthLabel }}</p>
+          <button
+            class="min-w-11 h-11 -m-1.5 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
+            @click="filterState.nextMonth()"
+          >
+            <ChevronRight :size="20" />
+          </button>
+        </div>
+
+        <!-- 3-column stats -->
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+            <p class="block text-[17px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(income) }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+            <p class="block text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+            <p class="block text-[17px] font-semibold tabular-nums mt-1">{{ formatCurrency(income - expenses) }}</p>
+          </div>
+        </div>
+
+        <!-- Budget bar with amounts text -->
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+            <span>Orçamento do mês</span>
+            <span class="tabular-nums font-medium text-foreground">
+              {{ formatCurrency(expenses) }} de {{ formatCurrency(income) }} · {{ budgetPercent }}%
+            </span>
+          </div>
+          <div class="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              class="h-full rounded-full transition-all duration-700"
+              :style="{
+                width: `${budgetPercent}%`,
+                background: mobileStatus.tone === 'danger' ? 'var(--color-destructive)' : mobileStatus.tone === 'warn' ? 'var(--color-warning)' : 'var(--color-foreground)',
+              }"
+            />
+          </div>
+        </div>
+
+        <!-- Status contextual chip -->
+        <div
+          class="mt-3 flex items-center gap-2 rounded-md border px-2.5 py-2 text-[12px] font-medium"
+          :class="mobileStatus.tone === 'danger'
+            ? 'bg-destructive/10 text-destructive border-destructive/30'
+            : mobileStatus.tone === 'warn'
+              ? 'bg-warning/10 text-warning border-warning/30'
+              : 'bg-success/10 text-success border-success/30'"
         >
-          <ChevronLeft :size="16" />
-        </button>
-        <p class="text-sm font-semibold">{{ monthLabel }}</p>
-        <button
-          class="size-8 grid place-items-center rounded-md hover:bg-muted text-muted-foreground transition-colors"
-          @click="filterState.nextMonth()"
+          <CheckCircle2 v-if="mobileStatus.tone === 'ok'" :size="14" class="shrink-0" />
+          <AlertTriangle v-else :size="14" class="shrink-0" />
+          <span class="leading-snug">{{ mobileStatus.text }}</span>
+        </div>
+
+        <!-- vs mês anterior -->
+        <div
+          v-if="expenseDelta !== null && !store.loading"
+          class="mt-2 flex items-center gap-1.5 text-[11.5px] text-muted-foreground"
         >
-          <ChevronRight :size="16" />
-        </button>
-      </div>
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div>
-          <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
-          <p class="text-sm font-semibold text-success tabular-nums mt-0.5">{{ formatCurrency(income) }}</p>
-        </div>
-        <div>
-          <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
-          <p class="text-sm font-semibold text-destructive tabular-nums mt-0.5">{{ formatCurrency(expenses) }}</p>
-        </div>
-        <div>
-          <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
-          <p class="text-sm font-semibold tabular-nums mt-0.5">{{ formatCurrency(income - expenses) }}</p>
+          <span>vs mês anterior:</span>
+          <span
+            class="inline-flex items-center gap-0.5 font-semibold tabular-nums"
+            :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
+          >
+            {{ expenseDelta <= 0 ? '↘' : '↗' }}
+            {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
+          </span>
         </div>
       </div>
-      <div class="mt-3">
-        <div class="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
-          <span>Orçamento do mês</span>
-          <span class="tabular-nums">{{ budgetPercent }}%</span>
+
+      <!-- Saldo previsto — separate card matching Lovable exactly -->
+      <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-lg p-4">
+        <p class="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+          <Calendar :size="14" />
+          Saldo previsto
+        </p>
+        <div class="mt-2 grid grid-cols-2 gap-3 divide-x divide-border">
+          <div class="pr-3">
+            <p class="text-[11px] text-muted-foreground">Saldo atual</p>
+            <p class="block text-[18px] font-semibold tabular-nums mt-0.5">{{ formatCurrency(totalBalance) }}</p>
+          </div>
+          <div class="pl-3">
+            <p class="text-[11px] text-muted-foreground">Saldo previsto</p>
+            <p
+              class="block text-[18px] font-semibold tabular-nums mt-0.5"
+              style="color: oklch(0.68 0.18 280)"
+            >
+              {{ formatCurrency(projectedBalance) }}
+            </p>
+          </div>
         </div>
-        <div class="h-1.5 bg-muted rounded-full overflow-hidden">
-          <div class="h-full bg-foreground rounded-full transition-all" :style="{ width: `${budgetPercent}%` }" />
-        </div>
+        <p class="text-[10.5px] text-foreground/60 mt-2 leading-snug">
+          Considera transações agendadas e recorrentes pendentes.
+        </p>
       </div>
     </div>
 
-    <!-- Alert banner — category budget exceeded -->
+    <!-- Alert banner — category budget exceeded (desktop only — mobile uses status chip) -->
     <div
       v-if="exceededCategory && !store.loading"
-      class="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-destructive/10 border border-destructive/20"
+      class="hidden lg:flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-destructive/10 border border-destructive/20"
     >
       <span class="text-destructive shrink-0">⚠</span>
       <p class="text-[12px] text-destructive/90 font-medium leading-snug">
@@ -541,10 +636,10 @@ onMounted(async () => {
       </p>
     </div>
 
-    <!-- Month comparison line -->
+    <!-- Month comparison line (desktop only — mobile uses status chip inside summary card) -->
     <div
       v-if="expenseDelta !== null && !store.loading"
-      class="flex items-center gap-1.5 mb-4 text-[12px]"
+      class="hidden lg:flex items-center gap-1.5 mb-4 text-[12px]"
     >
       <span class="text-muted-foreground/50">vs mês anterior:</span>
       <span

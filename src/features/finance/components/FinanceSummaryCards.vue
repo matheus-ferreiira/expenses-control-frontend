@@ -26,7 +26,7 @@ const budgetPctLabel = computed(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+  <div class="hidden lg:grid grid-cols-2 lg:grid-cols-4 gap-3">
 
     <!-- Saldo total -->
     <div class="bg-card border border-border rounded-md p-3.5">
