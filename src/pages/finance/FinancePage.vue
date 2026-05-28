@@ -615,6 +615,7 @@ onMounted(async () => {
           <TransactionList
             :transactions="store.transactions"
             :loading="store.loading"
+            :total-balance="totalBalance"
             @select="openDetail"
             @confirmed="handleTransactionConfirmed"
           />

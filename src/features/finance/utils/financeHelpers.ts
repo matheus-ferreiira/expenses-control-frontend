@@ -60,9 +60,22 @@ export interface TransactionGroup {
   transactions: Transaction[]
   income: number
   expenses: number
+  /** Balance at end of this day. Only present when totalBalance is passed in. */
+  endBalance?: number
 }
 
-export function groupTransactionsByDate(transactions: Transaction[]): TransactionGroup[] {
+/**
+ * Groups transactions by date (newest first) and optionally computes the
+ * running balance at the end of each day.
+ *
+ * @param totalBalance  Current total account balance. When provided each group
+ *   gets an `endBalance` = balance after all confirmed transactions for that day.
+ *   Only confirmed transactions are included in the running balance.
+ */
+export function groupTransactionsByDate(
+  transactions: Transaction[],
+  totalBalance?: number,
+): TransactionGroup[] {
   const todayStr = toISODate(new Date())
   const yesterdayDate = new Date()
   yesterdayDate.setDate(yesterdayDate.getDate() - 1)
@@ -81,7 +94,7 @@ export function groupTransactionsByDate(transactions: Transaction[]): Transactio
     map.set(t.transaction_date, list)
   }
 
-  return [...map.entries()].map(([date, txs]) => {
+  const groups: TransactionGroup[] = [...map.entries()].map(([date, txs]) => {
     let label: string
     if (date === todayStr) {
       label = 'Hoje'
@@ -97,15 +110,27 @@ export function groupTransactionsByDate(transactions: Transaction[]): Transactio
       })
     }
 
-    const income = txs
-      .filter((t) => t.type === 'income')
-      .reduce((s, t) => s + t.amount, 0)
-    const expenses = txs
-      .filter((t) => t.type === 'expense')
-      .reduce((s, t) => s + t.amount, 0)
+    const income = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+    const expenses = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
 
     return { date, label, transactions: txs, income, expenses }
   })
+
+  // Compute running end-of-day balance (newest first → walk newest to oldest).
+  // endBalance[newest] = totalBalance (right now)
+  // endBalance[i+1]    = endBalance[i] − confirmed net delta of group[i]
+  if (totalBalance !== undefined) {
+    let running = totalBalance
+    for (const group of groups) {
+      group.endBalance = running
+      const confirmedNet = group.transactions
+        .filter((t) => t.status === 'confirmed')
+        .reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0)
+      running -= confirmedNet
+    }
+  }
+
+  return groups
 }
 
 // ── Account helpers ────────────────────────────────────────────────────────

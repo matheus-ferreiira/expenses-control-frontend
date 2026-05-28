@@ -11,6 +11,7 @@ import TransactionCard from './TransactionCard.vue'
 const props = defineProps<{
   transactions: Transaction[]
   loading?: boolean
+  totalBalance?: number
 }>()
 
 const emit = defineEmits<{
@@ -18,7 +19,7 @@ const emit = defineEmits<{
   confirmed: [transaction: Transaction]
 }>()
 
-const groups = computed(() => groupTransactionsByDate(props.transactions))
+const groups = computed(() => groupTransactionsByDate(props.transactions, props.totalBalance))
 </script>
 
 <template>
@@ -56,15 +57,25 @@ const groups = computed(() => groupTransactionsByDate(props.transactions))
         <span class="flex-1 min-w-0 truncate text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {{ group.label }}
         </span>
-        <span
-          v-if="group.income !== 0 || group.expenses !== 0"
-          :class="[
-            'shrink-0 text-[11px] tabular-nums',
-            transactionAmountClass(group.income >= group.expenses ? 'income' : 'expense'),
-          ]"
-        >
-          {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
-        </span>
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Daily net (income or expense delta) -->
+          <span
+            v-if="group.income !== 0 || group.expenses !== 0"
+            :class="[
+              'text-[11px] tabular-nums',
+              transactionAmountClass(group.income >= group.expenses ? 'income' : 'expense'),
+            ]"
+          >
+            {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
+          </span>
+          <!-- Running end-of-day balance -->
+          <span
+            v-if="group.endBalance !== undefined"
+            class="text-[10px] tabular-nums text-muted-foreground/60 border-l border-border/50 pl-2"
+          >
+            {{ formatCurrency(group.endBalance) }}
+          </span>
+        </div>
       </div>
 
       <!-- Transactions -->
