@@ -34,7 +34,7 @@ src/
 │   ├── auth/               LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage
 │   ├── tasks/              TasksPage, TaskDetailPage
 │   ├── habits/             HabitsPage, HabitDetailPage
-│   ├── finance/            FinancePage, AccountsPage, CardsPage
+│   ├── finance/            FinancePage, TransactionsPage, AccountsPage, CardsPage, MonthlyReportPage, YearlyReportPage
 │   ├── goals/              GoalsPage, GoalDetailPage
 │   ├── calendar/           CalendarPage
 │   ├── DashboardPage.vue
@@ -179,21 +179,46 @@ Dark mode por padrão. Paleta neutral zinc/gray — sem azul ou roxo nos fundos.
 
 | Token | Dark (padrão) | Light (.light) | Tailwind class |
 |-------|--------------|----------------|----------------|
-| `--primary` | `0 0% 98%` (white) | `262 83% 58%` (violet) | `bg-primary` |
-| `--background` | `240 6% 5%` (near-black) | `0 0% 100%` (white) | `bg-background` |
+| `--background` | `0 0% 4%` (#0a0a0a — cinza puro) | `0 0% 98%` (white) | `bg-background` |
+| `--surface` | `0 0% 7%` (#121212) | `0 0% 100%` | `bg-surface` |
+| `--card` | `0 0% 10%` (#1a1a1a) | `0 0% 100%` | `bg-card` |
 | `--foreground` | `0 0% 93%` (near-white) | `222 47% 11%` | `text-foreground` |
-| `--card` | `240 5% 8%` | `0 0% 100%` | `bg-card` |
-| `--secondary` | `240 4% 14%` | `210 40% 96%` | `bg-secondary` |
-| `--muted` | `240 4% 14%` | `210 40% 96%` | `bg-muted` |
-| `--accent` | `240 4% 16%` | `210 40% 96%` | `bg-accent` |
-| `--destructive` | `0 63% 51%` (red) | `0 84% 60%` | `bg-destructive` |
-| `--border` | `240 4% 13%` | `214 32% 91%` | `border-border` |
-| `--ring` | `0 0% 65%` (neutral gray) | `262 83% 58%` | `outline-ring` |
-| `--success` | `142 71% 45%` (green) | — | `bg-success` |
-| `--warning` | `38 92% 50%` (amber) | — | `bg-warning` |
+| `--muted-foreground` | `0 0% 55%` (#8c8c8c) | `240 5% 46%` | `text-muted-foreground` |
+| `--primary` | `225 70% 60%` (blue-violet) | `225 70% 44%` | `bg-primary` |
+| `--secondary` | `0 0% 16%` (#292929) | `240 10% 97%` | `bg-secondary` |
+| `--muted` | `0 0% 15%` (#262626) | `240 10% 96%` | `bg-muted` |
+| `--border` | `0 0% 15%` (#262626) | `240 6% 88%` | `border-border` |
+| `--ring` | `225 70% 60%` (brand blue) | `225 70% 44%` | `outline-ring` |
+| `--destructive` | `5 62% 50%` (red) | `5 68% 54%` | `bg-destructive` |
+| `--success` | `145 45% 48%` (green) | `145 52% 40%` | `bg-success` |
+| `--warning` | `38 75% 58%` (amber) | `38 80% 52%` | `bg-warning` |
 | `--radius` | `0.375rem` (6px) | — | `rounded-lg` |
 
 Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve conter valores de cores.
+
+## Padrão de KPI Visual — Card Único
+
+**Regra:** Múltiplas métricas relacionadas devem usar **um card único** com valores internos, não múltiplos boxes separados.
+
+```
+┌──────────────────────────────────────────┐
+│  RECEITAS      DESPESAS      SALDO       │
+│  R$ 7.705      R$ 8.173    -R$ 468       │
+│──────────────────────────────────────────│
+│  [linha de contexto: saldo atual, etc.]  │
+└──────────────────────────────────────────┘
+```
+
+**Componente de referência:** `TransactionSummaryCard.vue`
+- Aceita `month`, `income`, `expenses`, `totalBalance`, `pendingIncome`, `pendingExpenses`
+- Emite `prev`, `next`, `reset` para navegação de mês
+- Inclui MonthNavigator integrado
+- Linha de contexto dinâmica: "Saldo atual" (mês atual), "Saldo previsto" (mês futuro), "Saldo final do mês" (mês passado, calculado via API)
+- **Cálculo de saldo histórico:** busca transações confirmadas após o mês e reverte do saldo atual
+
+**Exceção:** máx 2 métricas com destaque individual direto (ex: Saldo Atual vs Saldo Previsto) podem usar 2 cards lado a lado.
+
+**Não use** `grid grid-cols-2 gap-3` para múltiplos KPI boxes — consolide em 1 card.
 
 ## Regras de Qualidade
 
