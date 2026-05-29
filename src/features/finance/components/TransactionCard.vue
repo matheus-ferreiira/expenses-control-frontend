@@ -63,8 +63,7 @@ const highlightBg = computed(() => {
         </span>
         <span
           v-else
-          class="rounded-lg grid place-items-center size-9"
-          style="background: rgba(255,255,255,0.08); color: #888888"
+          class="rounded-lg grid place-items-center size-9 bg-white/[0.08] text-muted-foreground"
         >
           <ArrowLeftRight :size="16" :stroke-width="1.9" />
         </span>
@@ -82,8 +81,7 @@ const highlightBg = computed(() => {
           />
           <span
             v-if="transaction.installment_number && transaction.total_installments"
-            class="inline-flex items-center h-4 px-1.5 rounded text-[9.5px] font-semibold border border-white/8 text-muted-foreground/60 shrink-0"
-            style="background: rgba(255,255,255,0.05)"
+            class="inline-flex items-center h-4 px-1.5 rounded text-[9.5px] font-semibold border border-white/8 text-muted-foreground/60 shrink-0 bg-white/5"
           >
             {{ transaction.installment_number }}/{{ transaction.total_installments }}
           </span>
@@ -109,8 +107,7 @@ const highlightBg = computed(() => {
           </span>
           <span
             v-if="isPending"
-            class="inline-flex items-center h-4 px-1.5 rounded text-[9.5px] font-semibold border shrink-0"
-            style="background: rgba(245,166,35,0.12); color: #F5A623; border-color: rgba(245,166,35,0.25)"
+            class="inline-flex items-center h-4 px-1.5 rounded text-[9.5px] font-semibold border shrink-0 bg-warning/12 border-warning/25 text-warning"
           >
             Pendente
           </span>

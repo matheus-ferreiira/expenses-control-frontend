@@ -27,9 +27,8 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="rounded-xl bg-card border transition-opacity"
+    class="rounded-xl bg-card border border-border transition-opacity"
     :class="!account.is_active ? 'opacity-50' : ''"
-    style="border-color: #27272a"
   >
     <div class="p-4 flex items-start gap-3">
       <!-- Account type icon: 40×40, colored bg 20% opacity -->

@@ -94,8 +94,7 @@ async function submit() {
 
         <!-- Live preview card — neutral bg, color only in avatar -->
         <div
-          class="flex items-center gap-3 p-3 rounded-lg"
-          style="background: #111111; border: 1px solid rgba(255,255,255,0.10)"
+          class="flex items-center gap-3 p-3 rounded-lg bg-card border border-white/10"
         >
           <span
             class="flex items-center justify-center size-9 rounded-lg shrink-0"
@@ -111,7 +110,7 @@ async function submit() {
               {{ ACCOUNT_TYPE_LABELS[form.type] }}
             </p>
           </div>
-          <p class="text-[16px] font-semibold tabular-nums shrink-0" style="color: #F0F0F0">
+          <p class="text-[16px] font-semibold tabular-nums shrink-0 text-foreground">
             {{ previewBalance }}
           </p>
         </div>
@@ -129,9 +128,9 @@ async function submit() {
               :key="t"
               type="button"
               class="h-10 rounded-lg text-[13px] font-medium border transition-all flex items-center justify-center gap-1.5"
-              :style="form.type === t
-                ? { background: 'rgba(59,130,246,0.12)', borderColor: 'rgba(59,130,246,0.4)', color: '#3b82f6' }
-                : { background: '#18181b', borderColor: '#27272a', color: '#71717a' }"
+              :class="form.type === t
+                ? 'bg-primary/12 border-primary/40 text-primary'
+                : 'bg-muted border-border text-muted-foreground'"
               @click="form.type = t"
             >
               <component :is="TYPE_ICONS[t]" :size="14" />

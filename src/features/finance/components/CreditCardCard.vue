@@ -92,7 +92,7 @@ const limitBarClass = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border bg-card flex flex-col" :class="!card.is_active ? 'opacity-50' : ''" style="border-color: rgba(255,255,255,0.07)">
+  <div class="rounded-lg border bg-card flex flex-col" :class="!card.is_active ? 'opacity-50' : ''">
     <div class="p-3.5 flex flex-col gap-2.5 flex-1">
       <!-- Header: avatar + name + menu -->
       <div class="flex items-start justify-between">
@@ -155,11 +155,11 @@ const limitBarClass = computed(() => {
         <!-- Due date badge — semantic colors, rounded (4px) -->
         <span
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border"
-          :style="isOverdue
-            ? 'background: rgba(255,77,77,0.12); border-color: rgba(255,77,77,0.25); color: #FF4D4D; border-radius: 4px; font-size: 11px; padding: 2px 8px'
+          :class="isOverdue
+            ? 'bg-destructive/12 border-destructive/25 text-destructive'
             : daysUntilDue <= 5
-              ? 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.20); color: #F5A623; border-radius: 4px; font-size: 11px; padding: 2px 8px'
-              : 'background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.25); color: #00C896; border-radius: 4px; font-size: 11px; padding: 2px 8px'"
+              ? 'bg-warning/10 border-warning/20 text-warning'
+              : 'bg-primary/12 border-primary/25 text-primary'"
         >
           <AlertTriangle v-if="isOverdue" :size="9" />
           <CreditCard v-else :size="9" />
@@ -170,8 +170,7 @@ const limitBarClass = computed(() => {
         <span
           v-if="billingPeriod?.isClosed"
           :title="`Período encerrado. Pagamento até ${new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}.`"
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border cursor-help"
-          style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #888888"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border cursor-help bg-white/5 border-white/[0.08] text-muted-foreground"
         >
           <Lock :size="9" />
           Fatura fechada

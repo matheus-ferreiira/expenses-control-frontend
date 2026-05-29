@@ -325,14 +325,13 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden"
-      style="background: #111113"
+      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden bg-card"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
       <!-- ── Sticky header ──────────────────────────────── -->
-      <div class="sticky top-0 z-10 shrink-0" style="background: #111113">
+      <div class="sticky top-0 z-10 shrink-0 bg-card">
 
         <!-- Title row -->
         <div class="flex items-center gap-2 px-4 pt-3 pb-2">
@@ -856,7 +855,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       </form>
 
       <!-- ── Sticky footer — CTA ──────────────────────────── -->
-      <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0" style="background: #111113">
+      <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-card">
         <button
           type="button"
           class="w-full h-[52px] rounded-[10px] text-[15px] font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
