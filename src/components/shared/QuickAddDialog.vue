@@ -9,7 +9,7 @@ import { useToast } from '@/composables/useToast'
 import { Sheet, SheetContent } from '@ui/sheet'
 import {
   CheckSquare, TrendingDown, TrendingUp, Repeat, CalendarPlus,
-  ArrowLeft, Loader2, Check, CheckCircle, Wallet,
+  ArrowLeft, Loader2, Check, CheckCircle, Wallet, ArrowLeftRight,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import CategoryQuickCreateSheet from '@/features/finance/components/CategoryQuickCreateSheet.vue'
@@ -17,7 +17,7 @@ import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { DatePicker } from '@/components/ui/date-picker'
 import type { TransactionType } from '@/types/finance'
 
-type QuickAction = 'expense' | 'income' | 'task' | 'habit' | 'event'
+type QuickAction = 'expense' | 'income' | 'transfer' | 'task' | 'habit' | 'event'
 
 const ui = useUiStore()
 const financeStore = useFinanceStore()
@@ -45,10 +45,15 @@ watch(open, (val) => {
 function selectAction(a: QuickAction) {
   if (a === 'expense' || a === 'income') {
     txForm.type = a
-    // pre-select first category of the type
     const cats = financeStore.categories.filter((c) => c.type === a || c.type === 'transfer')
     txForm.category_id = cats[0]?.id ?? ''
     txForm.account_id = financeStore.activeAccounts[0]?.id ?? ''
+  } else if (a === 'transfer') {
+    txForm.type = 'transfer'
+    txForm.category_id = ''
+    // Pre-select first account as origin, second as destination (if available)
+    txForm.account_id = financeStore.activeAccounts[0]?.id ?? ''
+    txForm.destination_account_id = financeStore.activeAccounts[1]?.id ?? ''
   }
   action.value = a
 }
@@ -76,6 +81,7 @@ const txForm = reactive({
   transaction_date: new Date().toLocaleDateString('en-CA'),
   category_id: '',
   account_id: '',
+  destination_account_id: '',
   is_recurring: false,
 })
 
@@ -86,6 +92,7 @@ function resetTxForm() {
   txForm.transaction_date = new Date().toLocaleDateString('en-CA')
   txForm.category_id = ''
   txForm.account_id = ''
+  txForm.destination_account_id = ''
   txForm.is_recurring = false
 }
 
@@ -112,6 +119,16 @@ async function submitTx() {
     toast.error('Valor inválido')
     return
   }
+  if (txForm.type === 'transfer') {
+    if (!txForm.account_id || !txForm.destination_account_id) {
+      toast.error('Selecione as contas de origem e destino')
+      return
+    }
+    if (txForm.account_id === txForm.destination_account_id) {
+      toast.error('Contas de origem e destino devem ser diferentes')
+      return
+    }
+  }
   submitting.value = true
   try {
     await financeStore.createTransaction({
@@ -121,9 +138,11 @@ async function submitTx() {
       transaction_date: txForm.transaction_date,
       ...(txForm.category_id ? { category_id: txForm.category_id } : {}),
       ...(txForm.account_id ? { account_id: txForm.account_id } : {}),
+      ...(txForm.destination_account_id ? { destination_account_id: txForm.destination_account_id } : {}),
       ...(txForm.is_recurring ? { is_recurring: true } : {}),
     })
-    toast.success(txForm.type === 'income' ? 'Receita registrada' : 'Despesa registrada')
+    const label = txForm.type === 'income' ? 'Receita registrada' : txForm.type === 'transfer' ? 'Transferência registrada' : 'Despesa registrada'
+    toast.success(label)
     close()
   } catch {
     toast.error('Erro ao salvar transação')
@@ -235,6 +254,7 @@ const QUICK_ACTIONS = [
   { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, color: 'hsl(var(--chart-1, 220 70% 60%))' },
   { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, color: 'hsl(var(--destructive))' },
   { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, color: 'hsl(var(--success))' },
+  { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, color: 'oklch(0.68 0.18 280)' },
   { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, color: 'hsl(var(--warning))' },
   { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, color: 'hsl(217 91% 68%)' },
 ]
@@ -493,6 +513,139 @@ const QUICK_ACTIONS = [
               <template v-else>
                 <CheckCircle :size="18" :stroke-width="2.5" />
                 Salvar {{ txForm.type === 'expense' ? 'Despesa' : 'Receita' }}
+              </template>
+            </button>
+          </div>
+        </form>
+      </template>
+
+      <!-- ── Transfer Form ── -->
+      <template v-else-if="action === 'transfer'">
+        <form class="flex flex-col" @submit.prevent="submitTx">
+          <!-- Header -->
+          <header class="flex items-center gap-2 px-4 pt-3 pb-0 sticky top-0 bg-card z-10">
+            <button type="button" class="p-1.5 rounded-lg hover:bg-muted text-muted-foreground" @click="goBack">
+              <ArrowLeft :size="18" />
+            </button>
+            <div class="flex-1">
+              <h3 class="text-[15px] font-semibold leading-none">Transferência</h3>
+              <p class="text-[11px] mt-0.5" style="color: oklch(0.68 0.18 280)">Entre contas</p>
+            </div>
+          </header>
+
+          <div class="px-4 py-4 space-y-5">
+            <!-- Amount hero -->
+            <div class="text-center">
+              <div class="flex items-center justify-center gap-2 mb-3">
+                <span class="text-xl font-semibold" style="color: oklch(0.68 0.18 280)">R$</span>
+                <input
+                  v-model="txForm.amount"
+                  inputmode="decimal"
+                  placeholder="0,00"
+                  autofocus
+                  class="bg-transparent outline-none text-5xl font-bold tabular-nums w-auto max-w-[200px] text-center transition-colors"
+                  style="color: oklch(0.68 0.18 280)"
+                  size="8"
+                  @input="(e: Event) => { txForm.amount = (e.target as HTMLInputElement).value.replace(/[^\d.,]/g, '') }"
+                />
+              </div>
+              <div class="flex gap-1.5 justify-center">
+                <button
+                  v-for="inc in [10, 50, 100, 500]"
+                  :key="inc"
+                  type="button"
+                  class="min-h-[44px] px-3 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
+                  style="background: oklch(0.68 0.18 280 / 0.1); color: oklch(0.68 0.18 280); border-color: oklch(0.68 0.18 280 / 0.2)"
+                  @click="() => { const cur = parseFloat(txForm.amount.replace(',','.')) || 0; txForm.amount = (cur + inc).toFixed(2).replace('.', ',') }"
+                >+{{ inc }}</button>
+              </div>
+            </div>
+
+            <!-- Title -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">Título</p>
+              <input
+                v-model="txForm.description"
+                placeholder="Descrição da transferência"
+                class="w-full h-12 px-4 rounded-2xl bg-muted/60 border border-border/40 focus:border-border/80 outline-none text-sm transition-colors"
+              />
+            </div>
+
+            <!-- Origin account -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+                Conta de origem <span class="text-destructive">*</span>
+              </p>
+              <div v-if="financeStore.activeAccounts.length === 0" class="flex items-center gap-2 py-3 text-muted-foreground/50">
+                <Wallet :size="16" />
+                <span class="text-[12px]">Nenhuma conta cadastrada</span>
+              </div>
+              <div v-else class="flex gap-2 overflow-x-auto pb-1">
+                <button
+                  v-for="acc in financeStore.activeAccounts"
+                  :key="acc.id"
+                  type="button"
+                  :disabled="acc.id === txForm.destination_account_id"
+                  class="flex-shrink-0 flex items-center gap-2 h-11 pl-3 pr-4 rounded-2xl border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  :class="txForm.account_id === acc.id
+                    ? 'border-transparent shadow-sm'
+                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'"
+                  :style="txForm.account_id === acc.id ? 'background: oklch(0.62 0.16 22 / 0.15); color: oklch(0.62 0.16 22)' : ''"
+                  @click="txForm.account_id = txForm.account_id === acc.id ? '' : acc.id"
+                >
+                  <span class="flex items-center justify-center size-7 rounded-xl text-xs font-bold uppercase shrink-0 bg-muted text-foreground">
+                    {{ acc.name.charAt(0) }}
+                  </span>
+                  <div>
+                    <p class="text-[12px] font-semibold leading-none">{{ acc.name }}</p>
+                    <p class="text-[10px] opacity-60 mt-0.5 leading-none">{{ acc.type }}</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Destination account -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+                Conta de destino <span class="text-destructive">*</span>
+              </p>
+              <div class="flex gap-2 overflow-x-auto pb-1">
+                <button
+                  v-for="acc in financeStore.activeAccounts"
+                  :key="acc.id"
+                  type="button"
+                  :disabled="acc.id === txForm.account_id"
+                  class="flex-shrink-0 flex items-center gap-2 h-11 pl-3 pr-4 rounded-2xl border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  :class="txForm.destination_account_id === acc.id
+                    ? 'border-transparent shadow-sm'
+                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'"
+                  :style="txForm.destination_account_id === acc.id ? 'background: oklch(0.68 0.12 155 / 0.15); color: oklch(0.68 0.12 155)' : ''"
+                  @click="txForm.destination_account_id = txForm.destination_account_id === acc.id ? '' : acc.id"
+                >
+                  <span class="flex items-center justify-center size-7 rounded-xl text-xs font-bold uppercase shrink-0 bg-muted text-foreground">
+                    {{ acc.name.charAt(0) }}
+                  </span>
+                  <div>
+                    <p class="text-[12px] font-semibold leading-none">{{ acc.name }}</p>
+                    <p class="text-[10px] opacity-60 mt-0.5 leading-none">{{ acc.type }}</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA footer -->
+          <div class="sticky bottom-0 bg-card px-4 pt-2 pb-5">
+            <button
+              type="submit"
+              class="w-full h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] text-white"
+              style="background: oklch(0.68 0.18 280)"
+              :disabled="submitting"
+            >
+              <Loader2 v-if="submitting" :size="18" class="animate-spin" />
+              <template v-else>
+                <ArrowLeftRight :size="18" :stroke-width="2.5" />
+                Salvar Transferência
               </template>
             </button>
           </div>
