@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
     SETTINGS: `${API_BASE}/auth/settings`,
     FORGOT_PASSWORD: `${API_BASE}/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE}/auth/reset-password`,
+    RESET_DATA: `${API_BASE}/auth/reset-data`,
   },
   TASKS: {
     BASE: `${API_BASE}/tasks`,

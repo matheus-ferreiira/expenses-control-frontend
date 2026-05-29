@@ -3,10 +3,27 @@ import { ref } from 'vue'
 import { AppPageContainer } from '@/components/shared'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
-import { Loader2, CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock } from 'lucide-vue-next'
+import { authApi } from '@/services/api/auth'
+import { Loader2, CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock, TriangleAlert } from 'lucide-vue-next'
 
 const auth = useAuthStore()
 const toast = useToast()
+
+const resetConfirmOpen = ref(false)
+const resetting = ref(false)
+
+async function confirmReset() {
+  resetting.value = true
+  try {
+    await authApi.resetData()
+    toast.success('Todos os dados foram apagados. Recarregando…')
+    // Full page reload clears all in-memory store state
+    setTimeout(() => { window.location.href = '/finance' }, 1200)
+  } catch {
+    toast.error('Erro ao resetar dados. Tente novamente.')
+    resetting.value = false
+  }
+}
 
 const MODULES = [
   { key: 'tasks',    label: 'Tarefas',    icon: CheckSquare,  description: 'Gerenciador de tarefas e subtarefas' },
@@ -89,6 +106,63 @@ async function toggleModule(key: string) {
             />
             <Loader2 v-if="savingModule === mod.key" :size="10" class="absolute right-1 animate-spin text-background" />
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Zona de perigo -->
+    <section class="mt-8">
+      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-destructive/70 mb-3">
+        Zona de perigo
+      </h2>
+
+      <div class="bg-card border border-destructive/20 rounded-xl overflow-hidden">
+        <div class="px-4 py-4 flex items-start gap-4">
+          <span class="flex items-center justify-center size-8 rounded-lg bg-destructive/10 text-destructive shrink-0 mt-0.5">
+            <TriangleAlert :size="15" :stroke-width="1.9" />
+          </span>
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] font-medium text-foreground">Resetar todos os dados</p>
+            <p class="text-[11px] text-muted-foreground/60 mt-0.5 leading-snug">
+              Apaga permanentemente todas as transações, contas, cartões, categorias, tarefas, hábitos, metas e demais dados. A conta fica como recém-criada. Esta ação não pode ser desfeita.
+            </p>
+
+            <!-- Botão inicial -->
+            <button
+              v-if="!resetConfirmOpen"
+              type="button"
+              class="mt-3 inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
+              @click="resetConfirmOpen = true"
+            >
+              Resetar dados
+            </button>
+
+            <!-- Confirmação inline -->
+            <div v-else class="mt-3 flex flex-col gap-2">
+              <p class="text-[12px] font-semibold text-destructive">
+                Tem certeza? Esta ação é irreversível.
+              </p>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="h-9 px-4 rounded-lg text-[12px] font-semibold bg-destructive text-white hover:opacity-90 transition-opacity flex items-center gap-1.5 disabled:opacity-50"
+                  :disabled="resetting"
+                  @click="confirmReset"
+                >
+                  <Loader2 v-if="resetting" :size="13" class="animate-spin" />
+                  <span>{{ resetting ? 'Apagando…' : 'Sim, apagar tudo' }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="h-9 px-4 rounded-lg text-[12px] font-medium border border-border text-muted-foreground hover:bg-muted transition-colors"
+                  :disabled="resetting"
+                  @click="resetConfirmOpen = false"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
