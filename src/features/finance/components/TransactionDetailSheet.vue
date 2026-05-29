@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { Button } from '@ui/button'
-import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat2, CheckCircle2 } from 'lucide-vue-next'
+import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat, CheckCircle2, Copy } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
@@ -16,6 +16,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:open': [value: boolean]
   edit: [transaction: Transaction]
+  duplicate: [transaction: Transaction]
   delete: [id: string]
   confirmed: [transaction: Transaction]
 }>()
@@ -47,6 +48,13 @@ function onEdit() {
 function onDelete() {
   if (props.transaction) {
     emit('delete', props.transaction.id)
+    close()
+  }
+}
+
+function onDuplicate() {
+  if (props.transaction) {
+    emit('duplicate', props.transaction)
     close()
   }
 }
@@ -110,7 +118,7 @@ const amountClass = computed(() => {
             class="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-semibold border"
             :class="typeBadge.cls"
           >
-            <Repeat2 v-if="typeBadge.icon === 'repeat'" :size="10" />
+            <Repeat v-if="typeBadge.icon === 'repeat'" :size="10" />
             <Clock v-else-if="typeBadge.icon === 'clock'" :size="10" />
             {{ typeBadge.label }}
           </span>
@@ -189,7 +197,7 @@ const amountClass = computed(() => {
           <div v-if="transaction.is_recurring" class="flex items-center justify-between px-4 py-3 gap-3">
             <span class="text-[12px] text-muted-foreground shrink-0">Tipo</span>
             <span class="inline-flex items-center gap-1 text-[13px] font-medium text-violet-400">
-              <Repeat2 :size="12" />
+              <Repeat :size="12" />
               Fix
               <template v-if="(transaction.recurrence_config as Record<string,unknown> | null)?.frequency">
                 · {{ ({
@@ -255,6 +263,9 @@ const amountClass = computed(() => {
             >
               <Trash2 :size="14" />
               Excluir
+            </Button>
+            <Button variant="outline" class="gap-2 px-3" @click="onDuplicate">
+              <Copy :size="14" />
             </Button>
             <Button class="flex-1 gap-2" @click="onEdit">
               <Pencil :size="14" />

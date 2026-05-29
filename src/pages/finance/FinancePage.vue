@@ -118,6 +118,20 @@ function onDetailDelete(id: string) {
   openDelete(id)
 }
 
+function onDetailDuplicate(t: Transaction) {
+  editingTransaction.value = null
+  transactionPrefill.value = {
+    type: t.type,
+    description: t.description,
+    amount: t.amount.toString(),
+    category_id: t.category_id ?? undefined,
+    account_id: t.account_id ?? undefined,
+  }
+  // Duplicate with today as date and without recurrence/installments
+  // (fromTransaction in the form clears is_recurring and total_installments)
+  formOpen.value = true
+}
+
 async function handleTransactionConfirmed(updated: Transaction) {
   // Update the transaction in-place in the store
   const idx = store.transactions.findIndex((t) => t.id === updated.id)
@@ -1313,6 +1327,7 @@ onMounted(async () => {
     v-model:open="detailOpen"
     :transaction="detailTransaction"
     @edit="onDetailEdit"
+    @duplicate="onDetailDuplicate"
     @delete="onDetailDelete"
     @confirmed="handleTransactionConfirmed"
   />
