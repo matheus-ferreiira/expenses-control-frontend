@@ -281,8 +281,8 @@ onMounted(() => load())
     <!-- Content -->
     <template v-else-if="report">
       <!-- Summary cards -->
-      <div class="grid grid-cols-2 gap-3 mb-5">
-        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-success/15">
               <TrendingUp :size="13" class="text-success" />
@@ -294,7 +294,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-destructive/15">
               <TrendingDown :size="13" class="text-destructive" />
@@ -306,7 +306,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-muted">
               <Wallet :size="13" class="text-muted-foreground" />
@@ -321,7 +321,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-muted">
               <Receipt :size="13" class="text-muted-foreground" />
@@ -337,7 +337,7 @@ onMounted(() => load())
       <!-- Donut chart — distribuição por categoria -->
       <div
         v-if="report.expenses_by_category.length > 0"
-        class="rounded-lg border border-border/50 bg-card p-4 mb-5"
+        class="rounded-2xl border border-border/50 bg-card p-4 mb-4"
       >
         <div class="flex items-center gap-2 mb-3">
           <PieChart :size="13" class="text-muted-foreground/50" />
@@ -345,29 +345,28 @@ onMounted(() => load())
             Distribuição por categoria
           </p>
         </div>
-        <div class="flex items-center gap-4">
-          <!-- Donut -->
-          <div class="relative h-[150px] w-[150px] shrink-0">
-            <canvas ref="canvasRef" />
-            <!-- Center text -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p class="text-[11px] text-muted-foreground/50">Despesas</p>
-              <p class="text-[15px] font-semibold text-foreground tabular-nums">
-                {{ formatCurrency(report.expenses) }}
-              </p>
-            </div>
+
+        <!-- Donut — full width, tall enough on mobile -->
+        <div class="relative h-[240px] w-full mb-4">
+          <canvas ref="canvasRef" />
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <p class="text-[11px] text-muted-foreground/50">Despesas</p>
+            <p class="text-[17px] font-semibold text-foreground tabular-nums">
+              {{ formatCurrency(report.expenses) }}
+            </p>
           </div>
-          <!-- Legend -->
-          <div class="flex-1 min-w-0 space-y-1.5 overflow-hidden">
-            <div
-              v-for="cat in report.expenses_by_category.sort((a, b) => b.total - a.total).slice(0, 6)"
-              :key="cat.category"
-              class="flex items-center gap-2 min-w-0"
-            >
-              <span class="size-2 rounded-full shrink-0" :style="{ background: cat.color }" />
-              <span class="text-[11px] text-foreground/70 truncate flex-1">{{ cat.category }}</span>
-              <span class="text-[11px] tabular-nums text-muted-foreground/50 shrink-0">{{ cat.percentage }}%</span>
-            </div>
+        </div>
+
+        <!-- Legend — below donut, full width -->
+        <div class="space-y-2.5">
+          <div
+            v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total).slice(0, 8)"
+            :key="cat.category"
+            class="flex items-center gap-2.5"
+          >
+            <span class="size-2.5 rounded-full shrink-0" :style="{ background: cat.color }" />
+            <span class="flex-1 text-sm text-foreground/80 truncate">{{ cat.category }}</span>
+            <span class="text-sm tabular-nums text-muted-foreground/60 shrink-0">{{ cat.percentage }}%</span>
           </div>
         </div>
       </div>

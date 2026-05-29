@@ -6,6 +6,7 @@ import { useKeyboardShortcut } from '@/composables/useKeyboardShortcut'
 import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
+import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { Search, LayoutDashboard, Calendar, DollarSign, AlignJustify, Plus } from 'lucide-vue-next'
 import { ROUTES } from '@/constants/routes'
@@ -128,10 +129,7 @@ const mobileHeaderTitle = computed(() => {
     </div>
 
     <!-- ─── Mobile bottom navigation ───────────────────────── -->
-    <nav
-      class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-sidebar-border backdrop-blur"
-      style="background: hsl(var(--sidebar) / 0.95)"
-    >
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-white/8 bg-background/95 backdrop-blur-md">
       <div class="relative grid grid-cols-5 h-16">
         <!-- Left 2 items -->
         <button
@@ -139,8 +137,8 @@ const mobileHeaderTitle = computed(() => {
           :key="item.route"
           class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2"
           :class="isNavActive(item.route)
-            ? 'border-blue-400 text-blue-400 font-semibold'
-            : 'border-transparent text-muted-foreground/60 font-medium'"
+            ? 'border-primary text-primary font-semibold'
+            : 'border-transparent text-muted-foreground font-medium'"
           @click="navTo(item.route)"
         >
           <component
@@ -154,7 +152,7 @@ const mobileHeaderTitle = computed(() => {
         <!-- FAB center — protrudes 24px above the bar -->
         <div class="relative">
           <button
-            class="absolute left-1/2 -translate-x-1/2 -top-6 size-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg ring-4 ring-background active:scale-95 transition-transform"
+            class="absolute left-1/2 -translate-x-1/2 -top-6 size-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg shadow-primary/30 ring-2 ring-background active:scale-95 transition-transform"
             aria-label="Adicionar"
             @click="ui.quickAddOpen = true"
           >
@@ -168,8 +166,8 @@ const mobileHeaderTitle = computed(() => {
           :key="item.route"
           class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2"
           :class="isNavActive(item.route)
-            ? 'border-blue-400 text-blue-400 font-semibold'
-            : 'border-transparent text-muted-foreground/60 font-medium'"
+            ? 'border-primary text-primary font-semibold'
+            : 'border-transparent text-muted-foreground font-medium'"
           @click="navTo(item.route)"
         >
           <component
@@ -182,7 +180,7 @@ const mobileHeaderTitle = computed(() => {
 
         <!-- "Mais" — opens mobile sidebar -->
         <button
-          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2 border-transparent text-muted-foreground/60 font-medium"
+          class="flex flex-col items-center justify-center gap-0.5 h-full text-[10px] min-h-[56px] transition-colors border-t-2 border-transparent text-muted-foreground font-medium"
           @click="mobileMenuOpen = true"
         >
           <AlignJustify :size="20" :stroke-width="1.75" />
@@ -194,5 +192,10 @@ const mobileHeaderTitle = computed(() => {
     <!-- ─── Global overlays ──────────────────────────────────── -->
     <CommandPalette />
     <QuickAddDialog />
+    <TransactionFormDialog
+      :open="ui.transactionFormOpen"
+      :prefill="ui.transactionFormPrefill"
+      @update:open="ui.transactionFormOpen = $event"
+    />
   </div>
 </template>

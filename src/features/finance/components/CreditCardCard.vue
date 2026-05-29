@@ -8,7 +8,7 @@ import {
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
 import { computed } from 'vue'
-import { MoreHorizontal, Pencil, Trash2, CreditCard, Lock, Archive, ArchiveRestore, FileText } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, CreditCard, Lock, Archive, ArchiveRestore, FileText, AlertTriangle } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent } from '../utils/financeHelpers'
@@ -53,16 +53,28 @@ const daysUntilDue = computed(() => {
   return Math.ceil((nextDue.getTime() - todayMs) / (1000 * 60 * 60 * 24))
 })
 
+/** True when the due date has already passed */
+const isOverdue = computed(() => {
+  const today = new Date()
+  const todayMs = today.setHours(0, 0, 0, 0)
+  if (props.billingPeriod) {
+    return new Date(props.billingPeriod.dueDate + 'T00:00:00').getTime() < todayMs
+  }
+  const due = props.card.due_day
+  return due < new Date().getDate()
+})
+
 /** Badge color based on days until due */
 const dueBadgeClass = computed(() => {
+  if (isOverdue.value) return 'bg-destructive/20 text-destructive border-destructive/30'
   const d = daysUntilDue.value
-  if (d === 0) return 'bg-destructive/20 text-destructive border-destructive/30'
-  if (d === 1) return 'bg-destructive/15 text-destructive/80 border-destructive/20'
+  if (d === 0) return 'bg-destructive/15 text-destructive/80 border-destructive/20'
   if (d <= 5) return 'bg-warning/20 text-warning border-warning/30'
   return 'bg-success/15 text-success/80 border-success/20'
 })
 
 const dueBadgeLabel = computed(() => {
+  if (isOverdue.value) return 'Vencida'
   const d = daysUntilDue.value
   if (d === 0) return 'Vence hoje'
   if (d === 1) return 'Vence amanhã'
@@ -147,7 +159,8 @@ const limitBarClass = computed(() => {
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
           :class="dueBadgeClass"
         >
-          <CreditCard :size="9" />
+          <AlertTriangle v-if="isOverdue" :size="9" />
+          <CreditCard v-else :size="9" />
           {{ dueBadgeLabel }}
         </span>
 
@@ -195,10 +208,10 @@ const limitBarClass = computed(() => {
         <!-- Ver extrato — always visible -->
         <button
           type="button"
-          class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium border border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60 transition-colors"
+          class="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl text-sm font-medium border border-white/10 bg-card text-foreground hover:bg-popover transition-colors"
           @click="emit('statement', card)"
         >
-          <FileText :size="13" />
+          <FileText :size="14" />
           Ver extrato
         </button>
       </div>

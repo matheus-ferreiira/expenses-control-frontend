@@ -19,6 +19,9 @@ const year = ref(new Date().getFullYear())
 const report = ref<YearlyReport | null>(null)
 const loading = ref(false)
 
+const currentYear = new Date().getFullYear()
+const currentMonth = new Date().getMonth() + 1
+
 const chartRef = ref<HTMLCanvasElement | null>(null)
 let chartInstance: unknown = null
 
@@ -327,30 +330,39 @@ function goToMonth(month: number) {
 
       </div>
 
-      <!-- Mobile: months summary as cards (shown instead of table on small screens) -->
-      <div class="lg:hidden space-y-2 mb-4">
-        <div class="flex text-[10px] uppercase tracking-wider text-muted-foreground/50 px-3 py-1">
-          <span class="flex-1">Mês</span>
-          <span class="w-24 text-right">Receitas</span>
-          <span class="w-24 text-right">Despesas</span>
-          <span class="w-20 text-right">Saldo</span>
-        </div>
+      <!-- Mobile: months summary as 2-line cards (lg:hidden) -->
+      <div class="lg:hidden space-y-2 mb-4 pb-24">
         <button
           v-for="m in monthsWithDelta"
           :key="m.month"
           type="button"
-          class="w-full bg-card border border-border/50 rounded-xl px-3 py-2.5 flex items-center text-left hover:bg-muted/30 transition-colors"
+          class="w-full rounded-xl px-4 py-3 text-left transition-colors"
+          :class="m.month === currentMonth && year === currentYear
+            ? 'bg-primary/10 border border-primary/20'
+            : 'bg-card border border-border/40 hover:bg-popover'"
           @click="goToMonth(m.month)"
         >
-          <span class="flex-1 text-[13px] font-medium">{{ MONTH_NAMES[m.month - 1] }}</span>
-          <span class="w-24 text-right text-[12px] tabular-nums text-success">{{ formatCurrency(m.income) }}</span>
-          <span class="w-24 text-right text-[12px] tabular-nums text-destructive">{{ formatCurrency(m.expenses) }}</span>
-          <span
-            class="w-20 text-right text-[12px] tabular-nums font-semibold"
-            :class="m.balance >= 0 ? 'text-success' : 'text-destructive'"
-          >
-            {{ m.balance >= 0 ? '+' : '' }}{{ formatCurrency(m.balance) }}
-          </span>
+          <!-- Row 1: month name + balance -->
+          <div class="flex items-center justify-between mb-1">
+            <span
+              class="text-[13px] font-semibold"
+              :class="m.month === currentMonth && year === currentYear ? 'text-primary' : 'text-foreground'"
+            >
+              {{ MONTH_FULL[m.month - 1] }}
+            </span>
+            <span
+              class="text-[14px] tabular-nums font-bold"
+              :class="m.balance >= 0 ? 'text-success' : 'text-destructive'"
+            >
+              {{ m.balance >= 0 ? '+' : '' }}{{ formatCurrency(m.balance) }}
+            </span>
+          </div>
+          <!-- Row 2: income · expenses -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] tabular-nums text-success">+{{ formatCurrency(m.income) }}</span>
+            <span class="text-[10px] text-muted-foreground/30">·</span>
+            <span class="text-[11px] tabular-nums text-destructive">-{{ formatCurrency(m.expenses) }}</span>
+          </div>
         </button>
       </div>
 
