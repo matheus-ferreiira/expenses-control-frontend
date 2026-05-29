@@ -158,12 +158,12 @@ async function submitEvent() {
 }
 
 const QUICK_ACTIONS = [
-  { id: 'task' as QuickAction,     label: 'Nova tarefa',     desc: 'Item para sua lista',    icon: CheckSquare,   color: 'hsl(var(--chart-1, 220 70% 60%))' },
-  { id: 'expense' as QuickAction,  label: 'Nova despesa',    desc: 'Registre um gasto',      icon: TrendingDown,  color: 'hsl(var(--destructive))' },
-  { id: 'income' as QuickAction,   label: 'Nova receita',    desc: 'Registre uma entrada',   icon: TrendingUp,    color: 'hsl(var(--success))' },
-  { id: 'transfer' as QuickAction, label: 'Transferência',   desc: 'Mover entre contas',     icon: ArrowLeftRight,color: 'hsl(var(--muted-foreground))' },
-  { id: 'habit' as QuickAction,    label: 'Marcar hábito',   desc: 'Concluir hábito de hoje',icon: Repeat,        color: 'hsl(var(--warning))' },
-  { id: 'event' as QuickAction,    label: 'Novo evento',     desc: 'Adicionar à agenda',     icon: CalendarPlus,  color: 'hsl(217 91% 68%)' },
+  { id: 'task' as QuickAction,     label: 'Nova tarefa',     desc: 'Item para sua lista',    icon: CheckSquare,   color: '#888888' },
+  { id: 'expense' as QuickAction,  label: 'Nova despesa',    desc: 'Registre um gasto',      icon: TrendingDown,  color: '#FF4D4D' },
+  { id: 'income' as QuickAction,   label: 'Nova receita',    desc: 'Registre uma entrada',   icon: TrendingUp,    color: '#00C896' },
+  { id: 'transfer' as QuickAction, label: 'Transferência',   desc: 'Mover entre contas',     icon: ArrowLeftRight,color: '#888888' },
+  { id: 'habit' as QuickAction,    label: 'Marcar hábito',   desc: 'Concluir hábito de hoje',icon: Repeat,        color: '#888888' },
+  { id: 'event' as QuickAction,    label: 'Novo evento',     desc: 'Adicionar à agenda',     icon: CalendarPlus,  color: '#888888' },
 ]
 </script>
 
@@ -185,10 +185,10 @@ const QUICK_ACTIONS = [
         <ul class="px-2 pb-6">
           <li v-for="a in QUICK_ACTIONS" :key="a.id">
             <button
-              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-card text-left min-h-[56px] transition-colors"
+              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-white/5"
               @click="selectAction(a.id)"
             >
-              <span class="size-10 rounded-lg bg-card grid place-items-center shrink-0">
+              <span class="size-10 rounded-lg grid place-items-center shrink-0" style="background: rgba(255,255,255,0.07)">
                 <component :is="a.icon" :size="20" :style="{ color: a.color }" />
               </span>
               <span class="flex-1 min-w-0">

@@ -92,16 +92,14 @@ const limitBarClass = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card overflow-hidden flex flex-col" :class="!card.is_active ? 'opacity-50' : ''">
-    <!-- Color accent top bar -->
-    <div class="h-[3px] w-full" :style="{ background: card.color }" />
-
+  <div class="rounded-lg border bg-card flex flex-col" :class="!card.is_active ? 'opacity-50' : ''" style="border-color: rgba(255,255,255,0.07)">
     <div class="p-3.5 flex flex-col gap-2.5 flex-1">
       <!-- Header: avatar + name + menu -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
+          <!-- Avatar with solid card color (the only place color appears) -->
           <span
-            class="rounded-lg grid place-items-center shrink-0 w-8 h-8 text-[11px] font-bold text-white"
+            class="rounded-lg grid place-items-center shrink-0 size-9 text-[11px] font-bold text-white"
             :style="{ background: card.color }"
           >
             {{ card.name.substring(0, 2).toUpperCase() }}
@@ -154,21 +152,26 @@ const limitBarClass = computed(() => {
 
       <!-- Status badges row -->
       <div class="flex items-center gap-1.5 flex-wrap">
-        <!-- Due date badge -->
+        <!-- Due date badge — semantic colors, rounded (4px) -->
         <span
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
-          :class="dueBadgeClass"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border"
+          :style="isOverdue
+            ? 'background: rgba(255,77,77,0.10); border-color: rgba(255,77,77,0.20); color: #FF4D4D'
+            : daysUntilDue <= 5
+              ? 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.20); color: #F5A623'
+              : 'background: rgba(0,200,150,0.10); border-color: rgba(0,200,150,0.20); color: #00C896'"
         >
           <AlertTriangle v-if="isOverdue" :size="9" />
           <CreditCard v-else :size="9" />
           {{ dueBadgeLabel }}
         </span>
 
-        <!-- "Fatura fechada" badge when billing cycle has already closed -->
+        <!-- "Fatura fechada" badge -->
         <span
           v-if="billingPeriod?.isClosed"
           :title="`Período encerrado. Pagamento até ${new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}.`"
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium bg-muted/60 text-muted-foreground/70 border-border/50 cursor-help"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border cursor-help"
+          style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #888888"
         >
           <Lock :size="9" />
           Fatura fechada

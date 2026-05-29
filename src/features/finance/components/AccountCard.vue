@@ -26,36 +26,35 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="rounded-lg border border-border/60 bg-card overflow-hidden flex flex-col transition-opacity"
+    class="rounded-lg bg-card flex flex-col transition-opacity border"
     :class="!account.is_active ? 'opacity-50' : ''"
+    style="border-color: rgba(255,255,255,0.07)"
   >
-    <div class="p-3.5 flex flex-col gap-2.5 flex-1">
-      <!-- Header: color dot + name + type label + menu -->
+    <div class="p-4 flex flex-col gap-3 flex-1">
+
+      <!-- Header: avatar + name + menu -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
-          <!-- Colored avatar with initials — primary identity color -->
+          <!-- Avatar: 36px rounded-lg, 15% opacity background, color text -->
           <span
-            class="rounded-lg grid place-items-center shrink-0 w-9 h-9 text-[11px] font-bold text-white"
-            :style="{ background: account.is_active
-              ? (account.color || 'hsl(var(--muted-foreground) / 0.4)')
-              : 'hsl(var(--muted-foreground) / 0.3)' }"
+            class="rounded-lg grid place-items-center shrink-0 size-9 text-sm font-bold"
+            :style="{
+              background: account.is_active
+                ? (account.color ?? '#6b7280') + '26'
+                : 'rgba(255,255,255,0.08)',
+              color: account.is_active
+                ? (account.color ?? '#6b7280')
+                : '#888888',
+            }"
           >
             {{ account.name.substring(0, 2).toUpperCase() }}
           </span>
 
           <div class="min-w-0">
-            <div class="flex items-center gap-1.5">
-              <!-- 8px color dot for accent identity without the thick bar -->
-              <span
-                class="size-2 rounded-full shrink-0"
-                :style="{ background: account.is_active
-                  ? (account.color || 'hsl(var(--muted-foreground) / 0.5)')
-                  : 'hsl(var(--muted-foreground) / 0.3)' }"
-              />
-              <p class="text-[13px] font-semibold text-foreground truncate">{{ account.name }}</p>
-            </div>
-            <!-- Type shown once, as discrete subtitle -->
-            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5 ml-3.5">
+            <p class="text-[14px] font-medium text-foreground truncate leading-none">
+              {{ account.name }}
+            </p>
+            <p class="text-[12px] text-muted-foreground mt-0.5">
               {{ account.bank_name || ACCOUNT_TYPE_LABELS[account.type] }}
             </p>
           </div>
@@ -73,17 +72,11 @@ const emit = defineEmits<{
               Editar
             </DropdownMenuItem>
             <DropdownMenuSeparator v-if="account.is_active" />
-            <DropdownMenuItem
-              v-if="account.is_active"
-              @click="emit('archive', account)"
-            >
+            <DropdownMenuItem v-if="account.is_active" @click="emit('archive', account)">
               <Archive :size="12" class="mr-2" />
               Arquivar
             </DropdownMenuItem>
-            <DropdownMenuItem
-              v-else
-              @click="emit('unarchive', account)"
-            >
+            <DropdownMenuItem v-else @click="emit('unarchive', account)">
               <ArchiveRestore :size="12" class="mr-2" />
               Desarquivar
             </DropdownMenuItem>
@@ -99,16 +92,14 @@ const emit = defineEmits<{
         </DropdownMenu>
       </div>
 
-      <!-- Balance — label removed (type already shown above) -->
-      <div class="flex items-center justify-between pt-1.5 border-t border-border/30">
-        <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/30">
+      <!-- Balance -->
+      <div class="flex items-center justify-between border-t pt-3" style="border-color: rgba(255,255,255,0.06)">
+        <span class="text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
           Saldo
         </span>
         <p
-          :class="[
-            'text-[20px] font-semibold tabular-nums leading-none',
-            account.balance >= 0 ? 'text-foreground' : 'text-destructive/80',
-          ]"
+          class="text-[16px] font-semibold tabular-nums leading-none"
+          :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
         >
           {{ formatCurrency(account.balance) }}
         </p>

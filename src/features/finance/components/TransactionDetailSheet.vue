@@ -73,11 +73,11 @@ function formatTransactionDate(dateStr: string): string {
 const typeBadge = computed(() => {
   const t = props.transaction
   if (!t) return null
-  if (t.is_recurring) return { label: 'Fix', cls: 'bg-primary/10 text-primary border-primary/30', icon: 'repeat' }
-  if (t.status === 'pending') return { label: 'Agendada', cls: 'bg-muted/60 text-muted-foreground border-border/60', icon: 'clock' }
-  if (t.type === 'income') return { label: 'Receita', cls: 'bg-success/10 text-success border-success/30', icon: null }
-  if (t.type === 'expense') return { label: 'Despesa', cls: 'bg-destructive/10 text-destructive border-destructive/30', icon: null }
-  return { label: 'Transferência', cls: 'bg-muted/60 text-muted-foreground border-border/60', icon: null }
+  if (t.is_recurring) return { label: 'Fix', cls: '', style: 'background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.25); color: #00C896', icon: 'repeat' }
+  if (t.status === 'pending') return { label: 'Agendada', cls: '', style: 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.25); color: #F5A623', icon: 'clock' }
+  if (t.type === 'income') return { label: 'Receita', cls: '', style: 'background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.25); color: #00C896', icon: null }
+  if (t.type === 'expense') return { label: 'Despesa', cls: '', style: 'background: rgba(255,77,77,0.12); border-color: rgba(255,77,77,0.25); color: #FF4D4D', icon: null }
+  return { label: 'Transferência', cls: '', style: 'background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); color: #888888', icon: null }
 })
 
 const swatchStyle = computed(() => {
@@ -115,7 +115,7 @@ const amountClass = computed(() => {
           <span
             v-if="typeBadge"
             class="inline-flex items-center gap-1 h-6 px-2.5 rounded text-[11px] font-semibold border"
-            :class="typeBadge.cls"
+            :style="typeBadge.style"
           >
             <Repeat v-if="typeBadge.icon === 'repeat'" :size="10" />
             <Clock v-else-if="typeBadge.icon === 'clock'" :size="10" />
@@ -255,28 +255,34 @@ const amountClass = computed(() => {
             {{ confirming ? 'Confirmando...' : 'Marcar como paga' }}
           </button>
           <div class="grid grid-cols-3 gap-2">
+            <!-- Excluir -->
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 min-h-[44px] rounded-lg bg-destructive/10 text-destructive border border-destructive/20 text-[11px] font-semibold transition-colors hover:bg-destructive/20 active:scale-95"
+              class="flex flex-col items-center justify-center gap-1.5 h-11 rounded-lg text-[11px] font-semibold border transition-all active:scale-95 hover:opacity-80"
+              style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #FF4D4D"
               @click="onDelete"
             >
-              <Trash2 :size="17" />
+              <Trash2 :size="16" />
               Excluir
             </button>
+            <!-- Duplicar -->
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 min-h-[44px] rounded-lg bg-card text-muted-foreground border border-white/8 text-[11px] font-semibold transition-colors hover:bg-popover active:scale-95"
+              class="flex flex-col items-center justify-center gap-1.5 h-11 rounded-lg text-[11px] font-semibold border transition-all active:scale-95 hover:opacity-80"
+              style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #888888"
               @click="onDuplicate"
             >
-              <Copy :size="17" />
+              <Copy :size="16" />
               Duplicar
             </button>
+            <!-- Editar -->
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 min-h-[44px] rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold transition-opacity hover:opacity-90 active:scale-95"
+              class="flex flex-col items-center justify-center gap-1.5 h-11 rounded-lg text-[11px] font-semibold border transition-all active:scale-95 hover:opacity-80"
+              style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #F0F0F0"
               @click="onEdit"
             >
-              <Pencil :size="17" />
+              <Pencil :size="16" />
               Editar
             </button>
           </div>

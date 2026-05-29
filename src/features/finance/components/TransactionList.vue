@@ -88,24 +88,17 @@ const isTruncated = computed(() =>
   <!-- Grouped list -->
   <div v-else :class="nested ? '' : 'rounded-md border border-border overflow-clip'">
     <template v-for="group in groups" :key="group.date">
-      <!-- Date header — Lovable style: bg-card/95 backdrop-blur, no border-b -->
-      <div class="sticky top-12 lg:top-0 z-10 bg-card/95 backdrop-blur px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
-        <span class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+      <!-- Date header — minimal: date label + daily total -->
+      <div class="px-4 pt-3 pb-1 flex items-center justify-between gap-2">
+        <span class="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
           {{ group.label }}
         </span>
-        <div class="text-[10px] tabular-nums flex items-center gap-2">
-          <!-- Daily net (income - expenses) -->
-          <span
-            v-if="group.income !== 0 || group.expenses !== 0"
-            :class="group.income >= group.expenses ? 'text-success/70' : 'text-destructive/70'"
-          >
-            {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
-          </span>
-          <!-- End-of-day balance (considering prior transactions) -->
-          <span v-if="group.endBalance !== undefined" class="text-muted-foreground/50">
-            → {{ formatCurrency(group.endBalance) }}
-          </span>
-        </div>
+        <span
+          v-if="group.income !== 0 || group.expenses !== 0"
+          class="text-[11px] tabular-nums text-muted-foreground"
+        >
+          {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
+        </span>
       </div>
 
       <!-- Transactions -->
