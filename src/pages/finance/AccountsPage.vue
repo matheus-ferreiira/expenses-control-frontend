@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue'
 import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
 import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
-import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 import { Plus, Landmark, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
@@ -103,13 +102,13 @@ onMounted(async () => {
 <template>
   <AppPageContainer>
     <!-- Header -->
-    <div class="flex items-start justify-between mb-6">
+    <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
           Finanças
         </p>
         <div class="flex items-center gap-2 mb-1.5">
-          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none">
+          <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none">
             Contas
           </h1>
           <!-- Archived badge — draws attention when there are archived accounts -->
@@ -125,13 +124,29 @@ onMounted(async () => {
           {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
         </p>
       </div>
-      <Button size="sm" class="h-8 text-[12px] mt-1" @click="openCreate">
-        <Plus :size="12" class="mr-1.5" />
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors mt-1"
+        @click="openCreate"
+      >
+        <Plus :size="14" />
         Nova conta
-      </Button>
+      </button>
     </div>
 
-
+    <!-- Hero: total balance — desktop only -->
+    <div v-if="!loading && store.activeAccounts.length > 0" class="hidden lg:block mb-6">
+      <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60 mb-1">Saldo total</p>
+      <p
+        class="text-[36px] font-semibold tabular-nums tracking-tight leading-none"
+        :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
+      >
+        {{ formatCurrency(totalBalance) }}
+      </p>
+      <p class="text-[13px] text-muted-foreground/60 mt-1">
+        {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
+      </p>
+    </div>
 
     <!-- Loading -->
     <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">

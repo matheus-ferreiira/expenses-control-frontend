@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Plus, Search, X } from 'lucide-vue-next'
-import { Button } from '@ui/button'
 import { AppPageContainer } from '@/components/shared'
 import TransactionSummaryCard from '@/features/finance/components/TransactionSummaryCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
@@ -135,10 +134,10 @@ const pendingExpenses = computed(() =>
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-3 sm:gap-0">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
           Finanças
         </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+        <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Transações
         </h1>
         <p class="text-[13px] text-muted-foreground/50">
@@ -155,10 +154,14 @@ const pendingExpenses = computed(() =>
         >
           <Search :size="14" />
         </button>
-        <Button size="sm" class="h-8 text-[12px]" @click="openCreate">
-          <Plus :size="12" class="mr-1.5" />
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
+          @click="openCreate"
+        >
+          <Plus :size="14" />
           Transação
-        </Button>
+        </button>
       </div>
     </div>
 

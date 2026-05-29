@@ -79,16 +79,16 @@ async function confirmDelete(id: string) {
     <div class="mb-1">
       <div class="flex items-start justify-between mb-4">
         <div>
-          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/60 mb-0.5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
             Finanças
           </p>
-          <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight">
+          <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
             Categorias
           </h1>
         </div>
         <button
           type="button"
-          style="display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: #F0F0F0; flex-shrink: 0; cursor: pointer;"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shrink-0"
           @click="openCreate()"
         >
           <Plus :size="14" :stroke-width="2.5" />
@@ -130,14 +130,14 @@ async function confirmDelete(id: string) {
 
         <!-- Despesas -->
         <section v-if="expenseCategories.length">
-          <div style="background: #111111; border-radius: 8px; overflow: hidden">
-            <div class="flex items-center justify-between" style="padding: 16px 16px 8px">
-              <p style="font-size: 11px; color: #888888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em">
+          <div class="bg-card rounded-lg overflow-hidden">
+            <div class="flex items-center justify-between px-4 pt-4 pb-2">
+              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.06em]">
                 DESPESAS
               </p>
               <button
                 type="button"
-                style="font-size: 12px; color: #888888; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0"
+                class="text-[12px] text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-1"
                 @click="openCreate('expense')"
               >
                 + Adicionar
@@ -146,7 +146,7 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in expenseCategories"
               :key="cat.id"
-              style="border-top: 1px solid rgba(255,255,255,0.05)"
+              class="border-t border-white/5"
             >
               <!-- Confirm delete overlay -->
               <template v-if="confirmDeleteId === cat.id">
@@ -173,10 +173,9 @@ async function confirmDelete(id: string) {
 
               <!-- Normal view -->
               <template v-else>
-                <div class="flex items-center gap-3 px-4" style="height: 52px">
+                <div class="flex items-center gap-3 px-4 h-[52px]">
                   <span
-                    class="flex items-center justify-center shrink-0"
-                    style="width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0"
+                    class="size-8 rounded-lg flex items-center justify-center shrink-0"
                     :style="{ background: (cat.color ?? '#ef4444') + '22', color: cat.color ?? '#ef4444' }"
                   >
                     <component
@@ -185,23 +184,23 @@ async function confirmDelete(id: string) {
                       :size="15"
                       :stroke-width="1.8"
                     />
-                    <span v-else style="font-size: 13px; font-weight: 700">{{ cat.name.charAt(0) }}</span>
+                    <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
                   </span>
 
                   <div class="flex-1 min-w-0">
-                    <p style="font-size: 14px; font-weight: 500; color: #F0F0F0; line-height: 1">{{ cat.name }}</p>
+                    <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
                   </div>
 
                   <span
                     v-if="cat.monthly_limit"
-                    style="font-size: 12px; color: #888888; flex-shrink: 0"
+                    class="text-[12px] text-muted-foreground shrink-0"
                   >
                     {{ formatCurrency(cat.monthly_limit) }}
                   </span>
 
                   <button
                     type="button"
-                    style="min-height: 44px; min-width: 44px; display: grid; place-items: center; color: #888888; background: none; border: none; cursor: pointer; border-radius: 8px"
+                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                     @click="openEdit(cat)"
                   >
                     <Pencil :size="14" />
@@ -209,7 +208,7 @@ async function confirmDelete(id: string) {
                   <button
                     type="button"
                     :disabled="deletingId === cat.id"
-                    style="min-height: 44px; min-width: 44px; display: grid; place-items: center; color: #888888; background: none; border: none; cursor: pointer; border-radius: 8px"
+                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
                     @click="requestDelete(cat.id)"
                   >
                     <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
@@ -223,14 +222,14 @@ async function confirmDelete(id: string) {
 
         <!-- Receitas -->
         <section v-if="incomeCategories.length">
-          <div style="background: #111111; border-radius: 8px; overflow: hidden">
-            <div class="flex items-center justify-between" style="padding: 16px 16px 8px">
-              <p style="font-size: 11px; color: #888888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em">
+          <div class="bg-card rounded-lg overflow-hidden">
+            <div class="flex items-center justify-between px-4 pt-4 pb-2">
+              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.06em]">
                 RECEITAS
               </p>
               <button
                 type="button"
-                style="font-size: 12px; color: #888888; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0"
+                class="text-[12px] text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-1"
                 @click="openCreate('income')"
               >
                 + Adicionar
@@ -239,7 +238,7 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in incomeCategories"
               :key="cat.id"
-              style="border-top: 1px solid rgba(255,255,255,0.05)"
+              class="border-t border-white/5"
             >
               <!-- Confirm delete overlay -->
               <template v-if="confirmDeleteId === cat.id">
@@ -266,10 +265,9 @@ async function confirmDelete(id: string) {
 
               <!-- Normal view -->
               <template v-else>
-                <div class="flex items-center gap-3 px-4" style="height: 52px">
+                <div class="flex items-center gap-3 px-4 h-[52px]">
                   <span
-                    class="flex items-center justify-center shrink-0"
-                    style="width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0"
+                    class="size-8 rounded-lg flex items-center justify-center shrink-0"
                     :style="{ background: (cat.color ?? '#22c55e') + '22', color: cat.color ?? '#22c55e' }"
                   >
                     <component
@@ -278,23 +276,23 @@ async function confirmDelete(id: string) {
                       :size="15"
                       :stroke-width="1.8"
                     />
-                    <span v-else style="font-size: 13px; font-weight: 700">{{ cat.name.charAt(0) }}</span>
+                    <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
                   </span>
 
                   <div class="flex-1 min-w-0">
-                    <p style="font-size: 14px; font-weight: 500; color: #F0F0F0; line-height: 1">{{ cat.name }}</p>
+                    <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
                   </div>
 
                   <span
                     v-if="cat.monthly_limit"
-                    style="font-size: 12px; color: #888888; flex-shrink: 0"
+                    class="text-[12px] text-muted-foreground shrink-0"
                   >
                     {{ formatCurrency(cat.monthly_limit) }}
                   </span>
 
                   <button
                     type="button"
-                    style="min-height: 44px; min-width: 44px; display: grid; place-items: center; color: #888888; background: none; border: none; cursor: pointer; border-radius: 8px"
+                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                     @click="openEdit(cat)"
                   >
                     <Pencil :size="14" />
@@ -302,7 +300,7 @@ async function confirmDelete(id: string) {
                   <button
                     type="button"
                     :disabled="deletingId === cat.id"
-                    style="min-height: 44px; min-width: 44px; display: grid; place-items: center; color: #888888; background: none; border: none; cursor: pointer; border-radius: 8px"
+                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
                     @click="requestDelete(cat.id)"
                   >
                     <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />

@@ -200,14 +200,14 @@ onMounted(() => load())
 
 <template>
   <AppPageContainer>
-    <div style="padding-bottom: 80px">
+    <div class="pb-20">
     <!-- Page header -->
     <div class="flex items-start justify-between mb-6">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
           Finanças
         </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
+        <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Relatório mensal
         </h1>
         <p class="text-[13px] text-muted-foreground/50">

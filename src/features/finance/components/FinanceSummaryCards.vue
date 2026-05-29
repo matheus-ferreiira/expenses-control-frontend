@@ -36,8 +36,8 @@ const budgetPctLabel = computed(() => {
         <Skeleton class="h-2.5 w-20 mt-1.5" />
       </template>
       <template v-else>
-        <p class="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Saldo total</p>
-        <p :class="['text-lg font-semibold mt-1 tabular-nums', totalBalance < 0 ? 'text-destructive' : '']">
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Saldo total</p>
+        <p :class="['text-[22px] font-semibold mt-1 tabular-nums', totalBalance < 0 ? 'text-destructive' : '']">
           {{ formatCurrency(totalBalance) }}
         </p>
         <p class="text-[11px] text-muted-foreground mt-0.5">
@@ -66,8 +66,8 @@ const budgetPctLabel = computed(() => {
         <Skeleton class="h-5 w-24" />
       </template>
       <template v-else>
-        <p class="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Receitas (mês)</p>
-        <p class="text-lg font-semibold mt-1 tabular-nums text-success">
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Receitas (mês)</p>
+        <p class="text-[22px] font-semibold mt-1 tabular-nums text-success">
           {{ formatCurrency(income) }}
         </p>
         <p class="text-[11px] text-muted-foreground mt-0.5">{{ periodLabel }}</p>
@@ -81,8 +81,8 @@ const budgetPctLabel = computed(() => {
         <Skeleton class="h-5 w-24" />
       </template>
       <template v-else>
-        <p class="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Despesas (mês)</p>
-        <p class="text-lg font-semibold mt-1 tabular-nums text-destructive">
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Despesas (mês)</p>
+        <p class="text-[22px] font-semibold mt-1 tabular-nums text-destructive">
           {{ formatCurrency(expenses) }}
         </p>
         <p class="text-[11px] text-muted-foreground mt-0.5">{{ budgetPctLabel }}</p>
@@ -96,8 +96,8 @@ const budgetPctLabel = computed(() => {
         <Skeleton class="h-5 w-24" />
       </template>
       <template v-else>
-        <p class="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Fluxo do mês</p>
-        <p :class="['text-lg font-semibold mt-1 tabular-nums', monthNet >= 0 ? 'text-success' : 'text-destructive']">
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Fluxo do mês</p>
+        <p :class="['text-[22px] font-semibold mt-1 tabular-nums', monthNet >= 0 ? 'text-success' : 'text-destructive']">
           {{ monthNet >= 0 ? '+' : '' }}{{ formatCurrency(monthNet) }}
         </p>
         <p class="text-[11px] text-muted-foreground mt-0.5">receitas − despesas</p>

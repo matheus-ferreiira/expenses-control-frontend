@@ -4,7 +4,6 @@ import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
 import CardStatementSheet from '@/features/finance/components/CardStatementSheet.vue'
-import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 import { Plus, CreditCard, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
@@ -158,11 +157,11 @@ onMounted(async () => {
     <!-- Header -->
     <div class="flex items-start justify-between mb-6">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
           Finanças
         </p>
         <div class="flex items-center gap-2 mb-1.5">
-          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none">
+          <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none">
             Cartões
           </h1>
           <!-- Archived badge -->
@@ -177,10 +176,14 @@ onMounted(async () => {
           {{ store.activeCards.length }} cartã{{ store.activeCards.length !== 1 ? 'ões' : 'o' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
         </p>
       </div>
-      <Button size="sm" class="h-8 text-[12px] mt-1" @click="openCreate">
-        <Plus :size="12" class="mr-1.5" />
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors mt-1"
+        @click="openCreate"
+      >
+        <Plus :size="14" />
         Novo cartão
-      </Button>
+      </button>
     </div>
 
 

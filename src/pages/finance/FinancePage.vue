@@ -557,6 +557,20 @@ onMounted(async () => {
     <!-- Sub-nav -->
 
 
+    <!-- Hero: total balance — desktop only, no card wrapper -->
+    <div v-if="!store.loading" class="hidden lg:block mb-6">
+      <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60 mb-1">Saldo total</p>
+      <p
+        class="text-[36px] font-semibold tabular-nums tracking-tight leading-none"
+        :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
+      >
+        {{ formatCurrency(totalBalance) }}
+      </p>
+      <p class="text-[13px] text-muted-foreground/60 mt-1">
+        {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
+      </p>
+    </div>
+
     <!-- Summary cards (4 KPI) — always first -->
     <FinanceSummaryCards
       :income="income"
@@ -618,10 +632,8 @@ onMounted(async () => {
           <div class="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
               class="h-full rounded-full transition-all duration-700"
-              :style="{
-                width: `${budgetPercent}%`,
-                background: mobileStatus.tone === 'danger' ? 'var(--color-destructive)' : mobileStatus.tone === 'warn' ? 'var(--color-warning)' : 'var(--color-foreground)',
-              }"
+              :style="{ width: `${budgetPercent}%` }"
+              :class="mobileStatus.tone === 'danger' ? 'bg-destructive' : mobileStatus.tone === 'warn' ? 'bg-warning' : 'bg-primary'"
             />
           </div>
         </div>
