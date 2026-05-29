@@ -17,11 +17,14 @@ import type {
   CreateCreditCardPayload,
   UpdateCreditCardPayload,
 } from '@/features/finance/types'
+import type { PaginationMeta } from '@/types/api'
 
 export const useFinanceStore = defineStore('finance', () => {
   const accounts = ref<BankAccount[]>([])
   const cards = ref<CreditCard[]>([])
   const transactions = ref<Transaction[]>([])
+  /** Pagination meta from the last fetchTransactions call — includes total, per_page, etc. */
+  const transactionsMeta = ref<PaginationMeta | null>(null)
   const categories = ref<TransactionCategory[]>([])
   const tags = ref<TransactionTag[]>([])
   const loading = ref(false)
@@ -60,6 +63,7 @@ export const useFinanceStore = defineStore('finance', () => {
     try {
       const result = await financeApi.transactions.list(filters)
       transactions.value = result.data
+      transactionsMeta.value = result.meta
     } catch (e: unknown) {
       error.value = 'Erro ao carregar transações'
       throw e
@@ -288,6 +292,7 @@ export const useFinanceStore = defineStore('finance', () => {
     accounts,
     cards,
     transactions,
+    transactionsMeta,
     categories,
     loading,
     error,

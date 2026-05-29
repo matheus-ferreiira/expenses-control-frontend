@@ -385,8 +385,28 @@ const exceededCategory = computed(() =>
   topCategories.value.find((c) => c.budgetPercent != null && c.budgetPercent >= 100) ?? null
 )
 
+// ── Pagination ───────────────────────────────────────────────────────────────
+
+/** True when backend has more transactions than the current page holds */
+const hasMoreTransactions = computed(() => {
+  const meta = store.transactionsMeta
+  return meta != null && meta.total > store.transactions.length
+})
+
+const loadingAll = ref(false)
+
 async function loadTransactions() {
   await store.fetchTransactions(filterState.toApiFilters())
+}
+
+/** Re-fetch with a very high per_page to get all transactions at once */
+async function loadAllTransactions() {
+  loadingAll.value = true
+  try {
+    await store.fetchTransactions({ ...filterState.toApiFilters(), per_page: 9999 })
+  } finally {
+    loadingAll.value = false
+  }
 }
 
 // Reload when month or quick-filter changes
@@ -701,7 +721,16 @@ onMounted(async () => {
           <!-- Header row: title + month nav + search -->
           <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
             <template v-if="!txSearchOpen">
-              <h2 class="text-sm font-semibold">Transações</h2>
+              <h2 class="text-sm font-semibold flex items-center gap-2">
+                Transações
+                <!-- "X de Y" counter when paginated -->
+                <span
+                  v-if="hasMoreTransactions"
+                  class="text-[11px] font-normal text-muted-foreground/60 tabular-nums"
+                >
+                  {{ store.transactions.length }} de {{ store.transactionsMeta?.total }}
+                </span>
+              </h2>
               <div class="flex items-center gap-1">
                 <!-- Month nav only on desktop — mobile uses the summary card nav -->
                 <div class="hidden lg:flex items-center gap-1">
@@ -842,8 +871,11 @@ onMounted(async () => {
             :nested="true"
             :has-filter="filterState.quickFilter.value !== 'all' || !!filterState.search.value"
             :total-balance="totalBalance"
+            :total-count="store.transactionsMeta?.total"
+            :loading-all="loadingAll"
             @select="openDetail"
             @add-new="formOpen = true"
+            @load-all="loadAllTransactions"
           />
         </div>
 

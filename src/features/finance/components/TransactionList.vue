@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Skeleton } from '@ui/skeleton'
-import { Search, Inbox, Plus } from 'lucide-vue-next'
+import { Search, Inbox, Plus, Loader2, ChevronDown } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { groupTransactionsByDate } from '../utils/financeHelpers'
@@ -16,14 +16,28 @@ const props = defineProps<{
   hasFilter?: boolean
   /** Total account balance for computing end-of-day running balance. */
   totalBalance?: number
+  /**
+   * Total count from the backend pagination meta. When provided and greater than
+   * transactions.length, a "load all" banner is shown at the bottom of the list.
+   */
+  totalCount?: number
+  /** True while the "load all" fetch is in progress — shows spinner in the banner. */
+  loadingAll?: boolean
 }>()
 
 const emit = defineEmits<{
   select: [transaction: Transaction]
   addNew: []
+  /** Emitted when the user clicks "Carregar todas" in the truncation banner. */
+  loadAll: []
 }>()
 
 const groups = computed(() => groupTransactionsByDate(props.transactions, props.totalBalance))
+
+/** True when the backend has more results than what's currently loaded. */
+const isTruncated = computed(() =>
+  props.totalCount != null && props.totalCount > props.transactions.length,
+)
 </script>
 
 <template>
@@ -102,5 +116,26 @@ const groups = computed(() => groupTransactionsByDate(props.transactions, props.
         />
       </ul>
     </template>
+
+    <!-- Truncation banner — shown when backend has more results than current page -->
+    <div
+      v-if="isTruncated"
+      class="border-t border-border/60 px-4 py-3 flex items-center justify-between gap-3"
+    >
+      <p class="text-[12px] text-muted-foreground/70">
+        Exibindo <span class="font-semibold text-foreground">{{ transactions.length }}</span>
+        de <span class="font-semibold text-foreground">{{ totalCount }}</span> transações neste período.
+      </p>
+      <button
+        type="button"
+        :disabled="loadingAll"
+        class="flex-shrink-0 inline-flex items-center gap-1.5 h-7 px-3 rounded-md text-[11px] font-semibold border border-border/60 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        @click="emit('loadAll')"
+      >
+        <Loader2 v-if="loadingAll" :size="11" class="animate-spin" />
+        <ChevronDown v-else :size="11" />
+        {{ loadingAll ? 'Carregando...' : 'Carregar todas' }}
+      </button>
+    </div>
   </div>
 </template>
