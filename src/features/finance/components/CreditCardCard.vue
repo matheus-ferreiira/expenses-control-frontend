@@ -151,13 +151,14 @@ const limitBarClass = computed(() => {
           {{ dueBadgeLabel }}
         </span>
 
-        <!-- "Fechada" badge when billing cycle has already closed -->
+        <!-- "Fatura fechada" badge when billing cycle has already closed -->
         <span
           v-if="billingPeriod?.isClosed"
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium bg-muted/60 text-muted-foreground/70 border-border/50"
+          :title="`Período encerrado. Pagamento até ${new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}.`"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium bg-muted/60 text-muted-foreground/70 border-border/50 cursor-help"
         >
           <Lock :size="9" />
-          Fechada
+          Fatura fechada
         </span>
       </div>
 

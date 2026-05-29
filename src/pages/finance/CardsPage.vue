@@ -162,9 +162,18 @@ onMounted(async () => {
         <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
           Finanças
         </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
-          Cartões
-        </h1>
+        <div class="flex items-center gap-2 mb-1.5">
+          <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none">
+            Cartões
+          </h1>
+          <!-- Archived badge -->
+          <span
+            v-if="!loading && store.archivedCards.length > 0"
+            class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground/60 border border-border/50"
+          >
+            {{ store.archivedCards.length }} arquivado{{ store.archivedCards.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
         <p class="text-[13px] text-muted-foreground/50">
           {{ store.activeCards.length }} cartã{{ store.activeCards.length !== 1 ? 'ões' : 'o' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
         </p>
@@ -224,11 +233,11 @@ onMounted(async () => {
       <div v-if="store.archivedCards.length > 0" class="mt-6">
         <button
           type="button"
-          class="flex items-center gap-2 text-[12px] text-muted-foreground/60 hover:text-muted-foreground transition-colors mb-3"
+          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground/60 hover:text-muted-foreground transition-colors mb-3"
           @click="showArchived = !showArchived"
         >
           <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
-          Cartões arquivados ({{ store.archivedCards.length }})
+          <span>{{ showArchived ? 'Ocultar' : 'Ver' }} cartões arquivados ({{ store.archivedCards.length }})</span>
         </button>
         <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           <CreditCardCard

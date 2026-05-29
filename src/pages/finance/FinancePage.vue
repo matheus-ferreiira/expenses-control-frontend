@@ -1099,7 +1099,8 @@ onMounted(async () => {
               <li v-for="cat in categoriesWithMeta" :key="cat.id">
                 <button
                   type="button"
-                  class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/40 active:bg-muted/60 cursor-pointer"
+                  title="Clique para ver as transações desta categoria"
+                  class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/40 active:bg-muted/60 cursor-pointer group"
                   @click="filterState.setCategoryId(filterState.category_id.value === cat.id ? undefined : cat.id)"
                 >
                   <!-- Row: icon + name + amounts + budget pencil -->
@@ -1119,10 +1120,11 @@ onMounted(async () => {
                       <span class="block text-[12px] tabular-nums font-semibold">{{ formatCurrency(cat.total) }}</span>
                       <span class="block text-[10px] text-muted-foreground tabular-nums">de {{ formatCurrency(cat.monthlyLimit!) }}</span>
                     </div>
-                    <!-- Budget edit button — separate from drill-down click -->
+                    <!-- Budget edit button — separate from drill-down click, visible on hover -->
                     <button
                       type="button"
-                      class="size-7 grid place-items-center rounded-md text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all shrink-0"
+                      title="Definir meta mensal"
+                      class="size-7 grid place-items-center rounded-md text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all shrink-0 opacity-0 group-hover:opacity-100"
                       @click.stop="startEditBudget(cat.id, cat.monthlyLimit)"
                     >
                       <PencilIcon :size="12" />
