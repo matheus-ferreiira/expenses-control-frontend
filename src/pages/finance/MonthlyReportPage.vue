@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { AppPageContainer } from '@/components/shared'
-import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
 import {
@@ -217,7 +216,7 @@ onMounted(() => load())
       </div>
     </div>
 
-    <FinanceSubNav />
+
 
     <!-- Toggle Mensal / Anual — same pattern as FinanceSubNav -->
     <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none">

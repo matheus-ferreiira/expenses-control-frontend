@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
-import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
 import { Button } from '@ui/button'
@@ -132,7 +131,7 @@ onMounted(async () => {
       </Button>
     </div>
 
-    <FinanceSubNav />
+
 
     <!-- Loading -->
     <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">

@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer } from '@/components/shared'
-import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
 import FinanceCashflowChart from '@/features/finance/components/FinanceCashflowChart.vue'
 import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
@@ -556,7 +555,7 @@ onMounted(async () => {
     </div>
 
     <!-- Sub-nav -->
-    <FinanceSubNav />
+
 
     <!-- Summary cards (4 KPI) — always first -->
     <FinanceSummaryCards

@@ -3,7 +3,6 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Plus, Search, X } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { AppPageContainer } from '@/components/shared'
-import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import TransactionSummaryCard from '@/features/finance/components/TransactionSummaryCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
@@ -202,7 +201,7 @@ const pendingExpenses = computed(() =>
       </div>
     </Transition>
 
-    <FinanceSubNav />
+
 
     <!-- Period summary card: nav + RECEITAS · DESPESAS · SALDO + context line -->
     <TransactionSummaryCard

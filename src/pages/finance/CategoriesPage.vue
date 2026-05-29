@@ -8,7 +8,6 @@ import { Skeleton } from '@ui/skeleton'
 import { Plus, Pencil, Trash2, Loader2, Tags } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { formatCurrency } from '@/utils/currency'
-import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import CategoryFormSheet from '@/features/finance/components/CategoryFormSheet.vue'
 import type { TransactionCategory } from '@/types/finance'
 
@@ -97,7 +96,7 @@ async function confirmDelete(id: string) {
         </button>
       </div>
 
-      <FinanceSubNav />
+  
     </div>
 
     <!-- Loading -->
