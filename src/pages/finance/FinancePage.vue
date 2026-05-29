@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle, Pencil as PencilIcon } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -429,6 +429,7 @@ watch(() => filterState.month.value, () => {
   loadPrevMonthReport()
 })
 watch(() => filterState.quickFilter.value, () => loadTransactions())
+watch(() => filterState.category_id.value, () => loadTransactions())
 
 function openEdit(t: Transaction) {
   editingTransaction.value = t
@@ -1098,10 +1099,10 @@ onMounted(async () => {
               <li v-for="cat in categoriesWithMeta" :key="cat.id">
                 <button
                   type="button"
-                  class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/30"
-                  @click="startEditBudget(cat.id, cat.monthlyLimit)"
+                  class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/40 active:bg-muted/60 cursor-pointer"
+                  @click="filterState.setCategoryId(filterState.category_id.value === cat.id ? undefined : cat.id)"
                 >
-                  <!-- Row: icon + name + amounts -->
+                  <!-- Row: icon + name + amounts + budget pencil -->
                   <div class="flex items-center gap-3">
                     <span
                       class="size-7 rounded-md grid place-items-center shrink-0"
@@ -1110,11 +1111,22 @@ onMounted(async () => {
                       <component v-if="cat.icon && findIcon(cat.icon)" :is="findIcon(cat.icon)!.component" :size="14" :stroke-width="1.9" />
                       <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
                     </span>
-                    <span class="flex-1 text-sm">{{ cat.name }}</span>
-                    <div class="text-right">
+                    <span
+                      class="flex-1 text-sm font-medium transition-colors"
+                      :class="filterState.category_id.value === cat.id ? 'text-primary' : ''"
+                    >{{ cat.name }}</span>
+                    <div class="text-right mr-1">
                       <span class="block text-[12px] tabular-nums font-semibold">{{ formatCurrency(cat.total) }}</span>
                       <span class="block text-[10px] text-muted-foreground tabular-nums">de {{ formatCurrency(cat.monthlyLimit!) }}</span>
                     </div>
+                    <!-- Budget edit button — separate from drill-down click -->
+                    <button
+                      type="button"
+                      class="size-7 grid place-items-center rounded-md text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all shrink-0"
+                      @click.stop="startEditBudget(cat.id, cat.monthlyLimit)"
+                    >
+                      <PencilIcon :size="12" />
+                    </button>
                   </div>
                   <!-- Progress bar — dynamic color -->
                   <div class="mt-2 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
