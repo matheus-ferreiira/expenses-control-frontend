@@ -185,12 +185,19 @@ const amountClass = computed(() => {
             </span>
           </div>
 
-          <!-- Fix indicator -->
+          <!-- Fix indicator with frequency -->
           <div v-if="transaction.is_recurring" class="flex items-center justify-between px-4 py-3 gap-3">
             <span class="text-[12px] text-muted-foreground shrink-0">Tipo</span>
             <span class="inline-flex items-center gap-1 text-[13px] font-medium text-violet-400">
               <Repeat2 :size="12" />
               Fix
+              <template v-if="(transaction.recurrence_config as Record<string,unknown> | null)?.frequency">
+                · {{ ({
+                  weekly: 'Semanal', biweekly: 'Quinzenal', monthly: 'Mensal',
+                  bimonthly: 'Bimestral', quarterly: 'Trimestral',
+                  semiannual: 'Semestral', annual: 'Anual',
+                } as Record<string, string>)[(transaction.recurrence_config as Record<string,unknown>).frequency as string] ?? 'Mensal' }}
+              </template>
             </span>
           </div>
 

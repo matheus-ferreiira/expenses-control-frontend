@@ -73,6 +73,37 @@ const isEditingRecurring = computed(
   () => !!props.transaction?.recurrence_group_id,
 )
 
+// ── Recurrence config UI ─────────────────────────────────────────────────────
+const FREQUENCY_OPTIONS = [
+  { value: 'weekly',     label: 'Semanal' },
+  { value: 'biweekly',  label: 'Quinzenal' },
+  { value: 'monthly',   label: 'Mensal' },
+  { value: 'bimonthly', label: 'Bimestral' },
+  { value: 'quarterly', label: 'Trimestral' },
+  { value: 'semiannual',label: 'Semestral' },
+  { value: 'annual',    label: 'Anual' },
+] as const
+
+const FREQ_LABELS: Record<string, string> = {
+  weekly: 'semana', biweekly: 'quinzena', monthly: 'mês',
+  bimonthly: '2 meses', quarterly: '3 meses', semiannual: '6 meses', annual: 'ano',
+}
+
+/** Next occurrence date from the transaction_date based on selected frequency */
+const nextOccurrenceLabel = computed(() => {
+  if (!form.transaction_date) return ''
+  const d = new Date(form.transaction_date + 'T12:00:00')
+  const freq = form.recurrence_frequency
+  if (freq === 'weekly') d.setDate(d.getDate() + 7)
+  else if (freq === 'biweekly') d.setDate(d.getDate() + 14)
+  else if (freq === 'monthly') d.setMonth(d.getMonth() + 1)
+  else if (freq === 'bimonthly') d.setMonth(d.getMonth() + 2)
+  else if (freq === 'quarterly') d.setMonth(d.getMonth() + 3)
+  else if (freq === 'semiannual') d.setMonth(d.getMonth() + 6)
+  else if (freq === 'annual') d.setFullYear(d.getFullYear() + 1)
+  return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+})
+
 // ── Installments ─────────────────────────────────────────────────────────────
 const INSTALLMENT_OPTIONS = [2, 3, 6, 12, 18, 24]
 
@@ -671,11 +702,14 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- ── TRANSAÇÃO FIX ─────────────────────────────────── -->
           <div
             v-if="form.type !== 'transfer'"
-            class="rounded-2xl border border-border/40 bg-muted/20 p-3.5 cursor-pointer transition-all"
+            class="rounded-2xl border border-border/40 bg-muted/20 transition-all"
             :class="form.is_recurring ? 'border-violet-500/30 bg-violet-500/5' : ''"
-            @click="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
           >
-            <div class="flex items-center justify-between gap-4">
+            <!-- Toggle header -->
+            <div
+              class="flex items-center justify-between gap-4 p-3.5 cursor-pointer"
+              @click="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
+            >
               <div class="flex items-center gap-3 min-w-0">
                 <span
                   class="flex items-center justify-center size-9 rounded-xl shrink-0 transition-colors"
@@ -686,7 +720,11 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 <div class="min-w-0">
                   <p class="text-[13px] font-semibold leading-none">Transação fixa</p>
                   <p class="text-[11px] text-muted-foreground/50 mt-0.5 leading-snug">
-                    Repete mensalmente por 60 meses
+                    <template v-if="form.is_recurring">
+                      A cada {{ FREQ_LABELS[form.recurrence_frequency] ?? 'mês' }}
+                      <template v-if="nextOccurrenceLabel"> · próxima em {{ nextOccurrenceLabel }}</template>
+                    </template>
+                    <template v-else>Repete periodicamente</template>
                   </p>
                 </div>
               </div>
@@ -701,6 +739,91 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   :class="form.is_recurring ? 'translate-x-5' : 'translate-x-0'"
                 />
               </button>
+            </div>
+
+            <!-- Recurrence config — shown when toggle is on -->
+            <div v-if="form.is_recurring" class="border-t border-violet-500/20 px-3.5 pb-3.5 pt-3 space-y-3">
+              <!-- Frequency pills -->
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">Frequência</p>
+                <div class="flex gap-1.5 flex-wrap">
+                  <button
+                    v-for="opt in FREQUENCY_OPTIONS"
+                    :key="opt.value"
+                    type="button"
+                    class="h-7 px-2.5 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
+                    :class="form.recurrence_frequency === opt.value
+                      ? 'bg-violet-500/15 text-violet-400 border-violet-500/30'
+                      : 'border-border/50 text-muted-foreground hover:bg-muted'"
+                    @click="form.recurrence_frequency = opt.value"
+                  >
+                    {{ opt.label }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- End condition -->
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">Término</p>
+                <div class="space-y-2">
+                  <!-- Never -->
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      :checked="form.recurrence_end_type === 'never'"
+                      class="accent-violet-500"
+                      @change="form.recurrence_end_type = 'never'"
+                    />
+                    <span class="text-[12px]">Sem data de término</span>
+                  </label>
+
+                  <!-- After N occurrences -->
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      :checked="form.recurrence_end_type === 'count'"
+                      class="accent-violet-500"
+                      @change="form.recurrence_end_type = 'count'"
+                    />
+                    <span class="text-[12px]">Após</span>
+                    <input
+                      v-model.number="form.recurrence_count"
+                      type="number"
+                      min="2"
+                      max="260"
+                      class="w-16 h-7 px-2 rounded-lg bg-muted border border-border/60 text-[12px] text-center outline-none focus:border-violet-500/50 tabular-nums"
+                      @focus="form.recurrence_end_type = 'count'"
+                    />
+                    <span class="text-[12px] text-muted-foreground">ocorrências</span>
+                  </label>
+
+                  <!-- Until date -->
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      :checked="form.recurrence_end_type === 'date'"
+                      class="accent-violet-500"
+                      @change="form.recurrence_end_type = 'date'"
+                    />
+                    <span class="text-[12px]">Em uma data</span>
+                    <input
+                      v-model="form.recurrence_end_date"
+                      type="date"
+                      class="flex-1 h-7 px-2 rounded-lg bg-muted border border-border/60 text-[12px] outline-none focus:border-violet-500/50"
+                      @focus="form.recurrence_end_type = 'date'"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Preview -->
+              <div class="rounded-xl bg-violet-500/8 border border-violet-500/20 px-3 py-2 text-[11px] text-violet-300/80 leading-relaxed">
+                Será gerado a cada <strong>{{ FREQ_LABELS[form.recurrence_frequency] ?? 'mês' }}</strong>
+                <template v-if="nextOccurrenceLabel"> · próxima em <strong>{{ nextOccurrenceLabel }}</strong></template>
+                <template v-if="form.recurrence_end_type === 'count'"> · por <strong>{{ form.recurrence_count }} ocorrências</strong></template>
+                <template v-else-if="form.recurrence_end_type === 'date' && form.recurrence_end_date"> · até <strong>{{ new Date(form.recurrence_end_date + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }) }}</strong></template>
+                <template v-else> · sem data de término</template>
+              </div>
             </div>
           </div>
 

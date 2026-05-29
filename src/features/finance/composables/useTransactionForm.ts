@@ -2,6 +2,9 @@ import { reactive, ref } from 'vue'
 import type { Transaction, TransactionType, CreateTransactionPayload } from '@/types/finance'
 import { toISODate } from '@/utils/date'
 
+export type RecurrenceFrequency = 'weekly' | 'biweekly' | 'monthly' | 'bimonthly' | 'quarterly' | 'semiannual' | 'annual'
+export type RecurrenceEndType = 'never' | 'count' | 'date'
+
 export interface TransactionFormData {
   type: TransactionType
   description: string
@@ -14,6 +17,11 @@ export interface TransactionFormData {
   card_id: string
   notes: string
   is_recurring: boolean
+  /** Recurrence configuration when is_recurring=true */
+  recurrence_frequency: RecurrenceFrequency
+  recurrence_end_type: RecurrenceEndType
+  recurrence_count: number
+  recurrence_end_date: string
   /** Number of installments — mutually exclusive with is_recurring. 0 = not a parcelamento. */
   total_installments: number
   tag_ids: string[]
@@ -38,6 +46,10 @@ const DEFAULTS: TransactionFormData = {
   card_id: '',
   notes: '',
   is_recurring: false,
+  recurrence_frequency: 'monthly',
+  recurrence_end_type: 'never',
+  recurrence_count: 12,
+  recurrence_end_date: '',
   total_installments: 0,
   tag_ids: [],
 }
@@ -62,6 +74,12 @@ export function useTransactionForm() {
     form.card_id = t.card_id ?? ''
     form.notes = t.notes ?? ''
     form.is_recurring = t.is_recurring
+    // Restore recurrence_config if present
+    const cfg = t.recurrence_config as Record<string, unknown> | null
+    form.recurrence_frequency = (cfg?.frequency as RecurrenceFrequency) ?? 'monthly'
+    form.recurrence_end_type = (cfg?.end_type as RecurrenceEndType) ?? 'never'
+    form.recurrence_count = (cfg?.count as number) ?? 12
+    form.recurrence_end_date = (cfg?.end_date as string) ?? ''
     form.total_installments = 0 // don't pre-fill installments on edit
     form.tag_ids = t.tags?.map((tag) => tag.id) ?? []
     Object.assign(errors, {})
@@ -133,6 +151,14 @@ export function useTransactionForm() {
       // Installments are mutually exclusive with recurring
     } else {
       payload.is_recurring = form.is_recurring
+      if (form.is_recurring) {
+        payload.recurrence_config = {
+          frequency: form.recurrence_frequency,
+          end_type: form.recurrence_end_type,
+          count: form.recurrence_end_type === 'count' ? form.recurrence_count : null,
+          end_date: form.recurrence_end_type === 'date' ? form.recurrence_end_date || null : null,
+        }
+      }
     }
     if (form.tag_ids.length > 0) payload.tag_ids = [...form.tag_ids]
     return payload
