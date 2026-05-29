@@ -6,7 +6,7 @@ import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
-import { Plus, Landmark } from 'lucide-vue-next'
+import { Plus, Landmark, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
@@ -21,6 +21,12 @@ const deleteOpen = ref(false)
 const deletingId = ref<string | null>(null)
 const deleting = ref(false)
 const loading = ref(false)
+
+// Archive / unarchive state
+const archiveOpen = ref(false)
+const archiveTarget = ref<BankAccount | null>(null)
+const archiving = ref(false)
+const showArchived = ref(false)
 
 const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
@@ -53,6 +59,35 @@ async function confirmDelete() {
     toast.error('Erro ao excluir conta')
   } finally {
     deleting.value = false
+  }
+}
+
+function requestArchive(account: BankAccount) {
+  archiveTarget.value = account
+  archiveOpen.value = true
+}
+
+async function confirmArchive() {
+  if (!archiveTarget.value) return
+  archiving.value = true
+  try {
+    await store.updateAccount(archiveTarget.value.id, { is_active: false })
+    toast.success('Conta arquivada')
+    archiveOpen.value = false
+    archiveTarget.value = null
+  } catch {
+    toast.error('Erro ao arquivar conta')
+  } finally {
+    archiving.value = false
+  }
+}
+
+async function unarchiveAccount(account: BankAccount) {
+  try {
+    await store.updateAccount(account.id, { is_active: true })
+    toast.success('Conta reativada')
+  } catch {
+    toast.error('Erro ao reativar conta')
   }
 }
 
@@ -104,7 +139,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Empty -->
+    <!-- Empty (no accounts at all) -->
     <EmptyState
       v-else-if="store.accounts.length === 0"
       :icon="Landmark"
@@ -114,16 +149,43 @@ onMounted(async () => {
       @cta="openCreate"
     />
 
-    <!-- Grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-      <AccountCard
-        v-for="account in store.activeAccounts"
-        :key="account.id"
-        :account="account"
-        @edit="openEdit"
-        @delete="openDelete"
-      />
-    </div>
+    <template v-else>
+      <!-- Active accounts grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        <AccountCard
+          v-for="account in store.activeAccounts"
+          :key="account.id"
+          :account="account"
+          @edit="openEdit"
+          @delete="openDelete"
+          @archive="requestArchive"
+          @unarchive="unarchiveAccount"
+        />
+      </div>
+
+      <!-- Archived accounts — collapsible section -->
+      <div v-if="store.archivedAccounts.length > 0" class="mt-6">
+        <button
+          type="button"
+          class="flex items-center gap-2 text-[12px] text-muted-foreground/60 hover:text-muted-foreground transition-colors mb-3"
+          @click="showArchived = !showArchived"
+        >
+          <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
+          Contas arquivadas ({{ store.archivedAccounts.length }})
+        </button>
+        <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          <AccountCard
+            v-for="account in store.archivedAccounts"
+            :key="account.id"
+            :account="account"
+            @edit="openEdit"
+            @delete="openDelete"
+            @archive="requestArchive"
+            @unarchive="unarchiveAccount"
+          />
+        </div>
+      </div>
+    </template>
   </AppPageContainer>
 
   <AccountFormDialog
@@ -131,10 +193,21 @@ onMounted(async () => {
     :account="editingAccount"
   />
 
+  <!-- Archive confirmation -->
+  <ConfirmDialog
+    v-model:open="archiveOpen"
+    title="Arquivar conta"
+    :description="`'${archiveTarget?.name}' será ocultada da lista principal. O histórico de transações é mantido.`"
+    confirm-label="Arquivar"
+    :loading="archiving"
+    @confirm="confirmArchive"
+  />
+
+  <!-- Delete confirmation -->
   <ConfirmDialog
     v-model:open="deleteOpen"
     title="Excluir conta"
-    description="Todos os dados desta conta serão removidos."
+    description="Todos os dados desta conta serão removidos permanentemente."
     confirm-label="Excluir"
     variant="destructive"
     :loading="deleting"

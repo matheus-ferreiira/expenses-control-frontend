@@ -8,7 +8,7 @@ import {
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
 import { computed } from 'vue'
-import { MoreHorizontal, Pencil, Trash2, CreditCard, CheckCircle2, Lock } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, CreditCard, CheckCircle2, Lock, Archive, ArchiveRestore } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent } from '../utils/financeHelpers'
@@ -26,6 +26,8 @@ const emit = defineEmits<{
   edit: [card: CreditCardType]
   delete: [id: string]
   pay: [card: CreditCardType]
+  archive: [card: CreditCardType]
+  unarchive: [card: CreditCardType]
 }>()
 
 const used = computed(() => props.usedAmount ?? 0)
@@ -78,7 +80,7 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card overflow-hidden flex flex-col">
+  <div class="rounded-lg border border-border/50 bg-card overflow-hidden flex flex-col" :class="!card.is_active ? 'opacity-50' : ''">
     <!-- Color accent top bar -->
     <div class="h-[3px] w-full" :style="{ background: card.color }" />
 
@@ -112,10 +114,19 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
               <MoreHorizontal :size="13" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="w-32">
-            <DropdownMenuItem @click="emit('edit', card)">
+          <DropdownMenuContent align="end" class="w-36">
+            <DropdownMenuItem v-if="card.is_active" @click="emit('edit', card)">
               <Pencil :size="12" class="mr-2" />
               Editar
+            </DropdownMenuItem>
+            <DropdownMenuSeparator v-if="card.is_active" />
+            <DropdownMenuItem v-if="card.is_active" @click="emit('archive', card)">
+              <Archive :size="12" class="mr-2" />
+              Arquivar
+            </DropdownMenuItem>
+            <DropdownMenuItem v-else @click="emit('unarchive', card)">
+              <ArchiveRestore :size="12" class="mr-2" />
+              Desarquivar
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

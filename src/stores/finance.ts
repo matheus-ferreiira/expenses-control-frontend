@@ -31,7 +31,9 @@ export const useFinanceStore = defineStore('finance', () => {
   const error = ref<string | null>(null)
 
   const activeAccounts = computed(() => accounts.value.filter((a) => a.is_active))
+  const archivedAccounts = computed(() => accounts.value.filter((a) => !a.is_active))
   const activeCards = computed(() => cards.value.filter((c) => c.is_active))
+  const archivedCards = computed(() => cards.value.filter((c) => !c.is_active))
 
   // ── Fetch ────────────────────────────────────────────────────────────────
 
@@ -297,7 +299,9 @@ export const useFinanceStore = defineStore('finance', () => {
     loading,
     error,
     activeAccounts,
+    archivedAccounts,
     activeCards,
+    archivedCards,
     fetchAccounts,
     fetchCards,
     fetchTransactions,

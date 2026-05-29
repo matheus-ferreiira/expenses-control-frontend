@@ -6,7 +6,7 @@ import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
-import { Plus, CreditCard } from 'lucide-vue-next'
+import { Plus, CreditCard, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { getCardBillingPeriod } from '@/features/finance/utils/financeHelpers'
@@ -23,6 +23,12 @@ const deleteOpen = ref(false)
 const deletingId = ref<string | null>(null)
 const deleting = ref(false)
 const loading = ref(false)
+
+// Archive / unarchive state
+const archiveOpen = ref(false)
+const archiveTarget = ref<CreditCardType | null>(null)
+const archiving = ref(false)
+const showArchived = ref(false)
 
 /** All transactions from the last 60 days — covers any possible billing cycle */
 const billingTransactions = ref<Transaction[]>([])
@@ -54,6 +60,35 @@ async function confirmDelete() {
     toast.error('Erro ao excluir cartão')
   } finally {
     deleting.value = false
+  }
+}
+
+function requestArchive(card: CreditCardType) {
+  archiveTarget.value = card
+  archiveOpen.value = true
+}
+
+async function confirmArchive() {
+  if (!archiveTarget.value) return
+  archiving.value = true
+  try {
+    await store.updateCard(archiveTarget.value.id, { is_active: false })
+    toast.success('Cartão arquivado')
+    archiveOpen.value = false
+    archiveTarget.value = null
+  } catch {
+    toast.error('Erro ao arquivar cartão')
+  } finally {
+    archiving.value = false
+  }
+}
+
+async function unarchiveCard(card: CreditCardType) {
+  try {
+    await store.updateCard(card.id, { is_active: true })
+    toast.success('Cartão reativado')
+  } catch {
+    toast.error('Erro ao reativar cartão')
   }
 }
 
@@ -157,19 +192,48 @@ onMounted(async () => {
       @cta="openCreate"
     />
 
-    <!-- Grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-      <CreditCardCard
-        v-for="card in store.activeCards"
-        :key="card.id"
-        :card="card"
-        :used-amount="cardUsed(card.id)"
-        :billing-period="billingPeriods.get(card.id)"
-        @edit="openEdit"
-        @delete="openDelete"
-        @pay="openEdit"
-      />
-    </div>
+    <template v-else>
+      <!-- Active cards grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        <CreditCardCard
+          v-for="card in store.activeCards"
+          :key="card.id"
+          :card="card"
+          :used-amount="cardUsed(card.id)"
+          :billing-period="billingPeriods.get(card.id)"
+          @edit="openEdit"
+          @delete="openDelete"
+          @pay="openEdit"
+          @archive="requestArchive"
+          @unarchive="unarchiveCard"
+        />
+      </div>
+
+      <!-- Archived cards — collapsible -->
+      <div v-if="store.archivedCards.length > 0" class="mt-6">
+        <button
+          type="button"
+          class="flex items-center gap-2 text-[12px] text-muted-foreground/60 hover:text-muted-foreground transition-colors mb-3"
+          @click="showArchived = !showArchived"
+        >
+          <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
+          Cartões arquivados ({{ store.archivedCards.length }})
+        </button>
+        <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          <CreditCardCard
+            v-for="card in store.archivedCards"
+            :key="card.id"
+            :card="card"
+            :used-amount="0"
+            @edit="openEdit"
+            @delete="openDelete"
+            @pay="openEdit"
+            @archive="requestArchive"
+            @unarchive="unarchiveCard"
+          />
+        </div>
+      </div>
+    </template>
   </AppPageContainer>
 
   <CreditCardFormDialog
@@ -177,10 +241,21 @@ onMounted(async () => {
     :card="editingCard"
   />
 
+  <!-- Archive confirmation -->
+  <ConfirmDialog
+    v-model:open="archiveOpen"
+    title="Arquivar cartão"
+    :description="`'${archiveTarget?.name}' será ocultado da lista principal. O histórico de transações é mantido.`"
+    confirm-label="Arquivar"
+    :loading="archiving"
+    @confirm="confirmArchive"
+  />
+
+  <!-- Delete confirmation -->
   <ConfirmDialog
     v-model:open="deleteOpen"
     title="Excluir cartão"
-    description="Todos os dados deste cartão serão removidos."
+    description="Todos os dados deste cartão serão removidos permanentemente."
     confirm-label="Excluir"
     variant="destructive"
     :loading="deleting"
