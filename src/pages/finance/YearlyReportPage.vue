@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { AppPageContainer } from '@/components/shared'
 import { Skeleton } from '@ui/skeleton'
 import {
-  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Calendar,
+  ChevronLeft, ChevronRight, Calendar,
 } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
@@ -53,6 +53,12 @@ const totalExpenses = computed(() =>
   report.value?.months.reduce((s, m) => s + m.expenses, 0) ?? 0,
 )
 const yearBalance = computed(() => totalIncome.value - totalExpenses.value)
+
+const savingsRate = computed(() =>
+  totalIncome.value > 0
+    ? Math.round(((totalIncome.value - totalExpenses.value) / totalIncome.value) * 100)
+    : 0
+)
 
 const worstMonth = computed(() => {
   if (!report.value) return null
@@ -256,15 +262,24 @@ function goToMonth(month: number) {
             </p>
           </div>
         </div>
-        <div class="mt-3 pt-3 border-t border-border/40">
-          <p class="text-[11.5px] text-muted-foreground">
-            Maior despesa:
-            <span class="font-semibold text-foreground">{{ worstMonth?.name ?? '—' }}</span>
-            <template v-if="worstMonth">
-              &nbsp;·&nbsp;<span class="tabular-nums">{{ formatCurrency(worstMonth.expenses) }}</span>
-            </template>
-          </p>
+        <div class="mt-3 pt-3 border-t border-border/40 grid grid-cols-2 gap-3 text-center">
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Taxa de poupança</p>
+            <p class="text-[15px] font-semibold tabular-nums mt-0.5" :class="savingsRate >= 0 ? 'text-success' : 'text-destructive'">
+              {{ savingsRate }}%
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Média mensal</p>
+            <p class="text-[15px] font-semibold tabular-nums mt-0.5 text-destructive">
+              {{ formatCurrency(totalExpenses / 12) }}
+            </p>
+          </div>
         </div>
+        <p v-if="worstMonth" class="mt-2 text-[11px] text-muted-foreground text-center">
+          Maior despesa: <span class="font-semibold text-foreground">{{ worstMonth.name }}</span>
+          &nbsp;·&nbsp;<span class="tabular-nums">{{ formatCurrency(worstMonth.expenses) }}</span>
+        </p>
       </div>
 
       <!-- Chart + Table side by side on desktop -->
@@ -335,34 +350,6 @@ function goToMonth(month: number) {
       </div>
 
 
-      <!-- Year trend indicators -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="bg-card border border-border rounded-xl p-3.5 flex items-center gap-3">
-          <span
-            class="flex items-center justify-center size-9 rounded-xl shrink-0"
-            :class="yearBalance >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'"
-          >
-            <component :is="yearBalance >= 0 ? TrendingUp : TrendingDown" :size="16" />
-          </span>
-          <div>
-            <p class="text-[11px] text-muted-foreground/50">Taxa de poupança</p>
-            <p class="text-[14px] font-semibold tabular-nums">
-              {{ totalIncome > 0 ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100) : 0 }}%
-            </p>
-          </div>
-        </div>
-        <div class="bg-card border border-border rounded-xl p-3.5 flex items-center gap-3">
-          <span class="flex items-center justify-center size-9 rounded-xl shrink-0 bg-muted text-muted-foreground">
-            <Calendar :size="16" />
-          </span>
-          <div>
-            <p class="text-[11px] text-muted-foreground/50">Média mensal</p>
-            <p class="text-[14px] font-semibold tabular-nums text-destructive">
-              {{ formatCurrency(totalExpenses / 12) }}
-            </p>
-          </div>
-        </div>
-      </div>
     </template>
 
   </AppPageContainer>
