@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, ref } from 'vue'
+import { computed, nextTick, watch, onMounted, ref } from 'vue'
 import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle, Pencil as PencilIcon } from 'lucide-vue-next'
 import {
   DropdownMenu,
@@ -99,6 +99,19 @@ async function saveBudget(catId: string, remove = false) {
   } finally {
     savingBudget.value = false
   }
+}
+
+// Highlight newly created transaction
+const newlyCreatedId = ref<string | null>(null)
+
+async function onTransactionCreated(t: Transaction) {
+  await loadTransactions()
+  newlyCreatedId.value = t.id
+  // Scroll to the new transaction and clear highlight after 2.5s
+  await nextTick()
+  const el = document.getElementById(`tx-${t.id}`)
+  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  setTimeout(() => { newlyCreatedId.value = null }, 2500)
 }
 
 // Detail sheet
@@ -888,6 +901,7 @@ onMounted(async () => {
             :total-balance="totalBalance"
             :total-count="store.transactionsMeta?.total"
             :loading-all="loadingAll"
+            :highlighted-id="newlyCreatedId ?? undefined"
             @select="openDetail"
             @add-new="formOpen = true"
             @load-all="loadAllTransactions"
@@ -1322,7 +1336,7 @@ onMounted(async () => {
     v-model:open="formOpen"
     :transaction="editingTransaction"
     :prefill="transactionPrefill"
-    @created="loadTransactions"
+    @created="onTransactionCreated"
     @updated="loadTransactions"
   />
 

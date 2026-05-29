@@ -23,6 +23,8 @@ const props = defineProps<{
   totalCount?: number
   /** True while the "load all" fetch is in progress — shows spinner in the banner. */
   loadingAll?: boolean
+  /** ID of a just-created transaction to highlight temporarily */
+  highlightedId?: string
 }>()
 
 const emit = defineEmits<{
@@ -112,6 +114,7 @@ const isTruncated = computed(() =>
           v-for="t in group.transactions"
           :key="t.id"
           :transaction="t"
+          :highlighted="t.id === highlightedId"
           @select="emit('select', $event)"
         />
       </ul>

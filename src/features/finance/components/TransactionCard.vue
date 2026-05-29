@@ -7,6 +7,8 @@ import { findIcon } from '@/lib/icons'
 
 const props = defineProps<{
   transaction: Transaction
+  /** When true, applies a temporary highlight background to confirm a just-created transaction */
+  highlighted?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -15,14 +17,22 @@ const emit = defineEmits<{
 
 /** Category color or type fallback */
 const isPending = computed(() => props.transaction.status === 'pending')
+
+/** Highlight background class based on transaction type */
+const highlightBg = computed(() => {
+  if (!props.highlighted) return ''
+  if (props.transaction.type === 'income') return 'bg-success/[0.12]'
+  if (props.transaction.type === 'expense') return 'bg-destructive/[0.10]'
+  return 'bg-muted/50'
+})
 </script>
 
 <template>
-  <li class="relative">
+  <li :id="`tx-${transaction.id}`" class="relative">
     <button
       type="button"
       class="w-full flex items-center gap-3 pl-4 pr-4 py-3 min-h-[56px] lg:min-h-[48px] text-left hover:bg-foreground/[0.025] active:bg-foreground/[0.04] transition-colors cursor-pointer"
-      :class="isPending ? 'opacity-65' : ''"
+      :class="[isPending ? 'opacity-65' : '', highlightBg]"
       @click="emit('select', transaction)"
     >
       <!-- Category icon swatch — 40px, dashed ring when pending -->
