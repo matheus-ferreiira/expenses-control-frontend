@@ -355,12 +355,13 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             v-for="([t, cfg]) in (Object.entries(TYPE_CONFIG) as [TransactionType, typeof TYPE_CONFIG[TransactionType]][])"
             :key="t"
             type="button"
-            class="relative flex-1 h-9 text-[13px] font-medium transition-colors"
+            class="relative flex-1 h-9 flex items-center justify-center gap-1.5 text-[13px] font-medium transition-colors"
             :class="form.type === t
               ? (t === 'expense' ? 'text-destructive' : t === 'income' ? 'text-success' : 'text-muted-foreground')
               : 'text-muted-foreground/40 hover:text-muted-foreground/70'"
             @click="form.type = t"
           >
+            <component :is="cfg.icon" :size="14" />
             {{ cfg.label }}
             <span
               v-if="form.type === t"
@@ -500,7 +501,10 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <input
               v-model="form.description"
               :placeholder="descriptionPlaceholder"
-              class="w-full h-11 rounded-lg px-3 text-sm text-foreground bg-card border border-white/10 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40"
+              style="background: #18181b; border: 1px solid #27272a;"
+              @focus="($event.target as HTMLInputElement).style.borderColor = 'hsl(var(--primary))'"
+              @blur="($event.target as HTMLInputElement).style.borderColor = '#27272a'"
             />
             <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
           </div>
@@ -848,7 +852,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <Textarea
                 v-model="form.notes"
                 placeholder="Detalhes extras, referência, contexto..."
-                class="resize-none h-20 text-sm bg-card border-white/10 focus:border-primary rounded-lg pr-12 placeholder:text-muted-foreground/30"
+                class="resize-none h-20 text-sm rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors"
+                style="background: #18181b; border: 1px solid #27272a;"
               />
               <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
                 {{ form.notes?.length ?? 0 }}/500
