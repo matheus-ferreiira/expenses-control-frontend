@@ -505,7 +505,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <div class="flex gap-1.5 mb-2">
               <button
                 type="button"
-                class="flex items-center gap-1 h-7 px-3 rounded-full text-[11px] font-semibold border transition-all"
+                class="flex items-center gap-1 min-h-[44px] px-3 rounded-full text-[11px] font-semibold border transition-all"
                 :class="dateShortcut === 'today'
                   ? `${typeConfig.bgClass} border-transparent`
                   : 'border-border/50 text-muted-foreground hover:bg-muted'"
@@ -516,7 +516,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </button>
               <button
                 type="button"
-                class="h-7 px-3 rounded-full text-[11px] font-semibold border transition-all"
+                class="min-h-[44px] px-3 rounded-full text-[11px] font-semibold border transition-all"
                 :class="dateShortcut === 'yesterday'
                   ? `${typeConfig.bgClass} border-transparent`
                   : 'border-border/50 text-muted-foreground hover:bg-muted'"
@@ -525,7 +525,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 Ontem
               </button>
               <span
-                class="h-7 px-3 rounded-full text-[11px] font-semibold border flex items-center"
+                class="min-h-[44px] px-3 rounded-full text-[11px] font-semibold border flex items-center"
                 :class="dateShortcut === 'custom'
                   ? `${typeConfig.bgClass} border-transparent`
                   : 'border-border/50 text-muted-foreground/40'"
@@ -751,7 +751,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     v-for="opt in FREQUENCY_OPTIONS"
                     :key="opt.value"
                     type="button"
-                    class="h-7 px-2.5 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
+                    class="min-h-[44px] px-2.5 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
                     :class="form.recurrence_frequency === opt.value
                       ? 'bg-violet-500/15 text-violet-400 border-violet-500/30'
                       : 'border-border/50 text-muted-foreground hover:bg-muted'"
@@ -877,7 +877,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="n in INSTALLMENT_OPTIONS"
                 :key="n"
                 type="button"
-                class="h-8 px-3 rounded-full text-[12px] font-semibold border transition-all active:scale-95"
+                class="min-h-[44px] px-3 rounded-full text-[12px] font-semibold border transition-all active:scale-95"
                 :class="form.total_installments === n
                   ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
                   : 'border-border/50 text-muted-foreground hover:bg-muted'"

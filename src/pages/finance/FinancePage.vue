@@ -1161,7 +1161,7 @@ onMounted(async () => {
                     <span class="text-[12px] tabular-nums font-medium mr-2">{{ formatCurrency(cat.total) }}</span>
                     <button
                       type="button"
-                      class="text-[11px] font-medium px-2 py-0.5 rounded-md border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+                      class="text-[11px] font-medium px-3 min-h-[44px] rounded-md border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
                       @click="startEditBudget(cat.id, null)"
                     >
                       Definir meta
