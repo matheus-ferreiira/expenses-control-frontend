@@ -510,36 +510,33 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p class="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground mb-2">
               Data
             </p>
-            <!-- Date shortcut pills — neutral, exact rgba via inline style -->
+            <!-- Date shortcut pills — full inline style, no Tailwind border/color classes -->
             <div class="flex gap-1.5 mb-2">
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
-                :class="dateShortcut === 'today' ? 'text-foreground' : 'text-muted-foreground'"
+                class="h-8 px-3 rounded-md text-[11px] font-medium transition-all"
                 :style="dateShortcut === 'today'
-                  ? 'background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20)'
-                  : 'background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08)'"
+                  ? 'background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20); color: #F0F0F0'
+                  : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #888888'"
                 @click="form.transaction_date = todayStr"
               >
                 Hoje
               </button>
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
-                :class="dateShortcut === 'yesterday' ? 'text-foreground' : 'text-muted-foreground'"
+                class="h-8 px-3 rounded-md text-[11px] font-medium transition-all"
                 :style="dateShortcut === 'yesterday'
-                  ? 'background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20)'
-                  : 'background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08)'"
+                  ? 'background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20); color: #F0F0F0'
+                  : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #888888'"
                 @click="form.transaction_date = yesterdayStr"
               >
                 Ontem
               </button>
               <span
-                class="h-8 px-3 rounded-md text-[11px] font-medium border flex items-center"
-                :class="dateShortcut === 'custom' ? 'text-foreground' : 'text-muted-foreground/40'"
+                class="h-8 px-3 rounded-md text-[11px] font-medium flex items-center"
                 :style="dateShortcut === 'custom'
-                  ? 'background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20)'
-                  : 'background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08)'"
+                  ? 'background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20); color: #F0F0F0'
+                  : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(136,136,136,0.5)'"
               >
                 Personalizado
               </span>
@@ -566,11 +563,10 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   :key="acc.id"
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
-                  class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg border text-left transition-all disabled:cursor-not-allowed outline-none"
-                  :class="form.account_id === acc.id ? '' : 'opacity-[0.45]'"
+                  class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg text-left transition-all disabled:cursor-not-allowed outline-none"
                   :style="form.account_id === acc.id
-                    ? 'background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25)'
-                    : 'background: transparent; border-color: rgba(255,255,255,0.08)'"
+                    ? 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25)'
+                    : 'background: transparent; border: 1px solid rgba(255,255,255,0.08); opacity: 0.45'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -600,10 +596,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.account_id"
                   class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg border text-left transition-all disabled:cursor-not-allowed"
-                  :class="form.destination_account_id === acc.id ? '' : 'opacity-[0.45]'"
                   :style="form.destination_account_id === acc.id
-                    ? 'background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25)'
-                    : 'background: transparent; border-color: rgba(255,255,255,0.08)'"
+                    ? 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25)'
+                    : 'background: transparent; border: 1px solid rgba(255,255,255,0.08); opacity: 0.45'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -632,11 +627,10 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 type="button"
-                class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg border text-left transition-all outline-none"
-                :class="form.account_id === acc.id ? '' : 'opacity-[0.45]'"
+                class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg text-left transition-all outline-none"
                 :style="form.account_id === acc.id
-                  ? 'background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25)'
-                  : 'background: transparent; border-color: rgba(255,255,255,0.08)'"
+                  ? 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25)'
+                  : 'background: transparent; border: 1px solid rgba(255,255,255,0.08); opacity: 0.45'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span

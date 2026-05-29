@@ -92,26 +92,26 @@ async function submit() {
 
       <form class="space-y-4" @submit.prevent="submit">
 
-        <!-- Live preview card -->
+        <!-- Live preview card — neutral bg, color only in avatar -->
         <div
-          class="flex items-center gap-3 p-3 rounded-xl border"
-          :style="{ borderColor: form.color + '50', background: form.color + '10' }"
+          class="flex items-center gap-3 p-3 rounded-lg"
+          style="background: #111111; border: 1px solid rgba(255,255,255,0.10)"
         >
           <span
-            class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
-            :style="{ backgroundColor: form.color + '25', color: form.color }"
+            class="flex items-center justify-center size-9 rounded-lg shrink-0"
+            :style="{ background: (form.color ?? '#6b7280') + '26', color: form.color ?? '#6b7280' }"
           >
-            <component :is="previewIcon" :size="20" />
+            <component :is="previewIcon" :size="18" />
           </span>
           <div class="min-w-0 flex-1">
-            <p class="text-sm font-semibold truncate text-foreground/90">
+            <p class="text-[14px] font-medium truncate text-foreground">
               {{ form.name || 'Nome da conta' }}
             </p>
-            <p class="text-xs text-muted-foreground">
+            <p class="text-[12px] text-muted-foreground">
               {{ ACCOUNT_TYPE_LABELS[form.type] }}
             </p>
           </div>
-          <p class="text-sm font-bold tabular-nums shrink-0" :style="{ color: form.color }">
+          <p class="text-[16px] font-semibold tabular-nums shrink-0" style="color: #F0F0F0">
             {{ previewBalance }}
           </p>
         </div>

@@ -934,32 +934,30 @@ onMounted(async () => {
           <div v-else-if="store.activeAccounts.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
             Nenhuma conta cadastrada
           </div>
-          <ul v-else class="divide-y divide-border">
+          <ul v-else class="divide-y divide-white/5">
             <li
               v-for="account in store.activeAccounts.slice(0, 4)"
               :key="account.id"
-              class="relative flex items-center gap-3 px-4 py-3 pt-3.5"
+              class="flex items-center gap-3 px-4 py-3"
             >
-              <!-- Brand color stripe at top -->
+              <!-- Avatar: 36px, 15% opacity bg, color text -->
               <span
-                class="absolute top-0 left-0 right-0 h-[2px]"
-                :style="{ background: account.color || 'hsl(var(--muted-foreground) / 0.3)' }"
-              />
-              <!-- Solid brand avatar -->
-              <span
-                class="size-9 rounded-md grid place-items-center font-bold text-[13px] shrink-0"
+                class="size-9 rounded-lg grid place-items-center font-bold text-[13px] shrink-0"
                 :style="{
-                  background: account.color || 'hsl(var(--muted-foreground) / 0.4)',
-                  color: 'hsl(var(--background))',
+                  background: (account.color ?? '#6b7280') + '26',
+                  color: account.color ?? '#6b7280',
                 }"
               >
                 {{ account.name.slice(0, 2).toUpperCase() }}
               </span>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold truncate">{{ account.name }}</p>
-                <p class="text-[11px] text-muted-foreground">{{ account.bank_name || account.type }}</p>
+                <p class="text-[14px] font-medium text-foreground truncate">{{ account.name }}</p>
+                <p class="text-[12px] text-muted-foreground">{{ account.bank_name || account.type }}</p>
               </div>
-              <span class="text-[20px] font-medium tabular-nums shrink-0">
+              <span
+                class="text-[16px] font-semibold tabular-nums shrink-0"
+                :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
+              >
                 {{ formatCurrency(account.balance) }}
               </span>
             </li>
@@ -992,21 +990,17 @@ onMounted(async () => {
           <div v-else-if="store.activeCards.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
             Nenhum cartão cadastrado
           </div>
-          <ul v-else class="divide-y divide-border">
+          <ul v-else class="divide-y divide-white/5">
             <li
               v-for="card in store.activeCards.slice(0, 3)"
               :key="card.id"
-              class="px-4 py-3 hover:bg-muted/30 transition-colors"
-              :style="{ boxShadow: `inset 3px 0 0 0 ${card.color || 'hsl(var(--muted-foreground) / 0.3)'}` }"
+              class="px-4 py-3 hover:bg-white/[0.02] transition-colors"
             >
               <div class="flex items-start gap-3 text-sm">
-                <!-- Solid color avatar -->
+                <!-- Avatar: solid card color (only place color appears) -->
                 <span
-                  class="size-8 rounded-md grid place-items-center font-bold text-[11px] shrink-0"
-                  :style="{
-                    background: card.color || 'hsl(var(--muted-foreground) / 0.4)',
-                    color: 'hsl(var(--background))',
-                  }"
+                  class="size-9 rounded-lg grid place-items-center font-bold text-[11px] text-white shrink-0"
+                  :style="{ background: card.color || '#6b7280' }"
                 >
                   {{ card.name.slice(0, 2).toUpperCase() }}
                 </span>
@@ -1021,15 +1015,13 @@ onMounted(async () => {
                   <!-- DueBadge -->
                   <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
                     <span
-                      class="inline-flex items-center h-6 px-2 rounded-full text-[11px] font-semibold border"
-                      :class="
-                        card.due_day < today
-                          ? 'bg-destructive/20 text-destructive border-destructive/40 font-bold'
-                          : (card.due_day - today) < 3
-                            ? 'bg-destructive/20 text-destructive border-destructive/40 font-bold'
-                            : (card.due_day - today) <= 10
-                              ? 'bg-warning/15 text-warning border-warning/30'
-                              : 'bg-success/15 text-success border-success/30'
+                      class="inline-flex items-center h-6 px-2 rounded text-[11px] font-semibold border"
+                      :style="
+                        card.due_day < today || (card.due_day - today) < 3
+                          ? 'background: rgba(255,77,77,0.12); border-color: rgba(255,77,77,0.25); color: #FF4D4D'
+                          : (card.due_day - today) <= 10
+                            ? 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.25); color: #F5A623'
+                            : 'background: rgba(0,200,150,0.10); border-color: rgba(0,200,150,0.25); color: #00C896'
                       "
                     >
                       {{
