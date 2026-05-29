@@ -272,6 +272,7 @@ function kpiValueClass(value: number | null): string {
       :transactions="filteredTransactions"
       :loading="store.loading"
       @select="openDetail"
+      @add-new="openCreate"
     />
   </AppPageContainer>
 
