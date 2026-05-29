@@ -26,21 +26,14 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="rounded-lg border border-border/50 bg-card overflow-hidden flex flex-col transition-opacity"
+    class="rounded-lg border border-border/60 bg-card overflow-hidden flex flex-col transition-opacity"
     :class="!account.is_active ? 'opacity-50' : ''"
   >
-    <!-- Color accent bar on top -->
-    <div
-      class="h-[3px] w-full"
-      :style="{ background: account.is_active
-        ? (account.color || 'hsl(var(--muted-foreground) / 0.3)')
-        : 'hsl(var(--muted-foreground) / 0.2)' }"
-    />
-
     <div class="p-3.5 flex flex-col gap-2.5 flex-1">
-      <!-- Header -->
+      <!-- Header: color dot + name + type label + menu -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
+          <!-- Colored avatar with initials — primary identity color -->
           <span
             class="rounded-lg grid place-items-center shrink-0 w-9 h-9 text-[11px] font-bold text-white"
             :style="{ background: account.is_active
@@ -49,9 +42,20 @@ const emit = defineEmits<{
           >
             {{ account.name.substring(0, 2).toUpperCase() }}
           </span>
+
           <div class="min-w-0">
-            <p class="text-[13px] font-semibold text-foreground truncate">{{ account.name }}</p>
-            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5">
+            <div class="flex items-center gap-1.5">
+              <!-- 8px color dot for accent identity without the thick bar -->
+              <span
+                class="size-2 rounded-full shrink-0"
+                :style="{ background: account.is_active
+                  ? (account.color || 'hsl(var(--muted-foreground) / 0.5)')
+                  : 'hsl(var(--muted-foreground) / 0.3)' }"
+              />
+              <p class="text-[13px] font-semibold text-foreground truncate">{{ account.name }}</p>
+            </div>
+            <!-- Type shown once, as discrete subtitle -->
+            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5 ml-3.5">
               {{ account.bank_name || ACCOUNT_TYPE_LABELS[account.type] }}
             </p>
           </div>
@@ -95,10 +99,10 @@ const emit = defineEmits<{
         </DropdownMenu>
       </div>
 
-      <!-- Balance -->
-      <div class="flex items-center justify-between pt-1.5 border-t border-border/40">
-        <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40">
-          {{ ACCOUNT_TYPE_LABELS[account.type] }}
+      <!-- Balance — label removed (type already shown above) -->
+      <div class="flex items-center justify-between pt-1.5 border-t border-border/30">
+        <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/30">
+          Saldo
         </span>
         <p
           :class="[
