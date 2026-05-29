@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { useKeyboardShortcut } from '@/composables/useKeyboardShortcut'
+import { useTransactionForm } from '@/composables/useTransactionForm'
 import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
@@ -15,6 +16,7 @@ const ui = useUiStore()
 const route = useRoute()
 const router = useRouter()
 useKeyboardShortcut()
+const { transactionFormOpen, transactionFormPrefill } = useTransactionForm()
 
 const mobileMenuOpen = ref(false)
 
@@ -193,9 +195,9 @@ const mobileHeaderTitle = computed(() => {
     <CommandPalette />
     <QuickAddDialog />
     <TransactionFormDialog
-      :open="ui.transactionFormOpen"
-      :prefill="ui.transactionFormPrefill"
-      @update:open="ui.transactionFormOpen = $event"
+      :open="transactionFormOpen"
+      :prefill="transactionFormPrefill"
+      @update:open="transactionFormOpen = $event"
     />
   </div>
 </template>

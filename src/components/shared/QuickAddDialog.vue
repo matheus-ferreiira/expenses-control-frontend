@@ -13,7 +13,7 @@ import {
 import { findIcon } from '@/lib/icons'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { DatePicker } from '@/components/ui/date-picker'
-import type { TransactionType } from '@/types/finance'
+// import type { TransactionType } from '@/types/finance'
 
 type QuickAction = 'expense' | 'income' | 'transfer' | 'task' | 'habit' | 'event'
 
@@ -39,7 +39,7 @@ function selectAction(a: QuickAction) {
   if (a === 'expense' || a === 'income' || a === 'transfer') {
     // Delegate to the global TransactionFormDialog
     open.value = false
-    setTimeout(() => ui.openTransactionForm({ type: a as TransactionType }), 220)
+    // setTimeout(() => ui.openTransactionForm({ type: a as TransactionType }), 220)
     return
   }
   action.value = a
@@ -158,21 +158,19 @@ async function submitEvent() {
 }
 
 const QUICK_ACTIONS = [
-  { id: 'task' as QuickAction,     label: 'Nova tarefa',     desc: 'Item para sua lista',    icon: CheckSquare,   color: '#888888' },
-  { id: 'expense' as QuickAction,  label: 'Nova despesa',    desc: 'Registre um gasto',      icon: TrendingDown,  color: '#FF4D4D' },
-  { id: 'income' as QuickAction,   label: 'Nova receita',    desc: 'Registre uma entrada',   icon: TrendingUp,    color: '#00C896' },
-  { id: 'transfer' as QuickAction, label: 'Transferência',   desc: 'Mover entre contas',     icon: ArrowLeftRight,color: '#888888' },
-  { id: 'habit' as QuickAction,    label: 'Marcar hábito',   desc: 'Concluir hábito de hoje',icon: Repeat,        color: '#888888' },
-  { id: 'event' as QuickAction,    label: 'Novo evento',     desc: 'Adicionar à agenda',     icon: CalendarPlus,  color: '#888888' },
+  { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, color: '#888888' },
+  { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, color: '#FF4D4D' },
+  { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, color: '#00C896' },
+  { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, color: '#888888' },
+  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, color: '#888888' },
+  { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, color: '#888888' },
 ]
 </script>
 
 <template>
   <Sheet v-model:open="open">
-    <SheetContent
-      side="bottom"
-      class="rounded-t-2xl border-t border-border bg-background p-0 max-h-[92vh] overflow-y-auto [&>button]:hidden"
-    >
+    <SheetContent side="bottom"
+      class="rounded-t-2xl border-t border-border bg-background p-0 max-h-[92vh] overflow-y-auto [&>button]:hidden">
       <!-- Drag handle -->
       <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-muted-foreground/30" />
 
@@ -186,9 +184,9 @@ const QUICK_ACTIONS = [
           <li v-for="a in QUICK_ACTIONS" :key="a.id">
             <button
               class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-white/5"
-              @click="selectAction(a.id)"
-            >
-              <span class="size-10 rounded-lg grid place-items-center shrink-0" style="background: rgba(255,255,255,0.07)">
+              @click="selectAction(a.id)">
+              <span class="size-10 rounded-lg grid place-items-center shrink-0"
+                style="background: rgba(255,255,255,0.07)">
                 <component :is="a.icon" :size="20" :style="{ color: a.color }" />
               </span>
               <span class="flex-1 min-w-0">
@@ -204,7 +202,8 @@ const QUICK_ACTIONS = [
       <template v-else-if="action === 'task'">
         <form class="flex flex-col" @submit.prevent="submitTask">
           <header class="flex items-center gap-2 px-3 pt-1 pb-3 border-b border-border sticky top-0 bg-background z-10">
-            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground" @click="goBack">
+            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground"
+              @click="goBack">
               <ArrowLeft :size="16" />
             </button>
             <h3 class="text-sm font-semibold">Nova tarefa</h3>
@@ -212,24 +211,19 @@ const QUICK_ACTIONS = [
           <div class="px-5 py-4 space-y-4">
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
-              <input
-                v-model="taskForm.title"
-                autofocus
-                placeholder="O que precisa ser feito?"
-                class="w-full h-11 px-3 rounded-md bg-card border border-border/60 focus:border-border outline-none text-sm"
-              />
+              <input v-model="taskForm.title" autofocus placeholder="O que precisa ser feito?"
+                class="w-full h-11 px-3 rounded-md bg-card border border-border/60 focus:border-border outline-none text-sm" />
             </div>
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data (opcional)</p>
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data
+                (opcional)</p>
               <DatePicker v-model="taskForm.due_date" />
             </div>
           </div>
           <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
-            <button
-              type="submit"
+            <button type="submit"
               class="w-full h-12 rounded-lg font-semibold text-sm bg-foreground text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-              :disabled="submitting"
-            >
+              :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               <Check v-else :size="14" />
               Criar tarefa
@@ -242,7 +236,8 @@ const QUICK_ACTIONS = [
       <template v-else-if="action === 'habit'">
         <form class="flex flex-col" @submit.prevent="submitHabits">
           <header class="flex items-center gap-2 px-3 pt-1 pb-3 border-b border-border sticky top-0 bg-background z-10">
-            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground" @click="goBack">
+            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground"
+              @click="goBack">
               <ArrowLeft :size="16" />
             </button>
             <h3 class="text-sm font-semibold">Marcar hábito de hoje</h3>
@@ -254,24 +249,15 @@ const QUICK_ACTIONS = [
             <ul v-else class="divide-y divide-border">
               <li v-for="habit in todayActiveHabits" :key="habit.id">
                 <label class="flex items-center gap-3 py-3 cursor-pointer min-h-[56px]">
-                  <div
-                    class="size-5 rounded border-2 flex items-center justify-center shrink-0 transition-all"
-                    :class="selectedHabits.has(habit.id)
-                      ? 'bg-foreground border-foreground'
-                      : 'border-border'"
-                    @click="toggleHabit(habit.id)"
-                  >
+                  <div class="size-5 rounded border-2 flex items-center justify-center shrink-0 transition-all" :class="selectedHabits.has(habit.id)
+                    ? 'bg-foreground border-foreground'
+                    : 'border-border'" @click="toggleHabit(habit.id)">
                     <Check v-if="selectedHabits.has(habit.id)" :size="12" class="text-background" />
                   </div>
-                  <span
-                    class="flex items-center justify-center w-7 h-7 rounded-md shrink-0"
-                    :style="{ backgroundColor: (habit.color ?? 'hsl(var(--muted))') + '25', color: habit.color ?? 'hsl(var(--muted-foreground))' }"
-                  >
-                    <component
-                      :is="habit.icon && findIcon(habit.icon) ? findIcon(habit.icon)!.component : null"
-                      v-if="habit.icon && findIcon(habit.icon)"
-                      :size="14"
-                    />
+                  <span class="flex items-center justify-center w-7 h-7 rounded-md shrink-0"
+                    :style="{ backgroundColor: (habit.color ?? 'hsl(var(--muted))') + '25', color: habit.color ?? 'hsl(var(--muted-foreground))' }">
+                    <component :is="habit.icon && findIcon(habit.icon) ? findIcon(habit.icon)!.component : null"
+                      v-if="habit.icon && findIcon(habit.icon)" :size="14" />
                   </span>
                   <span class="text-sm flex-1">{{ habit.name }}</span>
                   <span v-if="isCompletedToday(habit)" class="text-[10px] text-success/70">✓ hoje</span>
@@ -280,11 +266,9 @@ const QUICK_ACTIONS = [
             </ul>
           </div>
           <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
-            <button
-              type="submit"
+            <button type="submit"
               class="w-full h-12 rounded-lg font-semibold text-sm bg-success text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-              :disabled="submitting"
-            >
+              :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               Confirmar
             </button>
@@ -296,7 +280,8 @@ const QUICK_ACTIONS = [
       <template v-else-if="action === 'event'">
         <form class="flex flex-col" @submit.prevent="submitEvent">
           <header class="flex items-center gap-2 px-3 pt-1 pb-3 border-b border-border sticky top-0 bg-background z-10">
-            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground" @click="goBack">
+            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground"
+              @click="goBack">
               <ArrowLeft :size="16" />
             </button>
             <h3 class="text-sm font-semibold">Novo evento</h3>
@@ -304,12 +289,8 @@ const QUICK_ACTIONS = [
           <div class="px-5 py-4 space-y-4">
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
-              <input
-                v-model="eventForm.title"
-                autofocus
-                placeholder="Reunião, almoço, dentista..."
-                class="w-full h-11 px-3 rounded-md bg-card border border-border/60 focus:border-border outline-none text-sm"
-              />
+              <input v-model="eventForm.title" autofocus placeholder="Reunião, almoço, dentista..."
+                class="w-full h-11 px-3 rounded-md bg-card border border-border/60 focus:border-border outline-none text-sm" />
             </div>
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data</p>
@@ -317,11 +298,9 @@ const QUICK_ACTIONS = [
             </div>
           </div>
           <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
-            <button
-              type="submit"
+            <button type="submit"
               class="w-full h-12 rounded-lg font-semibold text-sm bg-foreground text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-              :disabled="submitting"
-            >
+              :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               Criar evento
             </button>
