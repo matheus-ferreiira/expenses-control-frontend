@@ -9,7 +9,10 @@ import { Skeleton } from '@ui/skeleton'
 import { Plus, CreditCard } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
-import type { CreditCard as CreditCardType } from '@/types/finance'
+import { getCardBillingPeriod } from '@/features/finance/utils/financeHelpers'
+import { financeApi } from '@/services/api/finance'
+import { toISODate } from '@/utils/date'
+import type { CreditCard as CreditCardType, Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
 const toast = useToast()
@@ -20,6 +23,9 @@ const deleteOpen = ref(false)
 const deletingId = ref<string | null>(null)
 const deleting = ref(false)
 const loading = ref(false)
+
+/** All transactions from the last 60 days — covers any possible billing cycle */
+const billingTransactions = ref<Transaction[]>([])
 
 function openCreate() {
   editingCard.value = null
@@ -51,29 +57,52 @@ async function confirmDelete() {
   }
 }
 
-/** Card usage = current month's expense transactions with that card_id */
+/**
+ * Billing period for each card — computed from closing_day.
+ * Result is a Map so we avoid recomputing per render.
+ */
+const billingPeriods = computed(() => {
+  const map = new Map<string, ReturnType<typeof getCardBillingPeriod>>()
+  for (const card of store.activeCards) {
+    map.set(card.id, getCardBillingPeriod(card.closing_day, card.due_day))
+  }
+  return map
+})
+
+/**
+ * Amount charged to a card in its current billing period.
+ * Uses billingTransactions (60-day window) instead of the calendar-month store.transactions.
+ */
 function cardUsed(cardId: string): number {
-  return store.transactions
-    .filter((t) => t.card_id === cardId && t.type === 'expense')
+  const period = billingPeriods.value.get(cardId)
+  if (!period) return 0
+  return billingTransactions.value
+    .filter((t) =>
+      t.card_id === cardId &&
+      t.type === 'expense' &&
+      t.transaction_date >= period.startDate &&
+      t.transaction_date <= period.endDate,
+    )
     .reduce((s, t) => s + t.amount, 0)
 }
-
-const currentMonth = computed(() => {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-})
 
 onMounted(async () => {
   loading.value = true
   try {
-    await Promise.all([
-      store.fetchCards(),
-      store.fetchTransactions({
-        start_date: `${currentMonth.value}-01`,
-        end_date: `${currentMonth.value}-31`,
-        per_page: 500,
-      }),
-    ])
+    await store.fetchCards()
+
+    // Load 60 days of transactions — enough to cover any billing cycle
+    // (billing period is at most 31 days, can span 2 calendar months)
+    const end = new Date()
+    const start = new Date()
+    start.setDate(start.getDate() - 60)
+
+    const result = await financeApi.transactions.list({
+      start_date: toISODate(start),
+      end_date: toISODate(end),
+      per_page: 500,
+    })
+    billingTransactions.value = result.data
   } finally {
     loading.value = false
   }
@@ -135,6 +164,7 @@ onMounted(async () => {
         :key="card.id"
         :card="card"
         :used-amount="cardUsed(card.id)"
+        :billing-period="billingPeriods.get(card.id)"
         @edit="openEdit"
         @delete="openDelete"
         @pay="openEdit"

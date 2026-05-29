@@ -8,15 +8,18 @@ import {
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
 import { computed } from 'vue'
-import { MoreHorizontal, Pencil, Trash2, CreditCard, CheckCircle2 } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, CreditCard, CheckCircle2, Lock } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent } from '../utils/financeHelpers'
+import type { BillingPeriod } from '../utils/financeHelpers'
 
 const props = defineProps<{
   card: CreditCardType
-  /** Amount used this month (from transactions with this card_id) */
+  /** Amount charged in the current billing period */
   usedAmount?: number
+  /** Billing period details — if not provided, falls back to calendar-month display */
+  billingPeriod?: BillingPeriod
 }>()
 
 const emit = defineEmits<{
@@ -25,18 +28,29 @@ const emit = defineEmits<{
   pay: [card: CreditCardType]
 }>()
 
-/** Days until due this month, wrapping to next month if already past */
+const used = computed(() => props.usedAmount ?? 0)
+const utilPct = computed(() => utilizationPercent(used.value, props.card.limit_amount))
+
+/** Days until the due date (uses billing period if available) */
 const daysUntilDue = computed(() => {
-  const today = new Date().getDate()
+  const today = new Date()
+  const todayMs = today.setHours(0, 0, 0, 0)
+
+  // Use the actual due date from billing period when available
+  if (props.billingPeriod) {
+    const dueMs = new Date(props.billingPeriod.dueDate + 'T00:00:00').getTime()
+    return Math.max(0, Math.ceil((dueMs - todayMs) / (1000 * 60 * 60 * 24)))
+  }
+
+  // Fallback: same-month due_day
   const due = props.card.due_day
-  if (due >= today) return due - today
   const now = new Date()
+  if (due >= now.getDate()) return due - now.getDate()
   const nextDue = new Date(now.getFullYear(), now.getMonth() + 1, due)
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return Math.ceil((nextDue.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24))
+  return Math.ceil((nextDue.getTime() - todayMs) / (1000 * 60 * 60 * 24))
 })
 
-/** Badge color classes based on days until due */
+/** Badge color based on days until due */
 const dueBadgeClass = computed(() => {
   const d = daysUntilDue.value
   if (d === 0) return 'bg-destructive/20 text-destructive border-destructive/30'
@@ -52,9 +66,6 @@ const dueBadgeLabel = computed(() => {
   return `Vence em ${d} dias`
 })
 
-const used = computed(() => props.usedAmount ?? 0)
-const utilPct = computed(() => utilizationPercent(used.value, props.card.limit_amount))
-
 /** Limit bar color based on utilization percentage */
 const limitBarClass = computed(() => {
   if (utilPct.value < 50) return 'bg-success'
@@ -62,7 +73,7 @@ const limitBarClass = computed(() => {
   return 'bg-destructive'
 })
 
-/** Show "Registrar pagamento" button for cards due within 7 days */
+/** Show pay button when due within 7 days */
 const showPayButton = computed(() => daysUntilDue.value <= 7)
 </script>
 
@@ -72,10 +83,9 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
     <div class="h-[3px] w-full" :style="{ background: card.color }" />
 
     <div class="p-3.5 flex flex-col gap-2.5 flex-1">
-      <!-- Header -->
+      <!-- Header: avatar + name + menu -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
-          <!-- Colored avatar with initials -->
           <span
             class="rounded-lg grid place-items-center shrink-0 w-8 h-8 text-[11px] font-bold text-white"
             :style="{ background: card.color }"
@@ -84,8 +94,14 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
           </span>
           <div class="min-w-0">
             <p class="text-[13px] font-medium text-foreground truncate">{{ card.name }}</p>
+            <!-- Billing period label (or fallback to closing/due days) -->
             <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5">
-              Fecha dia {{ card.closing_day }} · Vence dia {{ card.due_day }}
+              <template v-if="billingPeriod">
+                {{ billingPeriod.label }}
+              </template>
+              <template v-else>
+                Fecha dia {{ card.closing_day }} · Vence dia {{ card.due_day }}
+              </template>
             </p>
           </div>
         </div>
@@ -113,20 +129,34 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
         </DropdownMenu>
       </div>
 
-      <!-- Due date badge — always visible -->
-      <span
-        class="inline-flex items-center self-start gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
-        :class="dueBadgeClass"
-      >
-        <CreditCard :size="9" />
-        {{ dueBadgeLabel }}
-      </span>
+      <!-- Status badges row -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <!-- Due date badge -->
+        <span
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
+          :class="dueBadgeClass"
+        >
+          <CreditCard :size="9" />
+          {{ dueBadgeLabel }}
+        </span>
+
+        <!-- "Fechada" badge when billing cycle has already closed -->
+        <span
+          v-if="billingPeriod?.isClosed"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium bg-muted/60 text-muted-foreground/70 border-border/50"
+        >
+          <Lock :size="9" />
+          Fechada
+        </span>
+      </div>
 
       <!-- Limit + usage bar -->
       <div class="pt-1.5 border-t border-border/40">
         <div class="flex items-end justify-between mb-1.5">
           <div>
-            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-0.5">Limite</p>
+            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-0.5">
+              {{ billingPeriod?.isClosed ? 'Fatura fechada' : 'Fatura atual' }}
+            </p>
             <p class="text-[17px] font-semibold tabular-nums leading-none text-foreground">
               {{ formatCurrency(card.limit_amount) }}
             </p>
@@ -135,7 +165,7 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
             {{ utilPct }}% usado
           </span>
         </div>
-        <!-- Limit usage bar -->
+        <!-- Utilization bar -->
         <div class="h-1.5 bg-muted/60 rounded-full overflow-hidden">
           <div
             class="h-full rounded-full transition-all"

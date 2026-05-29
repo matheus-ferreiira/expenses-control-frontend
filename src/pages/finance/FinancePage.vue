@@ -22,7 +22,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
-import { utilizationPercent, monthLabel as getMonthLabel } from '@/features/finance/utils/financeHelpers'
+import { utilizationPercent, monthLabel as getMonthLabel, getCardBillingPeriod } from '@/features/finance/utils/financeHelpers'
 import { findIcon } from '@/lib/icons'
 import type { Transaction } from '@/types/finance'
 
@@ -142,10 +142,20 @@ const expenses = computed(() =>
   store.transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
 )
 
-// Credit card used amount derived from current month's transactions
+// Credit card used amount — filtered by real billing period, not calendar month.
+// store.transactions only covers the selected month, so amounts near billing boundaries
+// may be partial. For the exact value, see the dedicated CardsPage which loads 60 days.
 function cardUsed(cardId: string): number {
+  const card = store.activeCards.find((c) => c.id === cardId)
+  if (!card) return 0
+  const period = getCardBillingPeriod(card.closing_day, card.due_day)
   return store.transactions
-    .filter((t) => t.card_id === cardId && t.type === 'expense')
+    .filter((t) =>
+      t.card_id === cardId &&
+      t.type === 'expense' &&
+      t.transaction_date >= period.startDate &&
+      t.transaction_date <= period.endDate,
+    )
     .reduce((s, t) => s + t.amount, 0)
 }
 
