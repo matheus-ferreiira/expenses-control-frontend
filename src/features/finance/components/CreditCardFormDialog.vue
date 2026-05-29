@@ -92,7 +92,7 @@ const cardGradient = computed(
 
         <!-- Card preview -->
         <div
-          class="relative w-full aspect-[1.586] rounded-2xl p-5 text-white overflow-hidden shadow-lg"
+          class="relative w-full aspect-[1.586] rounded-xl p-5 text-white overflow-hidden shadow-lg"
           :style="{ background: cardGradient }"
         >
           <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10" />
@@ -151,7 +151,7 @@ const cardGradient = computed(
       <div class="flex gap-2 mt-2">
         <button
           type="button"
-          class="flex-1 h-11 rounded-2xl bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
+          class="flex-1 h-11 rounded-lg bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
           :disabled="submitting"
           @click="close"
         >
@@ -159,7 +159,7 @@ const cardGradient = computed(
         </button>
         <button
           type="button"
-          class="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
+          class="flex-1 h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
           :disabled="submitting"
           @click="submit"
         >

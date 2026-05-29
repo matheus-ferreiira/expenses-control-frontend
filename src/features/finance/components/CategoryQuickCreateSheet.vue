@@ -72,7 +72,7 @@ async function create() {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-2xl border-t border-border bg-card p-0 max-h-[90vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[90vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
@@ -103,7 +103,7 @@ async function create() {
           <input
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
-            class="w-full h-12 px-4 rounded-2xl bg-muted/60 border border-border/40 focus:border-border/80 outline-none text-sm transition-colors"
+            class="w-full h-11 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-sm transition-colors"
             @keydown.enter="create"
           />
         </div>
@@ -113,7 +113,7 @@ async function create() {
           <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
             Tipo
           </p>
-          <div class="grid grid-cols-2 gap-1 p-1 bg-muted/60 rounded-xl">
+          <div class="grid grid-cols-2 gap-1 p-1 bg-card rounded-xl">
             <button
               type="button"
               class="flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-semibold transition-all"
@@ -161,7 +161,7 @@ async function create() {
       <div class="px-4 pt-2 pb-5 shrink-0">
         <button
           type="button"
-          class="w-full h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] text-white"
+          class="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-white"
           :class="[
             type === 'expense' ? 'bg-destructive' : 'bg-success',
             (!name.trim() || saving) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90',

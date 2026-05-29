@@ -55,7 +55,7 @@ function cancel() {
         />
 
         <!-- Panel -->
-        <div class="relative w-full sm:max-w-sm bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 pb-safe">
+        <div class="relative w-full sm:max-w-sm bg-card border border-border rounded-t-lg sm:rounded-lg shadow-xl p-5 pb-safe">
           <!-- Icon + title -->
           <div class="flex items-center gap-3 mb-4">
             <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary shrink-0">

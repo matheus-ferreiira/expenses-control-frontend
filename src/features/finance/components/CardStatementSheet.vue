@@ -111,7 +111,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-2xl border-t border-border bg-card p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
@@ -229,7 +229,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
           <div v-else>
             <template v-for="group in groups" :key="group.date">
               <!-- Date header -->
-              <div class="sticky top-0 z-10 bg-card/95 backdrop-blur px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
+              <div class="sticky top-0 z-10 bg-background/95 backdrop-blur px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
                 <span class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
                   {{ group.label }}
                 </span>

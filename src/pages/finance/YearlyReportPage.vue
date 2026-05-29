@@ -100,16 +100,16 @@ async function buildChart() {
         {
           label: 'Receitas',
           data: incomeData,
-          backgroundColor: 'oklch(0.68 0.12 155 / 0.7)',
-          borderColor: 'oklch(0.68 0.12 155)',
+          backgroundColor: 'hsl(162 100% 39% / 0.7)',
+          borderColor: 'hsl(162 100% 39%)',
           borderWidth: 1,
           borderRadius: 4,
         },
         {
           label: 'Despesas',
           data: expenseData,
-          backgroundColor: 'oklch(0.62 0.16 22 / 0.7)',
-          borderColor: 'oklch(0.62 0.16 22)',
+          backgroundColor: 'hsl(0 100% 65% / 0.7)',
+          borderColor: 'hsl(0 100% 65%)',
           borderWidth: 1,
           borderRadius: 4,
         },
@@ -122,8 +122,8 @@ async function buildChart() {
       plugins: {
         legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
         tooltip: {
-          backgroundColor: 'hsl(240 5% 8%)',
-          borderColor: 'hsl(240 4% 13%)',
+          backgroundColor: 'hsl(0 0% 8%)',
+          borderColor: 'hsl(0 0% 13%)',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -134,12 +134,12 @@ async function buildChart() {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: 'hsl(240 5% 65%)', font: { size: 11 } },
+          ticks: { color: 'hsl(0 0% 55%)', font: { size: 11 } },
         },
         y: {
-          grid: { color: 'hsl(240 4% 13%)' },
+          grid: { color: 'hsl(0 0% 13%)' },
           ticks: {
-            color: 'hsl(240 5% 65%)',
+            color: 'hsl(0 0% 55%)',
             font: { size: 11 },
             callback: (v) => `R$ ${(Number(v) / 1000).toFixed(0)}k`,
           },

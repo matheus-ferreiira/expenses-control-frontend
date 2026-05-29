@@ -102,7 +102,7 @@ async function confirmDelete(id: string) {
 
     <!-- Loading -->
     <div v-if="loading" class="space-y-3">
-      <Skeleton v-for="i in 6" :key="i" class="h-[68px] w-full rounded-2xl" />
+      <Skeleton v-for="i in 6" :key="i" class="h-[68px] w-full rounded-lg" />
     </div>
 
     <template v-else>
@@ -149,7 +149,7 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in expenseCategories"
               :key="cat.id"
-              class="bg-card rounded-2xl border border-white/8 overflow-hidden"
+              class="bg-card rounded-lg border border-white/8 overflow-hidden"
             >
               <!-- Confirm delete overlay -->
               <template v-if="confirmDeleteId === cat.id">
@@ -255,7 +255,7 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in incomeCategories"
               :key="cat.id"
-              class="bg-card rounded-2xl border border-white/8 overflow-hidden"
+              class="bg-card rounded-lg border border-white/8 overflow-hidden"
             >
               <!-- Confirm delete overlay -->
               <template v-if="confirmDeleteId === cat.id">

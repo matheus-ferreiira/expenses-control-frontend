@@ -222,13 +222,13 @@ const TYPE_CONFIG = {
   transfer: {
     label: 'Transferência',
     icon: ArrowRightLeft,
-    colorClass: 'text-violet-400',
-    bgClass: 'bg-violet-500/15 text-violet-400',
-    activeBg: 'bg-violet-500/15',
-    saveBg: 'bg-violet-500',
+    colorClass: 'text-muted-foreground',
+    bgClass: 'bg-muted text-foreground',
+    activeBg: 'bg-muted',
+    saveBg: 'bg-primary',
     saveText: 'Salvar Transferência',
-    amountColor: 'text-violet-400',
-    pillBg: 'bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 border-violet-500/20',
+    amountColor: 'text-foreground',
+    pillBg: 'bg-muted/60 text-muted-foreground hover:bg-muted border-border/50',
   },
 } as const
 
@@ -332,7 +332,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-2xl border-t border-border bg-background p-0 max-h-[95vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[95vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
@@ -403,7 +403,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="inc in QUICK_INCREMENTS"
                 :key="inc"
                 type="button"
-                class="h-7 px-3 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
+                class="h-7 px-3 rounded-md text-[11px] font-semibold border transition-all active:scale-95"
                 :class="typeConfig.pillBg"
                 @click="addAmount(inc)"
               >
@@ -422,7 +422,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="cat in filteredCategories"
                 :key="cat.id"
                 type="button"
-                class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3 px-1 text-[11px] font-medium leading-tight transition-all active:scale-95"
+                class="flex flex-col items-center justify-center gap-1.5 rounded-lg border py-3 px-1 text-[11px] font-medium leading-tight transition-all active:scale-95"
                 :class="form.category_id === cat.id
                   ? 'border-2 shadow-sm'
                   : 'border-border/40 text-muted-foreground hover:border-border/80 hover:bg-muted/40'"
@@ -449,7 +449,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <!-- "+ Nova" button — always last in the grid -->
               <button
                 type="button"
-                class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-border/50 py-3 px-1 text-[11px] font-medium text-muted-foreground/60 hover:border-border hover:text-muted-foreground hover:bg-muted/30 transition-all active:scale-95"
+                class="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border/50 py-3 px-1 text-[11px] font-medium text-muted-foreground/60 hover:border-border hover:text-muted-foreground hover:bg-muted/30 transition-all active:scale-95"
                 @click="showCategorySheet = true"
               >
                 <span class="flex items-center justify-center size-9 rounded-xl bg-muted/40">
@@ -492,7 +492,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <input
                 v-model="form.description"
                 :placeholder="descriptionPlaceholder"
-                class="w-full h-12 rounded-2xl bg-card border border-border/60 focus:border-border outline-none text-sm transition-colors"
+                class="w-full h-11 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-sm transition-colors"
                 :class="selectedCategory ? 'pl-10 pr-4' : 'px-4'"
               />
             </div>
@@ -508,7 +508,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <div class="flex gap-1.5 mb-2">
               <button
                 type="button"
-                class="flex items-center gap-1 min-h-[44px] px-3 rounded-full text-[11px] font-semibold border transition-all"
+                class="flex items-center gap-1 min-h-[44px] px-3 rounded-md text-[11px] font-semibold border transition-all"
                 :class="dateShortcut === 'today'
                   ? `${typeConfig.bgClass} border-transparent`
                   : 'border-border/50 text-muted-foreground hover:bg-muted'"
@@ -519,7 +519,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </button>
               <button
                 type="button"
-                class="min-h-[44px] px-3 rounded-full text-[11px] font-semibold border transition-all"
+                class="min-h-[44px] px-3 rounded-md text-[11px] font-semibold border transition-all"
                 :class="dateShortcut === 'yesterday'
                   ? `${typeConfig.bgClass} border-transparent`
                   : 'border-border/50 text-muted-foreground hover:bg-muted'"
@@ -528,7 +528,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 Ontem
               </button>
               <span
-                class="min-h-[44px] px-3 rounded-full text-[11px] font-semibold border flex items-center"
+                class="min-h-[44px] px-3 rounded-md text-[11px] font-semibold border flex items-center"
                 :class="dateShortcut === 'custom'
                   ? `${typeConfig.bgClass} border-transparent`
                   : 'border-border/50 text-muted-foreground/40'"
@@ -544,7 +544,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- For transfers: two separate selectors (origin and destination) -->
           <!-- For income/expense: single account selector -->
 
-          <div v-if="store.activeAccounts.length === 0" class="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border border-dashed border-border/50 text-center">
+          <div v-if="store.activeAccounts.length === 0" class="flex flex-col items-center justify-center gap-2 py-5 rounded-lg border border-dashed border-border/50 text-center">
             <Wallet :size="22" class="text-muted-foreground/40" />
             <p class="text-[12px] text-muted-foreground/50">Nenhuma conta cadastrada</p>
           </div>
@@ -561,7 +561,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   :key="acc.id"
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
-                  class="flex-shrink-0 flex items-center gap-2.5 h-12 pl-3 pr-4 rounded-2xl border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  class="flex-shrink-0 flex items-center gap-2.5 h-11 pl-3 pr-4 rounded-lg border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   :class="form.account_id === acc.id
                     ? 'bg-card border-primary/50 text-foreground shadow-sm'
                     : 'border-border/50 bg-card text-muted-foreground hover:bg-popover'"
@@ -593,7 +593,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   :key="acc.id"
                   type="button"
                   :disabled="acc.id === form.account_id"
-                  class="flex-shrink-0 flex items-center gap-2.5 h-12 pl-3 pr-4 rounded-2xl border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  class="flex-shrink-0 flex items-center gap-2.5 h-11 pl-3 pr-4 rounded-lg border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   :class="form.destination_account_id === acc.id
                     ? 'bg-card border-primary/50 text-foreground shadow-sm'
                     : 'border-border/50 bg-card text-muted-foreground hover:bg-popover'"
@@ -625,7 +625,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 type="button"
-                class="flex-shrink-0 flex items-center gap-2.5 h-12 pl-3 pr-4 rounded-2xl border text-left transition-all"
+                class="flex-shrink-0 flex items-center gap-2.5 h-11 pl-3 pr-4 rounded-lg border text-left transition-all"
                 :class="form.account_id === acc.id
                   ? 'bg-card border-primary/50 text-foreground shadow-sm'
                   : 'border-border/50 bg-card text-muted-foreground hover:bg-popover'"
@@ -649,8 +649,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- ── TRANSAÇÃO FIX ─────────────────────────────────── -->
           <div
             v-if="form.type !== 'transfer'"
-            class="rounded-2xl border border-border/50 bg-card transition-all"
-            :class="form.is_recurring ? 'border-violet-500/30 bg-violet-500/5' : ''"
+            class="rounded-lg border border-border/50 bg-card transition-all"
+            :class="form.is_recurring ? 'border-primary/30 bg-primary/5' : ''"
           >
             <!-- Toggle header -->
             <div
@@ -660,7 +660,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <div class="flex items-center gap-3 min-w-0">
                 <span
                   class="flex items-center justify-center size-9 rounded-xl shrink-0 transition-colors"
-                  :class="form.is_recurring ? 'bg-violet-500/15 text-violet-400' : 'bg-muted text-muted-foreground/40'"
+                  :class="form.is_recurring ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground/40'"
                 >
                   <Repeat :size="15" />
                 </span>
@@ -678,7 +678,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <button
                 type="button"
                 class="h-6 w-11 rounded-full transition-all flex items-center px-0.5 shrink-0"
-                :class="form.is_recurring ? 'bg-violet-500' : 'bg-muted'"
+                :class="form.is_recurring ? 'bg-primary' : 'bg-muted'"
                 @click.stop="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
               >
                 <span
@@ -689,7 +689,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
 
             <!-- Recurrence config — shown when toggle is on -->
-            <div v-if="form.is_recurring" class="border-t border-violet-500/20 px-3.5 pb-3.5 pt-3 space-y-3">
+            <div v-if="form.is_recurring" class="border-t border-primary/20 px-3.5 pb-3.5 pt-3 space-y-3">
               <!-- Frequency pills -->
               <div>
                 <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">Frequência</p>
@@ -698,9 +698,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     v-for="opt in FREQUENCY_OPTIONS"
                     :key="opt.value"
                     type="button"
-                    class="min-h-[44px] px-2.5 rounded-full text-[11px] font-semibold border transition-all active:scale-95"
+                    class="min-h-[44px] px-2.5 rounded-md text-[11px] font-semibold border transition-all active:scale-95"
                     :class="form.recurrence_frequency === opt.value
-                      ? 'bg-violet-500/15 text-violet-400 border-violet-500/30'
+                      ? 'bg-primary/15 text-primary border-primary/30'
                       : 'border-border/50 text-muted-foreground hover:bg-muted'"
                     @click="form.recurrence_frequency = opt.value"
                   >
@@ -718,7 +718,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     <input
                       type="radio"
                       :checked="form.recurrence_end_type === 'never'"
-                      class="accent-violet-500"
+                      class="accent-primary"
                       @change="form.recurrence_end_type = 'never'"
                     />
                     <span class="text-[12px]">Sem data de término</span>
@@ -729,7 +729,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     <input
                       type="radio"
                       :checked="form.recurrence_end_type === 'count'"
-                      class="accent-violet-500"
+                      class="accent-primary"
                       @change="form.recurrence_end_type = 'count'"
                     />
                     <span class="text-[12px]">Após</span>
@@ -739,7 +739,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                       inputmode="numeric"
                       min="2"
                       max="260"
-                      class="w-16 h-7 px-2 rounded-lg bg-popover border border-border/60 text-[12px] text-center outline-none focus:border-violet-500/50 tabular-nums"
+                      class="w-16 h-7 px-2 rounded-lg bg-popover border border-border/60 text-[12px] text-center outline-none focus:border-primary tabular-nums"
                       @focus="form.recurrence_end_type = 'count'"
                     />
                     <span class="text-[12px] text-muted-foreground">ocorrências</span>
@@ -750,14 +750,14 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     <input
                       type="radio"
                       :checked="form.recurrence_end_type === 'date'"
-                      class="accent-violet-500"
+                      class="accent-primary"
                       @change="form.recurrence_end_type = 'date'"
                     />
                     <span class="text-[12px]">Em uma data</span>
                     <input
                       v-model="form.recurrence_end_date"
                       type="date"
-                      class="flex-1 h-7 px-2 rounded-lg bg-popover border border-border/60 text-[12px] outline-none focus:border-violet-500/50"
+                      class="flex-1 h-7 px-2 rounded-lg bg-popover border border-border/60 text-[12px] outline-none focus:border-primary"
                       @focus="form.recurrence_end_type = 'date'"
                     />
                   </label>
@@ -765,7 +765,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </div>
 
               <!-- Preview -->
-              <div class="rounded-xl bg-violet-500/8 border border-violet-500/20 px-3 py-2 text-[11px] text-violet-300/80 leading-relaxed">
+              <div class="rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-[11px] text-primary/70 leading-relaxed">
                 Será gerado a cada <strong>{{ FREQ_LABELS[form.recurrence_frequency] ?? 'mês' }}</strong>
                 <template v-if="nextOccurrenceLabel"> · próxima em <strong>{{ nextOccurrenceLabel }}</strong></template>
                 <template v-if="form.recurrence_end_type === 'count'"> · por <strong>{{ form.recurrence_count }} ocorrências</strong></template>
@@ -779,7 +779,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <div
             v-if="form.type !== 'transfer' && !props.transaction"
             class="rounded-2xl border border-border/50 bg-card p-3.5 transition-all"
-            :class="isInstallment ? 'border-blue-500/30 bg-blue-500/5' : ''"
+            :class="isInstallment ? 'border-primary/30 bg-primary/5' : ''"
           >
             <!-- Header row -->
             <div
@@ -789,7 +789,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <div class="flex items-center gap-3 min-w-0">
                 <span
                   class="flex items-center justify-center size-9 rounded-xl shrink-0 transition-colors"
-                  :class="isInstallment ? 'bg-blue-500/15 text-blue-400' : 'bg-muted text-muted-foreground/40'"
+                  :class="isInstallment ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground/40'"
                 >
                   <CreditCard :size="15" />
                 </span>
@@ -797,7 +797,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   <p class="text-[13px] font-semibold leading-none">Compra parcelada</p>
                   <p class="text-[11px] text-muted-foreground/50 mt-0.5 leading-snug">
                     <template v-if="isInstallment && installmentAmount > 0">
-                      <span class="text-blue-400 font-semibold">
+                      <span class="text-primary font-semibold">
                         {{ form.total_installments }}x de {{ $filters?.formatCurrency?.(installmentAmount) ?? `R$ ${installmentAmount.toFixed(2).replace('.', ',')}` }}
                       </span>
                     </template>
@@ -808,7 +808,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <button
                 type="button"
                 class="h-6 w-11 rounded-full transition-all flex items-center px-0.5 shrink-0"
-                :class="isInstallment ? 'bg-blue-500' : 'bg-muted'"
+                :class="isInstallment ? 'bg-primary' : 'bg-muted'"
                 @click.stop="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
               >
                 <span
@@ -824,9 +824,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="n in INSTALLMENT_OPTIONS"
                 :key="n"
                 type="button"
-                class="min-h-[44px] px-3 rounded-full text-[12px] font-semibold border transition-all active:scale-95"
+                class="min-h-[44px] px-3 rounded-md text-[12px] font-semibold border transition-all active:scale-95"
                 :class="form.total_installments === n
-                  ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                  ? 'bg-primary/15 text-primary border-primary/30'
                   : 'border-border/50 text-muted-foreground hover:bg-muted'"
                 @click="form.total_installments = n"
               >
@@ -840,7 +840,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               class="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground/60"
             >
               <span>{{ form.total_installments }} parcelas de</span>
-              <span class="tabular-nums font-semibold text-blue-400">
+              <span class="tabular-nums font-semibold text-primary">
                 R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
               </span>
             </div>
@@ -857,7 +857,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="tag in store.tags"
                 :key="tag.id"
                 type="button"
-                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium border transition-all active:scale-95"
+                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-md text-[11px] font-medium border transition-all active:scale-95"
                 :class="form.tag_ids.includes(tag.id)
                   ? 'border-transparent text-white shadow-sm'
                   : 'border-border/50 text-muted-foreground hover:border-border bg-transparent'"
@@ -869,7 +869,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </button>
 
               <!-- Inline create -->
-              <div class="inline-flex items-center h-7 rounded-full border border-dashed border-border/50 overflow-hidden bg-muted/20">
+              <div class="inline-flex items-center h-7 rounded-md border border-dashed border-border/50 overflow-hidden bg-muted/20">
                 <input
                   v-model="newTagName"
                   placeholder="Nova tag..."
@@ -898,7 +898,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <Textarea
                 v-model="form.notes"
                 placeholder="Detalhes extras, referência, contexto..."
-                class="resize-none h-20 text-sm bg-card border-border/60 focus:border-border/80 rounded-2xl pr-12"
+                class="resize-none h-20 text-sm bg-card border-border/60 focus:border-primary rounded-lg pr-12"
               />
               <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
                 {{ form.notes?.length ?? 0 }}/500
@@ -913,7 +913,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       <div class="sticky bottom-0 bg-background px-4 pt-2 pb-5 shrink-0">
         <button
           type="button"
-          class="w-full h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98]"
+          class="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
           :class="[
             typeConfig.saveBg,
             'text-white',

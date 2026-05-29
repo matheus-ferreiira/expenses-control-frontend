@@ -63,7 +63,7 @@ const isTruncated = computed(() =>
 
   <!-- Empty state — Lovable style -->
   <div v-else-if="transactions.length === 0" class="px-8 py-12 text-center">
-    <div class="size-14 mx-auto rounded-2xl bg-gradient-to-br from-muted to-muted/30 border border-border grid place-items-center mb-3">
+    <div class="size-14 mx-auto rounded-lg bg-card border border-border grid place-items-center mb-3">
       <component
         :is="hasFilter ? Search : Inbox"
         :size="24"

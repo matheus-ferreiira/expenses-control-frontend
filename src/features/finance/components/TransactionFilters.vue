@@ -27,9 +27,9 @@ const activeCount = computed(() => props.filterState.activeCount.value)
 const transactionTypes: TransactionType[] = ['income', 'expense', 'transfer']
 
 const TYPE_STYLE: Record<TransactionType, { text: string; bg: string }> = {
-  income: { text: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-  expense: { text: 'text-red-400', bg: 'bg-red-400/10' },
-  transfer: { text: 'text-blue-400', bg: 'bg-blue-400/10' },
+  income:   { text: 'text-success',             bg: 'bg-success/10' },
+  expense:  { text: 'text-destructive',          bg: 'bg-destructive/10' },
+  transfer: { text: 'text-muted-foreground',     bg: 'bg-muted' },
 }
 
 function toggleType(t: TransactionType) {
@@ -61,7 +61,7 @@ function toggleType(t: TransactionType) {
             v-for="t in transactionTypes"
             :key="t"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
+              'text-[11px] font-medium px-2 py-0.5 rounded-md border transition-base',
               filterState.type.value === t
                 ? [TYPE_STYLE[t].bg, TYPE_STYLE[t].text, 'border-transparent']
                 : 'border-border text-muted-foreground hover:border-foreground/30',

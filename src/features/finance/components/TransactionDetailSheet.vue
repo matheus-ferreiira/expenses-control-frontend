@@ -73,7 +73,7 @@ function formatTransactionDate(dateStr: string): string {
 const typeBadge = computed(() => {
   const t = props.transaction
   if (!t) return null
-  if (t.is_recurring) return { label: 'Fix', cls: 'bg-violet-500/10 text-violet-400 border-violet-500/30', icon: 'repeat' }
+  if (t.is_recurring) return { label: 'Fix', cls: 'bg-primary/10 text-primary border-primary/30', icon: 'repeat' }
   if (t.status === 'pending') return { label: 'Agendada', cls: 'bg-muted/60 text-muted-foreground border-border/60', icon: 'clock' }
   if (t.type === 'income') return { label: 'Receita', cls: 'bg-success/10 text-success border-success/30', icon: null }
   if (t.type === 'expense') return { label: 'Despesa', cls: 'bg-destructive/10 text-destructive border-destructive/30', icon: null }
@@ -102,7 +102,7 @@ const amountClass = computed(() => {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-2xl max-h-[88vh] overflow-y-auto p-0 border-t border-border focus:outline-none [&>button]:hidden"
+      class="rounded-t-lg max-h-[88vh] overflow-y-auto p-0 border-t border-border focus:outline-none [&>button]:hidden"
     >
       <template v-if="transaction">
         <!-- Drag handle -->
@@ -114,7 +114,7 @@ const amountClass = computed(() => {
         <div class="flex items-center justify-between px-5 pt-2 pb-3">
           <span
             v-if="typeBadge"
-            class="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-semibold border"
+            class="inline-flex items-center gap-1 h-6 px-2.5 rounded text-[11px] font-semibold border"
             :class="typeBadge.cls"
           >
             <Repeat v-if="typeBadge.icon === 'repeat'" :size="10" />
@@ -133,7 +133,7 @@ const amountClass = computed(() => {
         <!-- Category icon + description + amount -->
         <div class="flex flex-col items-center gap-3 px-5 pb-6">
           <span
-            class="rounded-2xl grid place-items-center w-14 h-14"
+            class="rounded-lg grid place-items-center w-14 h-14"
             :style="swatchStyle"
           >
             <component
@@ -157,7 +157,7 @@ const amountClass = computed(() => {
         </div>
 
         <!-- Details card -->
-        <div class="mx-4 mb-4 bg-card rounded-2xl overflow-hidden">
+        <div class="mx-4 mb-4 bg-card rounded-lg overflow-hidden">
           <!-- Date -->
           <div class="flex items-start justify-between px-4 py-3.5 gap-4 border-b border-white/5">
             <span class="text-sm text-muted-foreground shrink-0">Data</span>
@@ -195,7 +195,7 @@ const amountClass = computed(() => {
           <!-- Fix indicator with frequency -->
           <div v-if="transaction.is_recurring" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
             <span class="text-sm text-muted-foreground shrink-0">Tipo</span>
-            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400">
+            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
               <Repeat :size="12" />
               Fix
               <template v-if="(transaction.recurrence_config as Record<string,unknown> | null)?.frequency">
@@ -257,7 +257,7 @@ const amountClass = computed(() => {
           <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 min-h-[52px] rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 text-[11px] font-semibold transition-colors hover:bg-destructive/20 active:scale-95"
+              class="flex flex-col items-center justify-center gap-1.5 min-h-[44px] rounded-lg bg-destructive/10 text-destructive border border-destructive/20 text-[11px] font-semibold transition-colors hover:bg-destructive/20 active:scale-95"
               @click="onDelete"
             >
               <Trash2 :size="17" />
@@ -265,7 +265,7 @@ const amountClass = computed(() => {
             </button>
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 min-h-[52px] rounded-2xl bg-card text-muted-foreground border border-white/8 text-[11px] font-semibold transition-colors hover:bg-popover active:scale-95"
+              class="flex flex-col items-center justify-center gap-1.5 min-h-[44px] rounded-lg bg-card text-muted-foreground border border-white/8 text-[11px] font-semibold transition-colors hover:bg-popover active:scale-95"
               @click="onDuplicate"
             >
               <Copy :size="17" />
@@ -273,7 +273,7 @@ const amountClass = computed(() => {
             </button>
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 min-h-[52px] rounded-2xl bg-primary text-primary-foreground text-[11px] font-semibold transition-opacity hover:opacity-90 active:scale-95"
+              class="flex flex-col items-center justify-center gap-1.5 min-h-[44px] rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold transition-opacity hover:opacity-90 active:scale-95"
               @click="onEdit"
             >
               <Pencil :size="17" />

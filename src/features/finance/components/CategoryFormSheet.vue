@@ -91,7 +91,7 @@ async function save() {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-2xl border-t border-border bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
@@ -121,7 +121,7 @@ async function save() {
           <input
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
-            class="w-full h-12 px-4 rounded-xl bg-card border border-border/60 focus:border-border outline-none text-sm transition-colors"
+            class="w-full h-12 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-sm transition-colors"
             @keydown.enter="save"
           />
         </div>
@@ -176,7 +176,7 @@ async function save() {
           <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
             Meta mensal <span class="text-muted-foreground/30 normal-case font-normal">(opcional)</span>
           </p>
-          <div class="flex items-center gap-2 h-12 px-4 rounded-xl bg-card border border-border/60 focus-within:border-border transition-colors">
+          <div class="flex items-center gap-2 h-12 px-4 rounded-lg bg-card border border-border/60 focus-within:border-primary transition-colors">
             <span class="text-[13px] text-muted-foreground shrink-0">R$</span>
             <input
               v-model="monthlyLimit"
@@ -203,7 +203,7 @@ async function save() {
       <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-12 rounded-xl border border-border/60 text-sm text-muted-foreground hover:bg-card transition-colors"
+          class="flex-1 h-11 rounded-lg border border-border/60 text-sm text-muted-foreground hover:bg-card transition-colors"
           @click="close"
         >
           Cancelar
@@ -211,7 +211,7 @@ async function save() {
         <button
           type="button"
           :disabled="saving || !name.trim()"
-          class="flex-1 h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          class="flex-1 h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
           :class="[
             type === 'expense' ? 'bg-destructive' : 'bg-success',
             'text-white',

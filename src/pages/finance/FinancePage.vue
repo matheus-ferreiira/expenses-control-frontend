@@ -672,7 +672,7 @@ onMounted(async () => {
             <p class="text-[11px] text-muted-foreground">Saldo previsto</p>
             <p
               class="block text-[18px] font-semibold tabular-nums mt-0.5"
-              style="color: oklch(0.68 0.18 280)"
+              class="text-muted-foreground"
             >
               {{ formatCurrency(projectedBalance) }}
             </p>

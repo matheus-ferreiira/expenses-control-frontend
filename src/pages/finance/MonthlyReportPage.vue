@@ -83,11 +83,11 @@ async function buildDonut() {
           callbacks: {
             label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.parsed ?? 0)} (${cats[ctx.dataIndex]?.percentage ?? 0}%)`,
           },
-          backgroundColor: 'hsl(240 5% 8%)',
-          borderColor: 'hsl(240 4% 13%)',
+          backgroundColor: 'hsl(0 0% 8%)',
+          borderColor: 'hsl(0 0% 13%)',
           borderWidth: 1,
-          titleColor: 'hsl(0 0% 93%)',
-          bodyColor: 'hsl(0 0% 60%)',
+          titleColor: 'hsl(0 0% 94%)',
+          bodyColor: 'hsl(0 0% 55%)',
           padding: 10,
         },
       },
@@ -282,7 +282,7 @@ onMounted(() => load())
     <template v-else-if="report">
       <!-- Summary cards -->
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-success/15">
               <TrendingUp :size="13" class="text-success" />
@@ -294,7 +294,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-destructive/15">
               <TrendingDown :size="13" class="text-destructive" />
@@ -306,7 +306,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-muted">
               <Wallet :size="13" class="text-muted-foreground" />
@@ -321,7 +321,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-2xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-muted">
               <Receipt :size="13" class="text-muted-foreground" />
@@ -337,7 +337,7 @@ onMounted(() => load())
       <!-- Donut chart — distribuição por categoria -->
       <div
         v-if="report.expenses_by_category.length > 0"
-        class="rounded-2xl border border-border/50 bg-card p-4 mb-4"
+        class="rounded-lg border border-border/50 bg-card p-4 mb-4"
       >
         <div class="flex items-center gap-2 mb-3">
           <PieChart :size="13" class="text-muted-foreground/50" />

@@ -160,7 +160,7 @@ async function submit() {
       <div class="flex gap-2 mt-2">
         <button
           type="button"
-          class="flex-1 h-11 rounded-2xl bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
+          class="flex-1 h-11 rounded-lg bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
           :disabled="submitting"
           @click="close"
         >
@@ -168,7 +168,7 @@ async function submit() {
         </button>
         <button
           type="button"
-          class="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
+          class="flex-1 h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
           :disabled="submitting"
           @click="submit"
         >
