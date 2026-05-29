@@ -7,7 +7,7 @@ import { Textarea } from '@ui/textarea'
 import {
   ArrowLeft, Loader2, Plus, Repeat, X, CreditCard,
   TrendingDown, TrendingUp, ArrowRightLeft,
-  Wallet, ChevronDown, Check,
+  Wallet, Check,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import CategoryQuickCreateSheet from './CategoryQuickCreateSheet.vue'
@@ -45,7 +45,6 @@ const { form, errors, submitting, fromTransaction, reset, validate, applyApiErro
 
 // ── UI state ─────────────────────────────────────────────────────────────────
 const amountInputRef = ref<HTMLInputElement | null>(null)
-const categoryDropdownOpen = ref(false)
 
 // ── Form validity ─────────────────────────────────────────────────────────────
 const isFormValid = computed(() => {
@@ -272,7 +271,6 @@ watch(
   () => form.type,
   (newType) => {
     form.category_id = ''
-    categoryDropdownOpen.value = false
     if (newType !== 'transfer') form.destination_account_id = ''
     if (newType === 'transfer') form.total_installments = 0
   },
