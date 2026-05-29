@@ -1010,7 +1010,7 @@ onMounted(async () => {
                   <!-- DueBadge -->
                   <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
                     <span
-                      class="inline-flex items-center h-6 px-2 rounded-md text-[11px] font-semibold border"
+                      class="inline-flex items-center h-6 px-2 rounded-full text-[11px] font-semibold border"
                       :class="
                         card.due_day < today
                           ? 'bg-destructive/20 text-destructive border-destructive/40 font-bold'

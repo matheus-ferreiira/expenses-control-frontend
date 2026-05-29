@@ -7,7 +7,7 @@ import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
 import {
   ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Receipt, PieChart,
-  AlertTriangle, Sparkles, CalendarRange,
+  AlertTriangle, Sparkles,
   ShoppingCart, UtensilsCrossed, Car, Home, Heart, Tv2, Repeat, Tag,
   Zap, Dumbbell, Book, Plane, Baby, PawPrint, Banknote, Briefcase, GraduationCap,
 } from 'lucide-vue-next'
@@ -218,17 +218,20 @@ onMounted(() => load())
 
     <FinanceSubNav />
 
-    <!-- Toggle Mensal / Anual -->
-    <div class="flex items-center gap-2 mb-4">
-      <span class="text-[12px] font-semibold text-foreground/70 bg-foreground/10 px-3 py-1.5 rounded-full">Mensal</span>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground/60 hover:text-foreground px-3 py-1.5 rounded-full hover:bg-muted/40 transition-colors"
-        @click="router.push({ name: ROUTES.FINANCE_REPORTS_YEARLY })"
-      >
-        <CalendarRange :size="13" />
-        Anual
-      </button>
+    <!-- Toggle Mensal / Anual — same pattern as FinanceSubNav -->
+    <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none">
+      <div class="flex items-center gap-1 w-max border-b border-border">
+        <button class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-foreground">
+          Mensal
+          <span class="absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-primary" />
+        </button>
+        <button
+          class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
+          @click="router.push({ name: ROUTES.FINANCE_REPORTS_YEARLY })"
+        >
+          Anual
+        </button>
+      </div>
     </div>
 
     <!-- Month navigator -->
@@ -279,7 +282,7 @@ onMounted(() => load())
     <template v-else-if="report">
       <!-- Summary cards -->
       <div class="grid grid-cols-2 gap-3 mb-5">
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-success/15">
               <TrendingUp :size="13" class="text-success" />
@@ -291,7 +294,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-destructive/15">
               <TrendingDown :size="13" class="text-destructive" />
@@ -303,7 +306,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-muted">
               <Wallet :size="13" class="text-muted-foreground" />
@@ -318,7 +321,7 @@ onMounted(() => load())
           </p>
         </div>
 
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
+        <div class="rounded-xl border border-border/50 bg-card p-3.5 flex flex-col gap-2">
           <div class="flex items-center gap-1.5">
             <span class="flex items-center justify-center size-7 rounded-md bg-muted">
               <Receipt :size="13" class="text-muted-foreground" />

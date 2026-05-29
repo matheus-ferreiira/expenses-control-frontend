@@ -5,7 +5,7 @@ import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { Skeleton } from '@ui/skeleton'
 import {
-  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Calendar, CalendarDays,
+  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Calendar,
 } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
@@ -182,20 +182,20 @@ function goToMonth(month: number) {
 
     <FinanceSubNav />
 
-    <!-- Toggle Mensal / Anual -->
-    <div class="flex items-center gap-2 mb-4">
-      <button
-        type="button"
-        class="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground/60 hover:text-foreground px-3 py-1.5 rounded-full hover:bg-muted/40 transition-colors"
-        @click="$router.push({ name: 'finance-reports' })"
-      >
-        <CalendarDays :size="13" />
-        Mensal
-      </button>
-      <span class="text-[12px] font-semibold text-foreground/70 bg-foreground/10 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
-        <Calendar :size="13" />
-        Anual
-      </span>
+    <!-- Toggle Mensal / Anual — same pattern as FinanceSubNav -->
+    <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none">
+      <div class="flex items-center gap-1 w-max border-b border-border">
+        <button
+          class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
+          @click="$router.push({ name: 'finance-reports' })"
+        >
+          Mensal
+        </button>
+        <button class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-foreground">
+          Anual
+          <span class="absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-primary" />
+        </button>
+      </div>
     </div>
 
     <!-- Year navigator -->

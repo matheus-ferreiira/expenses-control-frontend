@@ -29,7 +29,7 @@ const budgetPctLabel = computed(() => {
   <div class="hidden lg:grid grid-cols-2 lg:grid-cols-4 gap-3">
 
     <!-- Saldo total -->
-    <div class="bg-card border border-border rounded-md p-3.5">
+    <div class="bg-card border border-border rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
@@ -60,7 +60,7 @@ const budgetPctLabel = computed(() => {
     </div>
 
     <!-- Receitas (mês) -->
-    <div class="bg-card border border-border rounded-md p-3.5">
+    <div class="bg-card border border-border rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
@@ -75,7 +75,7 @@ const budgetPctLabel = computed(() => {
     </div>
 
     <!-- Despesas (mês) -->
-    <div class="bg-card border border-border rounded-md p-3.5">
+    <div class="bg-card border border-border rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
@@ -90,7 +90,7 @@ const budgetPctLabel = computed(() => {
     </div>
 
     <!-- Fluxo do mês -->
-    <div class="bg-card border border-border rounded-md p-3.5">
+    <div class="bg-card border border-border rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
