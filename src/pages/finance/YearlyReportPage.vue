@@ -284,41 +284,50 @@ function goToMonth(month: number) {
           <div class="px-4 py-3 border-b border-border">
             <p class="text-[12px] font-semibold text-foreground">Detalhamento mensal</p>
           </div>
-          <div class="divide-y divide-border/60">
+          <div>
             <button
               v-for="m in monthsWithDelta"
               :key="m.month"
               type="button"
-              class="w-full grid grid-cols-4 items-center gap-2 px-4 py-2.5 text-left hover:bg-muted/30 transition-colors group"
+              class="w-full px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+              style="border-bottom: 1px solid #1f1f23"
               @click="goToMonth(m.month)"
             >
-              <!-- Month name -->
-              <span class="text-[12px] font-medium text-foreground group-hover:text-primary transition-colors">
-                {{ MONTH_FULL[m.month - 1] }}
-              </span>
-              <!-- Income -->
-              <span class="text-[11px] tabular-nums text-success text-right">
-                +{{ formatCurrency(m.income) }}
-              </span>
-              <!-- Expenses -->
-              <span class="text-[11px] tabular-nums text-destructive text-right">
-                -{{ formatCurrency(m.expenses) }}
-              </span>
-              <!-- Balance + delta -->
-              <div class="text-right">
-                <p
-                  class="text-[12px] tabular-nums font-semibold"
+              <!-- Row 1: month name + balance -->
+              <div class="flex items-center justify-between mb-1">
+                <span
+                  class="text-[14px] font-semibold"
+                  :class="m.month === currentMonth && year === currentYear ? 'text-primary' : 'text-foreground'"
+                >
+                  {{ MONTH_FULL[m.month - 1] }}
+                </span>
+                <span
+                  class="text-[15px] font-semibold tabular-nums"
                   :class="m.balance >= 0 ? 'text-success' : 'text-destructive'"
                 >
                   {{ m.balance >= 0 ? '+' : '' }}{{ formatCurrency(m.balance) }}
-                </p>
-                <p
+                </span>
+              </div>
+              <!-- Row 2: income + delta -->
+              <div class="flex items-center justify-between">
+                <span class="text-[12px] tabular-nums text-success">
+                  +{{ formatCurrency(m.income) }}
+                  <span class="text-muted-foreground/40 ml-0.5">receitas</span>
+                </span>
+                <span
                   v-if="m.delta !== null"
-                  class="text-[10px] tabular-nums"
+                  class="text-[11px] tabular-nums"
                   :class="m.delta > 0 ? 'text-destructive/70' : m.delta < 0 ? 'text-success/70' : 'text-muted-foreground/40'"
                 >
-                  {{ m.delta > 0 ? '↑' : m.delta < 0 ? '↓' : '→' }}{{ formatCurrency(Math.abs(m.delta)) }}
-                </p>
+                  {{ m.delta > 0 ? '↑' : m.delta < 0 ? '↓' : '→' }}{{ formatCurrency(Math.abs(m.delta)) }} vs anterior
+                </span>
+              </div>
+              <!-- Row 3: expenses -->
+              <div>
+                <span class="text-[12px] tabular-nums text-destructive">
+                  -{{ formatCurrency(m.expenses) }}
+                  <span class="text-muted-foreground/40 ml-0.5">despesas</span>
+                </span>
               </div>
             </button>
           </div>
@@ -326,41 +335,6 @@ function goToMonth(month: number) {
 
       </div>
 
-      <!-- Mobile: months summary as 2-line cards (lg:hidden) -->
-      <div class="lg:hidden space-y-2 mb-4 pb-24">
-        <button
-          v-for="m in monthsWithDelta"
-          :key="m.month"
-          type="button"
-          class="w-full rounded-xl px-4 py-3 text-left transition-colors"
-          :class="m.month === currentMonth && year === currentYear
-            ? 'bg-primary/10 border border-primary/20'
-            : 'bg-card border border-border/40 hover:bg-popover'"
-          @click="goToMonth(m.month)"
-        >
-          <!-- Row 1: month name + balance -->
-          <div class="flex items-center justify-between mb-1">
-            <span
-              class="text-[13px] font-semibold"
-              :class="m.month === currentMonth && year === currentYear ? 'text-primary' : 'text-foreground'"
-            >
-              {{ MONTH_FULL[m.month - 1] }}
-            </span>
-            <span
-              class="text-[14px] tabular-nums font-bold"
-              :class="m.balance >= 0 ? 'text-success' : 'text-destructive'"
-            >
-              {{ m.balance >= 0 ? '+' : '' }}{{ formatCurrency(m.balance) }}
-            </span>
-          </div>
-          <!-- Row 2: income · expenses -->
-          <div class="flex items-center gap-1.5">
-            <span class="text-[11px] tabular-nums text-success">+{{ formatCurrency(m.income) }}</span>
-            <span class="text-[10px] text-muted-foreground/30">·</span>
-            <span class="text-[11px] tabular-nums text-destructive">-{{ formatCurrency(m.expenses) }}</span>
-          </div>
-        </button>
-      </div>
 
       <!-- Year trend indicators -->
       <div class="grid grid-cols-2 gap-3">
