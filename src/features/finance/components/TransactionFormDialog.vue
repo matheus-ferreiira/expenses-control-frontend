@@ -260,7 +260,7 @@ watch(
           if (p.account_id) form.account_id = p.account_id
         }
         if (!form.account_id && store.activeAccounts.length > 0) {
-          form.account_id = store.activeAccounts[0].id
+          form.account_id = store.activeAccounts[0]?.id ?? ''
         }
       }
       nextTick(() => setTimeout(() => amountInputRef.value?.focus(), 150))

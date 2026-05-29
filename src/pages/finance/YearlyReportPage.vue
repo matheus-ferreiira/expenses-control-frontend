@@ -127,7 +127,7 @@ async function buildChart() {
           borderWidth: 1,
           padding: 10,
           callbacks: {
-            label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`,
+            label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y ?? 0)}`,
           },
         },
       },
