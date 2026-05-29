@@ -789,6 +789,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     <input
                       v-model.number="form.recurrence_count"
                       type="number"
+                      inputmode="numeric"
                       min="2"
                       max="260"
                       class="w-16 h-7 px-2 rounded-lg bg-muted border border-border/60 text-[12px] text-center outline-none focus:border-violet-500/50 tabular-nums"

@@ -1220,6 +1220,7 @@ onMounted(async () => {
               <input
                 v-model="editingBudgetValue"
                 type="number"
+                inputmode="decimal"
                 min="0"
                 step="10"
                 placeholder="0"
