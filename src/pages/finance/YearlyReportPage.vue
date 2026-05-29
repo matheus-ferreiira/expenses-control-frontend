@@ -105,16 +105,16 @@ async function buildChart() {
         {
           label: 'Receitas',
           data: incomeData,
-          backgroundColor: 'hsl(162 100% 39% / 0.7)',
-          borderColor: 'hsl(162 100% 39%)',
+          backgroundColor: hsl('--success', 0.7),
+          borderColor: hsl('--success'),
           borderWidth: 1,
           borderRadius: 4,
         },
         {
           label: 'Despesas',
           data: expenseData,
-          backgroundColor: 'hsl(0 100% 65% / 0.7)',
-          borderColor: 'hsl(0 100% 65%)',
+          backgroundColor: hsl('--destructive', 0.7),
+          borderColor: hsl('--destructive'),
           borderWidth: 1,
           borderRadius: 4,
         },
@@ -127,10 +127,12 @@ async function buildChart() {
       plugins: {
         legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
         tooltip: {
-          backgroundColor: 'hsl(0 0% 8%)',
-          borderColor: 'hsl(0 0% 13%)',
+          backgroundColor: hsl('--card'),
+          borderColor: hsl('--border'),
           borderWidth: 1,
           padding: 10,
+          titleColor: hsl('--foreground'),
+          bodyColor: hsl('--muted-foreground'),
           callbacks: {
             label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y ?? 0)}`,
           },
@@ -139,12 +141,12 @@ async function buildChart() {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: 'hsl(0 0% 55%)', font: { size: 11 } },
+          ticks: { color: hsl('--muted-foreground', 0.6), font: { size: 11 } },
         },
         y: {
-          grid: { color: 'hsl(0 0% 13%)' },
+          grid: { color: hsl('--border', 0.4) },
           ticks: {
-            color: 'hsl(0 0% 55%)',
+            color: hsl('--muted-foreground', 0.6),
             font: { size: 11 },
             callback: (v) => `R$ ${(Number(v) / 1000).toFixed(0)}k`,
           },
@@ -168,6 +170,15 @@ onBeforeUnmount(() => destroyChart())
 
 function goToMonth(month: number) {
   router.push({ name: ROUTES.FINANCE_REPORTS, query: { year: year.value, month } })
+}
+
+function getCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
+function hsl(token: string, alpha = 1): string {
+  const val = getCSSVar(token)
+  return alpha < 1 ? `hsl(${val} / ${alpha})` : `hsl(${val})`
 }
 </script>
 
@@ -303,8 +314,7 @@ function goToMonth(month: number) {
               v-for="m in monthsWithDelta"
               :key="m.month"
               type="button"
-              class="w-full px-4 py-3 text-left hover:bg-muted/30 transition-colors"
-              style="border-bottom: 1px solid #1f1f23"
+              class="w-full px-4 py-3 text-left hover:bg-muted/30 transition-colors border-b border-border"
               @click="goToMonth(m.month)"
             >
               <!-- Row 1: month name + balance -->

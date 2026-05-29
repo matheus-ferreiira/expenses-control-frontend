@@ -82,11 +82,11 @@ async function buildDonut() {
           callbacks: {
             label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.parsed ?? 0)} (${cats[ctx.dataIndex]?.percentage ?? 0}%)`,
           },
-          backgroundColor: 'hsl(0 0% 8%)',
-          borderColor: 'hsl(0 0% 13%)',
+          backgroundColor: hsl('--card'),
+          borderColor: hsl('--border'),
           borderWidth: 1,
-          titleColor: 'hsl(0 0% 94%)',
-          bodyColor: 'hsl(0 0% 55%)',
+          titleColor: hsl('--foreground'),
+          bodyColor: hsl('--muted-foreground'),
           padding: 10,
         },
       },
@@ -193,6 +193,15 @@ function categoryIcon(name: string): object {
     if (key.includes(k)) return icon as object
   }
   return Tag
+}
+
+function getCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
+function hsl(token: string, alpha = 1): string {
+  const val = getCSSVar(token)
+  return alpha < 1 ? `hsl(${val} / ${alpha})` : `hsl(${val})`
 }
 
 onMounted(() => load())
@@ -332,15 +341,15 @@ onMounted(() => load())
         </div>
 
         <!-- Legend — below donut, full width -->
-        <div style="margin-top: 16px">
+        <div class="mt-4">
           <div
             v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total).slice(0, 8)"
             :key="cat.category"
-            style="display: flex; align-items: center; gap: 10px; height: 36px"
+            class="flex items-center gap-2.5 h-9"
           >
-            <span class="shrink-0 rounded-full" style="width: 8px; height: 8px" :style="{ background: cat.color }" />
-            <span style="flex: 1; font-size: 13px; color: #F0F0F0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ cat.category }}</span>
-            <span style="font-size: 13px; color: #888888; flex-shrink: 0; font-variant-numeric: tabular-nums">{{ cat.percentage }}%</span>
+            <span class="size-2 shrink-0 rounded-full" :style="{ background: cat.color }" />
+            <span class="flex-1 text-[13px] text-foreground truncate">{{ cat.category }}</span>
+            <span class="text-[13px] text-muted-foreground shrink-0 tabular-nums">{{ cat.percentage }}%</span>
           </div>
         </div>
       </div>
