@@ -4,16 +4,14 @@ import { Plus, Search, X } from 'lucide-vue-next'
 import { Button } from '@ui/button'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
-import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
+import TransactionSummaryCard from '@/features/finance/components/TransactionSummaryCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useTransactionFilters } from '@/features/finance/composables/useTransactionFilters'
-import { currentMonth } from '@/features/finance/utils/financeHelpers'
 import { useToast } from '@/composables/useToast'
-import { formatCurrency } from '@/utils/currency'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -111,54 +109,26 @@ onMounted(async () => {
   await Promise.all([store.fetchAll(), loadTransactions()])
 })
 
-// ── Month context KPIs ─────────────────────────────────────────────────────
-const monthContext = computed<'current' | 'future' | 'past'>(() => {
-  const now = currentMonth()
-  if (filterState.month.value === now) return 'current'
-  return filterState.month.value > now ? 'future' : 'past'
-})
-
+// ── Summary card data ─────────────────────────────────────────────────────────
 const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0)
 )
-
 const monthIncome = computed(() =>
   store.transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
 )
-
 const monthExpenses = computed(() =>
   store.transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
 )
-
 const pendingIncome = computed(() =>
   store.transactions
     .filter((t) => t.status === 'pending' && t.type === 'income')
     .reduce((s, t) => s + t.amount, 0)
 )
-
 const pendingExpenses = computed(() =>
   store.transactions
     .filter((t) => t.status === 'pending' && t.type === 'expense')
     .reduce((s, t) => s + t.amount, 0)
 )
-
-/** KPI 1: null for past months (no historical account balance snapshot available). */
-const kpi1Value = computed<number | null>(() => {
-  if (monthContext.value === 'current') return totalBalance.value
-  if (monthContext.value === 'future') return totalBalance.value + pendingIncome.value - pendingExpenses.value
-  return null
-})
-
-/** KPI 2: net income/expense for the month. Future months use only pending transactions. */
-const kpi2Value = computed(() => {
-  if (monthContext.value === 'future') return pendingIncome.value - pendingExpenses.value
-  return monthIncome.value - monthExpenses.value
-})
-
-function kpiValueClass(value: number | null): string {
-  if (value === null || value === 0) return 'text-foreground'
-  return value > 0 ? 'text-emerald-400' : 'text-red-400'
-}
 </script>
 
 <template>
@@ -234,39 +204,24 @@ function kpiValueClass(value: number | null): string {
 
     <FinanceSubNav />
 
-    <!-- Month context KPIs -->
-    <div class="mb-4" :class="kpi1Value !== null ? 'grid grid-cols-2 gap-3' : 'block'">
-      <div v-if="kpi1Value !== null" class="bg-card rounded-lg px-3.5 py-3 border border-border/40">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-1.5">
-          {{ monthContext === 'current' ? 'Saldo Atual' : 'Saldo Previsto' }}
-        </p>
-        <p class="text-[20px] font-semibold leading-none" :class="kpiValueClass(kpi1Value)">
-          {{ formatCurrency(kpi1Value) }}
-        </p>
-      </div>
-      <div class="bg-card rounded-lg px-3.5 py-3 border border-border/40">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-1.5">
-          Balanço Mensal
-        </p>
-        <p class="text-[20px] font-semibold leading-none" :class="kpiValueClass(kpi2Value)">
-          {{ formatCurrency(kpi2Value) }}
-        </p>
-      </div>
-    </div>
+    <!-- Period summary card: nav + RECEITAS · DESPESAS · SALDO + context line -->
+    <TransactionSummaryCard
+      :month="filterState.month.value"
+      :income="monthIncome"
+      :expenses="monthExpenses"
+      :total-balance="totalBalance"
+      :pending-income="pendingIncome"
+      :pending-expenses="pendingExpenses"
+      class="mb-4"
+      @prev="filterState.prevMonth()"
+      @next="filterState.nextMonth()"
+      @reset="filterState.resetToCurrentMonth()"
+    />
 
-    <!-- Month navigator -->
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
-        {{ searchQuery ? 'Resultados da busca' : 'Todas as transações' }}
-      </h2>
-      <MonthNavigator
-        :month="filterState.month.value"
-        :is-current-month="filterState.isCurrentMonth()"
-        @prev="filterState.prevMonth()"
-        @next="filterState.nextMonth()"
-        @reset="filterState.resetToCurrentMonth()"
-      />
-    </div>
+    <!-- List label -->
+    <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
+      {{ searchQuery ? 'Resultados da busca' : 'Todas as transações' }}
+    </h2>
 
     <TransactionList
       :transactions="filteredTransactions"
