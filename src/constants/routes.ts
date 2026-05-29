@@ -17,6 +17,7 @@ export const ROUTES = {
   FINANCE_ACCOUNTS: 'finance-accounts',
   FINANCE_CARDS: 'finance-cards',
   FINANCE_REPORTS: 'finance-reports',
+  FINANCE_REPORTS_YEARLY: 'finance-reports-yearly',
 
   GOALS: 'goals',
   GOAL_DETAIL: 'goal-detail',

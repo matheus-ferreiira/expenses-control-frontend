@@ -78,6 +78,11 @@ export const appRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/finance/MonthlyReportPage.vue'),
       },
       {
+        path: 'finance/reports/yearly',
+        name: ROUTES.FINANCE_REPORTS_YEARLY,
+        component: () => import('@/pages/finance/YearlyReportPage.vue'),
+      },
+      {
         path: 'reports',
         name: ROUTES.REPORTS,
         component: () => import('@/pages/ReportsPage.vue'),

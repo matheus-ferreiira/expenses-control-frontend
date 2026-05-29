@@ -171,4 +171,17 @@ export const financeApi = {
         }>
       }>>(API_ENDPOINTS.FINANCE.REPORTS_MONTHLY, { params: { year, month } })
       .then(unwrap),
+
+  yearlyReport: (year: number) =>
+    client
+      .get<ApiResponse<{
+        year: number
+        months: Array<{
+          month: number
+          income: number
+          expenses: number
+          balance: number
+        }>
+      }>>(API_ENDPOINTS.FINANCE.REPORTS_YEARLY, { params: { year } })
+      .then(unwrap),
 }

@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { Skeleton } from '@ui/skeleton'
+import { ROUTES } from '@/constants/routes'
 import {
   ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Receipt, PieChart,
-  AlertTriangle, Sparkles,
+  AlertTriangle, Sparkles, CalendarRange,
   ShoppingCart, UtensilsCrossed, Car, Home, Heart, Tv2, Repeat, Tag,
   Zap, Dumbbell, Book, Plane, Baby, PawPrint, Banknote, Briefcase, GraduationCap,
 } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
+
+const router = useRouter()
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -213,6 +217,19 @@ onMounted(() => load())
     </div>
 
     <FinanceSubNav />
+
+    <!-- Toggle Mensal / Anual -->
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-[12px] font-semibold text-foreground/70 bg-foreground/10 px-3 py-1.5 rounded-full">Mensal</span>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground/60 hover:text-foreground px-3 py-1.5 rounded-full hover:bg-muted/40 transition-colors"
+        @click="router.push({ name: ROUTES.FINANCE_REPORTS_YEARLY })"
+      >
+        <CalendarRange :size="13" />
+        Anual
+      </button>
+    </div>
 
     <!-- Month navigator -->
     <div class="flex items-center justify-between bg-card border border-border rounded-lg px-2 py-1.5 mb-5">
