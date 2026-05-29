@@ -46,7 +46,7 @@ async function fetchPastEndBalance() {
       start_date: nextMonthStart,
       end_date: today,
       status: 'confirmed',
-      per_page: 2000,
+      per_page: 500,
     })
     const after = result.data
     const incomeAfter = after
