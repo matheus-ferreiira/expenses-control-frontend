@@ -83,26 +83,26 @@ function clear() {
       </button>
     </div>
 
-    <!-- Scrollable grid — max 220px height, 6 columns, min 44px touch targets -->
-    <div class="max-h-[220px] overflow-y-auto p-2 space-y-3">
+    <!-- Scrollable grid — max 240px height, 5 columns, 48px touch targets -->
+    <div class="max-h-[240px] overflow-y-auto p-2 space-y-2">
       <div v-for="cat in filteredCategories" :key="cat.id">
-        <p class="text-[9px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1">
+        <p class="text-[10px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1.5 mt-1">
           {{ cat.label }}
         </p>
-        <div class="grid grid-cols-6 gap-1">
+        <div class="grid grid-cols-5 gap-2">
           <button
             v-for="icon in cat.icons"
             :key="icon.name"
             type="button"
             :title="icon.label"
-            class="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl transition-all active:scale-95"
+            class="flex items-center justify-center size-12 rounded-xl transition-all active:scale-95"
             :style="modelValue === icon.name
               ? { background: color, color: '#fff' }
-              : {}"
-            :class="modelValue !== icon.name ? 'hover:bg-muted text-muted-foreground' : ''"
+              : { background: '#27272a', color: '#888888' }"
+            :class="modelValue !== icon.name ? 'hover:brightness-110' : ''"
             @click="select(icon.name)"
           >
-            <component :is="icon.component" :size="18" />
+            <component :is="icon.component" :size="22" />
           </button>
         </div>
       </div>
