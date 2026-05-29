@@ -8,7 +8,7 @@ import { ScrollArea } from '@ui/scroll-area'
 import { Avatar, AvatarFallback } from '@ui/avatar'
 import {
   LayoutDashboard, CheckSquare, Flame, Target, CalendarDays,
-  Wallet, BarChart3, FileText, BookOpen, Bookmark, ShoppingCart,
+  Wallet, FileText, BookOpen, Bookmark, ShoppingCart,
   Lock, Settings, Search, Plus, Moon, Sun,
   PanelLeftClose, PanelLeftOpen, ChevronDown,
   ArrowUpDown, Landmark, CreditCard, PieChart, Tag,
@@ -62,7 +62,6 @@ const ALL_NAV_SECTIONS: Array<{
     label: 'FINANÇAS',
     items: [
       { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F', module: null, children: FINANCE_CHILDREN },
-      { label: 'Relatórios', icon: BarChart3, route: ROUTES.REPORTS, shortcut: 'G R', module: null },
     ],
   },
   {
