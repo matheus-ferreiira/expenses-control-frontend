@@ -639,66 +639,6 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p v-if="errors.account_id" class="text-xs text-destructive mt-1">{{ errors.account_id }}</p>
           </div>
 
-          <!-- ── TAGS ───────────────────────────────────────────── -->
-          <div v-if="store.tags.length > 0 || true">
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
-              Tags
-            </p>
-            <div class="flex flex-wrap gap-1.5">
-              <!-- Existing tags -->
-              <button
-                v-for="tag in store.tags"
-                :key="tag.id"
-                type="button"
-                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium border transition-all active:scale-95"
-                :class="form.tag_ids.includes(tag.id)
-                  ? 'border-transparent text-white shadow-sm'
-                  : 'border-border/50 text-muted-foreground hover:border-border bg-transparent'"
-                :style="form.tag_ids.includes(tag.id) ? { background: tag.color } : {}"
-                @click="toggleTag(tag.id)"
-              >
-                {{ tag.name }}
-                <X v-if="form.tag_ids.includes(tag.id)" :size="9" :stroke-width="2.5" />
-              </button>
-
-              <!-- Inline create -->
-              <div class="inline-flex items-center h-7 rounded-full border border-dashed border-border/50 overflow-hidden bg-muted/20">
-                <input
-                  v-model="newTagName"
-                  placeholder="Nova tag..."
-                  class="bg-transparent text-[11px] pl-2.5 pr-1 outline-none text-muted-foreground w-20 placeholder:text-muted-foreground/30"
-                  @keydown.enter.prevent="createInlineTag"
-                />
-                <button
-                  type="button"
-                  class="h-full px-2 text-muted-foreground/60 hover:text-foreground transition-colors"
-                  :disabled="creatingTag || !newTagName.trim()"
-                  @click="createInlineTag"
-                >
-                  <Loader2 v-if="creatingTag" :size="10" class="animate-spin" />
-                  <Plus v-else :size="10" :stroke-width="2.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── OBSERVAÇÕES ──────────────────────────────────────── -->
-          <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
-              Observações
-            </p>
-            <div class="relative">
-              <Textarea
-                v-model="form.notes"
-                placeholder="Detalhes extras, referência, contexto..."
-                class="resize-none h-20 text-sm bg-muted/40 border-border/40 focus:border-border/70 rounded-2xl pr-12"
-              />
-              <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
-                {{ form.notes?.length ?? 0 }}/500
-              </span>
-            </div>
-          </div>
-
           <!-- ── TRANSAÇÃO FIX ─────────────────────────────────── -->
           <div
             v-if="form.type !== 'transfer'"
@@ -895,6 +835,66 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <span>{{ form.total_installments }} parcelas de</span>
               <span class="tabular-nums font-semibold text-blue-400">
                 R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
+              </span>
+            </div>
+          </div>
+
+          <!-- ── TAGS ───────────────────────────────────────────── -->
+          <div v-if="store.tags.length > 0 || true">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+              Tags
+            </p>
+            <div class="flex flex-wrap gap-1.5">
+              <!-- Existing tags -->
+              <button
+                v-for="tag in store.tags"
+                :key="tag.id"
+                type="button"
+                class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium border transition-all active:scale-95"
+                :class="form.tag_ids.includes(tag.id)
+                  ? 'border-transparent text-white shadow-sm'
+                  : 'border-border/50 text-muted-foreground hover:border-border bg-transparent'"
+                :style="form.tag_ids.includes(tag.id) ? { background: tag.color } : {}"
+                @click="toggleTag(tag.id)"
+              >
+                {{ tag.name }}
+                <X v-if="form.tag_ids.includes(tag.id)" :size="9" :stroke-width="2.5" />
+              </button>
+
+              <!-- Inline create -->
+              <div class="inline-flex items-center h-7 rounded-full border border-dashed border-border/50 overflow-hidden bg-muted/20">
+                <input
+                  v-model="newTagName"
+                  placeholder="Nova tag..."
+                  class="bg-transparent text-[11px] pl-2.5 pr-1 outline-none text-muted-foreground w-20 placeholder:text-muted-foreground/30"
+                  @keydown.enter.prevent="createInlineTag"
+                />
+                <button
+                  type="button"
+                  class="h-full px-2 text-muted-foreground/60 hover:text-foreground transition-colors"
+                  :disabled="creatingTag || !newTagName.trim()"
+                  @click="createInlineTag"
+                >
+                  <Loader2 v-if="creatingTag" :size="10" class="animate-spin" />
+                  <Plus v-else :size="10" :stroke-width="2.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── OBSERVAÇÕES ──────────────────────────────────────── -->
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+              Observações
+            </p>
+            <div class="relative">
+              <Textarea
+                v-model="form.notes"
+                placeholder="Detalhes extras, referência, contexto..."
+                class="resize-none h-20 text-sm bg-muted/40 border-border/40 focus:border-border/70 rounded-2xl pr-12"
+              />
+              <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
+                {{ form.notes?.length ?? 0 }}/500
               </span>
             </div>
           </div>
