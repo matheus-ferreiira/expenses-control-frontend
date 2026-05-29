@@ -5,9 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@ui/dialog'
-import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import { Loader2, Wifi } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
@@ -85,7 +83,7 @@ const cardGradient = computed(
 
 <template>
   <Dialog :open="open" @update:open="emit('update:open', $event)">
-    <DialogContent class="max-w-sm">
+    <DialogContent class="max-w-sm bg-background border-border">
       <DialogHeader>
         <DialogTitle>{{ card ? 'Editar cartão' : 'Novo cartão' }}</DialogTitle>
       </DialogHeader>
@@ -97,11 +95,9 @@ const cardGradient = computed(
           class="relative w-full aspect-[1.586] rounded-2xl p-5 text-white overflow-hidden shadow-lg"
           :style="{ background: cardGradient }"
         >
-          <!-- Decorative circles -->
           <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10" />
           <div class="absolute -right-2 top-8 w-20 h-20 rounded-full bg-white/5" />
 
-          <!-- Card name + chip -->
           <div class="flex items-start justify-between mb-auto">
             <p class="text-sm font-semibold truncate flex-1 drop-shadow">
               {{ form.name || 'Nome do Cartão' }}
@@ -109,7 +105,6 @@ const cardGradient = computed(
             <Wifi :size="18" class="text-white/70 ml-2 shrink-0" />
           </div>
 
-          <!-- Card number placeholder -->
           <div class="mt-6 mb-4 flex gap-3 font-mono text-sm tracking-widest text-white/60">
             <span>••••</span>
             <span>••••</span>
@@ -117,7 +112,6 @@ const cardGradient = computed(
             <span>1234</span>
           </div>
 
-          <!-- Limit + due date -->
           <div class="flex items-end justify-between">
             <div>
               <p class="text-[10px] text-white/50 uppercase tracking-wider">Limite</p>
@@ -131,19 +125,19 @@ const cardGradient = computed(
         </div>
 
         <AppFormField label="Nome" :error="errors.name" required>
-          <Input v-model="form.name" placeholder="Ex: Nubank Platinum" class="h-9" />
+          <Input v-model="form.name" placeholder="Ex: Nubank Platinum" class="h-10 bg-card border-border/60" />
         </AppFormField>
 
         <AppFormField label="Limite (R$)" :error="errors.limit_amount" required>
-          <Input v-model="form.limit_amount" inputmode="decimal" placeholder="0,00" class="h-9" />
+          <Input v-model="form.limit_amount" inputmode="decimal" placeholder="0,00" class="h-10 bg-card border-border/60" />
         </AppFormField>
 
         <div class="grid grid-cols-2 gap-3">
           <AppFormField label="Fecha dia" :error="errors.closing_day" required>
-            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="h-9" />
+            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="h-10 bg-card border-border/60" />
           </AppFormField>
           <AppFormField label="Vence dia" :error="errors.due_day" required>
-            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="h-9" />
+            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="h-10 bg-card border-border/60" />
           </AppFormField>
         </div>
 
@@ -153,13 +147,26 @@ const cardGradient = computed(
         </div>
       </form>
 
-      <DialogFooter class="gap-2">
-        <Button variant="outline" :disabled="submitting" @click="close">Cancelar</Button>
-        <Button :disabled="submitting" @click="submit">
-          <Loader2 v-if="submitting" :size="14" class="mr-1.5 animate-spin" />
+      <!-- Footer buttons -->
+      <div class="flex gap-2 mt-2">
+        <button
+          type="button"
+          class="flex-1 h-11 rounded-2xl bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
+          :disabled="submitting"
+          @click="close"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
+          :disabled="submitting"
+          @click="submit"
+        >
+          <Loader2 v-if="submitting" :size="14" class="animate-spin" />
           {{ card ? 'Salvar' : 'Criar cartão' }}
-        </Button>
-      </DialogFooter>
+        </button>
+      </div>
     </DialogContent>
   </Dialog>
 </template>

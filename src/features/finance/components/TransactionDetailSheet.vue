@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Button } from '@ui/button'
 import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat, CheckCircle2, Copy } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
@@ -158,45 +157,45 @@ const amountClass = computed(() => {
         </div>
 
         <!-- Details card -->
-        <div class="mx-4 mb-4 rounded-xl border border-border bg-card/60 divide-y divide-border">
+        <div class="mx-4 mb-4 bg-card rounded-2xl overflow-hidden">
           <!-- Date -->
-          <div class="flex items-start justify-between px-4 py-3 gap-3">
-            <span class="text-[12px] text-muted-foreground shrink-0">Data</span>
-            <span class="text-[13px] font-medium text-foreground text-right capitalize">
+          <div class="flex items-start justify-between px-4 py-3.5 gap-4 border-b border-white/5">
+            <span class="text-sm text-muted-foreground shrink-0">Data</span>
+            <span class="text-sm font-medium text-foreground text-right capitalize">
               {{ formatTransactionDate(transaction.transaction_date) }}
             </span>
           </div>
 
           <!-- Category -->
-          <div v-if="transaction.category" class="flex items-center justify-between px-4 py-3 gap-3">
-            <span class="text-[12px] text-muted-foreground shrink-0">Categoria</span>
-            <span class="text-[13px] font-medium text-foreground">{{ transaction.category.name }}</span>
+          <div v-if="transaction.category" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
+            <span class="text-sm text-muted-foreground shrink-0">Categoria</span>
+            <span class="text-sm font-medium text-foreground text-right">{{ transaction.category.name }}</span>
           </div>
 
           <!-- Account / Card -->
-          <div v-if="transaction.account || transaction.card" class="flex items-center justify-between px-4 py-3 gap-3">
-            <span class="text-[12px] text-muted-foreground shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
-            <span class="text-[13px] font-medium text-foreground">
+          <div v-if="transaction.account || transaction.card" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
+            <span class="text-sm text-muted-foreground shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
+            <span class="text-sm font-medium text-foreground text-right">
               {{ transaction.account?.name ?? transaction.card?.name }}
             </span>
           </div>
 
           <!-- Status -->
-          <div class="flex items-center justify-between px-4 py-3 gap-3">
-            <span class="text-[12px] text-muted-foreground shrink-0">Status</span>
+          <div class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
+            <span class="text-sm text-muted-foreground shrink-0">Status</span>
             <span
-              class="inline-flex items-center gap-1 text-[13px] font-medium"
+              class="inline-flex items-center gap-1 text-sm font-medium"
               :class="transaction.status === 'pending' ? 'text-muted-foreground' : 'text-success'"
             >
-              <Clock v-if="transaction.status === 'pending'" :size="11" />
+              <Clock v-if="transaction.status === 'pending'" :size="12" />
               {{ transaction.status === 'pending' ? 'Agendada' : 'Confirmada' }}
             </span>
           </div>
 
           <!-- Fix indicator with frequency -->
-          <div v-if="transaction.is_recurring" class="flex items-center justify-between px-4 py-3 gap-3">
-            <span class="text-[12px] text-muted-foreground shrink-0">Tipo</span>
-            <span class="inline-flex items-center gap-1 text-[13px] font-medium text-violet-400">
+          <div v-if="transaction.is_recurring" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
+            <span class="text-sm text-muted-foreground shrink-0">Tipo</span>
+            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400">
               <Repeat :size="12" />
               Fix
               <template v-if="(transaction.recurrence_config as Record<string,unknown> | null)?.frequency">
@@ -212,23 +211,23 @@ const amountClass = computed(() => {
           <!-- Installment indicator -->
           <div
             v-if="transaction.installment_number && transaction.total_installments"
-            class="flex items-center justify-between px-4 py-3 gap-3"
+            class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5"
           >
-            <span class="text-[12px] text-muted-foreground shrink-0">Parcela</span>
-            <span class="text-[13px] font-semibold tabular-nums">
+            <span class="text-sm text-muted-foreground shrink-0">Parcela</span>
+            <span class="text-sm font-semibold tabular-nums text-right">
               {{ transaction.installment_number }} de {{ transaction.total_installments }}
             </span>
           </div>
 
           <!-- Notes -->
-          <div v-if="transaction.notes" class="px-4 py-3">
-            <p class="text-[12px] text-muted-foreground mb-1.5">Observações</p>
-            <p class="text-[13px] text-foreground leading-relaxed">{{ transaction.notes }}</p>
+          <div v-if="transaction.notes" class="px-4 py-3.5 border-b border-white/5">
+            <p class="text-sm text-muted-foreground mb-1.5">Observações</p>
+            <p class="text-sm text-foreground leading-relaxed">{{ transaction.notes }}</p>
           </div>
 
           <!-- Tags -->
-          <div v-if="transaction.tags && transaction.tags.length > 0" class="px-4 py-3">
-            <p class="text-[12px] text-muted-foreground mb-2">Tags</p>
+          <div v-if="transaction.tags && transaction.tags.length > 0" class="px-4 py-3.5">
+            <p class="text-sm text-muted-foreground mb-2">Tags</p>
             <div class="flex flex-wrap gap-1.5">
               <span
                 v-for="tag in transaction.tags"
@@ -255,22 +254,31 @@ const amountClass = computed(() => {
             <CheckCircle2 :size="16" />
             {{ confirming ? 'Confirmando...' : 'Marcar como paga' }}
           </button>
-          <div class="flex gap-2">
-            <Button
-              variant="outline"
-              class="flex-1 gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40"
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              class="flex flex-col items-center justify-center gap-1.5 min-h-[52px] rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 text-[11px] font-semibold transition-colors hover:bg-destructive/20 active:scale-95"
               @click="onDelete"
             >
-              <Trash2 :size="14" />
+              <Trash2 :size="17" />
               Excluir
-            </Button>
-            <Button variant="outline" class="gap-2 px-3" @click="onDuplicate">
-              <Copy :size="14" />
-            </Button>
-            <Button class="flex-1 gap-2" @click="onEdit">
-              <Pencil :size="14" />
+            </button>
+            <button
+              type="button"
+              class="flex flex-col items-center justify-center gap-1.5 min-h-[52px] rounded-2xl bg-card text-muted-foreground border border-white/8 text-[11px] font-semibold transition-colors hover:bg-popover active:scale-95"
+              @click="onDuplicate"
+            >
+              <Copy :size="17" />
+              Duplicar
+            </button>
+            <button
+              type="button"
+              class="flex flex-col items-center justify-center gap-1.5 min-h-[52px] rounded-2xl bg-primary text-primary-foreground text-[11px] font-semibold transition-opacity hover:opacity-90 active:scale-95"
+              @click="onEdit"
+            >
+              <Pencil :size="17" />
               Editar
-            </Button>
+            </button>
           </div>
         </div>
       </template>

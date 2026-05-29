@@ -5,9 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@ui/dialog'
-import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import { Loader2, Wallet, Landmark, PiggyBank, TrendingUp, DollarSign } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
@@ -87,7 +85,7 @@ async function submit() {
 
 <template>
   <Dialog :open="open" @update:open="emit('update:open', $event)">
-    <DialogContent class="max-w-sm">
+    <DialogContent class="max-w-sm bg-background border-border">
       <DialogHeader>
         <DialogTitle>{{ account ? 'Editar conta' : 'Nova conta' }}</DialogTitle>
       </DialogHeader>
@@ -119,10 +117,10 @@ async function submit() {
         </div>
 
         <AppFormField label="Nome" :error="errors.name" required>
-          <Input v-model="form.name" placeholder="Ex: Itaú Corrente" class="h-9" />
+          <Input v-model="form.name" placeholder="Ex: Itaú Corrente" class="h-10 bg-card border-border/60" />
         </AppFormField>
 
-        <!-- Type pills -->
+        <!-- Type selector -->
         <div class="space-y-1.5">
           <p class="text-sm font-medium">Tipo</p>
           <div class="grid grid-cols-2 gap-1.5">
@@ -131,10 +129,10 @@ async function submit() {
               :key="t"
               type="button"
               :class="[
-                'h-8 rounded-md text-xs font-medium border transition-all',
+                'h-10 rounded-xl text-[12px] font-medium border transition-all',
                 form.type === t
-                  ? 'bg-violet-500/20 text-violet-400 border-violet-500/60'
-                  : 'border-border text-muted-foreground hover:bg-accent',
+                  ? 'bg-primary/20 text-primary border-primary/40'
+                  : 'bg-card border-white/8 text-muted-foreground hover:bg-popover',
               ]"
               @click="form.type = t"
             >
@@ -148,7 +146,7 @@ async function submit() {
             v-model="form.balance"
             inputmode="decimal"
             placeholder="0,00"
-            class="h-9"
+            class="h-10 bg-card border-border/60"
           />
         </AppFormField>
 
@@ -158,13 +156,26 @@ async function submit() {
         </div>
       </form>
 
-      <DialogFooter class="gap-2">
-        <Button variant="outline" :disabled="submitting" @click="close">Cancelar</Button>
-        <Button :disabled="submitting" @click="submit">
-          <Loader2 v-if="submitting" :size="14" class="mr-1.5 animate-spin" />
+      <!-- Footer buttons -->
+      <div class="flex gap-2 mt-2">
+        <button
+          type="button"
+          class="flex-1 h-11 rounded-2xl bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
+          :disabled="submitting"
+          @click="close"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
+          :disabled="submitting"
+          @click="submit"
+        >
+          <Loader2 v-if="submitting" :size="14" class="animate-spin" />
           {{ account ? 'Salvar' : 'Criar conta' }}
-        </Button>
-      </DialogFooter>
+        </button>
+      </div>
     </DialogContent>
   </Dialog>
 </template>
