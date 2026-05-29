@@ -32,19 +32,22 @@
    ----------------------------------------------------------------------- */
 :root {
   /* --- Surfaces ---
-     background: oklch(0.145 0.005 270)  → very dark near-black
-     surface:    oklch(0.18  0.005 270)  → slightly above background
-     card:       oklch(0.195 0.005 270)  → cards lift off the background
-     popover:    oklch(0.215 0.005 270)  → popover/dropdown, above card
+     background: #0c0c14  → near-black with cold blue-indigo tint
+     surface:    #111120  → slightly above background
+     card:       #17172a  → cards clearly lift off the background
+     popover:    #1c1c30  → popover/dropdown, above card
+
+     Higher saturation (15-20%) than before (5%) to eliminate
+     the "grayish" look and give a deeper, cooler dark feel.
   */
-  --background:             240  5%  7%;
+  --background:             240 20%  5%;   /* #0c0c14 — cold near-black */
   --foreground:             240  3% 96%;   /* oklch(0.955 0.003 270) */
 
-  --surface:                240  5% 10%;   /* oklch(0.18  0.005 270) */
-  --card:                   240  5% 11%;   /* oklch(0.195 0.005 270) */
+  --surface:                240 18%  8%;   /* #111120 — between bg and card */
+  --card:                   240 16% 12%;   /* #191929 — cards lift above bg */
   --card-foreground:        240  3% 96%;
 
-  --popover:                240  5% 13%;   /* oklch(0.215 0.005 270) */
+  --popover:                240 16% 15%;   /* #1e1e32 — popover above card */
   --popover-foreground:     240  3% 96%;
 
   /* --- Brand — blue-violet (oklch(0.7 0.12 250) — hue 250 ≈ HSL ~225) --- */
@@ -56,10 +59,10 @@
      muted:     oklch(0.22  0.005 270) → same family
      muted-fg:  oklch(0.62  0.008 270) → medium-tone secondary text (~58%)
   */
-  --secondary:              240  4% 15%;
+  --secondary:              240 14% 16%;   /* slightly above --card */
   --secondary-foreground:   240  3% 96%;
-  --muted:                  240  4% 14%;
-  --muted-foreground:       240  4% 58%;   /* oklch(0.62 0.008 270) — darker than before */
+  --muted:                  240 14% 15%;   /* just above --card */
+  --muted-foreground:       240  8% 58%;   /* cool-tinted secondary text */
 
   /* --- Accent — same hue as primary --- */
   --accent:                 225 70% 60%;
@@ -78,12 +81,11 @@
   --info:                   225 70% 62%;
 
   /* --- Structural ---
-     Lovable border = oklch(1 0 0 / 0.05) = white at 5% opacity on dark bg.
-     Solid HSL approximation on a 7% background: ~13% lightness.
-     Much more subtle than the previous 17% — borders barely visible.
+     On the new #0c0c14 background, white at ~7% opacity maps to ~16% lightness.
+     Using slightly more lightness so borders are visible on the darker base.
   */
-  --border:                 240  4% 13%;
-  --input:                  240  4% 14%;   /* oklch(1 0 0 / 0.06) */
+  --border:                 240 14% 16%;   /* ~white/7 on new dark bg */
+  --input:                  240 14% 17%;   /* slightly lighter for inputs */
   --ring:                   225 70% 60%;   /* same hue as primary */
 
   /* --- Sidebar ---
@@ -91,13 +93,13 @@
      sidebar-accent: oklch(0.22 0.005 270) → same as muted
      sidebar-border: oklch(1 0 0 / 0.045) → very subtle
   */
-  --sidebar:                240  5%  9%;
+  --sidebar:                240 20%  4%;   /* #090910 — slightly darker than bg */
   --sidebar-foreground:     240  3% 96%;
   --sidebar-primary:        225 70% 60%;
-  --sidebar-primary-foreground: 240 5% 7%;
-  --sidebar-accent:         240  4% 14%;   /* oklch(0.22 0.005 270) */
+  --sidebar-primary-foreground: 240 5% 5%;
+  --sidebar-accent:         240 16% 10%;   /* matches --surface */
   --sidebar-accent-foreground:  240 3% 96%;
-  --sidebar-border:         240  4% 11%;   /* oklch(1 0 0 / 0.045) */
+  --sidebar-border:         240 16%  9%;   /* subtle border on dark sidebar */
   --sidebar-ring:           225 70% 60%;
 
   /* --- Tone tokens (category badges, row accents, status indicators)
