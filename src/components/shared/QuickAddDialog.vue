@@ -5,6 +5,7 @@ import { useTaskStore } from '@/stores/tasks'
 import { useHabitStore } from '@/stores/habits'
 import { useCalendarStore } from '@/stores/calendar'
 import { useToast } from '@/composables/useToast'
+import { useTransactionForm } from '@/composables/useTransactionForm'
 import { Sheet, SheetContent } from '@ui/sheet'
 import {
   CheckSquare, TrendingDown, TrendingUp, Repeat, CalendarPlus,
@@ -13,7 +14,7 @@ import {
 import { findIcon } from '@/lib/icons'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { DatePicker } from '@/components/ui/date-picker'
-// import type { TransactionType } from '@/types/finance'
+import type { TransactionType } from '@/types/finance'
 
 type QuickAction = 'expense' | 'income' | 'transfer' | 'task' | 'habit' | 'event'
 
@@ -22,6 +23,7 @@ const taskStore = useTaskStore()
 const habitStore = useHabitStore()
 const calendarStore = useCalendarStore()
 const toast = useToast()
+const { openTransactionForm } = useTransactionForm()
 
 const open = computed({
   get: () => ui.quickAddOpen,
@@ -37,9 +39,8 @@ watch(open, (val) => {
 
 function selectAction(a: QuickAction) {
   if (a === 'expense' || a === 'income' || a === 'transfer') {
-    // Delegate to the global TransactionFormDialog
     open.value = false
-    // setTimeout(() => ui.openTransactionForm({ type: a as TransactionType }), 220)
+    setTimeout(() => openTransactionForm({ type: a as TransactionType }), 220)
     return
   }
   action.value = a
