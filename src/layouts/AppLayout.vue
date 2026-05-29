@@ -99,25 +99,22 @@ const mobileHeaderTitle = computed(() => {
     <!-- ─── Main area ─────────────────────────────────────────── -->
     <div
       class="flex flex-col flex-1 min-w-0 min-h-screen transition-[margin] duration-300 ease-in-out"
-      :class="ui.sidebarOpen ? 'md:ml-[220px]' : 'md:ml-[52px]'"
+      :class="ui.sidebarOpen ? 'md:ml-56' : 'md:ml-[52px]'"
     >
       <!-- Mobile top bar (only on small screens) -->
       <div
         class="md:hidden flex items-center h-11 px-4 shrink-0"
-        style="background: transparent"
       >
         <!-- Logo in place of hamburger -->
         <div class="flex items-center gap-1.5 shrink-0">
           <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
           <span
-            class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none"
-            style="color: hsl(var(--muted-foreground) / 0.4); border-color: hsl(var(--border))"
+            class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none text-muted-foreground/40 border-border"
           >Beta</span>
         </div>
         <span class="flex-1 text-center text-[14px] font-semibold text-foreground">{{ mobileHeaderTitle }}</span>
         <button
-          class="p-1 rounded-md transition-base shrink-0"
-          style="color: hsl(var(--muted-foreground) / 0.5)"
+          class="p-1 rounded-md transition-base shrink-0 text-muted-foreground/50"
           @click="ui.commandOpen = true"
         >
           <Search :size="17" />

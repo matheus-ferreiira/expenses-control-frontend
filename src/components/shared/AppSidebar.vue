@@ -7,31 +7,11 @@ import { ROUTES } from '@/constants/routes'
 import { ScrollArea } from '@ui/scroll-area'
 import { Avatar, AvatarFallback } from '@ui/avatar'
 import {
-  LayoutDashboard,
-  CheckSquare,
-  Flame,
-  Target,
-  CalendarDays,
-  Wallet,
-  BarChart3,
-  FileText,
-  BookOpen,
-  Bookmark,
-  ShoppingCart,
-  Lock,
-  Settings,
-  Search,
-  Plus,
-  Moon,
-  Sun,
-  PanelLeftClose,
-  PanelLeftOpen,
-  ChevronDown,
-  ArrowUpDown,
-  Landmark,
-  CreditCard,
-  PieChart,
-  Tag,
+  LayoutDashboard, CheckSquare, Flame, Target, CalendarDays,
+  Wallet, BarChart3, FileText, BookOpen, Bookmark, ShoppingCart,
+  Lock, Settings, Search, Plus, Moon, Sun,
+  PanelLeftClose, PanelLeftOpen, ChevronDown,
+  ArrowUpDown, Landmark, CreditCard, PieChart, Tag,
 } from 'lucide-vue-next'
 
 defineProps<{ open: boolean }>()
@@ -61,32 +41,52 @@ const FINANCE_CHILDREN = [
 ]
 
 // ── Nav sections ──────────────────────────────────────────────────────────────
-const ALL_NAV_SECTIONS = [
+const ALL_NAV_SECTIONS: Array<{
+  label: string | null
+  items: Array<{
+    label: string
+    icon: typeof LayoutDashboard
+    route: string
+    shortcut: string
+    module: string | null
+    children?: typeof FINANCE_CHILDREN
+  }>
+}> = [
   {
-    label: 'PRODUTIVIDADE',
+    label: null,
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, route: ROUTES.DASHBOARD, shortcut: 'G D', module: null },
-      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T', module: 'tasks' },
-      { label: 'Hábitos', icon: Flame, route: ROUTES.HABITS, shortcut: 'G H', module: 'habits' },
-      { label: 'Metas', icon: Target, route: ROUTES.GOALS, shortcut: 'G M', module: 'goals' },
-      { label: 'Agenda', icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A', module: 'calendar' },
+    ],
+  },
+  {
+    label: 'FINANÇAS',
+    items: [
       { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F', module: null, children: FINANCE_CHILDREN },
       { label: 'Relatórios', icon: BarChart3, route: ROUTES.REPORTS, shortcut: 'G R', module: null },
     ],
   },
   {
-    label: 'PESSOAL',
+    label: 'PRODUTIVIDADE',
+    items: [
+      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T', module: 'tasks' },
+      { label: 'Hábitos', icon: Flame, route: ROUTES.HABITS, shortcut: 'G H', module: 'habits' },
+      { label: 'Metas', icon: Target, route: ROUTES.GOALS, shortcut: 'G M', module: 'goals' },
+      { label: 'Agenda', icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A', module: 'calendar' },
+    ],
+  },
+  {
+    label: 'CONTEÚDO',
     items: [
       { label: 'Notas', icon: FileText, route: ROUTES.NOTES, shortcut: 'G N', module: 'notes' },
       { label: 'Daily Log', icon: BookOpen, route: ROUTES.DAILY_LOG, shortcut: 'G L', module: 'daily_log' },
       { label: 'Bookmarks', icon: Bookmark, route: ROUTES.BOOKMARKS, shortcut: 'G B', module: 'bookmarks' },
-      { label: 'Compras', icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
-      { label: 'Cofre', icon: Lock, route: ROUTES.VAULT, shortcut: 'G V', module: 'vault' },
     ],
   },
   {
     label: 'SISTEMA',
     items: [
+      { label: 'Compras', icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
+      { label: 'Cofre', icon: Lock, route: ROUTES.VAULT, shortcut: 'G V', module: 'vault' },
       { label: 'Configurações', icon: Settings, route: ROUTES.SETTINGS, shortcut: '', module: null },
     ],
   },
@@ -106,7 +106,6 @@ function isActive(routeName: string): boolean {
   return name === routeName || name.startsWith(routeName + '-')
 }
 
-// Child active: ROUTES.FINANCE needs exact match (it's a prefix of all finance routes)
 function isChildActive(routeName: string): boolean {
   const name = String(route.name)
   if (routeName === ROUTES.FINANCE) return name === routeName
@@ -125,35 +124,24 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
 <template>
   <aside
-    class="flex flex-col h-full transition-[width] duration-300 ease-in-out overflow-hidden"
+    class="flex flex-col h-full bg-background border-r border-border transition-[width] duration-300 ease-in-out overflow-hidden"
     :class="open ? 'w-56' : 'w-[52px]'"
-    :style="{
-      backgroundColor: 'hsl(var(--sidebar))',
-      borderRight: '1px solid hsl(var(--sidebar-border))',
-    }"
   >
     <!-- ─── Logo ─────────────────────────────────────────────── -->
-    <div
-      class="flex items-center h-[52px] px-3 shrink-0"
-      :style="{ borderBottom: '1px solid hsl(var(--sidebar-border))' }"
-    >
+    <div class="flex items-center h-[52px] px-3 border-b border-border shrink-0">
       <div v-if="open" class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
-        <span
-          class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none"
-          style="color: hsl(var(--muted-foreground) / 0.4); border-color: hsl(var(--border))"
-        >Beta</span>
+        <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none text-muted-foreground/40 border-border">
+          Beta
+        </span>
       </div>
       <div v-else class="w-full flex justify-center">
         <span class="text-[14px] font-bold text-foreground select-none">V</span>
       </div>
       <button
-        class="shrink-0 p-1 rounded transition-base"
-        style="color: hsl(var(--muted-foreground) / 0.3)"
-        :class="open ? 'ml-1' : 'hidden'"
+        v-if="open"
+        class="shrink-0 p-1 rounded text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors duration-150 ml-1"
         @click="emit('toggle')"
-        @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.6)'"
-        @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.3)'"
       >
         <PanelLeftClose :size="14" />
       </button>
@@ -163,44 +151,32 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
     <div class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
       <template v-if="open">
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md text-left transition-base"
-          style="color: hsl(var(--muted-foreground) / 0.5)"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-white/[0.04] hover:text-muted-foreground/80"
           @click="emit('search')"
-          @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.8)'"
-          @mouseleave="($event.currentTarget as HTMLElement).style.cssText += '; background: transparent; color: hsl(var(--muted-foreground) / 0.5)'"
         >
           <Search :size="13" class="shrink-0" />
           <span class="flex-1 text-[12.5px]">Buscar...</span>
-          <kbd class="text-[10px] font-mono" style="color: hsl(var(--muted-foreground) / 0.25)">{{ searchShortcut }}</kbd>
+          <kbd class="text-[10px] font-mono text-muted-foreground/25">{{ searchShortcut }}</kbd>
         </button>
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md text-left transition-base"
-          style="color: hsl(var(--muted-foreground) / 0.5)"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-white/[0.04] hover:text-muted-foreground/80"
           @click="emit('quickAdd')"
-          @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.8)'"
-          @mouseleave="($event.currentTarget as HTMLElement).style.cssText += '; background: transparent; color: hsl(var(--muted-foreground) / 0.5)'"
         >
           <Plus :size="13" class="shrink-0" />
           <span class="flex-1 text-[12.5px]">Quick add</span>
-          <kbd class="text-[10px] font-mono" style="color: hsl(var(--muted-foreground) / 0.25)">N</kbd>
+          <kbd class="text-[10px] font-mono text-muted-foreground/25">N</kbd>
         </button>
       </template>
       <template v-else>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-base"
-          style="color: hsl(var(--muted-foreground) / 0.4)"
+          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-white/5 hover:text-muted-foreground/70"
           @click="emit('search')"
-          @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.7)'"
-          @mouseleave="($event.currentTarget as HTMLElement).style.cssText += '; background: transparent; color: hsl(var(--muted-foreground) / 0.4)'"
         >
           <Search :size="14" />
         </button>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-base"
-          style="color: hsl(var(--muted-foreground) / 0.4)"
+          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-white/5 hover:text-muted-foreground/70"
           @click="emit('quickAdd')"
-          @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.7)'"
-          @mouseleave="($event.currentTarget as HTMLElement).style.cssText += '; background: transparent; color: hsl(var(--muted-foreground) / 0.4)'"
         >
           <Plus :size="14" />
         </button>
@@ -210,37 +186,37 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
     <!-- ─── Navigation ────────────────────────────────────────── -->
     <ScrollArea class="flex-1 overflow-hidden">
       <nav class="px-2 pb-2">
-        <template v-for="section in navSections" :key="section.label">
-          <div v-if="open" class="mt-4 mb-1 px-2.5">
-            <span
-              class="text-[9.5px] font-semibold tracking-[0.12em] uppercase select-none"
-              style="color: hsl(var(--muted-foreground) / 0.38)"
-            >{{ section.label }}</span>
+        <template v-for="(section, sectionIdx) in navSections" :key="sectionIdx">
+
+          <!-- Section label (expanded) -->
+          <div v-if="open && section.label" :class="['px-3 mb-1', sectionIdx > 0 ? 'mt-4' : '']">
+            <span class="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-widest">
+              {{ section.label }}
+            </span>
           </div>
-          <div v-else class="mt-3 mb-1 mx-2" style="border-top: 1px solid hsl(var(--sidebar-border))" />
+          <!-- Section divider (collapsed) -->
+          <div v-else-if="!open && sectionIdx > 0" class="mt-3 mb-1 mx-2 border-t border-border" />
 
           <template v-for="item in section.items" :key="item.route">
 
-            <!-- ── Group item (Finance) ──────────────────────── -->
+            <!-- ── Finance group (expandable) ──────────────────── -->
             <template v-if="'children' in item && item.children">
 
               <!-- Expanded: group header button -->
               <button
                 v-if="open"
                 type="button"
-                class="group flex items-center gap-2 w-full px-2 h-7 rounded mb-px transition-base text-[13px]"
-                :style="isOnFinance
-                  ? 'background: hsl(var(--foreground) / 0.04); color: hsl(var(--foreground))'
-                  : 'color: hsl(var(--muted-foreground) / 0.65)'"
+                class="group flex items-center gap-3 w-full rounded-lg text-sm transition-colors duration-150 mb-0.5"
+                :class="isOnFinance
+                  ? 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium'
+                  : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground'"
                 @click="financeGroupOpen = !financeGroupOpen"
-                @mouseenter="(e) => { if (!isOnFinance) { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--foreground) / 0.04)'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))' } }"
-                @mouseleave="(e) => { if (!isOnFinance) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.65)' } }"
               >
-                <component :is="item.icon" :size="15" class="shrink-0" />
+                <component :is="item.icon" :size="18" class="shrink-0" />
                 <span class="flex-1 truncate text-left">{{ item.label }}</span>
                 <ChevronDown
                   :size="12"
-                  class="shrink-0 transition-transform duration-200"
+                  class="shrink-0 transition-transform duration-200 text-muted-foreground"
                   :class="financeGroupOpen ? 'rotate-180' : ''"
                 />
               </button>
@@ -251,116 +227,128 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
                   v-for="child in item.children"
                   :key="child.route"
                   :to="{ name: child.route }"
-                  class="group flex items-center gap-2 h-7 rounded mb-px transition-base text-[13px]"
-                  style="padding-left: 28px; padding-right: 8px"
-                  :style="isChildActive(child.route)
-                    ? { background: 'hsl(var(--foreground) / 0.04)', color: 'hsl(var(--foreground))' }
-                    : { color: 'hsl(var(--muted-foreground) / 0.55)' }"
+                  class="flex items-center gap-2 pl-9 pr-3 py-1.5 rounded-lg text-xs transition-colors duration-150 mb-0.5"
+                  :class="isChildActive(child.route)
+                    ? 'text-primary font-medium'
+                    : 'text-muted-foreground/70 hover:bg-white/5 hover:text-foreground'"
                   @click="emit('navigate')"
-                  @mouseenter="(e) => { if (!isChildActive(child.route)) { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--foreground) / 0.04)'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))' } }"
-                  @mouseleave="(e) => { if (!isChildActive(child.route)) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.55)' } }"
                 >
                   <component :is="child.icon" :size="14" class="shrink-0" />
-                  <span class="flex-1 truncate">{{ child.label }}</span>
+                  <span class="truncate">{{ child.label }}</span>
                 </RouterLink>
               </template>
 
-              <!-- Collapsed: parent icon links to root finance route -->
+              <!-- Collapsed: icon links to Finance root -->
               <RouterLink
                 v-if="!open"
                 :to="{ name: item.route }"
-                class="flex justify-center w-full p-2 rounded-md transition-base mb-px"
-                :style="isOnFinance
-                  ? { background: 'hsl(var(--foreground) / 0.04)', color: 'hsl(var(--foreground))' }
-                  : { color: 'hsl(var(--muted-foreground) / 0.65)' }"
+                class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
+                :class="isOnFinance
+                  ? 'bg-white/[0.08] text-foreground'
+                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'"
                 @click="emit('navigate')"
-                @mouseenter="(e) => { if (!isOnFinance) { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--foreground) / 0.04)'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))' } }"
-                @mouseleave="(e) => { if (!isOnFinance) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.65)' } }"
               >
-                <component :is="item.icon" :size="15" />
+                <component :is="item.icon" :size="18" />
               </RouterLink>
             </template>
 
-            <!-- ── Regular item ────────────────────────────────── -->
-            <RouterLink
-              v-else
-              :to="{ name: item.route }"
-              class="group flex items-center gap-2 px-2 h-7 rounded mb-px transition-base"
-              :class="[open ? 'text-[13px]' : 'justify-center']"
-              :style="isActive(item.route)
-                ? 'background: hsl(var(--foreground) / 0.04); color: hsl(var(--foreground))'
-                : 'color: hsl(var(--muted-foreground) / 0.65)'"
-              @click="emit('navigate')"
-              @mouseenter="(e) => { if (!isActive(item.route)) { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--foreground) / 0.04)'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))' } }"
-              @mouseleave="(e) => { if (!isActive(item.route)) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.65)' } }"
-            >
-              <component :is="item.icon" :size="15" class="shrink-0" />
-              <span v-if="open" class="flex-1 truncate">{{ item.label }}</span>
-              <span
-                v-if="open && item.shortcut"
-                class="text-[9.5px] font-mono tabular-nums shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                :style="isActive(item.route)
-                  ? 'color: hsl(var(--muted-foreground) / 0.45)'
-                  : 'color: hsl(var(--muted-foreground) / 0.35)'"
-              >{{ item.shortcut }}</span>
-            </RouterLink>
+            <!-- ── Regular nav item ────────────────────────────── -->
+            <template v-else>
+
+              <!-- Expanded -->
+              <RouterLink
+                v-if="open"
+                :to="{ name: item.route }"
+                class="group flex items-center gap-3 rounded-lg text-sm transition-colors duration-150 mb-0.5"
+                :class="isActive(item.route)
+                  ? 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium'
+                  : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground'"
+                @click="emit('navigate')"
+              >
+                <component :is="item.icon" :size="18" class="shrink-0" />
+                <span class="flex-1 truncate">{{ item.label }}</span>
+                <span
+                  v-if="item.shortcut"
+                  class="text-[9.5px] font-mono text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                >{{ item.shortcut }}</span>
+              </RouterLink>
+
+              <!-- Collapsed -->
+              <RouterLink
+                v-else
+                :to="{ name: item.route }"
+                class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
+                :class="isActive(item.route)
+                  ? 'bg-white/[0.08] text-foreground'
+                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'"
+                @click="emit('navigate')"
+              >
+                <component :is="item.icon" :size="18" />
+              </RouterLink>
+
+            </template>
+
           </template>
         </template>
       </nav>
     </ScrollArea>
 
     <!-- ─── Footer ────────────────────────────────────────────── -->
-    <div
-      class="px-2 pb-3 pt-2 shrink-0 space-y-1"
-      :style="{ borderTop: '1px solid hsl(var(--sidebar-border))' }"
-    >
+    <div class="border-t border-border shrink-0">
+
+      <!-- Theme toggle (expanded) -->
       <button
         v-if="open"
-        class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-base"
-        style="color: hsl(var(--muted-foreground) / 0.4)"
+        class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground/50 hover:bg-white/5 hover:text-muted-foreground transition-colors duration-150"
         @click="ui.toggleTheme()"
-        @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.7)'"
-        @mouseleave="($event.currentTarget as HTMLElement).style.cssText += '; background: transparent; color: hsl(var(--muted-foreground) / 0.4)'"
       >
         <Moon v-if="ui.theme === 'dark'" :size="13" class="shrink-0" />
         <Sun v-else :size="13" class="shrink-0" />
-        <span class="flex-1 text-[12.5px] text-left">Aparência</span>
-        <span class="text-[11px]" style="color: hsl(var(--muted-foreground) / 0.28)">
+        <span class="flex-1 text-[12px] text-left">Aparência</span>
+        <span class="text-[10px] text-muted-foreground/30">
           {{ ui.theme === 'dark' ? 'Escuro' : 'Claro' }}
         </span>
       </button>
+
+      <!-- Expand toggle (collapsed) -->
       <button
         v-if="!open"
-        class="flex justify-center w-full p-2 rounded-md mb-1 transition-base"
-        style="color: hsl(var(--muted-foreground) / 0.3)"
+        class="flex justify-center w-full p-2 text-muted-foreground/30 hover:bg-white/5 hover:text-muted-foreground/60 transition-colors duration-150 mt-1 mb-1"
         @click="emit('toggle')"
-        @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; background: hsl(var(--foreground) / 0.04); color: hsl(var(--muted-foreground) / 0.6)'"
-        @mouseleave="($event.currentTarget as HTMLElement).style.cssText += '; background: transparent; color: hsl(var(--muted-foreground) / 0.3)'"
       >
         <PanelLeftOpen :size="14" />
       </button>
-      <div v-if="open" class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md">
-        <Avatar class="h-6 w-6 shrink-0">
-          <AvatarFallback class="text-[9px] font-semibold" style="background: hsl(var(--primary) / 0.15); color: hsl(var(--primary))">
+
+      <!-- User row (expanded) -->
+      <div v-if="open" class="flex items-center gap-2.5 px-3 py-3">
+        <Avatar class="h-8 w-8 shrink-0">
+          <AvatarFallback class="text-xs font-medium bg-primary/20 text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
         <div class="min-w-0 flex-1">
-          <p class="text-[12px] font-medium leading-tight truncate" style="color: hsl(var(--foreground) / 0.75)">
+          <p class="text-sm font-medium text-foreground truncate leading-tight">
             {{ auth.user?.name ?? 'Usuário' }}
           </p>
-          <p class="text-[10.5px] leading-tight truncate" style="color: hsl(var(--muted-foreground) / 0.35)">
-            {{ auth.user?.email ?? '' }}
-          </p>
         </div>
+        <RouterLink
+          :to="{ name: ROUTES.SETTINGS }"
+          class="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors duration-150"
+          @click="emit('navigate')"
+        >
+          <Settings :size="16" />
+        </RouterLink>
       </div>
-      <div v-else class="flex justify-center px-2">
-        <Avatar class="h-6 w-6">
-          <AvatarFallback class="text-[9px] font-semibold" style="background: hsl(var(--primary) / 0.15); color: hsl(var(--primary))">
+
+      <!-- Avatar only (collapsed) -->
+      <div v-else class="flex justify-center px-2 py-3">
+        <Avatar class="h-8 w-8">
+          <AvatarFallback class="text-xs font-medium bg-primary/20 text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
       </div>
+
     </div>
   </aside>
 </template>
