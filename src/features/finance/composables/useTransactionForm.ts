@@ -14,6 +14,8 @@ export interface TransactionFormData {
   card_id: string
   notes: string
   is_recurring: boolean
+  /** Number of installments — mutually exclusive with is_recurring. 0 = not a parcelamento. */
+  total_installments: number
   tag_ids: string[]
 }
 
@@ -36,6 +38,7 @@ const DEFAULTS: TransactionFormData = {
   card_id: '',
   notes: '',
   is_recurring: false,
+  total_installments: 0,
   tag_ids: [],
 }
 
@@ -47,6 +50,10 @@ export function useTransactionForm() {
   function fromTransaction(t: Transaction) {
     form.type = t.type
     form.description = t.description
+    // Strip the "(N/M)" suffix from installment description for clean editing
+    form.description = t.installment_number && t.total_installments
+      ? t.description.replace(/ \(\d+\/\d+\)$/, '')
+      : t.description
     form.amount = t.amount.toString()
     form.transaction_date = t.transaction_date
     form.category_id = t.category_id ?? ''
@@ -55,6 +62,7 @@ export function useTransactionForm() {
     form.card_id = t.card_id ?? ''
     form.notes = t.notes ?? ''
     form.is_recurring = t.is_recurring
+    form.total_installments = 0 // don't pre-fill installments on edit
     form.tag_ids = t.tags?.map((tag) => tag.id) ?? []
     Object.assign(errors, {})
   }
@@ -120,7 +128,12 @@ export function useTransactionForm() {
     }
     if (form.card_id) payload.card_id = form.card_id
     if (form.notes.trim()) payload.notes = form.notes.trim()
-    payload.is_recurring = form.is_recurring
+    if (form.total_installments >= 2) {
+      payload.total_installments = form.total_installments
+      // Installments are mutually exclusive with recurring
+    } else {
+      payload.is_recurring = form.is_recurring
+    }
     if (form.tag_ids.length > 0) payload.tag_ids = [...form.tag_ids]
     return payload
   }

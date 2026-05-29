@@ -5,7 +5,7 @@ import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
 import { Textarea } from '@ui/textarea'
 import {
-  ArrowLeft, Loader2, Plus, Repeat, X,
+  ArrowLeft, Loader2, Plus, Repeat, X, CreditCard,
   TrendingDown, TrendingUp, ArrowRightLeft,
   CalendarCheck, Wallet, CheckCircle,
 } from 'lucide-vue-next'
@@ -53,6 +53,8 @@ const isFormValid = computed(() => {
   if (form.type === 'transfer') {
     return baseValid && !!form.destination_account_id && form.destination_account_id !== form.account_id
   }
+  // Installment: must have a valid count selected
+  if (form.total_installments > 0 && form.total_installments < 2) return false
   return baseValid
 })
 
@@ -70,6 +72,27 @@ const scopeDialogOpen = ref(false)
 const isEditingRecurring = computed(
   () => !!props.transaction?.recurrence_group_id,
 )
+
+// ── Installments ─────────────────────────────────────────────────────────────
+const INSTALLMENT_OPTIONS = [2, 3, 6, 12, 18, 24]
+
+const isInstallment = computed(() => form.total_installments >= 2)
+
+/** Per-installment amount with rounding (1st installment absorbs the cent remainder). */
+const installmentAmount = computed(() => {
+  const total = parseFloat(form.amount.replace(',', '.'))
+  if (!total || total <= 0 || !isInstallment.value) return 0
+  return Math.floor((total / form.total_installments) * 100) / 100
+})
+
+function toggleInstallments(n: number) {
+  if (form.total_installments === n) {
+    form.total_installments = 0 // deselect
+  } else {
+    form.total_installments = n
+    form.is_recurring = false // mutually exclusive
+  }
+}
 
 // ── Tags ────────────────────────────────────────────────────────────────────
 const newTagName = ref('')
@@ -221,6 +244,8 @@ watch(
     form.category_id = ''
     // Clear destination account when switching away from transfer
     if (newType !== 'transfer') form.destination_account_id = ''
+    // Installments only for expense/income (not transfer)
+    if (newType === 'transfer') form.total_installments = 0
   },
 )
 
@@ -645,9 +670,10 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
 
           <!-- ── TRANSAÇÃO FIX ─────────────────────────────────── -->
           <div
+            v-if="form.type !== 'transfer'"
             class="rounded-2xl border border-border/40 bg-muted/20 p-3.5 cursor-pointer transition-all"
             :class="form.is_recurring ? 'border-violet-500/30 bg-violet-500/5' : ''"
-            @click="form.is_recurring = !form.is_recurring"
+            @click="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
           >
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-3 min-w-0">
@@ -664,18 +690,88 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   </p>
                 </div>
               </div>
-              <!-- Toggle switch -->
               <button
                 type="button"
                 class="h-6 w-11 rounded-full transition-all flex items-center px-0.5 shrink-0"
                 :class="form.is_recurring ? 'bg-violet-500' : 'bg-muted'"
-                @click.stop="form.is_recurring = !form.is_recurring"
+                @click.stop="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
               >
                 <span
                   class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
                   :class="form.is_recurring ? 'translate-x-5' : 'translate-x-0'"
                 />
               </button>
+            </div>
+          </div>
+
+          <!-- ── COMPRA PARCELADA ────────────────────────────────── -->
+          <div
+            v-if="form.type !== 'transfer' && !props.transaction"
+            class="rounded-2xl border border-border/40 bg-muted/20 p-3.5 transition-all"
+            :class="isInstallment ? 'border-blue-500/30 bg-blue-500/5' : ''"
+          >
+            <!-- Header row -->
+            <div
+              class="flex items-center justify-between gap-4 cursor-pointer"
+              @click="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <span
+                  class="flex items-center justify-center size-9 rounded-xl shrink-0 transition-colors"
+                  :class="isInstallment ? 'bg-blue-500/15 text-blue-400' : 'bg-muted text-muted-foreground/40'"
+                >
+                  <CreditCard :size="15" />
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-semibold leading-none">Compra parcelada</p>
+                  <p class="text-[11px] text-muted-foreground/50 mt-0.5 leading-snug">
+                    <template v-if="isInstallment && installmentAmount > 0">
+                      <span class="text-blue-400 font-semibold">
+                        {{ form.total_installments }}x de {{ $filters?.formatCurrency?.(installmentAmount) ?? `R$ ${installmentAmount.toFixed(2).replace('.', ',')}` }}
+                      </span>
+                    </template>
+                    <template v-else>Dividir em parcelas mensais</template>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="h-6 w-11 rounded-full transition-all flex items-center px-0.5 shrink-0"
+                :class="isInstallment ? 'bg-blue-500' : 'bg-muted'"
+                @click.stop="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
+              >
+                <span
+                  class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
+                  :class="isInstallment ? 'translate-x-5' : 'translate-x-0'"
+                />
+              </button>
+            </div>
+
+            <!-- Installment count pills -->
+            <div v-if="isInstallment" class="mt-3 flex gap-1.5 flex-wrap">
+              <button
+                v-for="n in INSTALLMENT_OPTIONS"
+                :key="n"
+                type="button"
+                class="h-8 px-3 rounded-full text-[12px] font-semibold border transition-all active:scale-95"
+                :class="form.total_installments === n
+                  ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                  : 'border-border/50 text-muted-foreground hover:bg-muted'"
+                @click="form.total_installments = n"
+              >
+                {{ n }}x
+              </button>
+            </div>
+
+            <!-- Preview of per-installment amount -->
+            <div
+              v-if="isInstallment && installmentAmount > 0"
+              class="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground/60"
+            >
+              <span>{{ form.total_installments }} parcelas de</span>
+              <span class="tabular-nums font-semibold text-blue-400">
+                R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
+              </span>
             </div>
           </div>
 

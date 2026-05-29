@@ -66,6 +66,13 @@ const isPending = computed(() => props.transaction.status === 'pending')
             class="text-muted-foreground shrink-0"
             aria-label="Recorrente"
           />
+          <!-- Installment badge "(3/12)" -->
+          <span
+            v-if="transaction.installment_number && transaction.total_installments"
+            class="inline-flex items-center h-4 px-1.5 rounded text-[9.5px] font-semibold border border-border/50 text-muted-foreground/60 bg-muted/40 shrink-0"
+          >
+            {{ transaction.installment_number }}/{{ transaction.total_installments }}
+          </span>
         </div>
         <p class="subtle-meta truncate flex items-center gap-1.5">
           <span class="truncate">

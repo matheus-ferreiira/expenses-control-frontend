@@ -194,6 +194,17 @@ const amountClass = computed(() => {
             </span>
           </div>
 
+          <!-- Installment indicator -->
+          <div
+            v-if="transaction.installment_number && transaction.total_installments"
+            class="flex items-center justify-between px-4 py-3 gap-3"
+          >
+            <span class="text-[12px] text-muted-foreground shrink-0">Parcela</span>
+            <span class="text-[13px] font-semibold tabular-nums">
+              {{ transaction.installment_number }} de {{ transaction.total_installments }}
+            </span>
+          </div>
+
           <!-- Notes -->
           <div v-if="transaction.notes" class="px-4 py-3">
             <p class="text-[12px] text-muted-foreground mb-1.5">Observações</p>
