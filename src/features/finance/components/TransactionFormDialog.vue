@@ -49,7 +49,11 @@ const amountInputRef = ref<HTMLInputElement | null>(null)
 // ── Form validity ─────────────────────────────────────────────────────────────
 const isFormValid = computed(() => {
   const parsed = parseFloat(form.amount.replace(',', '.'))
-  return form.description.trim().length > 0 && !isNaN(parsed) && parsed > 0 && !!form.account_id
+  const baseValid = form.description.trim().length > 0 && !isNaN(parsed) && parsed > 0 && !!form.account_id
+  if (form.type === 'transfer') {
+    return baseValid && !!form.destination_account_id && form.destination_account_id !== form.account_id
+  }
+  return baseValid
 })
 
 // ── Quick amount increments ───────────────────────────────────────────────────
@@ -213,8 +217,10 @@ watch(
 
 watch(
   () => form.type,
-  () => {
+  (newType) => {
     form.category_id = ''
+    // Clear destination account when switching away from transfer
+    if (newType !== 'transfer') form.destination_account_id = ''
   },
 )
 
@@ -475,23 +481,83 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p v-if="errors.transaction_date" class="text-xs text-destructive mt-1">{{ errors.transaction_date }}</p>
           </div>
 
-          <!-- ── CONTA ───────────────────────────────────────────── -->
-          <div>
+          <!-- ── CONTA(S) ──────────────────────────────────────────── -->
+          <!-- For transfers: two separate selectors (origin and destination) -->
+          <!-- For income/expense: single account selector -->
+
+          <div v-if="store.activeAccounts.length === 0" class="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border border-dashed border-border/50 text-center">
+            <Wallet :size="22" class="text-muted-foreground/40" />
+            <p class="text-[12px] text-muted-foreground/50">Nenhuma conta cadastrada</p>
+          </div>
+
+          <template v-else-if="form.type === 'transfer'">
+            <!-- Origin account -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+                Conta de origem <span class="text-destructive">*</span>
+              </p>
+              <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <button
+                  v-for="acc in store.activeAccounts"
+                  :key="acc.id"
+                  type="button"
+                  :disabled="acc.id === form.destination_account_id"
+                  class="flex-shrink-0 flex items-center gap-2.5 h-12 pl-3 pr-4 rounded-2xl border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  :class="form.account_id === acc.id
+                    ? 'bg-destructive/15 text-destructive border-transparent shadow-sm'
+                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'"
+                  @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
+                >
+                  <span class="flex items-center justify-center size-7 rounded-xl text-xs font-bold uppercase shrink-0"
+                    :class="form.account_id === acc.id ? 'bg-background/20 text-current' : 'bg-muted text-foreground'">
+                    {{ acc.name.charAt(0) }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="text-[12px] font-semibold leading-none">{{ acc.name }}</p>
+                    <p class="text-[10px] opacity-60 mt-0.5 leading-none">{{ acc.type }}</p>
+                  </div>
+                </button>
+              </div>
+              <p v-if="errors.account_id" class="text-xs text-destructive mt-1">{{ errors.account_id }}</p>
+            </div>
+
+            <!-- Destination account -->
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+                Conta de destino <span class="text-destructive">*</span>
+              </p>
+              <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <button
+                  v-for="acc in store.activeAccounts"
+                  :key="acc.id"
+                  type="button"
+                  :disabled="acc.id === form.account_id"
+                  class="flex-shrink-0 flex items-center gap-2.5 h-12 pl-3 pr-4 rounded-2xl border text-left transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  :class="form.destination_account_id === acc.id
+                    ? 'bg-success/15 text-success border-transparent shadow-sm'
+                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'"
+                  @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
+                >
+                  <span class="flex items-center justify-center size-7 rounded-xl text-xs font-bold uppercase shrink-0"
+                    :class="form.destination_account_id === acc.id ? 'bg-background/20 text-current' : 'bg-muted text-foreground'">
+                    {{ acc.name.charAt(0) }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="text-[12px] font-semibold leading-none">{{ acc.name }}</p>
+                    <p class="text-[10px] opacity-60 mt-0.5 leading-none">{{ acc.type }}</p>
+                  </div>
+                </button>
+              </div>
+              <p v-if="errors.destination_account_id" class="text-xs text-destructive mt-1">{{ errors.destination_account_id }}</p>
+            </div>
+          </template>
+
+          <!-- Single account for income/expense -->
+          <div v-else>
             <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
               Conta <span class="text-destructive">*</span>
             </p>
-
-            <!-- Empty state -->
-            <div
-              v-if="store.activeAccounts.length === 0"
-              class="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border border-dashed border-border/50 text-center"
-            >
-              <Wallet :size="22" class="text-muted-foreground/40" />
-              <p class="text-[12px] text-muted-foreground/50">Nenhuma conta cadastrada</p>
-            </div>
-
-            <!-- Account cards — scrollable row -->
-            <div v-else class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
               <button
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
@@ -502,7 +568,6 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
-                <!-- Account initial bubble -->
                 <span
                   class="flex items-center justify-center size-7 rounded-xl text-xs font-bold uppercase shrink-0"
                   :class="form.account_id === acc.id ? 'bg-background/20 text-current' : 'bg-muted text-foreground'"

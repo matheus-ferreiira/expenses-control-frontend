@@ -9,6 +9,8 @@ export interface TransactionFormData {
   transaction_date: string
   category_id: string
   account_id: string
+  /** For type=transfer: the account being credited */
+  destination_account_id: string
   card_id: string
   notes: string
   is_recurring: boolean
@@ -20,6 +22,7 @@ export interface TransactionFormErrors {
   amount?: string
   transaction_date?: string
   account_id?: string
+  destination_account_id?: string
 }
 
 const DEFAULTS: TransactionFormData = {
@@ -29,6 +32,7 @@ const DEFAULTS: TransactionFormData = {
   transaction_date: '',
   category_id: '',
   account_id: '',
+  destination_account_id: '',
   card_id: '',
   notes: '',
   is_recurring: false,
@@ -47,6 +51,7 @@ export function useTransactionForm() {
     form.transaction_date = t.transaction_date
     form.category_id = t.category_id ?? ''
     form.account_id = t.account_id ?? ''
+    form.destination_account_id = t.destination_account_id ?? ''
     form.card_id = t.card_id ?? ''
     form.notes = t.notes ?? ''
     form.is_recurring = t.is_recurring
@@ -80,6 +85,15 @@ export function useTransactionForm() {
       errors.account_id = 'Selecione uma conta'
       valid = false
     }
+    if (form.type === 'transfer') {
+      if (!form.destination_account_id) {
+        errors.destination_account_id = 'Selecione a conta de destino'
+        valid = false
+      } else if (form.destination_account_id === form.account_id) {
+        errors.destination_account_id = 'Conta de destino deve ser diferente da origem'
+        valid = false
+      }
+    }
     return valid
   }
 
@@ -88,6 +102,7 @@ export function useTransactionForm() {
     if (apiErrors.amount) errors.amount = apiErrors.amount[0]
     if (apiErrors.transaction_date) errors.transaction_date = apiErrors.transaction_date[0]
     if (apiErrors.account_id) errors.account_id = apiErrors.account_id[0]
+    if (apiErrors.destination_account_id) errors.destination_account_id = apiErrors.destination_account_id[0]
   }
 
   function toPayload(): CreateTransactionPayload {
@@ -100,9 +115,12 @@ export function useTransactionForm() {
     }
     if (form.category_id) payload.category_id = form.category_id
     if (form.account_id) payload.account_id = form.account_id
+    if (form.type === 'transfer' && form.destination_account_id) {
+      payload.destination_account_id = form.destination_account_id
+    }
     if (form.card_id) payload.card_id = form.card_id
     if (form.notes.trim()) payload.notes = form.notes.trim()
-    payload.is_recurring = form.is_recurring  // always send — needed to unmark on updates
+    payload.is_recurring = form.is_recurring
     if (form.tag_ids.length > 0) payload.tag_ids = [...form.tag_ids]
     return payload
   }

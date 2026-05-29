@@ -66,6 +66,8 @@ export interface CreditCard {
 export interface Transaction {
   id: string
   account_id: string | null
+  /** For type=transfer: the account being credited (destination) */
+  destination_account_id: string | null
   card_id: string | null
   category_id: string | null
   type: TransactionType
@@ -82,6 +84,8 @@ export interface Transaction {
   installment_group_id: string | null
   category?: TransactionCategory
   account?: BankAccount
+  /** Destination account for transfers */
+  destination_account?: BankAccount
   card?: CreditCard
   tags?: TransactionTag[]
   created_at: string
@@ -98,6 +102,8 @@ export interface FinanceSummary {
 export interface CreateTransactionPayload {
   category_id?: string
   account_id?: string
+  /** Required when type=transfer — must differ from account_id */
+  destination_account_id?: string
   card_id?: string
   type: TransactionType
   amount: number

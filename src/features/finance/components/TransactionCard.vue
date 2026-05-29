@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, ArrowLeftRight, ArrowRight, Clock, Repeat } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
@@ -69,12 +69,22 @@ const isPending = computed(() => props.transaction.status === 'pending')
         </div>
         <p class="subtle-meta truncate flex items-center gap-1.5">
           <span class="truncate">
-            <template v-if="transaction.category">{{ transaction.category.name }}</template>
-            <template v-if="transaction.account">
-              {{ transaction.category ? ' · ' : '' }}{{ transaction.account.name }}
+            <!-- For transfers: show "Conta A → Conta B" -->
+            <template v-if="transaction.type === 'transfer'">
+              <span class="inline-flex items-center gap-1">
+                {{ transaction.account?.name ?? 'Conta' }}
+                <ArrowRight :size="10" class="shrink-0 opacity-50" />
+                {{ transaction.destination_account?.name ?? '?' }}
+              </span>
             </template>
-            <template v-else-if="transaction.card">
-              {{ transaction.category ? ' · ' : '' }}{{ transaction.card.name }}
+            <template v-else>
+              <template v-if="transaction.category">{{ transaction.category.name }}</template>
+              <template v-if="transaction.account">
+                {{ transaction.category ? ' · ' : '' }}{{ transaction.account.name }}
+              </template>
+              <template v-else-if="transaction.card">
+                {{ transaction.category ? ' · ' : '' }}{{ transaction.card.name }}
+              </template>
             </template>
           </span>
           <!-- Pendente badge inline in subtitle -->
