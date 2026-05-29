@@ -325,13 +325,13 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden bg-card"
+      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden bg-sheet"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
       <!-- ── Sticky header ──────────────────────────────── -->
-      <div class="sticky top-0 z-10 shrink-0 bg-card">
+      <div class="sticky top-0 z-10 shrink-0 bg-sheet">
 
         <!-- Title row -->
         <div class="flex items-center gap-2 px-4 pt-3 pb-2">
@@ -348,7 +348,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </h2>
             <p
               class="text-[13px] font-medium mt-0.5 leading-none"
-              :style="form.type === 'expense' ? 'color: #ef4444' : form.type === 'income' ? 'color: #22c55e' : 'color: #8b5cf6'"
+              :class="typeConfig.colorClass"
             >{{ typeConfig.label }}</p>
           </div>
         </div>
@@ -381,7 +381,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
         <div class="px-4 pt-5 pb-3 space-y-5">
 
           <!-- ── VALOR ────────────────────────────────────── -->
-          <div class="text-center pb-4" style="border-bottom: 1px solid #27272a">
+          <div class="text-center pb-4 border-b border-border">
             <div class="flex items-center justify-center gap-1.5 mb-3">
               <span class="text-[20px] font-medium text-muted-foreground">R$</span>
               <input
@@ -401,8 +401,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="inc in QUICK_INCREMENTS"
                 :key="inc"
                 type="button"
-                class="h-8 px-3 rounded-md text-[13px] font-medium transition-all active:scale-95"
-                style="background: #27272a; border: 1px solid #3f3f46; color: #a1a1aa"
+                class="h-8 px-3 rounded-md text-[13px] font-medium transition-all active:scale-95 bg-muted border border-white/15 text-muted-foreground"
                 @click="addAmount(inc)"
               >
                 +{{ inc }}
@@ -434,9 +433,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 :key="cat.id"
                 type="button"
                 class="flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg transition-all"
-                :style="form.category_id === cat.id
-                  ? { background: cat.color + '28', outline: '1px solid ' + cat.color + '70' }
-                  : { background: '#1c1c1f' }"
+                :style="form.category_id === cat.id ? { background: cat.color + '28', outline: '1px solid ' + cat.color + '70' } : {}"
+                :class="form.category_id !== cat.id ? 'bg-muted' : ''"
                 @click="form.category_id = form.category_id === cat.id ? '' : cat.id"
               >
                 <span
@@ -459,13 +457,11 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <!-- + Nova categoria -->
               <button
                 type="button"
-                class="flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg transition-all hover:bg-white/5"
-                style="background: #1c1c1f"
+                class="flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg transition-all bg-muted hover:bg-white/5"
                 @click="showCategorySheet = true"
               >
                 <span
-                  class="flex items-center justify-center size-10 rounded-lg"
-                  style="background: rgba(255,255,255,0.06)"
+                  class="flex items-center justify-center size-10 rounded-lg bg-white/[0.06]"
                 >
                   <Plus :size="16" class="text-muted-foreground/50" />
                 </span>
@@ -489,10 +485,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <input
               v-model="form.description"
               :placeholder="descriptionPlaceholder"
-              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40"
-              style="background: #18181b; border: 1px solid #27272a;"
-              @focus="($event.target as HTMLInputElement).style.borderColor = 'hsl(var(--primary))'"
-              @blur="($event.target as HTMLInputElement).style.borderColor = '#27272a'"
+              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-input border border-border focus:border-primary"
             />
             <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
           </div>
@@ -507,9 +500,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <button
                 type="button"
                 class="h-8 px-3 rounded-md text-[11px] font-medium transition-all"
-                :style="dateShortcut === 'today'
-                  ? 'background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20); color: #F0F0F0'
-                  : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #888888'"
+                :class="dateShortcut === 'today'
+                  ? 'bg-white/10 border border-white/20 text-foreground'
+                  : 'bg-white/[0.04] border border-white/[0.08] text-muted-foreground'"
                 @click="form.transaction_date = todayStr"
               >
                 Hoje
@@ -517,18 +510,18 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <button
                 type="button"
                 class="h-8 px-3 rounded-md text-[11px] font-medium transition-all"
-                :style="dateShortcut === 'yesterday'
-                  ? 'background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20); color: #F0F0F0'
-                  : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #888888'"
+                :class="dateShortcut === 'yesterday'
+                  ? 'bg-white/10 border border-white/20 text-foreground'
+                  : 'bg-white/[0.04] border border-white/[0.08] text-muted-foreground'"
                 @click="form.transaction_date = yesterdayStr"
               >
                 Ontem
               </button>
               <span
                 class="h-8 px-3 rounded-md text-[11px] font-medium flex items-center"
-                :style="dateShortcut === 'custom'
-                  ? 'background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20); color: #F0F0F0'
-                  : 'background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(136,136,136,0.5)'"
+                :class="dateShortcut === 'custom'
+                  ? 'bg-white/10 border border-white/20 text-foreground'
+                  : 'bg-white/[0.04] border border-white/[0.08] text-muted-foreground/50'"
               >
                 Personalizado
               </span>
@@ -556,9 +549,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
                   class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg text-left transition-all disabled:cursor-not-allowed outline-none"
-                  :style="form.account_id === acc.id
-                    ? 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25)'
-                    : 'background: transparent; border: 1px solid rgba(255,255,255,0.08); opacity: 0.45'"
+                  :class="form.account_id === acc.id
+                    ? 'bg-white/[0.06] border border-white/25'
+                    : 'bg-transparent border border-white/[0.08] opacity-[0.45]'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -588,9 +581,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.account_id"
                   class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg border text-left transition-all disabled:cursor-not-allowed"
-                  :style="form.destination_account_id === acc.id
-                    ? 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25)'
-                    : 'background: transparent; border: 1px solid rgba(255,255,255,0.08); opacity: 0.45'"
+                  :class="form.destination_account_id === acc.id
+                    ? 'bg-white/[0.06] border-white/25'
+                    : 'bg-transparent border-white/[0.08] opacity-[0.45]'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -620,9 +613,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 :key="acc.id"
                 type="button"
                 class="flex-shrink-0 flex items-center gap-2 h-11 px-3 rounded-lg text-left transition-all outline-none"
-                :style="form.account_id === acc.id
-                  ? 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25)'
-                  : 'background: transparent; border: 1px solid rgba(255,255,255,0.08); opacity: 0.45'"
+                :class="form.account_id === acc.id
+                  ? 'bg-white/[0.06] border border-white/25'
+                  : 'bg-transparent border border-white/[0.08] opacity-[0.45]'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span
@@ -643,8 +636,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- ── TRANSAÇÃO FIXA — compact card ─────────────── -->
           <div v-if="form.type !== 'transfer'">
             <div
-              class="flex items-center gap-3 h-14 rounded-lg px-3.5 cursor-pointer"
-              style="background: #1c1c1f; border: 1px solid #2e2e32"
+              class="flex items-center gap-3 h-14 rounded-lg px-3.5 cursor-pointer bg-muted border border-white/15"
               @click="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
             >
               <Repeat :size="16" class="text-muted-foreground shrink-0" />
@@ -669,7 +661,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
 
             <!-- Recurrence expanded config -->
-            <div v-if="form.is_recurring" class="mt-1 rounded-lg px-3.5 pb-3.5 pt-3 space-y-3" style="background: #1c1c1f; border: 1px solid #2e2e32">
+            <div v-if="form.is_recurring" class="mt-1 rounded-lg px-3.5 pb-3.5 pt-3 space-y-3 bg-muted border border-white/15">
               <!-- Frequency pills -->
               <div>
                 <p class="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground mb-2">Frequência</p>
@@ -738,8 +730,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- ── COMPRA PARCELADA — compact card ──────────── -->
           <div v-if="form.type !== 'transfer' && !props.transaction">
             <div
-              class="flex items-center gap-3 h-14 rounded-lg px-3.5 cursor-pointer"
-              style="background: #1c1c1f; border: 1px solid #2e2e32"
+              class="flex items-center gap-3 h-14 rounded-lg px-3.5 cursor-pointer bg-muted border border-white/15"
               @click="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
             >
               <CreditCard :size="16" class="text-muted-foreground shrink-0" />
@@ -767,7 +758,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
 
             <!-- Installment count pills -->
-            <div v-if="isInstallment" class="mt-1 rounded-lg p-3" style="background: #1c1c1f; border: 1px solid #2e2e32">
+            <div v-if="isInstallment" class="mt-1 rounded-lg p-3 bg-muted border border-white/15">
               <div class="flex gap-1.5 flex-wrap mb-2.5">
                 <button
                   v-for="n in INSTALLMENT_OPTIONS"
@@ -842,8 +833,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <Textarea
                 v-model="form.notes"
                 placeholder="Detalhes extras, referência, contexto..."
-                class="resize-none h-20 text-sm rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors"
-                style="background: #18181b; border: 1px solid #27272a;"
+                class="resize-none h-20 text-sm rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors bg-input border border-border"
               />
               <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
                 {{ form.notes?.length ?? 0 }}/500
@@ -855,16 +845,11 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       </form>
 
       <!-- ── Sticky footer — CTA ──────────────────────────── -->
-      <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-card">
+      <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-sheet">
         <button
           type="button"
           class="w-full h-[52px] rounded-[10px] text-[15px] font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-          :class="[(!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90']"
-          :style="form.type === 'expense'
-            ? 'background: #e53e3e; color: #FFFFFF'
-            : form.type === 'income'
-            ? 'background: #16a34a; color: #FFFFFF'
-            : 'background: #7c3aed; color: #FFFFFF'"
+          :class="[(!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90', typeConfig.saveBg, 'text-white']"
           :disabled="submitting || !isFormValid"
           @click="submit"
         >

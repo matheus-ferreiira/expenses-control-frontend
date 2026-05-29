@@ -43,6 +43,8 @@
   --card:                     0  0%  7%;   /* #111111 */
   --card-foreground:          0  0% 94%;
 
+  --sheet:                    0  0%  8.6%; /* #161616 — sheet/drawer surface, between card and popover */
+
   --popover:                  0  0% 10%;   /* #1a1a1a — elevated */
   --popover-foreground:       0  0% 94%;
 
@@ -117,6 +119,8 @@
   --surface:                  0   0% 100%;
   --card:                     0   0% 100%;
   --card-foreground:        222  47% 11%;
+
+  --sheet:                    0   0% 99%;  /* #FCFCFC — subtle elevation in light mode */
 
   --popover:                  0   0% 100%;
   --popover-foreground:     222  47% 11%;

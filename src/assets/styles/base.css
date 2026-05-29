@@ -14,6 +14,7 @@
   --color-surface:              hsl(var(--surface));
   --color-card:                 hsl(var(--card));
   --color-card-foreground:      hsl(var(--card-foreground));
+  --color-sheet:                hsl(var(--sheet));
   --color-popover:              hsl(var(--popover));
   --color-popover-foreground:   hsl(var(--popover-foreground));
   --color-primary:              hsl(var(--primary));
