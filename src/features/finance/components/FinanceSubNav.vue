@@ -6,11 +6,12 @@ const route = useRoute()
 const router = useRouter()
 
 const tabs = [
-  { label: 'Visão Geral', route: ROUTES.FINANCE },
-  { label: 'Transações', route: ROUTES.FINANCE_TRANSACTIONS },
-  { label: 'Contas', route: ROUTES.FINANCE_ACCOUNTS },
-  { label: 'Cartões', route: ROUTES.FINANCE_CARDS },
-  { label: 'Relatório mensal', route: ROUTES.FINANCE_REPORTS },
+  { label: 'Visão Geral',    route: ROUTES.FINANCE },
+  { label: 'Transações',    route: ROUTES.FINANCE_TRANSACTIONS },
+  { label: 'Contas',        route: ROUTES.FINANCE_ACCOUNTS },
+  { label: 'Cartões',       route: ROUTES.FINANCE_CARDS },
+  { label: 'Relatório',     route: ROUTES.FINANCE_REPORTS },
+  { label: 'Categorias',    route: ROUTES.FINANCE_CATEGORIES },
 ]
 
 function isActive(routeName: string): boolean {

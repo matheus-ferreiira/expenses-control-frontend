@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import TasksLeftPanel from '@/features/tasks/components/TasksLeftPanel.vue'
+import TasksSubNav from '@/features/tasks/components/TasksSubNav.vue'
 import TaskToolbar from '@/features/tasks/components/TaskToolbar.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
 import TaskKanbanView from '@/features/tasks/views/TaskKanbanView.vue'
@@ -273,25 +274,11 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Mobile horizontal filter chips -->
-      <div class="sm:hidden -mx-0 px-4 pb-3 overflow-x-auto [scrollbar-width:none] shrink-0">
-        <div class="flex items-center gap-2 w-max">
-          <button
-            v-for="chip in mobileChips"
-            :key="chip.id"
-            class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border whitespace-nowrap transition-colors"
-            :class="selectedView === chip.id
-              ? 'bg-foreground text-background border-foreground'
-              : 'bg-card border-border text-muted-foreground'"
-            @click="selectedView = chip.id"
-          >
-            {{ chip.label }}
-            <span
-              class="text-[10px] tabular-nums"
-              :class="chip.tone === 'danger' && selectedView !== chip.id ? 'text-destructive' : ''"
-            >{{ chip.count }}</span>
-          </button>
-        </div>
+      <!-- Sub-nav — view tabs (all screen sizes) -->
+      <div class="px-4 sm:px-6 shrink-0">
+        <TasksSubNav
+          v-model:selected-view="selectedView"
+        />
       </div>
 
       <!-- Network error banner -->
