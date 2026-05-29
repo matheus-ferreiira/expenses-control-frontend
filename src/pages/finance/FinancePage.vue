@@ -1074,25 +1074,32 @@ onMounted(async () => {
           <!-- Empty state: nenhuma meta configurada E nenhum gasto -->
           <div
             v-else-if="categoriesWithMeta.length === 0 && categoriesWithoutMeta.length === 0"
-            class="px-4 py-6 text-center"
+            class="px-4 py-5 flex flex-col items-center text-center gap-2"
           >
-            <p class="text-[12px] text-muted-foreground/60 mb-2">Sem despesas este mês</p>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+            <p style="font-size: 13px; color: #888888">Nenhuma meta de categoria configurada.</p>
+            <RouterLink
+              :to="{ name: 'finance-categories' }"
+              class="inline-flex items-center justify-center h-8 px-3 rounded-lg text-[12px] font-medium transition-colors hover:bg-muted"
+              style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888"
+            >
+              Configurar
+            </RouterLink>
           </div>
 
           <!-- Empty state: tem gastos mas nenhuma meta -->
           <div
             v-else-if="categoriesWithMeta.length === 0 && categoriesWithoutMeta.length > 0"
-            class="px-4 py-4"
+            class="px-4 py-5 flex flex-col items-center text-center gap-2"
           >
-            <p class="text-[12px] text-muted-foreground/70 mb-1.5">Nenhuma meta configurada.</p>
-            <p class="text-[11px] text-muted-foreground/50 mb-3 leading-snug">
-              Defina limites em Configurações para acompanhar seu orçamento.
-            </p>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+            <p style="font-size: 13px; color: #888888">Nenhuma meta de categoria configurada.</p>
             <RouterLink
-              :to="{ name: 'settings' }"
-              class="inline-flex items-center gap-1 text-[11px] font-medium text-foreground/70 hover:text-foreground border border-border/60 rounded-md px-2.5 py-1.5 hover:bg-muted transition-colors"
+              :to="{ name: 'finance-categories' }"
+              class="inline-flex items-center justify-center h-8 px-3 rounded-lg text-[12px] font-medium transition-colors hover:bg-muted"
+              style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888"
             >
-              Ir para Configurações →
+              Configurar
             </RouterLink>
           </div>
 

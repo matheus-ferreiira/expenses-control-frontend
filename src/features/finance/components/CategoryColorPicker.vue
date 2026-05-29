@@ -14,11 +14,11 @@ const PRESET_COLORS = [
       v-for="c in PRESET_COLORS"
       :key="c"
       type="button"
-      class="size-7 rounded-full transition-all hover:scale-110"
+      class="rounded-full transition-all hover:scale-110"
+      style="width: 32px; height: 32px; flex-shrink: 0"
       :style="{
         background: c,
-        outline: modelValue === c ? `2px solid ${c}` : 'none',
-        outlineOffset: '2px',
+        boxShadow: modelValue === c ? '0 0 0 2px #080808, 0 0 0 4px #F0F0F0' : 'none',
       }"
       @click="$emit('update:modelValue', c)"
     />

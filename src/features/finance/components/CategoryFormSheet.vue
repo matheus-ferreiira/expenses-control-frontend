@@ -91,7 +91,8 @@ async function save() {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-lg border-t border-border p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+      style="background: #080808"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
@@ -131,23 +132,23 @@ async function save() {
           <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
             Tipo
           </p>
-          <div class="grid grid-cols-2 gap-1 p-1 bg-card rounded-xl">
+          <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-semibold transition-all"
-              :class="type === 'expense'
-                ? 'bg-destructive/15 text-destructive shadow-sm'
-                : 'text-muted-foreground/60 hover:text-muted-foreground'"
+              class="flex items-center justify-center h-9 rounded-lg text-[12px] font-semibold transition-all"
+              :style="type === 'expense'
+                ? 'background: rgba(255,77,77,0.12); border: 1px solid rgba(255,77,77,0.25); color: #FF4D4D'
+                : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888'"
               @click="type = 'expense'"
             >
               Despesa
             </button>
             <button
               type="button"
-              class="flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-semibold transition-all"
-              :class="type === 'income'
-                ? 'bg-success/15 text-success shadow-sm'
-                : 'text-muted-foreground/60 hover:text-muted-foreground'"
+              class="flex items-center justify-center h-9 rounded-lg text-[12px] font-semibold transition-all"
+              :style="type === 'income'
+                ? 'background: rgba(0,200,150,0.12); border: 1px solid rgba(0,200,150,0.25); color: #00C896'
+                : 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888'"
               @click="type = 'income'"
             >
               Receita
@@ -203,7 +204,8 @@ async function save() {
       <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-11 rounded-lg border border-border/60 text-sm text-muted-foreground hover:bg-card transition-colors"
+          class="flex-1 h-12 rounded-lg text-sm transition-colors"
+          style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888"
           @click="close"
         >
           Cancelar
@@ -211,12 +213,9 @@ async function save() {
         <button
           type="button"
           :disabled="saving || !name.trim()"
-          class="flex-1 h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-          :class="[
-            type === 'expense' ? 'bg-destructive' : 'bg-success',
-            'text-white',
-            (saving || !name.trim()) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90',
-          ]"
+          class="flex-1 h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          style="background: #00C896; color: #000000; border-radius: 8px"
+          :style="(saving || !name.trim()) ? 'opacity: 0.4; cursor: not-allowed' : 'opacity: 1'"
           @click="save"
         >
           <Loader2 v-if="saving" :size="16" class="animate-spin" />

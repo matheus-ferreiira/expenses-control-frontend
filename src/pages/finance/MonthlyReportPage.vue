@@ -201,6 +201,7 @@ onMounted(() => load())
 
 <template>
   <AppPageContainer>
+    <div style="padding-bottom: 80px">
     <!-- Page header -->
     <div class="flex items-start justify-between mb-6">
       <div>
@@ -347,7 +348,7 @@ onMounted(() => load())
         </div>
 
         <!-- Donut — full width, tall enough on mobile -->
-        <div class="relative h-[240px] w-full mb-4">
+        <div class="relative h-[240px] w-full">
           <canvas ref="canvasRef" />
           <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <p class="text-[11px] text-muted-foreground/50">Despesas</p>
@@ -358,15 +359,15 @@ onMounted(() => load())
         </div>
 
         <!-- Legend — below donut, full width -->
-        <div class="space-y-2.5">
+        <div style="margin-top: 16px">
           <div
             v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total).slice(0, 8)"
             :key="cat.category"
-            class="flex items-center gap-2.5"
+            style="display: flex; align-items: center; gap: 10px; height: 36px"
           >
-            <span class="size-2.5 rounded-full shrink-0" :style="{ background: cat.color }" />
-            <span class="flex-1 text-sm text-foreground/80 truncate">{{ cat.category }}</span>
-            <span class="text-sm tabular-nums text-muted-foreground/60 shrink-0">{{ cat.percentage }}%</span>
+            <span class="shrink-0 rounded-full" style="width: 8px; height: 8px" :style="{ background: cat.color }" />
+            <span style="flex: 1; font-size: 13px; color: #F0F0F0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ cat.category }}</span>
+            <span style="font-size: 13px; color: #888888; flex-shrink: 0; font-variant-numeric: tabular-nums">{{ cat.percentage }}%</span>
           </div>
         </div>
       </div>
@@ -442,6 +443,7 @@ onMounted(() => load())
       >
         Tentar novamente
       </button>
+    </div>
     </div>
   </AppPageContainer>
 </template>

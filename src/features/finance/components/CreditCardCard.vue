@@ -156,10 +156,10 @@ const limitBarClass = computed(() => {
         <span
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border"
           :style="isOverdue
-            ? 'background: rgba(255,77,77,0.10); border-color: rgba(255,77,77,0.20); color: #FF4D4D'
+            ? 'background: rgba(255,77,77,0.12); border-color: rgba(255,77,77,0.25); color: #FF4D4D; border-radius: 4px; font-size: 11px; padding: 2px 8px'
             : daysUntilDue <= 5
-              ? 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.20); color: #F5A623'
-              : 'background: rgba(0,200,150,0.10); border-color: rgba(0,200,150,0.20); color: #00C896'"
+              ? 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.20); color: #F5A623; border-radius: 4px; font-size: 11px; padding: 2px 8px'
+              : 'background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.25); color: #00C896; border-radius: 4px; font-size: 11px; padding: 2px 8px'"
         >
           <AlertTriangle v-if="isOverdue" :size="9" />
           <CreditCard v-else :size="9" />
