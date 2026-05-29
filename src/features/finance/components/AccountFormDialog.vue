@@ -128,14 +128,13 @@ async function submit() {
               v-for="t in accountTypes"
               :key="t"
               type="button"
-              :class="[
-                'h-10 rounded-xl text-[12px] font-medium border transition-all',
-                form.type === t
-                  ? 'bg-primary/20 text-primary border-primary/40'
-                  : 'bg-card border-white/8 text-muted-foreground hover:bg-popover',
-              ]"
+              class="h-10 rounded-lg text-[13px] font-medium border transition-all flex items-center justify-center gap-1.5"
+              :style="form.type === t
+                ? { background: 'rgba(59,130,246,0.12)', borderColor: 'rgba(59,130,246,0.4)', color: '#3b82f6' }
+                : { background: '#18181b', borderColor: '#27272a', color: '#71717a' }"
               @click="form.type = t"
             >
+              <component :is="TYPE_ICONS[t]" :size="14" />
               {{ ACCOUNT_TYPE_LABELS[t] }}
             </button>
           </div>
