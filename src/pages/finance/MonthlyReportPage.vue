@@ -6,7 +6,7 @@ import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
 import {
-  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Receipt, PieChart,
+  ChevronLeft, ChevronRight, TrendingUp, PieChart,
   AlertTriangle, Sparkles,
   ShoppingCart, UtensilsCrossed, Car, Home, Heart, Tv2, Repeat, Tag,
   Zap, Dumbbell, Book, Plane, Baby, PawPrint, Banknote, Briefcase, GraduationCap,
@@ -281,56 +281,30 @@ onMounted(() => load())
 
     <!-- Content -->
     <template v-else-if="report">
-      <!-- Summary cards -->
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
-          <div class="flex items-center gap-1.5">
-            <span class="flex items-center justify-center size-7 rounded-md bg-success/15">
-              <TrendingUp :size="13" class="text-success" />
-            </span>
-            <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/50">Receitas</span>
+      <!-- Period summary card -->
+      <div class="rounded-lg border border-border/50 bg-card p-4 mb-4">
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+            <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(report.income) }}</p>
           </div>
-          <p class="text-[20px] font-semibold tabular-nums text-success leading-none">
-            {{ formatCurrency(report.income) }}
-          </p>
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+            <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(report.expenses) }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+            <p
+              class="text-[18px] font-semibold tabular-nums mt-1"
+              :class="report.balance >= 0 ? 'text-success' : 'text-destructive'"
+            >
+              {{ formatCurrency(report.balance) }}
+            </p>
+          </div>
         </div>
-
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
-          <div class="flex items-center gap-1.5">
-            <span class="flex items-center justify-center size-7 rounded-md bg-destructive/15">
-              <TrendingDown :size="13" class="text-destructive" />
-            </span>
-            <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/50">Despesas</span>
-          </div>
-          <p class="text-[20px] font-semibold tabular-nums text-destructive leading-none">
-            {{ formatCurrency(report.expenses) }}
-          </p>
-        </div>
-
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
-          <div class="flex items-center gap-1.5">
-            <span class="flex items-center justify-center size-7 rounded-md bg-muted">
-              <Wallet :size="13" class="text-muted-foreground" />
-            </span>
-            <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/50">Saldo</span>
-          </div>
-          <p
-            class="text-[20px] font-semibold tabular-nums leading-none"
-            :class="report.balance >= 0 ? 'text-foreground' : 'text-destructive'"
-          >
-            {{ formatCurrency(report.balance) }}
-          </p>
-        </div>
-
-        <div class="rounded-lg border border-border/50 bg-card p-3.5 flex flex-col gap-2">
-          <div class="flex items-center gap-1.5">
-            <span class="flex items-center justify-center size-7 rounded-md bg-muted">
-              <Receipt :size="13" class="text-muted-foreground" />
-            </span>
-            <span class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/50">Transações</span>
-          </div>
-          <p class="text-[20px] font-semibold tabular-nums text-foreground leading-none">
-            {{ report.transactions_count }}
+        <div class="mt-3 pt-3 border-t border-border/40">
+          <p class="text-[11.5px] text-muted-foreground">
+            {{ report.transactions_count }} transaç{{ report.transactions_count !== 1 ? 'ões' : 'ão' }} no período
           </p>
         </div>
       </div>

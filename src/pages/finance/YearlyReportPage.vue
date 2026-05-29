@@ -5,7 +5,7 @@ import { AppPageContainer } from '@/components/shared'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { Skeleton } from '@ui/skeleton'
 import {
-  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Calendar,
+  ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Calendar,
 } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
@@ -236,38 +236,34 @@ function goToMonth(month: number) {
     </div>
 
     <template v-else>
-      <!-- 4 KPI cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <div class="bg-card border border-border rounded-xl p-3.5">
-          <p class="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium mb-1">Receitas</p>
-          <p class="text-lg font-semibold tabular-nums text-success">{{ formatCurrency(totalIncome) }}</p>
-        </div>
-        <div class="bg-card border border-border rounded-xl p-3.5">
-          <p class="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium mb-1">Despesas</p>
-          <p class="text-lg font-semibold tabular-nums text-destructive">{{ formatCurrency(totalExpenses) }}</p>
-        </div>
-        <div class="bg-card border border-border rounded-xl p-3.5">
-          <div class="flex items-center gap-1.5 mb-1">
-            <Wallet :size="10" class="text-muted-foreground/40" />
-            <p class="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium">Saldo</p>
+      <!-- Period summary card -->
+      <div class="bg-card border border-border rounded-lg p-4 mb-5">
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+            <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(totalIncome) }}</p>
           </div>
-          <p
-            class="text-lg font-semibold tabular-nums"
-            :class="yearBalance >= 0 ? 'text-success' : 'text-destructive'"
-          >
-            {{ yearBalance >= 0 ? '+' : '' }}{{ formatCurrency(yearBalance) }}
-          </p>
-        </div>
-        <div class="bg-card border border-border rounded-xl p-3.5">
-          <div class="flex items-center gap-1.5 mb-1">
-            <TrendingDown :size="10" class="text-muted-foreground/40" />
-            <p class="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium">Maior despesa</p>
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+            <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(totalExpenses) }}</p>
           </div>
-          <p class="text-lg font-semibold tabular-nums text-foreground leading-tight">
-            {{ worstMonth?.name ?? '—' }}
-          </p>
-          <p v-if="worstMonth" class="text-[11px] text-muted-foreground/50 tabular-nums mt-0.5">
-            {{ formatCurrency(worstMonth.expenses) }}
+          <div>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+            <p
+              class="text-[18px] font-semibold tabular-nums mt-1"
+              :class="yearBalance >= 0 ? 'text-success' : 'text-destructive'"
+            >
+              {{ formatCurrency(yearBalance) }}
+            </p>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-border/40">
+          <p class="text-[11.5px] text-muted-foreground">
+            Maior despesa:
+            <span class="font-semibold text-foreground">{{ worstMonth?.name ?? '—' }}</span>
+            <template v-if="worstMonth">
+              &nbsp;·&nbsp;<span class="tabular-nums">{{ formatCurrency(worstMonth.expenses) }}</span>
+            </template>
           </p>
         </div>
       </div>
