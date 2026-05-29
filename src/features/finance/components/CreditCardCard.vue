@@ -8,7 +8,7 @@ import {
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
 import { computed } from 'vue'
-import { MoreHorizontal, Pencil, Trash2, CreditCard, CheckCircle2, Lock, Archive, ArchiveRestore } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, CreditCard, Lock, Archive, ArchiveRestore, FileText } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent } from '../utils/financeHelpers'
@@ -28,6 +28,7 @@ const emit = defineEmits<{
   pay: [card: CreditCardType]
   archive: [card: CreditCardType]
   unarchive: [card: CreditCardType]
+  statement: [card: CreditCardType]
 }>()
 
 const used = computed(() => props.usedAmount ?? 0)
@@ -75,8 +76,7 @@ const limitBarClass = computed(() => {
   return 'bg-destructive'
 })
 
-/** Show pay button when due within 7 days */
-const showPayButton = computed(() => daysUntilDue.value <= 7)
+
 </script>
 
 <template>
@@ -189,16 +189,18 @@ const showPayButton = computed(() => daysUntilDue.value <= 7)
         </p>
       </div>
 
-      <!-- Pay button — shown for cards due within 7 days -->
-      <button
-        v-if="showPayButton"
-        type="button"
-        class="mt-0.5 flex items-center justify-center gap-1.5 w-full h-8 rounded-lg text-[12px] font-medium border border-success/30 bg-success/10 text-success hover:bg-success/15 transition-colors"
-        @click="emit('pay', card)"
-      >
-        <CheckCircle2 :size="13" />
-        Registrar pagamento
-      </button>
+      <!-- Action buttons row -->
+      <div class="flex gap-1.5 mt-0.5">
+        <!-- Ver extrato — always visible -->
+        <button
+          type="button"
+          class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium border border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60 transition-colors"
+          @click="emit('statement', card)"
+        >
+          <FileText :size="13" />
+          Ver extrato
+        </button>
+      </div>
     </div>
   </div>
 </template>

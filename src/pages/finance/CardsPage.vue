@@ -4,6 +4,7 @@ import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
+import CardStatementSheet from '@/features/finance/components/CardStatementSheet.vue'
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 import { Plus, CreditCard, ChevronDown, ChevronRight } from 'lucide-vue-next'
@@ -23,6 +24,15 @@ const deleteOpen = ref(false)
 const deletingId = ref<string | null>(null)
 const deleting = ref(false)
 const loading = ref(false)
+
+// Statement sheet state
+const statementOpen = ref(false)
+const statementCard = ref<CreditCardType | null>(null)
+
+function openStatement(card: CreditCardType) {
+  statementCard.value = card
+  statementOpen.value = true
+}
 
 // Archive / unarchive state
 const archiveOpen = ref(false)
@@ -206,6 +216,7 @@ onMounted(async () => {
           @pay="openEdit"
           @archive="requestArchive"
           @unarchive="unarchiveCard"
+          @statement="openStatement"
         />
       </div>
 
@@ -239,6 +250,13 @@ onMounted(async () => {
   <CreditCardFormDialog
     v-model:open="formOpen"
     :card="editingCard"
+  />
+
+  <!-- Card statement sheet -->
+  <CardStatementSheet
+    v-model:open="statementOpen"
+    :card="statementCard"
+    @select-transaction="() => {}"
   />
 
   <!-- Archive confirmation -->
