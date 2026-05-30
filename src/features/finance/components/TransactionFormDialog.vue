@@ -11,6 +11,7 @@ import {
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import CategoryQuickCreateSheet from './CategoryQuickCreateSheet.vue'
+import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
 import type { Transaction, TransactionType, RecurrenceUpdateScope } from '@/types/finance'
 import { useTransactionForm } from '../composables/useTransactionForm'
 import { useFinanceStore } from '@/stores/finance'
@@ -326,13 +327,13 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden bg-sheet"
+      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden bg-background"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
       <!-- ── Sticky header ──────────────────────────────── -->
-      <div class="sticky top-0 z-10 shrink-0 bg-sheet">
+      <div class="sticky top-0 z-10 shrink-0 bg-background">
 
         <!-- Title row -->
         <div class="flex items-center gap-2 px-4 pt-3 pb-2">
@@ -377,7 +378,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
         <div class="px-4 pt-5 pb-3 space-y-5">
 
           <!-- ── VALOR ────────────────────────────────────── -->
-          <div class="text-center pb-4 border-b border-border">
+          <div class="text-center mb-2">
             <div class="flex items-center justify-center gap-1.5 mb-3">
               <span class="text-[18px] font-medium text-muted-foreground/60">R$</span>
               <input
@@ -450,17 +451,6 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 </span>
               </button>
 
-              <!-- + Nova categoria -->
-              <button
-                type="button"
-                class="flex flex-col items-center transition-all active:scale-95"
-                @click="showCategorySheet = true"
-              >
-                <span class="size-14 rounded-xl flex items-center justify-center bg-muted">
-                  <Plus :size="20" class="text-muted-foreground" />
-                </span>
-                <span class="text-[11px] text-muted-foreground mt-1.5">Nova</span>
-              </button>
             </div>
 
             <!-- Category quick-create sheet -->
@@ -489,38 +479,39 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
               Data
             </p>
-            <!-- Date shortcut pills — full inline style, no Tailwind border/color classes -->
             <div class="flex gap-1.5 mb-2">
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium transition-all"
+                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
                 :class="dateShortcut === 'today'
-                  ? 'bg-white/10 border border-white/20 text-foreground'
-                  : 'bg-white/[0.04] border border-white/[0.08] text-muted-foreground'"
+                  ? 'bg-card border-primary/40 text-foreground'
+                  : 'bg-card border-border text-muted-foreground'"
                 @click="form.transaction_date = todayStr"
               >
                 Hoje
               </button>
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium transition-all"
+                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
                 :class="dateShortcut === 'yesterday'
-                  ? 'bg-white/10 border border-white/20 text-foreground'
-                  : 'bg-white/[0.04] border border-white/[0.08] text-muted-foreground'"
+                  ? 'bg-card border-primary/40 text-foreground'
+                  : 'bg-card border-border text-muted-foreground'"
                 @click="form.transaction_date = yesterdayStr"
               >
                 Ontem
               </button>
-              <span
-                class="h-8 px-3 rounded-md text-[11px] font-medium flex items-center"
+              <button
+                type="button"
+                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
                 :class="dateShortcut === 'custom'
-                  ? 'bg-white/10 border border-white/20 text-foreground'
-                  : 'bg-white/[0.04] border border-white/[0.08] text-muted-foreground/50'"
+                  ? 'bg-card border-primary/40 text-foreground'
+                  : 'bg-card border-border text-muted-foreground'"
+                @click="form.transaction_date = dateShortcut === 'custom' ? form.transaction_date : ''"
               >
                 Personalizado
-              </span>
+              </button>
             </div>
-            <DatePicker v-model="form.transaction_date" />
+            <DatePicker v-if="dateShortcut === 'custom'" v-model="form.transaction_date" />
             <p v-if="errors.transaction_date" class="text-xs text-destructive mt-1">{{ errors.transaction_date }}</p>
           </div>
 
@@ -554,7 +545,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   </span>
                   <div class="min-w-0 flex-1 text-left">
                     <p class="text-[13px] font-medium text-foreground leading-none">{{ acc.name }}</p>
-                    <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">{{ acc.type }}</p>
+                    <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                   </div>
                   <p class="text-[13px] tabular-nums font-medium shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
                     {{ formatCurrency(acc.balance) }}
@@ -587,7 +578,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   </span>
                   <div class="min-w-0 flex-1 text-left">
                     <p class="text-[13px] font-medium text-foreground leading-none">{{ acc.name }}</p>
-                    <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">{{ acc.type }}</p>
+                    <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                   </div>
                   <p class="text-[13px] tabular-nums font-medium shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
                     {{ formatCurrency(acc.balance) }}
@@ -620,7 +611,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 </span>
                 <div class="min-w-0 flex-1 text-left">
                   <p class="text-[13px] font-medium text-foreground leading-none">{{ acc.name }}</p>
-                  <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">{{ acc.type }}</p>
+                  <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                 </div>
                 <p class="text-[13px] tabular-nums font-medium shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
                   {{ formatCurrency(acc.balance) }}
@@ -630,31 +621,26 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p v-if="errors.account_id" class="text-xs text-destructive mt-1">{{ errors.account_id }}</p>
           </div>
 
-          <!-- ── TRANSAÇÃO FIXA — compact card ─────────────── -->
+          <!-- ── TRANSAÇÃO FIXA — inline toggle row ─────────── -->
           <div v-if="form.type !== 'transfer'">
-            <div
-              class="flex items-center gap-3 h-14 rounded-lg px-3.5 cursor-pointer bg-card border transition-all"
-              :class="form.is_recurring ? 'border-primary/30' : 'border-border'"
-              @click="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
-            >
+            <div class="flex items-center gap-3 py-3 border-b border-border/40">
               <span
-                class="size-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+                class="size-9 rounded-xl flex items-center justify-center shrink-0 transition-colors"
                 :class="form.is_recurring ? 'bg-primary/10' : 'bg-muted'"
               >
                 <Repeat :size="16" :class="form.is_recurring ? 'text-primary' : 'text-muted-foreground'" />
               </span>
               <div class="flex-1 min-w-0">
-                <p class="text-sm text-foreground leading-none">Transação fixa</p>
-                <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">
+                <p class="text-[13px] font-medium text-foreground">Transação fixa</p>
+                <p class="text-[11px] text-muted-foreground">
                   {{ form.is_recurring ? ('A cada ' + (FREQ_LABELS[form.recurrence_frequency] ?? 'mês')) : 'Repete periodicamente' }}
                 </p>
               </div>
-              <!-- Toggle — only this changes color -->
               <button
                 type="button"
                 class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
                 :class="form.is_recurring ? 'bg-primary' : 'bg-muted'"
-                @click.stop="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
+                @click="form.is_recurring = !form.is_recurring; if (form.is_recurring) form.total_installments = 0"
               >
                 <span
                   class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
@@ -664,7 +650,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
 
             <!-- Recurrence expanded config -->
-            <div v-if="form.is_recurring" class="mt-1 rounded-lg px-3.5 pb-3.5 pt-3 space-y-3 bg-muted border border-border">
+            <div v-if="form.is_recurring" class="pt-3 pb-4 space-y-3">
               <!-- Frequency pills -->
               <div>
                 <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Frequência</p>
@@ -675,8 +661,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     type="button"
                     class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                     :class="form.recurrence_frequency === opt.value
-                      ? 'bg-white/10 border-white/20 text-foreground'
-                      : 'bg-white/5 border-white/8 text-muted-foreground hover:text-foreground'"
+                      ? 'bg-card border-primary/40 text-foreground'
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                     @click="form.recurrence_frequency = opt.value"
                   >
                     {{ opt.label }}
@@ -730,34 +716,29 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
           </div>
 
-          <!-- ── COMPRA PARCELADA — compact card ──────────── -->
+          <!-- ── COMPRA PARCELADA — inline toggle row ──────── -->
           <div v-if="form.type !== 'transfer' && !props.transaction">
-            <div
-              class="flex items-center gap-3 h-14 rounded-lg px-3.5 cursor-pointer bg-card border transition-all"
-              :class="isInstallment ? 'border-primary/30' : 'border-border'"
-              @click="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
-            >
+            <div class="flex items-center gap-3 py-3 border-b border-border/40">
               <span
-                class="size-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+                class="size-9 rounded-xl flex items-center justify-center shrink-0 transition-colors"
                 :class="isInstallment ? 'bg-primary/10' : 'bg-muted'"
               >
                 <CreditCard :size="16" :class="isInstallment ? 'text-primary' : 'text-muted-foreground'" />
               </span>
               <div class="flex-1 min-w-0">
-                <p class="text-sm text-foreground leading-none">Compra parcelada</p>
-                <p class="text-[11px] text-muted-foreground mt-0.5 leading-none">
+                <p class="text-[13px] font-medium text-foreground">Compra parcelada</p>
+                <p class="text-[11px] text-muted-foreground">
                   <template v-if="isInstallment && installmentAmount > 0">
                     {{ form.total_installments }}x de R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
                   </template>
                   <template v-else>Dividir em parcelas mensais</template>
                 </p>
               </div>
-              <!-- Toggle — only this changes color -->
               <button
                 type="button"
                 class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
                 :class="isInstallment ? 'bg-primary' : 'bg-muted'"
-                @click.stop="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
+                @click="toggleInstallments(form.total_installments >= 2 ? 0 : 2)"
               >
                 <span
                   class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
@@ -767,7 +748,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
 
             <!-- Installment count pills -->
-            <div v-if="isInstallment" class="mt-1 rounded-lg p-3 bg-muted border border-border">
+            <div v-if="isInstallment" class="pt-3 pb-4">
               <div class="flex gap-1.5 flex-wrap mb-2.5">
                 <button
                   v-for="n in INSTALLMENT_OPTIONS"
@@ -775,8 +756,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   class="h-8 px-3 rounded-md text-[12px] font-medium border transition-all"
                   :class="form.total_installments === n
-                    ? 'bg-white/10 border-white/20 text-foreground'
-                    : 'bg-white/5 border-white/8 text-muted-foreground hover:text-foreground'"
+                    ? 'bg-card border-primary/40 text-foreground'
+                    : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                   @click="form.total_installments = n"
                 >
                   {{ n }}x
@@ -854,7 +835,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       </form>
 
       <!-- ── Sticky footer — CTA ──────────────────────────── -->
-      <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-sheet">
+      <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-background">
         <button
           type="button"
           class="w-full h-[52px] rounded-[10px] text-[15px] font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
