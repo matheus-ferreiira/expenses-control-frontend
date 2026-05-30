@@ -1,5 +1,5 @@
+<!-- TODO: conectar na TransactionsPage quando filtros avançados forem necessários -->
 <script setup lang="ts">
-import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import { Plus, Search } from 'lucide-vue-next'
 import TransactionFilters from './TransactionFilters.vue'
@@ -36,9 +36,14 @@ const emit = defineEmits<{
     <div class="flex-1" />
 
     <!-- Create -->
-    <Button size="sm" class="h-8 gap-1.5" :disabled="loading" @click="emit('create')">
+    <button
+      type="button"
+      class="h-8 px-3 rounded-md text-[12px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors inline-flex items-center gap-1.5"
+      :disabled="loading"
+      @click="emit('create')"
+    >
       <Plus :size="14" />
       Nova transação
-    </Button>
+    </button>
   </div>
 </template>

@@ -379,10 +379,10 @@ onMounted(() => load())
               >
                 <component :is="categoryIcon(cat.category)" :size="14" :stroke-width="1.9" />
               </span>
-              <span class="flex-1 text-sm truncate">{{ cat.category }}</span>
+              <span class="flex-1 text-[13px] text-foreground truncate">{{ cat.category }}</span>
               <div class="text-right shrink-0">
-                <span class="block text-sm tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
-                <span class="block text-[10.5px] tabular-nums text-muted-foreground/70">{{ cat.percentage }}% do total</span>
+                <span class="block text-[13px] tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
+                <span class="block text-[12px] tabular-nums text-muted-foreground">{{ cat.percentage }}% do total</span>
               </div>
             </div>
             <!-- Bar using category color -->

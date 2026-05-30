@@ -83,9 +83,9 @@ const dueBadgeLabel = computed(() => {
 
 /** Limit bar color based on utilization percentage */
 const limitBarClass = computed(() => {
-  if (utilPct.value < 50) return 'bg-success'
-  if (utilPct.value < 76) return 'bg-warning'
-  return 'bg-destructive'
+  if (utilPct.value >= 90) return 'bg-destructive'
+  if (utilPct.value >= 70) return 'bg-warning'
+  return 'bg-primary'
 })
 
 

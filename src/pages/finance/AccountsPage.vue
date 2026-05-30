@@ -196,7 +196,7 @@ onMounted(async () => {
           <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
           <span>{{ showArchived ? 'Ocultar' : 'Ver' }} contas arquivadas ({{ store.archivedAccounts.length }})</span>
         </button>
-        <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 opacity-60">
           <AccountCard
             v-for="account in store.archivedAccounts"
             :key="account.id"
