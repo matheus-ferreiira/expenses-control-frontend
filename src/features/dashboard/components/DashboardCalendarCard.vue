@@ -13,13 +13,13 @@ defineProps<{
 const router = useRouter()
 
 const EVENT_COLORS: Record<string, string> = {
-  blue: '#3b82f6',
-  green: '#10b981',
-  yellow: '#f59e0b',
-  red: '#ef4444',
-  pink: '#ec4899',
-  orange: '#f97316',
-  slate: '#64748b',
+  blue:   'hsl(var(--primary))',           // no blue token — maps to brand green
+  green:  'hsl(var(--success))',
+  yellow: 'hsl(var(--warning))',
+  red:    'hsl(var(--destructive))',
+  pink:   'hsl(var(--muted-foreground))',  // no pink token — neutral fallback
+  orange: 'hsl(var(--warning))',           // no orange token — nearest semantic
+  slate:  'hsl(var(--muted-foreground))',
 }
 
 function eventTime(event: CalendarEvent): string {
@@ -74,7 +74,7 @@ function eventEndTime(event: CalendarEvent): string {
       >
         <!-- Time column -->
         <div class="shrink-0 w-[72px] text-right">
-          <span class="text-[11px] tabular-nums font-mono" style="color: hsl(var(--muted-foreground) / 0.5)">
+          <span class="text-[11px] tabular-nums font-mono text-muted-foreground/50">
             {{ eventTime(event) }}
             <template v-if="!event.is_all_day && eventEndTime(event)">
               – {{ eventEndTime(event) }}
@@ -85,7 +85,7 @@ function eventEndTime(event: CalendarEvent): string {
         <!-- Color bar -->
         <div
           class="mt-[5px] h-1.5 w-1.5 rounded-full shrink-0"
-          :style="{ backgroundColor: event.color ? (EVENT_COLORS[event.color] ?? '#64748b') : '#64748b' }"
+          :style="{ backgroundColor: EVENT_COLORS[event.color ?? ''] ?? 'hsl(var(--muted-foreground))' }"
         />
 
         <!-- Title -->

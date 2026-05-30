@@ -64,15 +64,6 @@ const isOverdue = computed(() => {
   return due < new Date().getDate()
 })
 
-/** Badge color based on days until due */
-const dueBadgeClass = computed(() => {
-  if (isOverdue.value) return 'bg-destructive/20 text-destructive border-destructive/30'
-  const d = daysUntilDue.value
-  if (d === 0) return 'bg-destructive/15 text-destructive/80 border-destructive/20'
-  if (d <= 5) return 'bg-warning/20 text-warning border-warning/30'
-  return 'bg-success/15 text-success/80 border-success/20'
-})
-
 const dueBadgeLabel = computed(() => {
   if (isOverdue.value) return 'Vencida'
   const d = daysUntilDue.value
