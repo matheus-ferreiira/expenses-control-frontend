@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Search, X } from 'lucide-vue-next'
+import { Search, X, ChevronDown } from 'lucide-vue-next'
 import { findIcon, ICON_CATEGORIES } from '@/lib/icons'
 
 defineProps<{
@@ -40,10 +40,10 @@ function clear() {
 </script>
 
 <template>
-  <!-- Trigger button -->
+  <!-- Trigger button — alinhado com inputs do formulário -->
   <button
     type="button"
-    class="flex items-center gap-2.5 h-9 px-3 rounded-lg border border-border/60 bg-muted text-sm hover:border-border transition-colors w-full text-left"
+    class="flex items-center gap-2.5 h-10 px-3 rounded-lg border border-border/60 bg-card text-[13px] w-full text-left hover:border-border transition-colors"
     @click="open = !open"
   >
     <span
@@ -57,34 +57,42 @@ function clear() {
       />
       <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
     </span>
-    <span class="flex-1 text-[13px]" :class="modelValue ? 'text-foreground' : 'text-muted-foreground'">
+    <span class="flex-1" :class="modelValue ? 'text-foreground' : 'text-muted-foreground'">
       {{ modelValue && findIcon(modelValue) ? findIcon(modelValue)!.label : 'Escolher ícone' }}
     </span>
-    <span class="text-muted-foreground/40 text-[11px]">{{ open ? '▲' : '▼' }}</span>
+    <ChevronDown
+      :size="14"
+      class="text-muted-foreground/50 transition-transform duration-200 shrink-0"
+      :class="open ? 'rotate-180' : ''"
+    />
   </button>
 
-  <!-- Expandable icon grid -->
-  <div v-if="open" class="mt-2 border border-border/60 rounded-xl bg-muted/30 overflow-hidden">
-    <!-- Search bar -->
-    <div class="flex items-center gap-2 px-3 py-2 border-b border-border/40">
-      <Search :size="13" class="text-muted-foreground shrink-0" />
+  <!-- Grid expansível — sem card wrapper, fluxo direto -->
+  <div v-if="open" class="mt-1">
+
+    <!-- Search bar — input standalone -->
+    <div class="relative mb-2">
+      <Search
+        :size="13"
+        class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+      />
       <input
         v-model="search"
         placeholder="Buscar ícone..."
-        class="flex-1 bg-transparent text-[12px] outline-none placeholder:text-muted-foreground/50"
+        class="h-9 pl-8 pr-8 w-full rounded-lg border border-border/60 bg-card text-[13px] outline-none placeholder:text-muted-foreground/50 focus:border-primary transition-colors"
       />
       <button
         v-if="modelValue"
         type="button"
-        class="text-muted-foreground/50 hover:text-foreground"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors"
         @click="clear"
       >
         <X :size="12" />
       </button>
     </div>
 
-    <!-- Scrollable grid — max 240px height, 5 columns, 48px touch targets -->
-    <div class="max-h-[240px] overflow-y-auto p-2 space-y-2">
+    <!-- Grid de ícones — max 280px, 5 colunas, 48px touch targets -->
+    <div class="max-h-[280px] overflow-y-auto space-y-2">
       <div v-for="cat in filteredCategories" :key="cat.id">
         <p class="text-[10px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1.5 mt-1">
           {{ cat.label }}
@@ -98,7 +106,7 @@ function clear() {
             class="flex items-center justify-center size-12 rounded-xl transition-all active:scale-95"
             :style="modelValue === icon.name
               ? { background: color, color: '#fff' }
-              : { background: '#27272a', color: '#888888' }"
+              : { background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }"
             :class="modelValue !== icon.name ? 'hover:brightness-110' : ''"
             @click="select(icon.name)"
           >

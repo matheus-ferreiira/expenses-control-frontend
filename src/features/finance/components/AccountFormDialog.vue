@@ -94,11 +94,11 @@ async function submit() {
 
         <!-- Live preview card — neutral bg, color only in avatar -->
         <div
-          class="flex items-center gap-3 p-3 rounded-lg bg-card border border-white/10"
+          class="flex items-center gap-3 p-3 rounded-lg bg-card border border-border"
         >
           <span
             class="flex items-center justify-center size-9 rounded-lg shrink-0"
-            :style="{ background: (form.color ?? '#6b7280') + '26', color: form.color ?? '#6b7280' }"
+            :style="{ background: form.color ? form.color + '26' : 'hsl(var(--muted))', color: form.color ?? 'hsl(var(--muted-foreground))' }"
           >
             <component :is="previewIcon" :size="18" />
           </span>
@@ -121,7 +121,7 @@ async function submit() {
 
         <!-- Type selector -->
         <div class="space-y-1.5">
-          <p class="text-sm font-medium">Tipo</p>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">Tipo</p>
           <div class="grid grid-cols-2 gap-1.5">
             <button
               v-for="t in accountTypes"
@@ -149,7 +149,7 @@ async function submit() {
         </AppFormField>
 
         <div class="space-y-1.5">
-          <p class="text-sm font-medium">Cor</p>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">Cor</p>
           <ColorPicker v-model="form.color" />
         </div>
       </form>
@@ -158,7 +158,7 @@ async function submit() {
       <div class="flex gap-2 mt-2">
         <button
           type="button"
-          class="flex-1 h-11 rounded-lg bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
+          class="flex-1 h-11 rounded-lg bg-card border border-border text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
           :disabled="submitting"
           @click="close"
         >
