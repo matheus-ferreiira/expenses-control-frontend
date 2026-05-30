@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { Search, X, ChevronDown } from 'lucide-vue-next'
+import { computed, nextTick, ref } from 'vue'
+import { ChevronDown } from 'lucide-vue-next'
 import { findIcon, ICON_CATEGORIES } from '@/lib/icons'
 
 defineProps<{
-  modelValue: string  // icon name or ''
-  color: string       // category color for active highlight
+  modelValue: string
+  color: string
 }>()
 
 const emit = defineEmits<{
@@ -14,6 +14,7 @@ const emit = defineEmits<{
 
 const open = ref(false)
 const search = ref('')
+const searchInputRef = ref<HTMLInputElement | null>(null)
 
 const filteredCategories = computed(() => {
   const q = search.value.trim().toLowerCase()
@@ -28,98 +29,108 @@ const filteredCategories = computed(() => {
     .filter((cat) => cat.icons.length > 0)
 })
 
+async function toggle() {
+  open.value = !open.value
+  if (open.value) {
+    await nextTick()
+    searchInputRef.value?.focus()
+  } else {
+    search.value = ''
+  }
+}
+
 function select(name: string) {
   emit('update:modelValue', name)
   open.value = false
   search.value = ''
 }
-
-function clear() {
-  emit('update:modelValue', '')
-}
 </script>
 
 <template>
-  <!-- Trigger button — alinhado com inputs do formulário -->
-  <button
-    type="button"
-    class="flex items-center gap-2.5 h-10 px-3 rounded-lg border border-border/60 bg-card text-[13px] w-full text-left hover:border-border transition-colors"
-    @click="open = !open"
+  <!-- Card único — estado fechado parece input, estado aberto expande -->
+  <div
+    class="rounded-lg border border-border/60 bg-card overflow-hidden transition-all duration-200"
+    :class="!open ? 'cursor-pointer hover:border-border' : ''"
+    @click="!open && toggle()"
   >
-    <span
-      class="flex items-center justify-center size-6 rounded-md shrink-0"
-      :style="modelValue ? { background: color + '30', color } : {}"
-    >
-      <component
-        v-if="modelValue && findIcon(modelValue)"
-        :is="findIcon(modelValue)!.component"
-        :size="14"
-      />
-      <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
-    </span>
-    <span class="flex-1" :class="modelValue ? 'text-foreground' : 'text-muted-foreground'">
-      {{ modelValue && findIcon(modelValue) ? findIcon(modelValue)!.label : 'Escolher ícone' }}
-    </span>
-    <ChevronDown
-      :size="14"
-      class="text-muted-foreground/50 transition-transform duration-200 shrink-0"
-      :class="open ? 'rotate-180' : ''"
-    />
-  </button>
+    <!-- Linha superior — sempre visível -->
+    <div class="flex items-center gap-2.5 h-10 px-3">
 
-  <!-- Grid expansível — sem card wrapper, fluxo direto -->
-  <div v-if="open" class="mt-1">
+      <!-- Preview do ícone selecionado (ou dash) -->
+      <span
+        class="flex items-center justify-center size-6 rounded-md shrink-0"
+        :style="modelValue ? { background: color + '30', color } : {}"
+      >
+        <component
+          v-if="modelValue && findIcon(modelValue)"
+          :is="findIcon(modelValue)!.component"
+          :size="14"
+        />
+        <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
+      </span>
 
-    <!-- Search bar — input standalone -->
-    <div class="relative mb-2">
-      <Search
-        :size="13"
-        class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-      />
+      <!-- Fechado: label do ícone ou placeholder -->
+      <span
+        v-if="!open"
+        class="flex-1 text-[13px]"
+        :class="modelValue ? 'text-foreground' : 'text-muted-foreground'"
+      >
+        {{ modelValue && findIcon(modelValue) ? findIcon(modelValue)!.label : 'Escolher ícone' }}
+      </span>
+
+      <!-- Aberto: input de busca inline -->
       <input
+        v-else
+        ref="searchInputRef"
         v-model="search"
         placeholder="Buscar ícone..."
-        class="h-9 pl-8 pr-8 w-full rounded-lg border border-border/60 bg-card text-[13px] outline-none placeholder:text-muted-foreground/50 focus:border-primary transition-colors"
+        class="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50"
+        @click.stop
       />
-      <button
-        v-if="modelValue"
-        type="button"
-        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors"
-        @click="clear"
-      >
-        <X :size="12" />
-      </button>
+
+      <!-- Chevron — rotaciona quando aberto -->
+      <ChevronDown
+        :size="14"
+        class="text-muted-foreground/50 transition-transform duration-200 shrink-0 cursor-pointer"
+        :class="open ? 'rotate-180' : ''"
+        @click.stop="toggle"
+      />
     </div>
 
-    <!-- Grid de ícones — max 280px, 5 colunas, 48px touch targets -->
-    <div class="max-h-[280px] overflow-y-auto space-y-2">
-      <div v-for="cat in filteredCategories" :key="cat.id">
-        <p class="text-[10px] uppercase tracking-widest text-muted-foreground/50 font-semibold px-1 mb-1.5 mt-1">
-          {{ cat.label }}
-        </p>
-        <div class="grid grid-cols-5 gap-2">
-          <button
-            v-for="icon in cat.icons"
-            :key="icon.name"
-            type="button"
-            :title="icon.label"
-            class="flex items-center justify-center size-12 rounded-xl transition-all active:scale-95"
-            :style="modelValue === icon.name
-              ? { background: color, color: '#fff' }
-              : { background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }"
-            :class="modelValue !== icon.name ? 'hover:brightness-110' : ''"
-            @click="select(icon.name)"
-          >
-            <component :is="icon.component" :size="22" />
-          </button>
+    <!-- Seção expandida -->
+    <template v-if="open">
+      <div class="border-t border-border/40" />
+
+      <div class="max-h-[280px] overflow-y-auto p-2 space-y-3">
+        <div v-for="cat in filteredCategories" :key="cat.id">
+          <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 font-medium px-1 mb-1 mt-2">
+            {{ cat.label }}
+          </p>
+          <div class="grid grid-cols-5 gap-1.5">
+            <button
+              v-for="icon in cat.icons"
+              :key="icon.name"
+              type="button"
+              :title="icon.label"
+              class="size-11 rounded-xl flex items-center justify-center transition-all active:scale-95"
+              :class="modelValue === icon.name
+                ? 'text-white'
+                : 'bg-muted text-muted-foreground hover:bg-muted/70'"
+              :style="modelValue === icon.name ? { background: color } : {}"
+              @click.stop="select(icon.name)"
+            >
+              <component :is="icon.component" :size="20" />
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="filteredCategories.length === 0"
+          class="py-4 text-center text-[12px] text-muted-foreground/50"
+        >
+          Nenhum ícone encontrado
         </div>
       </div>
-      <div
-        v-if="filteredCategories.length === 0"
-        class="py-4 text-center text-[12px] text-muted-foreground/50"
-      >
-        Nenhum ícone encontrado
-      </div>
-    </div>
+    </template>
   </div>
 </template>
