@@ -119,7 +119,7 @@ const amountClass = computed(() => {
           >
             <Repeat v-if="typeBadge.icon === 'repeat'" :size="10" />
             <Clock v-else-if="typeBadge.icon === 'clock'" :size="10" />
-            {{ typeBadge.label }}
+            {{ typeBadge.label === 'Fix' ? 'Fixa' : typeBadge.label }}
           </span>
           <button
             type="button"
@@ -197,7 +197,7 @@ const amountClass = computed(() => {
             <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Tipo</span>
             <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
               <Repeat :size="12" />
-              Fix
+              Fixa
               <template v-if="(transaction.recurrence_config as Record<string,unknown> | null)?.frequency">
                 · {{ ({
                   weekly: 'Semanal', biweekly: 'Quinzenal', monthly: 'Mensal',
@@ -242,45 +242,45 @@ const amountClass = computed(() => {
         </div>
 
         <!-- Footer actions -->
-        <div class="grid gap-2 px-4 pt-1 pb-8">
+        <div class="pb-8">
           <!-- "Marcar como paga" — only for pending transactions -->
-          <button
-            v-if="transaction.status === 'pending'"
-            type="button"
-            :disabled="confirming"
-            class="h-[52px] rounded-xl bg-success text-background text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
-            @click="handleConfirm"
-          >
-            <CheckCircle2 :size="16" />
-            {{ confirming ? 'Confirmando...' : 'Marcar como paga' }}
-          </button>
-          <div class="grid grid-cols-3 gap-2">
-            <!-- Excluir -->
+          <div v-if="transaction.status === 'pending'" class="px-4 pt-1">
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 h-14 rounded-xl text-[11px] font-medium border border-border bg-card transition-all active:scale-95 text-destructive hover:bg-destructive/10 hover:border-destructive/30"
+              :disabled="confirming"
+              class="w-full h-[52px] rounded-xl bg-success text-background text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
+              @click="handleConfirm"
+            >
+              <CheckCircle2 :size="16" />
+              {{ confirming ? 'Confirmando...' : 'Marcar como paga' }}
+            </button>
+          </div>
+          <div class="border-t border-border/30 mt-2">
+            <button
+              type="button"
+              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-destructive hover:bg-destructive/5 transition-colors active:scale-[0.99]"
               @click="onDelete"
             >
               <Trash2 :size="16" />
-              Excluir
+              Excluir transação
             </button>
-            <!-- Duplicar -->
+            <div class="h-px bg-border/30 mx-5" />
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 h-14 rounded-xl text-[11px] font-medium border border-border bg-card transition-all active:scale-95 text-muted-foreground hover:bg-muted hover:text-foreground"
+              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors active:scale-[0.99]"
               @click="onDuplicate"
             >
               <Copy :size="16" />
-              Duplicar
+              Duplicar transação
             </button>
-            <!-- Editar -->
+            <div class="h-px bg-border/30 mx-5" />
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 h-14 rounded-xl text-[11px] font-medium border border-border bg-card transition-all active:scale-95 text-foreground hover:bg-muted"
+              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-foreground hover:bg-muted/40 transition-colors active:scale-[0.99]"
               @click="onEdit"
             >
               <Pencil :size="16" />
-              Editar
+              Editar transação
             </button>
           </div>
         </div>
