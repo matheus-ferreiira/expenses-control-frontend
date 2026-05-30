@@ -142,7 +142,7 @@ const cardGradient = computed(
         </div>
 
         <div class="space-y-1.5">
-          <p class="text-sm font-medium">Cor do cartão</p>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">Cor do cartão</p>
           <ColorPicker v-model="form.color" />
         </div>
       </form>
@@ -151,7 +151,7 @@ const cardGradient = computed(
       <div class="flex gap-2 mt-2">
         <button
           type="button"
-          class="flex-1 h-11 rounded-lg bg-card border border-white/10 text-muted-foreground text-sm font-medium transition-colors hover:bg-popover"
+          class="flex-1 h-11 rounded-lg bg-card border border-border text-muted-foreground text-[13px] font-medium hover:bg-muted transition-colors"
           :disabled="submitting"
           @click="close"
         >

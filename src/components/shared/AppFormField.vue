@@ -12,12 +12,12 @@ withDefaults(
 </script>
 
 <template>
-  <div class="space-y-1.5">
+  <div>
     <!-- Label -->
     <label
       v-if="label"
       :for="htmlFor"
-      class="block text-sm font-medium text-foreground"
+      class="block text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5"
     >
       {{ label }}
       <span v-if="required" class="text-destructive ml-0.5">*</span>
@@ -27,11 +27,11 @@ withDefaults(
     <slot />
 
     <!-- Error message -->
-    <p v-if="error" class="text-xs text-destructive flex items-center gap-1">
+    <p v-if="error" class="text-xs text-destructive flex items-center gap-1 mt-1">
       <span>{{ error }}</span>
     </p>
 
     <!-- Hint -->
-    <p v-else-if="hint" class="text-xs text-muted-foreground">{{ hint }}</p>
+    <p v-else-if="hint" class="text-xs text-muted-foreground mt-1">{{ hint }}</p>
   </div>
 </template>
