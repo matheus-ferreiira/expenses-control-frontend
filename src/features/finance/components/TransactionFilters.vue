@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button } from '@ui/button'
-import { Badge } from '@ui/badge'
-import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
-import { Separator } from '@ui/separator'
 import {
   Select,
   SelectContent,
@@ -11,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@ui/select'
-import { SlidersHorizontal, X } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 import type { TransactionType } from '@/types/finance'
 import { TRANSACTION_TYPE_LABELS } from '@/types/finance'
 import { useFinanceStore } from '@/stores/finance'
@@ -27,9 +23,9 @@ const activeCount = computed(() => props.filterState.activeCount.value)
 const transactionTypes: TransactionType[] = ['income', 'expense', 'transfer']
 
 const TYPE_STYLE: Record<TransactionType, { text: string; bg: string }> = {
-  income:   { text: 'text-success',             bg: 'bg-success/10' },
-  expense:  { text: 'text-destructive',          bg: 'bg-destructive/10' },
-  transfer: { text: 'text-muted-foreground',     bg: 'bg-muted' },
+  income:   { text: 'text-success',         bg: 'bg-success/10' },
+  expense:  { text: 'text-destructive',      bg: 'bg-destructive/10' },
+  transfer: { text: 'text-muted-foreground', bg: 'bg-muted' },
 }
 
 function toggleType(t: TransactionType) {
@@ -38,104 +34,81 @@ function toggleType(t: TransactionType) {
 </script>
 
 <template>
-  <Popover>
-    <PopoverTrigger as-child>
-      <Button variant="outline" size="sm" class="h-8 gap-1.5 relative">
-        <SlidersHorizontal :size="14" />
-        Filtros
-        <Badge
-          v-if="activeCount > 0"
-          class="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+  <div class="flex items-center gap-1.5 flex-wrap">
+
+    <!-- Tipo: chips de tipo -->
+    <button
+      v-for="t in transactionTypes"
+      :key="t"
+      type="button"
+      class="h-7 px-3 rounded-full text-[11.5px] font-medium border transition-colors duration-150 whitespace-nowrap"
+      :class="filterState.type.value === t
+        ? [TYPE_STYLE[t].bg, TYPE_STYLE[t].text, 'border-transparent']
+        : 'border-border text-muted-foreground hover:text-foreground hover:border-border/60'"
+      @click="toggleType(t)"
+    >
+      {{ TRANSACTION_TYPE_LABELS[t] }}
+    </button>
+
+    <!-- Separador visual -->
+    <span class="w-px h-4 bg-border mx-0.5 shrink-0" />
+
+    <!-- Conta: Select compacto -->
+    <Select
+      :model-value="filterState.account_id.value ?? ''"
+      @update:model-value="filterState.setAccountId(($event as string) || undefined)"
+    >
+      <SelectTrigger
+        class="h-7 px-3 rounded-full text-[11.5px] border-border w-auto min-w-0 max-w-[140px]"
+        :class="filterState.account_id.value ? 'border-primary/40 text-foreground' : 'text-muted-foreground'"
+      >
+        <SelectValue placeholder="Conta" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="">Todas as contas</SelectItem>
+        <SelectItem
+          v-for="acc in store.activeAccounts"
+          :key="acc.id"
+          :value="acc.id"
         >
-          {{ activeCount }}
-        </Badge>
-      </Button>
-    </PopoverTrigger>
+          {{ acc.name }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
 
-    <PopoverContent align="end" class="w-60 p-3 space-y-4">
-      <!-- Type -->
-      <div>
-        <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Tipo</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <button
-            v-for="t in transactionTypes"
-            :key="t"
-            :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-md border transition-base',
-              filterState.type.value === t
-                ? [TYPE_STYLE[t].bg, TYPE_STYLE[t].text, 'border-transparent']
-                : 'border-border text-muted-foreground hover:border-foreground/30',
-            ]"
-            @click="toggleType(t)"
-          >
-            {{ TRANSACTION_TYPE_LABELS[t] }}
-          </button>
-        </div>
-      </div>
-
-      <Separator />
-
-      <!-- Category -->
-      <div>
-        <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Categoria</p>
-        <Select
-          :model-value="filterState.category_id.value ?? ''"
-          @update:model-value="filterState.setCategoryId(($event as string) || undefined)"
+    <!-- Categoria: Select compacto -->
+    <Select
+      :model-value="filterState.category_id.value ?? ''"
+      @update:model-value="filterState.setCategoryId(($event as string) || undefined)"
+    >
+      <SelectTrigger
+        class="h-7 px-3 rounded-full text-[11.5px] border-border w-auto min-w-0 max-w-[140px]"
+        :class="filterState.category_id.value ? 'border-primary/40 text-foreground' : 'text-muted-foreground'"
+      >
+        <SelectValue placeholder="Categoria" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="">Todas as categorias</SelectItem>
+        <SelectItem
+          v-for="cat in store.categories.filter(c => !filterState.type.value || c.type === filterState.type.value)"
+          :key="cat.id"
+          :value="cat.id"
         >
-          <SelectTrigger class="h-7 text-xs">
-            <SelectValue placeholder="Todas" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todas</SelectItem>
-            <SelectItem
-              v-for="cat in store.categories.filter(c => !filterState.type.value || c.type === filterState.type.value)"
-              :key="cat.id"
-              :value="cat.id"
-            >
-              {{ cat.name }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          {{ cat.name }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
 
-      <Separator />
+    <!-- Limpar — só quando há filtro ativo -->
+    <button
+      v-if="activeCount > 0"
+      type="button"
+      class="h-7 px-2.5 rounded-full text-[11px] font-medium text-muted-foreground border border-border hover:text-foreground hover:border-border/60 transition-colors duration-150 flex items-center gap-1"
+      @click="filterState.reset()"
+    >
+      <X :size="11" />
+      Limpar
+    </button>
 
-      <!-- Account -->
-      <div>
-        <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Conta</p>
-        <Select
-          :model-value="filterState.account_id.value ?? ''"
-          @update:model-value="filterState.setAccountId(($event as string) || undefined)"
-        >
-          <SelectTrigger class="h-7 text-xs">
-            <SelectValue placeholder="Todas" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todas</SelectItem>
-            <SelectItem
-              v-for="acc in store.activeAccounts"
-              :key="acc.id"
-              :value="acc.id"
-            >
-              {{ acc.name }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <!-- Reset -->
-      <template v-if="activeCount > 0">
-        <Separator />
-        <Button
-          variant="ghost"
-          size="sm"
-          class="w-full h-7 text-xs text-muted-foreground"
-          @click="filterState.reset()"
-        >
-          <X :size="12" class="mr-1.5" />
-          Limpar filtros
-        </Button>
-      </template>
-    </PopoverContent>
-  </Popover>
+  </div>
 </template>

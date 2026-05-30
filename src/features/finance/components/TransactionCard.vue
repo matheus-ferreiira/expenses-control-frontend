@@ -35,7 +35,7 @@ const highlightBg = computed(() => {
   <li :id="`tx-${transaction.id}`" class="relative">
     <button
       type="button"
-      class="w-full flex items-center gap-3 pl-4 pr-4 min-h-[56px] text-left hover:bg-white/[0.025] active:bg-white/[0.04] transition-colors cursor-pointer"
+      class="w-full flex items-center gap-3 pl-4 pr-4 min-h-[56px] text-left hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors duration-150 cursor-pointer"
       :class="[isPending ? 'opacity-60' : '', highlightBg]"
       @click="emit('select', transaction)"
     >
@@ -47,8 +47,8 @@ const highlightBg = computed(() => {
           :style="{
             background: transaction.category?.color
               ? transaction.category.color + '26'
-              : 'rgba(255,255,255,0.08)',
-            color: transaction.category?.color ?? '#888888',
+              : 'hsl(var(--muted)/0.08)',
+            color: transaction.category?.color ?? 'hsl(var(--muted-foreground))',
           }"
         >
           <component
