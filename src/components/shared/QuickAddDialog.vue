@@ -171,7 +171,7 @@ const QUICK_ACTIONS = [
 <template>
   <Sheet v-model:open="open">
     <SheetContent side="bottom"
-      class="rounded-t-2xl border-t border-border bg-background p-0 max-h-[92vh] overflow-y-auto [&>button]:hidden">
+      class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] overflow-y-auto [&>button]:hidden">
       <!-- Drag handle -->
       <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-muted-foreground/30" />
 
