@@ -77,7 +77,7 @@ const typeBadge = computed(() => {
   if (t.status === 'pending') return { label: 'Agendada', cls: 'bg-warning/10 border-warning/25 text-warning', icon: 'clock' }
   if (t.type === 'income') return { label: 'Receita', cls: 'bg-primary/12 border-primary/25 text-primary', icon: null }
   if (t.type === 'expense') return { label: 'Despesa', cls: 'bg-destructive/12 border-destructive/25 text-destructive', icon: null }
-  return { label: 'Transferência', cls: 'bg-white/[0.07] border-white/15 text-muted-foreground', icon: null }
+  return { label: 'Transferência', cls: 'bg-muted border-border text-muted-foreground', icon: null }
 })
 
 const swatchStyle = computed(() => {
@@ -102,7 +102,7 @@ const amountClass = computed(() => {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg max-h-[88vh] overflow-y-auto p-0 border-t border-border focus:outline-none [&>button]:hidden"
+      class="rounded-t-2xl max-h-[88vh] overflow-y-auto p-0 border-t-2 border-primary focus:outline-none [&>button]:hidden"
     >
       <template v-if="transaction">
         <!-- Drag handle -->
@@ -133,7 +133,7 @@ const amountClass = computed(() => {
         <!-- Category icon + description + amount -->
         <div class="flex flex-col items-center gap-3 px-5 pb-6">
           <span
-            class="rounded-lg grid place-items-center w-14 h-14"
+            class="rounded-xl grid place-items-center w-14 h-14"
             :style="swatchStyle"
           >
             <component
@@ -156,36 +156,36 @@ const amountClass = computed(() => {
           </div>
         </div>
 
-        <!-- Details card -->
-        <div class="mx-4 mb-4 bg-card rounded-lg overflow-hidden">
+        <!-- Details rows -->
+        <div class="mb-4">
           <!-- Date -->
-          <div class="flex items-start justify-between px-4 py-3.5 gap-4 border-b border-white/5">
-            <span class="text-sm text-muted-foreground shrink-0">Data</span>
-            <span class="text-sm font-medium text-foreground text-right capitalize">
+          <div class="px-5 py-3 flex items-start justify-between gap-4 border-b border-border/30">
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Data</span>
+            <span class="text-[13px] font-medium text-foreground text-right capitalize">
               {{ formatTransactionDate(transaction.transaction_date) }}
             </span>
           </div>
 
           <!-- Category -->
-          <div v-if="transaction.category" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
-            <span class="text-sm text-muted-foreground shrink-0">Categoria</span>
-            <span class="text-sm font-medium text-foreground text-right">{{ transaction.category.name }}</span>
+          <div v-if="transaction.category" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Categoria</span>
+            <span class="text-[13px] font-medium text-foreground text-right">{{ transaction.category.name }}</span>
           </div>
 
           <!-- Account / Card -->
-          <div v-if="transaction.account || transaction.card" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
-            <span class="text-sm text-muted-foreground shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
-            <span class="text-sm font-medium text-foreground text-right">
+          <div v-if="transaction.account || transaction.card" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
+            <span class="text-[13px] font-medium text-foreground text-right">
               {{ transaction.account?.name ?? transaction.card?.name }}
             </span>
           </div>
 
           <!-- Status -->
-          <div class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
-            <span class="text-sm text-muted-foreground shrink-0">Status</span>
+          <div class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Status</span>
             <span
-              class="inline-flex items-center gap-1 text-sm font-medium"
-              :class="transaction.status === 'pending' ? 'text-muted-foreground' : 'text-success'"
+              class="inline-flex items-center gap-1 text-[13px] font-medium"
+              :class="transaction.status === 'pending' ? 'text-warning' : 'text-success'"
             >
               <Clock v-if="transaction.status === 'pending'" :size="12" />
               {{ transaction.status === 'pending' ? 'Agendada' : 'Confirmada' }}
@@ -193,9 +193,9 @@ const amountClass = computed(() => {
           </div>
 
           <!-- Fix indicator with frequency -->
-          <div v-if="transaction.is_recurring" class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5">
-            <span class="text-sm text-muted-foreground shrink-0">Tipo</span>
-            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+          <div v-if="transaction.is_recurring" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Tipo</span>
+            <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
               <Repeat :size="12" />
               Fix
               <template v-if="(transaction.recurrence_config as Record<string,unknown> | null)?.frequency">
@@ -211,23 +211,23 @@ const amountClass = computed(() => {
           <!-- Installment indicator -->
           <div
             v-if="transaction.installment_number && transaction.total_installments"
-            class="flex items-center justify-between px-4 py-3.5 gap-4 border-b border-white/5"
+            class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30"
           >
-            <span class="text-sm text-muted-foreground shrink-0">Parcela</span>
-            <span class="text-sm font-semibold tabular-nums text-right">
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Parcela</span>
+            <span class="text-[13px] font-semibold tabular-nums text-right text-foreground">
               {{ transaction.installment_number }} de {{ transaction.total_installments }}
             </span>
           </div>
 
           <!-- Notes -->
-          <div v-if="transaction.notes" class="px-4 py-3.5 border-b border-white/5">
-            <p class="text-sm text-muted-foreground mb-1.5">Observações</p>
-            <p class="text-sm text-foreground leading-relaxed">{{ transaction.notes }}</p>
+          <div v-if="transaction.notes" class="px-5 py-3 border-b border-border/30">
+            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-wider mb-1.5">Observações</p>
+            <p class="text-[13px] text-foreground leading-relaxed">{{ transaction.notes }}</p>
           </div>
 
           <!-- Tags -->
-          <div v-if="transaction.tags && transaction.tags.length > 0" class="px-4 py-3.5">
-            <p class="text-sm text-muted-foreground mb-2">Tags</p>
+          <div v-if="transaction.tags && transaction.tags.length > 0" class="px-5 py-3">
+            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-wider mb-2">Tags</p>
             <div class="flex flex-wrap gap-1.5">
               <span
                 v-for="tag in transaction.tags"
@@ -248,7 +248,7 @@ const amountClass = computed(() => {
             v-if="transaction.status === 'pending'"
             type="button"
             :disabled="confirming"
-            class="h-11 rounded-md bg-success text-background text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60"
+            class="h-[52px] rounded-xl bg-success text-background text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
             @click="handleConfirm"
           >
             <CheckCircle2 :size="16" />
@@ -258,7 +258,7 @@ const amountClass = computed(() => {
             <!-- Excluir -->
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 h-11 rounded-lg text-[11px] font-semibold border transition-all active:scale-95 hover:opacity-80 bg-white/5 border-white/[0.08] text-destructive"
+              class="flex flex-col items-center justify-center gap-1.5 h-14 rounded-xl text-[11px] font-medium border border-border bg-card transition-all active:scale-95 text-destructive hover:bg-destructive/10 hover:border-destructive/30"
               @click="onDelete"
             >
               <Trash2 :size="16" />
@@ -267,7 +267,7 @@ const amountClass = computed(() => {
             <!-- Duplicar -->
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 h-11 rounded-lg text-[11px] font-semibold border transition-all active:scale-95 hover:opacity-80 bg-white/5 border-white/[0.08] text-muted-foreground"
+              class="flex flex-col items-center justify-center gap-1.5 h-14 rounded-xl text-[11px] font-medium border border-border bg-card transition-all active:scale-95 text-muted-foreground hover:bg-muted hover:text-foreground"
               @click="onDuplicate"
             >
               <Copy :size="16" />
@@ -276,7 +276,7 @@ const amountClass = computed(() => {
             <!-- Editar -->
             <button
               type="button"
-              class="flex flex-col items-center justify-center gap-1.5 h-11 rounded-lg text-[11px] font-semibold border transition-all active:scale-95 hover:opacity-80 bg-white/5 border-white/[0.08] text-foreground"
+              class="flex flex-col items-center justify-center gap-1.5 h-14 rounded-xl text-[11px] font-medium border border-border bg-card transition-all active:scale-95 text-foreground hover:bg-muted"
               @click="onEdit"
             >
               <Pencil :size="16" />
