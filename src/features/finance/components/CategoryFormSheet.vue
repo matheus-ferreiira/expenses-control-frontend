@@ -91,10 +91,10 @@ async function save() {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border p-0 max-h-[92vh] flex flex-col [&>button]:hidden bg-background"
+      class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
       <!-- Header -->
       <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
@@ -115,7 +115,7 @@ async function save() {
 
         <!-- Nome -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Nome <span class="text-destructive">*</span>
           </p>
           <input
@@ -128,7 +128,7 @@ async function save() {
 
         <!-- Tipo -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Tipo
           </p>
           <div class="grid grid-cols-2 gap-2">
@@ -137,7 +137,7 @@ async function save() {
               class="flex items-center justify-center h-9 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'expense'
                 ? 'bg-destructive/12 border border-destructive/25 text-destructive'
-                : 'bg-white/5 border border-white/[0.08] text-muted-foreground'"
+                : 'bg-muted/60 border border-border text-muted-foreground'"
               @click="type = 'expense'"
             >
               Despesa
@@ -147,7 +147,7 @@ async function save() {
               class="flex items-center justify-center h-9 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'income'
                 ? 'bg-primary/12 border border-primary/25 text-primary'
-                : 'bg-white/5 border border-white/[0.08] text-muted-foreground'"
+                : 'bg-muted/60 border border-border text-muted-foreground'"
               @click="type = 'income'"
             >
               Receita
@@ -157,7 +157,7 @@ async function save() {
 
         <!-- Cor -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Cor
           </p>
           <CategoryColorPicker v-model="color" />
@@ -165,7 +165,7 @@ async function save() {
 
         <!-- Ícone -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Ícone
           </p>
           <CategoryIconPicker v-model="icon" :color="color" />
@@ -173,7 +173,7 @@ async function save() {
 
         <!-- Meta mensal -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Meta mensal <span class="text-muted-foreground/30 normal-case font-normal">(opcional)</span>
           </p>
           <div class="flex items-center gap-2 h-12 px-4 rounded-lg bg-card border border-border/60 focus-within:border-primary transition-colors">
@@ -203,7 +203,7 @@ async function save() {
       <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-12 rounded-lg text-sm transition-colors bg-white/5 border border-white/[0.08] text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
           @click="close"
         >
           Cancelar
@@ -211,7 +211,7 @@ async function save() {
         <button
           type="button"
           :disabled="saving || !name.trim()"
-          class="flex-1 h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-background disabled:opacity-40 disabled:cursor-not-allowed"
           @click="save"
         >
           <Loader2 v-if="saving" :size="16" class="animate-spin" />

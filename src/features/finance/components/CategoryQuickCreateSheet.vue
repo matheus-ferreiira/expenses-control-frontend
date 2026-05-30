@@ -72,10 +72,10 @@ async function create() {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[90vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[90vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
       <!-- Header -->
       <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
@@ -97,7 +97,7 @@ async function create() {
 
         <!-- Name -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Nome <span class="text-destructive">*</span>
           </p>
           <input
@@ -110,7 +110,7 @@ async function create() {
 
         <!-- Type pills -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Tipo
           </p>
           <div class="grid grid-cols-2 gap-1 p-1 bg-card rounded-xl">
@@ -141,7 +141,7 @@ async function create() {
 
         <!-- Color -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Cor
           </p>
           <CategoryColorPicker v-model="color" />
@@ -149,7 +149,7 @@ async function create() {
 
         <!-- Icon -->
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Ícone
           </p>
           <CategoryIconPicker v-model="icon" :color="color" />
@@ -161,7 +161,7 @@ async function create() {
       <div class="px-4 pt-2 pb-5 shrink-0">
         <button
           type="button"
-          class="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-white"
+          class="w-full h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-background"
           :class="[
             type === 'expense' ? 'bg-destructive' : 'bg-success',
             (!name.trim() || saving) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90',

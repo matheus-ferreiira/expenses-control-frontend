@@ -327,7 +327,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border p-0 max-h-[95vh] flex flex-col [&>button]:hidden bg-background"
+      class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[95vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
@@ -838,8 +838,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-background">
         <button
           type="button"
-          class="w-full h-[52px] rounded-[10px] text-[15px] font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-          :class="[(!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90', typeConfig.saveBg, 'text-white']"
+          class="w-full h-[52px] rounded-xl text-[15px] font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          :class="[(!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90', typeConfig.saveBg, 'text-background']"
           :disabled="submitting || !isFormValid"
           @click="submit"
         >

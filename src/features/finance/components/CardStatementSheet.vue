@@ -111,7 +111,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
   <Sheet :open="open" @update:open="emit('update:open', $event)">
     <SheetContent
       side="bottom"
-      class="rounded-t-lg border-t border-border bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+      class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
       <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
