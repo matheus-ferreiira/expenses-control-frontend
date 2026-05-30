@@ -10,11 +10,11 @@ import {
   LayoutDashboard, CheckSquare, Flame, Target, CalendarDays,
   Wallet, FileText, BookOpen, Bookmark, ShoppingCart,
   Lock, Settings, Search, Plus, Moon, Sun,
-  PanelLeftClose, PanelLeftOpen, ChevronDown,
+  PanelLeftClose, PanelLeftOpen, ChevronDown, X,
   ArrowUpDown, Landmark, CreditCard, PieChart, Tag,
 } from 'lucide-vue-next'
 
-defineProps<{ open: boolean }>()
+const props = withDefaults(defineProps<{ open: boolean; mobile?: boolean }>(), { mobile: false })
 const emit = defineEmits<{
   toggle: []
   search: []
@@ -123,12 +123,39 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
 <template>
   <aside
-    class="flex flex-col h-full bg-background border-r border-border transition-[width] duration-300 ease-in-out overflow-hidden"
-    :class="open ? 'w-56' : 'w-[52px]'"
+    class="flex flex-col h-full bg-background transition-[width] duration-300 ease-in-out overflow-hidden"
+    :class="props.mobile ? 'w-full' : (props.open ? 'w-56 border-r border-border' : 'w-[52px] border-r border-border')"
   >
-    <!-- ─── Logo ─────────────────────────────────────────────── -->
-    <div class="flex items-center h-[52px] px-3 border-b border-border shrink-0">
-      <div v-if="open" class="flex items-center gap-2 flex-1 min-w-0">
+
+    <!-- ─── Mobile header (avatar + name + email + close) ─────── -->
+    <div v-if="props.mobile" class="flex items-center justify-between px-5 pt-5 pb-4 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <Avatar class="h-10 w-10 shrink-0">
+          <AvatarFallback class="text-sm font-semibold bg-primary/20 text-primary">
+            {{ initials(auth.user?.name) }}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <p class="text-[15px] font-semibold text-foreground leading-tight">
+            {{ auth.user?.name ?? 'Usuário' }}
+          </p>
+          <p class="text-[12px] text-muted-foreground/60 leading-tight">
+            {{ auth.user?.email ?? '' }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="size-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        @click="emit('toggle')"
+      >
+        <X :size="18" />
+      </button>
+    </div>
+
+    <!-- ─── Desktop logo ─────────────────────────────────────── -->
+    <div v-else class="flex items-center h-[52px] px-3 border-b border-border shrink-0">
+      <div v-if="props.open" class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
         <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none text-muted-foreground/40 border-border">
           Beta
@@ -138,7 +165,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
         <span class="text-[14px] font-bold text-foreground select-none">V</span>
       </div>
       <button
-        v-if="open"
+        v-if="props.open"
         class="shrink-0 p-1 rounded text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors duration-150 ml-1"
         @click="emit('toggle')"
       >
@@ -146,9 +173,26 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       </button>
     </div>
 
-    <!-- ─── Search + Quick add ────────────────────────────────── -->
-    <div class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
-      <template v-if="open">
+    <!-- ─── Mobile search + quick add ─────────────────────────── -->
+    <div v-if="props.mobile" class="px-4 pb-4 flex gap-2 shrink-0">
+      <button
+        class="flex-1 flex items-center gap-2.5 h-11 px-4 rounded-xl bg-muted border border-border text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        @click="emit('search')"
+      >
+        <Search :size="15" class="shrink-0" />
+        <span>Buscar...</span>
+      </button>
+      <button
+        class="h-11 w-11 rounded-xl bg-primary flex items-center justify-center text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+        @click="emit('quickAdd')"
+      >
+        <Plus :size="18" />
+      </button>
+    </div>
+
+    <!-- ─── Desktop search + quick add ─────────────────────────── -->
+    <div v-else class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
+      <template v-if="props.open">
         <button
           class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-white/[0.04] hover:text-muted-foreground/80"
           @click="emit('search')"
@@ -184,17 +228,26 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
     <!-- ─── Navigation ────────────────────────────────────────── -->
     <ScrollArea class="flex-1 overflow-hidden">
-      <nav class="px-2 pb-2">
+      <nav :class="props.mobile ? 'px-3 pb-3' : 'px-2 pb-2'">
         <template v-for="(section, sectionIdx) in navSections" :key="sectionIdx">
 
           <!-- Section label (expanded) -->
-          <div v-if="open && section.label" :class="['px-3 mb-1', sectionIdx > 0 ? 'mt-4' : '']">
-            <span class="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-widest">
+          <div
+            v-if="props.open && section.label"
+            :class="props.mobile
+              ? ['px-4 mb-1', sectionIdx > 0 ? 'mt-5' : '']
+              : ['px-3 mb-1', sectionIdx > 0 ? 'mt-4' : '']"
+          >
+            <span
+              :class="props.mobile
+                ? 'text-[11px] font-medium text-muted-foreground/40 uppercase tracking-widest'
+                : 'text-[10px] font-medium text-muted-foreground/50 uppercase tracking-widest'"
+            >
               {{ section.label }}
             </span>
           </div>
-          <!-- Section divider (collapsed) -->
-          <div v-else-if="!open && sectionIdx > 0" class="mt-3 mb-1 mx-2 border-t border-border" />
+          <!-- Section divider (collapsed desktop) -->
+          <div v-else-if="!props.open && sectionIdx > 0" class="mt-3 mb-1 mx-2 border-t border-border" />
 
           <template v-for="item in section.items" :key="item.route">
 
@@ -203,16 +256,20 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
               <!-- Expanded: group header button -->
               <button
-                v-if="open"
+                v-if="props.open"
                 type="button"
-                class="group flex items-center gap-3 w-full rounded-lg text-sm transition-colors duration-150 mb-0.5"
+                class="group flex items-center w-full transition-colors duration-150 mb-0.5"
                 :class="isOnFinance
-                  ? 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium'
-                  : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground'"
+                  ? (props.mobile
+                      ? 'bg-white/[0.08] pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
+                      : 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                  : (props.mobile
+                      ? 'px-4 py-3 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-xl gap-3.5'
+                      : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg gap-3')"
                 @click="financeGroupOpen = !financeGroupOpen"
               >
-                <component :is="item.icon" :size="18" class="shrink-0" />
-                <span class="flex-1 truncate text-left">{{ item.label }}</span>
+                <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
+                <span class="flex-1 truncate text-left" :class="props.mobile ? 'text-[14px]' : 'text-sm'">{{ item.label }}</span>
                 <ChevronDown
                   :size="12"
                   class="shrink-0 transition-transform duration-200 text-muted-foreground"
@@ -221,25 +278,28 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
               </button>
 
               <!-- Expanded: subitems -->
-              <template v-if="open && financeGroupOpen">
+              <template v-if="props.open && financeGroupOpen">
                 <RouterLink
                   v-for="child in item.children"
                   :key="child.route"
                   :to="{ name: child.route }"
-                  class="flex items-center gap-2 pl-9 pr-3 py-1.5 rounded-lg text-xs transition-colors duration-150 mb-0.5"
-                  :class="isChildActive(child.route)
-                    ? 'text-primary font-medium'
-                    : 'text-muted-foreground/70 hover:bg-white/5 hover:text-foreground'"
+                  class="flex items-center rounded-lg transition-colors duration-150 mb-0.5"
+                  :class="[
+                    props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2 pl-9 pr-3 py-1.5 text-xs',
+                    isChildActive(child.route)
+                      ? 'text-primary font-medium'
+                      : 'text-muted-foreground/70 hover:bg-white/5 hover:text-foreground',
+                  ]"
                   @click="emit('navigate')"
                 >
-                  <component :is="child.icon" :size="14" class="shrink-0" />
+                  <component :is="child.icon" :size="props.mobile ? 15 : 14" class="shrink-0" />
                   <span class="truncate">{{ child.label }}</span>
                 </RouterLink>
               </template>
 
-              <!-- Collapsed: icon links to Finance root -->
+              <!-- Collapsed: icon only (desktop) -->
               <RouterLink
-                v-if="!open"
+                v-if="!props.open"
                 :to="{ name: item.route }"
                 class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
                 :class="isOnFinance
@@ -256,23 +316,27 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
               <!-- Expanded -->
               <RouterLink
-                v-if="open"
+                v-if="props.open"
                 :to="{ name: item.route }"
-                class="group flex items-center gap-3 rounded-lg text-sm transition-colors duration-150 mb-0.5"
+                class="group flex items-center transition-colors duration-150 mb-0.5"
                 :class="isActive(item.route)
-                  ? 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium'
-                  : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground'"
+                  ? (props.mobile
+                      ? 'bg-white/[0.08] pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
+                      : 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                  : (props.mobile
+                      ? 'px-4 py-3 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-xl gap-3.5'
+                      : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg gap-3')"
                 @click="emit('navigate')"
               >
-                <component :is="item.icon" :size="18" class="shrink-0" />
-                <span class="flex-1 truncate">{{ item.label }}</span>
+                <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
+                <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-sm'">{{ item.label }}</span>
                 <span
-                  v-if="item.shortcut"
+                  v-if="item.shortcut && !props.mobile"
                   class="text-[9.5px] font-mono text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                 >{{ item.shortcut }}</span>
               </RouterLink>
 
-              <!-- Collapsed -->
+              <!-- Collapsed (desktop only) -->
               <RouterLink
                 v-else
                 :to="{ name: item.route }"
@@ -292,12 +356,26 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       </nav>
     </ScrollArea>
 
-    <!-- ─── Footer ────────────────────────────────────────────── -->
-    <div class="border-t border-border shrink-0">
+    <!-- ─── Mobile footer (theme toggle only) ───────────────── -->
+    <div v-if="props.mobile" class="px-4 pb-8 pt-3 border-t border-border/40 mt-auto shrink-0">
+      <button
+        class="flex items-center gap-2.5 w-full py-2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+        @click="ui.toggleTheme()"
+      >
+        <Moon v-if="ui.theme === 'dark'" :size="14" />
+        <Sun v-else :size="14" />
+        <span class="text-[12px]">
+          {{ ui.theme === 'dark' ? 'Modo escuro' : 'Modo claro' }}
+        </span>
+      </button>
+    </div>
+
+    <!-- ─── Desktop footer ───────────────────────────────────── -->
+    <div v-else class="border-t border-border shrink-0">
 
       <!-- Theme toggle (expanded) -->
       <button
-        v-if="open"
+        v-if="props.open"
         class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground/50 hover:bg-white/5 hover:text-muted-foreground transition-colors duration-150"
         @click="ui.toggleTheme()"
       >
@@ -311,7 +389,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
       <!-- Expand toggle (collapsed) -->
       <button
-        v-if="!open"
+        v-if="!props.open"
         class="flex justify-center w-full p-2 text-muted-foreground/30 hover:bg-white/5 hover:text-muted-foreground/60 transition-colors duration-150 mt-1 mb-1"
         @click="emit('toggle')"
       >
@@ -319,7 +397,7 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
       </button>
 
       <!-- User row (expanded) -->
-      <div v-if="open" class="flex items-center gap-2.5 px-3 py-3">
+      <div v-if="props.open" class="flex items-center gap-2.5 px-3 py-3">
         <Avatar class="h-8 w-8 shrink-0">
           <AvatarFallback class="text-xs font-medium bg-primary/20 text-primary">
             {{ initials(auth.user?.name) }}

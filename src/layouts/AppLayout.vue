@@ -84,10 +84,11 @@ const mobileHeaderTitle = computed(() => {
     <Sheet v-model:open="mobileMenuOpen">
       <SheetContent
         side="left"
-        class="p-0 border-r-0 w-[220px] max-w-[220px] [&>button]:hidden"
+        class="p-0 border-r-0 w-full max-w-full [&>button]:hidden bg-background border-r border-primary/20"
       >
         <AppSidebar
           :open="true"
+          :mobile="true"
           @toggle="mobileMenuOpen = false"
           @search="openSearch"
           @quick-add="openQuickAdd"
