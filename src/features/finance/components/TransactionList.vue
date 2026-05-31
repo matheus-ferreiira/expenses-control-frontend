@@ -25,6 +25,8 @@ const props = defineProps<{
   loadingAll?: boolean
   /** ID of a just-created transaction to highlight temporarily */
   highlightedId?: string
+  /** Month context: drives empty-state copy. */
+  monthContext?: 'current' | 'past' | 'future'
 }>()
 
 const emit = defineEmits<{
@@ -61,48 +63,57 @@ const isTruncated = computed(() =>
     </div>
   </div>
 
-  <!-- Empty state — Lovable style -->
-  <div v-else-if="transactions.length === 0" class="px-8 py-12 text-center">
-    <div class="size-14 mx-auto rounded-lg bg-card border border-border grid place-items-center mb-3">
+  <!-- Empty state -->
+  <div v-else-if="transactions.length === 0" class="flex flex-col items-center justify-center py-16">
+    <div class="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center">
       <component
         :is="hasFilter ? Search : Inbox"
-        :size="24"
-        class="text-muted-foreground"
+        :size="22"
+        class="text-muted-foreground/40"
       />
     </div>
-    <p class="text-[15px] font-semibold">
-      {{ hasFilter ? 'Nenhuma transação encontrada' : 'Nenhum gasto ainda este mês' }}
+    <p class="text-[15px] font-semibold text-foreground mt-4">
+      {{ hasFilter
+        ? 'Nenhuma transação encontrada'
+        : monthContext === 'past'
+          ? 'Sem transações neste período'
+          : 'Nenhum gasto ainda este mês' }}
     </p>
-    <p class="text-[12.5px] text-muted-foreground mt-1 max-w-[260px] mx-auto leading-snug">
-      {{ hasFilter ? 'Ajuste os filtros ou registre uma nova.' : 'Ótimo começo! Registre sua primeira transação.' }}
+    <p class="text-[13px] text-muted-foreground/50 mt-1 text-center max-w-[220px]">
+      {{ hasFilter
+        ? 'Ajuste os filtros ou registre uma nova.'
+        : monthContext === 'past'
+          ? 'Nenhuma movimentação registrada neste mês.'
+          : 'Ótimo começo! Registre sua primeira transação.' }}
     </p>
     <button
+      v-if="!hasFilter && monthContext !== 'past'"
       type="button"
-      class="mt-4 inline-flex items-center gap-1.5 h-11 px-5 rounded-md bg-foreground text-background text-sm font-semibold active:scale-95 transition-transform"
+      class="mt-4 inline-flex items-center gap-1.5 h-10 px-5 rounded-lg border border-border text-foreground text-[13px] font-medium hover:bg-muted/40 active:scale-95 transition-all"
       @click="emit('addNew')"
     >
-      <Plus :size="16" /> Registrar agora
+      <Plus :size="14" /> Registrar agora
     </button>
   </div>
 
   <!-- Grouped list -->
   <div v-else :class="nested ? '' : 'rounded-md border border-border overflow-clip'">
     <template v-for="group in groups" :key="group.date">
-      <!-- Date header — minimal: date label + daily total -->
-      <div class="px-4 pt-3 pb-1 flex items-center justify-between gap-2">
-        <span class="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+      <!-- Date header -->
+      <div class="flex justify-between items-center mt-5 mb-1 px-1">
+        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           {{ group.label }}
         </span>
         <span
           v-if="group.income !== 0 || group.expenses !== 0"
-          class="text-[11px] tabular-nums text-muted-foreground"
+          class="text-[12px] tabular-nums text-muted-foreground/40"
         >
           {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
         </span>
       </div>
 
       <!-- Transactions -->
-      <ul class="divide-y divide-border/60">
+      <ul class="divide-y divide-border/20">
         <TransactionCard
           v-for="t in group.transactions"
           :key="t.id"

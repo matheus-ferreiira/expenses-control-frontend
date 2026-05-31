@@ -18,6 +18,7 @@ import { useFinanceStore } from '@/stores/finance'
 import { useTransactionFilters } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
+import { currentMonth } from '@/features/finance/utils/financeHelpers'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -230,6 +231,13 @@ async function confirmDelete() {
 
 onMounted(async () => {
   await Promise.all([store.fetchAll(), loadTransactions()])
+})
+
+// ── Month context (for empty state copy) ─────────────────────────────────────
+const monthContext = computed<'current' | 'past' | 'future'>(() => {
+  const now = currentMonth()
+  if (filterState.month.value === now) return 'current'
+  return filterState.month.value > now ? 'future' : 'past'
 })
 
 // ── Summary card data ─────────────────────────────────────────────────────────
@@ -546,7 +554,9 @@ const pendingExpenses = computed(() =>
     <TransactionList
       :transactions="filteredTransactions"
       :loading="store.loading"
+      :nested="true"
       :has-filter="hasAnyFilter || !!searchQuery"
+      :month-context="monthContext"
       @select="openDetail"
       @add-new="openCreate"
     />

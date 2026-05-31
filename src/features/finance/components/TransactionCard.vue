@@ -28,7 +28,7 @@ const highlightBg = computed(() => {
   <li :id="`tx-${transaction.id}`" class="relative">
     <button
       type="button"
-      class="w-full flex items-center gap-3 pl-4 pr-4 min-h-[56px] text-left hover:bg-muted/40 active:bg-muted/60 transition-colors duration-150 cursor-pointer"
+      class="w-full flex items-center gap-3 py-3 px-1 text-left transition-colors duration-150 cursor-pointer"
       :class="[isPending ? 'opacity-60' : '', highlightBg]"
       @click="emit('select', transaction)"
     >
@@ -63,14 +63,14 @@ const highlightBg = computed(() => {
       </div>
 
       <!-- Description + subtitle -->
-      <div class="flex-1 min-w-0 py-3.5">
+      <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5">
           <Clock v-if="isPending" :size="10" class="text-warning shrink-0" />
-          <p class="text-[14px] truncate font-medium text-foreground">{{ transaction.description }}</p>
+          <p class="text-[14px] font-medium text-foreground leading-tight truncate">{{ transaction.description }}</p>
           <Repeat
             v-if="transaction.is_recurring"
             :size="12"
-            class="text-muted-foreground shrink-0"
+            class="text-muted-foreground/35 shrink-0 ml-1"
           />
           <span
             v-if="transaction.installment_number && transaction.total_installments"
@@ -79,7 +79,7 @@ const highlightBg = computed(() => {
             {{ transaction.installment_number }}/{{ transaction.total_installments }}
           </span>
         </div>
-        <p class="text-[12px] text-muted-foreground truncate mt-0.5 flex items-center gap-1.5">
+        <p class="text-[12px] text-muted-foreground/50 truncate mt-0.5 flex items-center gap-1.5">
           <span class="truncate">
             <template v-if="transaction.type === 'transfer'">
               <span class="inline-flex items-center gap-1">
