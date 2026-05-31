@@ -3,7 +3,6 @@ import { onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import { Input } from '@ui/input'
-import { Button } from '@ui/button'
 import { useAuthStore } from '@/stores/auth'
 import { ROUTES } from '@/constants/routes'
 import { PasswordField } from '@/features/auth/components'
@@ -45,32 +44,18 @@ async function handleLogin() {
     </div>
 
     <!-- OAuth buttons -->
-    <div class="grid grid-cols-2 gap-2.5">
-      <a
-        :href="`${apiUrl}/api/v1/auth/google/redirect`"
-        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-base hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <!-- Google icon -->
-        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Google
-      </a>
-      <button
-        type="button"
-        class="flex h-10 items-center justify-center gap-2.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground/70 transition-base hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        disabled
-      >
-        <!-- Apple icon -->
-        <svg width="14" height="14" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true" class="text-foreground/80">
-          <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.5 0 663 0 541.8c0-194.3 127.4-297.5 252.2-297.5 66.1 0 121.2 43.4 162.6 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
-        </svg>
-        Apple
-      </button>
-    </div>
+    <a
+      :href="`${apiUrl}/api/v1/auth/google/redirect`"
+      class="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" class="shrink-0">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Entrar com Google
+    </a>
 
     <!-- Divider -->
     <div class="flex items-center gap-3">
@@ -108,7 +93,7 @@ async function handleLogin() {
           </label>
           <RouterLink
             :to="{ name: ROUTES.FORGOT_PASSWORD }"
-            class="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
+            class="text-[12px] text-muted-foreground hover:text-foreground transition-colors"
           >
             Esqueceu a senha?
           </RouterLink>
@@ -133,14 +118,14 @@ async function handleLogin() {
       </div>
 
       <!-- Submit -->
-      <Button
+      <button
         type="submit"
-        class="w-full h-10 font-medium transition-opacity"
+        class="w-full h-11 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
         :disabled="auth.loading"
       >
-        <Loader2 v-if="auth.loading" :size="13" class="mr-2 animate-spin" />
+        <Loader2 v-if="auth.loading" :size="14" class="animate-spin" />
         {{ auth.loading ? 'Entrando...' : 'Entrar' }}
-      </Button>
+      </button>
     </form>
 
     <!-- Sign up link -->
@@ -148,7 +133,7 @@ async function handleLogin() {
       Não tem conta?
       <RouterLink
         :to="{ name: ROUTES.REGISTER }"
-        class="font-medium text-foreground/70 hover:text-foreground transition-base underline underline-offset-4 decoration-border/60"
+        class="font-semibold text-primary hover:text-primary/80 transition-colors"
       >
         Criar conta
       </RouterLink>
