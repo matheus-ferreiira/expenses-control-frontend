@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle, Pencil as PencilIcon } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,6 @@ import { useTransactionFilters, type QuickFilter } from '@/features/finance/comp
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent, monthLabel as getMonthLabel, getCardBillingPeriod } from '@/features/finance/utils/financeHelpers'
-import { findIcon } from '@/lib/icons'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -64,41 +63,6 @@ const transactionPrefill = ref<TransactionPrefill | null>(null)
 const deleteOpen = ref(false)
 const deletingTransaction = ref<Transaction | null>(null)
 const deleting = ref(false)
-
-// Budget editing state
-const editingBudgetCatId = ref<string | null>(null)
-const editingBudgetValue = ref('')
-const savingBudget = ref(false)
-
-function startEditBudget(catId: string, currentLimit: number | null) {
-  editingBudgetCatId.value = catId
-  editingBudgetValue.value = currentLimit != null ? String(currentLimit) : ''
-}
-
-function cancelEditBudget() {
-  editingBudgetCatId.value = null
-  editingBudgetValue.value = ''
-}
-
-async function saveBudget(catId: string, remove = false) {
-  savingBudget.value = true
-  try {
-    const limit: number | null = remove
-      ? null
-      : (() => {
-          const raw = editingBudgetValue.value.replace(',', '.').trim()
-          const v = parseFloat(raw)
-          return raw === '' || isNaN(v) ? null : v
-        })()
-    await store.updateCategory(catId, { monthly_limit: limit } as Parameters<typeof store.updateCategory>[1])
-    toast.success(remove ? 'Meta removida' : 'Meta atualizada')
-    editingBudgetCatId.value = null
-  } catch {
-    toast.error('Erro ao salvar meta')
-  } finally {
-    savingBudget.value = false
-  }
-}
 
 // Highlight newly created transaction
 const newlyCreatedId = ref<string | null>(null)
@@ -383,14 +347,6 @@ const expenseDelta = computed(() => {
 
 // incomeDelta reserved for future use
 // const incomeDelta = computed(() => prevMonthReport.value ? income.value - prevMonthReport.value.income : null)
-
-/** Map of category name → previous month total for quick lookup */
-const prevCategoryMap = computed<Map<string, number>>(() => {
-  const m = new Map<string, number>()
-  if (!prevMonthReport.value) return m
-  prevMonthReport.value.expenses_by_category.forEach((c) => m.set(c.category, c.total))
-  return m
-})
 
 async function loadPrevMonthReport() {
   const current = filterState.month.value
@@ -1063,246 +1019,6 @@ onMounted(async () => {
             </li>
           </ul>
         </div>
-
-        <!-- Categorias do mês -->
-        <div class="bg-card border border-border rounded-md overflow-hidden">
-          <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
-            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Categorias do mês</h2>
-          </header>
-
-          <!-- Loading skeleton -->
-          <div v-if="store.loading" class="divide-y divide-border">
-            <div v-for="i in 3" :key="i" class="px-4 py-3 space-y-2">
-              <div class="flex items-center gap-3">
-                <div class="size-7 rounded-md bg-muted/60 animate-pulse shrink-0" />
-                <div class="flex-1 h-3 rounded bg-muted/60 animate-pulse" />
-                <div class="h-3 w-16 rounded bg-muted/60 animate-pulse" />
-              </div>
-              <div class="ml-10 h-1.5 w-full rounded-full bg-muted/60 animate-pulse" />
-            </div>
-          </div>
-
-          <!-- Empty state: nenhuma meta configurada E nenhum gasto -->
-          <div
-            v-else-if="categoriesWithMeta.length === 0 && categoriesWithoutMeta.length === 0"
-            class="px-4 py-5 flex flex-col items-center text-center gap-2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
-            <p style="font-size: 13px; color: #888888">Nenhuma meta de categoria configurada.</p>
-            <RouterLink
-              :to="{ name: 'finance-categories' }"
-              class="inline-flex items-center justify-center h-8 px-3 rounded-lg text-[12px] font-medium transition-colors hover:bg-muted"
-              style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888"
-            >
-              Configurar
-            </RouterLink>
-          </div>
-
-          <!-- Empty state: tem gastos mas nenhuma meta -->
-          <div
-            v-else-if="categoriesWithMeta.length === 0 && categoriesWithoutMeta.length > 0"
-            class="px-4 py-5 flex flex-col items-center text-center gap-2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
-            <p style="font-size: 13px; color: #888888">Nenhuma meta de categoria configurada.</p>
-            <RouterLink
-              :to="{ name: 'finance-categories' }"
-              class="inline-flex items-center justify-center h-8 px-3 rounded-lg text-[12px] font-medium transition-colors hover:bg-muted"
-              style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #888888"
-            >
-              Configurar
-            </RouterLink>
-          </div>
-
-          <div v-else>
-            <!-- Grupo A: Com meta definida -->
-            <ul v-if="categoriesWithMeta.length > 0" class="divide-y divide-border">
-              <li v-for="cat in categoriesWithMeta" :key="cat.id">
-                <button
-                  type="button"
-                  title="Clique para ver as transações desta categoria"
-                  class="w-full text-left px-4 py-3 min-h-[52px] transition-colors hover:bg-muted/40 active:bg-muted/60 cursor-pointer group"
-                  @click="filterState.setCategoryId(filterState.category_id.value === cat.id ? undefined : cat.id)"
-                >
-                  <!-- Row: icon + name + amounts + budget pencil -->
-                  <div class="flex items-center gap-3">
-                    <span
-                      class="size-7 rounded-md grid place-items-center shrink-0"
-                      :style="{ background: cat.color + '22', color: cat.color }"
-                    >
-                      <component v-if="cat.icon && findIcon(cat.icon)" :is="findIcon(cat.icon)!.component" :size="14" :stroke-width="1.9" />
-                      <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
-                    </span>
-                    <span
-                      class="flex-1 text-sm font-medium transition-colors"
-                      :class="filterState.category_id.value === cat.id ? 'text-primary' : ''"
-                    >{{ cat.name }}</span>
-                    <div class="text-right mr-1">
-                      <span class="block text-[12px] tabular-nums font-semibold">{{ formatCurrency(cat.total) }}</span>
-                      <span class="block text-[10px] text-muted-foreground tabular-nums">de {{ formatCurrency(cat.monthlyLimit!) }}</span>
-                    </div>
-                    <!-- Budget edit button — separate from drill-down click, visible on hover -->
-                    <button
-                      type="button"
-                      title="Definir meta mensal"
-                      class="size-7 grid place-items-center rounded-md text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all shrink-0 opacity-0 group-hover:opacity-100"
-                      @click.stop="startEditBudget(cat.id, cat.monthlyLimit)"
-                    >
-                      <PencilIcon :size="12" />
-                    </button>
-                  </div>
-                  <!-- Progress bar — dynamic color -->
-                  <div class="mt-2 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      class="h-full rounded-full transition-all duration-700"
-                      :style="{
-                        width: Math.min(100, cat.budgetPercent!) + '%',
-                        background: cat.budgetPercent! >= 100 ? 'var(--color-destructive)'
-                          : cat.budgetPercent! >= 90 ? '#f97316'
-                          : cat.budgetPercent! >= 70 ? 'var(--color-warning)'
-                          : 'var(--color-success)',
-                      }"
-                    />
-                  </div>
-                  <!-- Status row -->
-                  <div class="mt-1 ml-10 flex items-center justify-between text-[11px]">
-                    <span
-                      v-if="cat.budgetPercent! >= 100"
-                      class="inline-flex items-center gap-1 px-1.5 h-5 rounded text-[10px] font-bold border bg-destructive/15 text-destructive border-destructive/30"
-                    >
-                      Excedeu {{ formatCurrency(cat.total - cat.monthlyLimit!) }}
-                    </span>
-                    <span v-else-if="cat.budgetPercent! >= 70" class="text-warning tabular-nums font-medium">
-                      {{ cat.budgetPercent }}% · faltam {{ formatCurrency(cat.monthlyLimit! - cat.total) }}
-                    </span>
-                    <span v-else class="text-muted-foreground tabular-nums">
-                      {{ cat.budgetPercent }}% · faltam {{ formatCurrency(cat.monthlyLimit! - cat.total) }}
-                    </span>
-                    <!-- Delta vs anterior -->
-                    <span
-                      v-if="prevCategoryMap.has(cat.name)"
-                      class="inline-flex items-center gap-0.5 font-semibold tabular-nums text-[10px]"
-                      :class="(cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? 'text-destructive' : 'text-success'"
-                    >
-                      {{ (cat.total - (prevCategoryMap.get(cat.name) ?? 0)) > 0 ? '+' : '-' }}{{ formatCurrency(Math.abs(cat.total - (prevCategoryMap.get(cat.name) ?? 0))) }}
-                    </span>
-                  </div>
-                </button>
-              </li>
-            </ul>
-
-            <!-- Grupo B: Com gasto mas sem meta -->
-            <div v-if="categoriesWithoutMeta.length > 0">
-              <div v-if="categoriesWithMeta.length > 0" class="px-4 pt-3 pb-1">
-                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Sem meta</p>
-              </div>
-              <ul class="divide-y divide-border">
-                <li v-for="cat in categoriesWithoutMeta" :key="cat.id">
-                  <div class="flex items-center gap-3 px-4 py-3">
-                    <span
-                      class="size-7 rounded-md grid place-items-center shrink-0"
-                      :style="{ background: cat.color + '22', color: cat.color }"
-                    >
-                      <component v-if="cat.icon && findIcon(cat.icon)" :is="findIcon(cat.icon)!.component" :size="14" :stroke-width="1.9" />
-                      <span v-else class="text-[11px] font-bold">{{ cat.name.charAt(0).toUpperCase() }}</span>
-                    </span>
-                    <span class="flex-1 text-sm">{{ cat.name }}</span>
-                    <span class="text-[12px] tabular-nums font-medium mr-2">{{ formatCurrency(cat.total) }}</span>
-                    <button
-                      type="button"
-                      class="text-[11px] font-medium px-3 min-h-[44px] rounded-md border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
-                      @click="startEditBudget(cat.id, null)"
-                    >
-                      Definir meta
-                    </button>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Budget edit sheet (improved) -->
-        <Sheet :open="editingBudgetCatId !== null" @update:open="(v) => { if (!v) cancelEditBudget() }">
-          <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
-            <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
-            <SheetHeader class="text-left mb-4">
-              <SheetTitle class="text-base">
-                Meta de {{ topCategories.find(c => c.id === editingBudgetCatId)?.name }}
-              </SheetTitle>
-              <SheetDescription class="text-xs">
-                <template v-if="topCategories.find(c => c.id === editingBudgetCatId)?.total">
-                  Você gastou {{ formatCurrency(topCategories.find(c => c.id === editingBudgetCatId)!.total) }} este mês nessa categoria.
-                </template>
-                <template v-else>
-                  Nenhum gasto registrado este mês nessa categoria.
-                </template>
-              </SheetDescription>
-            </SheetHeader>
-
-            <!-- Preview progress bar while typing -->
-            <div
-              v-if="editingBudgetValue && parseFloat(editingBudgetValue) > 0"
-              class="mb-4"
-            >
-              <div class="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  class="h-full rounded-full transition-all duration-300"
-                  :style="{
-                    width: Math.min(100, Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100)) + '%',
-                    background: Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100) >= 100
-                      ? 'var(--color-destructive)'
-                      : Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100) >= 70
-                        ? 'var(--color-warning)'
-                        : 'var(--color-success)',
-                  }"
-                />
-              </div>
-              <p class="text-[11px] text-muted-foreground mt-1 tabular-nums">
-                {{ Math.min(100, Math.round(((topCategories.find(c => c.id === editingBudgetCatId)?.total ?? 0) / parseFloat(editingBudgetValue)) * 100)) }}% da meta
-              </p>
-            </div>
-
-            <label class="block text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">Meta mensal</label>
-            <div class="flex items-center gap-2">
-              <span class="text-sm text-muted-foreground">R$</span>
-              <input
-                v-model="editingBudgetValue"
-                type="number"
-                inputmode="decimal"
-                min="0"
-                step="10"
-                placeholder="0"
-                class="flex-1 h-10 text-lg font-semibold tabular-nums bg-background border border-input rounded-md px-3 text-foreground"
-                @keyup.enter="editingBudgetCatId && saveBudget(editingBudgetCatId)"
-              />
-            </div>
-            <div class="flex gap-2 mt-5">
-              <button
-                type="button"
-                class="h-9 px-3 text-[12px] font-medium inline-flex items-center justify-center rounded-md border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors"
-                @click="editingBudgetCatId && saveBudget(editingBudgetCatId, true)"
-              >
-                Remover
-              </button>
-              <button
-                type="button"
-                class="flex-1 h-9 px-3 text-[13px] font-medium inline-flex items-center justify-center rounded-md border border-border bg-transparent hover:bg-muted/60 text-foreground transition-colors"
-                @click="cancelEditBudget"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                class="flex-1 h-9 px-3 text-[13px] font-medium inline-flex items-center justify-center rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors"
-                :disabled="savingBudget"
-                @click="editingBudgetCatId && saveBudget(editingBudgetCatId)"
-              >
-                Salvar meta
-              </button>
-            </div>
-          </SheetContent>
-        </Sheet>
 
         <!-- Upcoming bills — within 10 days -->
         <div v-if="!store.loading && upcomingBills.length > 0" class="bg-card border border-border rounded-md overflow-hidden">
