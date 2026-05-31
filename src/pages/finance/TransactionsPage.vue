@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { Plus, Search, X } from 'lucide-vue-next'
+import { Plus, Search, X, ChevronDown } from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@ui/dropdown-menu'
 import { AppPageContainer } from '@/components/shared'
 import TransactionSummaryCard from '@/features/finance/components/TransactionSummaryCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
@@ -10,12 +17,14 @@ import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useTransactionFilters } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
+import { formatCurrency } from '@/utils/currency'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
 const filterState = useTransactionFilters()
 const toast = useToast()
 
+// ── Dialogs ───────────────────────────────────────────────────────────────────
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
 const deleteOpen = ref(false)
@@ -51,11 +60,112 @@ function clearSearch() {
   searchInputRef.value?.focus()
 }
 
+// ── Filter chips — local UI state ─────────────────────────────────────────────
+type ChipId = 'all' | 'income' | 'expense' | 'transfer' | 'fix' | 'pending'
+
+const activeChip = ref<ChipId>('all')
+
+const CHIPS: { id: ChipId; label: string }[] = [
+  { id: 'all',      label: 'Todas' },
+  { id: 'income',   label: 'Receitas' },
+  { id: 'expense',  label: 'Despesas' },
+  { id: 'transfer', label: 'Transferências' },
+  { id: 'fix',      label: 'Fixas' },
+  { id: 'pending',  label: 'Pendentes' },
+]
+
+// Day filter — client-side, within the loaded month
+const selectedDay = ref<string | null>(null)
+
+const hasAnyFilter = computed(() =>
+  activeChip.value !== 'all' ||
+  !!filterState.account_id.value ||
+  !!filterState.category_id.value ||
+  !!selectedDay.value,
+)
+
+function setChip(chip: ChipId) {
+  activeChip.value = chip
+  selectedDay.value = null
+  if (chip === 'transfer') {
+    filterState.setType('transfer')
+    filterState.setQuickFilter('all')
+  } else {
+    filterState.setType(undefined)
+    filterState.setQuickFilter(chip)
+  }
+  loadTransactions()
+}
+
+function setAccount(id: string | undefined) {
+  filterState.setAccountId(id)
+  loadTransactions()
+}
+
+function setCategory(id: string | undefined) {
+  filterState.setCategoryId(id)
+  loadTransactions()
+}
+
+function selectDay(day: string | null) {
+  selectedDay.value = selectedDay.value === day ? null : day
+}
+
+function clearFilters() {
+  activeChip.value = 'all'
+  selectedDay.value = null
+  filterState.reset()
+  loadTransactions()
+}
+
+function formatDayLabel(dateStr: string): string {
+  const day = parseInt(dateStr.split('-')[2] ?? '0')
+  return `Dia ${day}`
+}
+
+// ── Filter-derived computed ───────────────────────────────────────────────────
+const selectedAccountName = computed(() =>
+  filterState.account_id.value
+    ? store.activeAccounts.find(a => a.id === filterState.account_id.value)?.name ?? null
+    : null,
+)
+
+const selectedCategoryName = computed(() =>
+  filterState.category_id.value
+    ? store.categories.find(c => c.id === filterState.category_id.value)?.name ?? null
+    : null,
+)
+
+const filterableCategories = computed(() => {
+  if (activeChip.value === 'income') return store.categories.filter(c => c.type === 'income')
+  if (activeChip.value === 'expense') return store.categories.filter(c => c.type === 'expense')
+  return store.categories
+})
+
+/** All days of the navigated month, annotated with whether any loaded transaction falls on that day. */
+const monthDays = computed(() => {
+  const parts = filterState.month.value.split('-').map(Number)
+  const year = parts[0]!
+  const mon = parts[1]!
+  const daysInMonth = new Date(year, mon, 0).getDate()
+  const txDates = new Set(store.transactions.map(t => t.transaction_date))
+  return Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1
+    const dateStr = `${year}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    return { day, dateStr, hasTx: txDates.has(dateStr) }
+  })
+})
+
+// ── Filtered transactions (day + search layered on API-filtered results) ───────
 const filteredTransactions = computed(() => {
+  let txs = store.transactions
+  if (selectedDay.value) {
+    txs = txs.filter(t => t.transaction_date === selectedDay.value)
+  }
   const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return store.transactions
-  return store.transactions.filter(
-    (t) =>
+  if (!q) return txs
+  return txs.filter(
+    t =>
       t.description.toLowerCase().includes(q) ||
       t.category?.name.toLowerCase().includes(q) ||
       t.account?.name.toLowerCase().includes(q) ||
@@ -63,12 +173,27 @@ const filteredTransactions = computed(() => {
   )
 })
 
-// ── Load ──────────────────────────────────────────────────────────────────────
+// ── Summary card enrichment ───────────────────────────────────────────────────
+const transactionCount = computed(() => store.transactions.length)
+
+const biggestExpense = computed(() => {
+  const expenses = store.transactions.filter(t => t.type === 'expense')
+  if (!expenses.length) return null
+  return expenses.reduce((max, t) => (t.amount > max.amount ? t : max))
+})
+
+// ── Load + watchers ───────────────────────────────────────────────────────────
 async function loadTransactions() {
   await store.fetchTransactions(filterState.toApiFilters())
 }
 
-watch(() => filterState.month.value, () => loadTransactions())
+watch(
+  () => filterState.month.value,
+  () => {
+    selectedDay.value = null
+    loadTransactions()
+  },
+)
 
 // ── CRUD ──────────────────────────────────────────────────────────────────────
 function openCreate() {
@@ -109,54 +234,56 @@ onMounted(async () => {
 
 // ── Summary card data ─────────────────────────────────────────────────────────
 const totalBalance = computed(() =>
-  store.activeAccounts.reduce((s, a) => s + a.balance, 0)
+  store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
 const monthIncome = computed(() =>
-  store.transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  store.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
 )
 const monthExpenses = computed(() =>
-  store.transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  store.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
 )
 const pendingIncome = computed(() =>
   store.transactions
-    .filter((t) => t.status === 'pending' && t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0)
+    .filter(t => t.status === 'pending' && t.type === 'income')
+    .reduce((s, t) => s + t.amount, 0),
 )
 const pendingExpenses = computed(() =>
   store.transactions
-    .filter((t) => t.status === 'pending' && t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0)
+    .filter(t => t.status === 'pending' && t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0),
 )
 </script>
 
 <template>
   <AppPageContainer>
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-3 sm:gap-0">
+
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <div class="flex items-start justify-between mb-5 pb-3 border-b border-border">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-0.5">
           Finanças
         </p>
-        <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
+        <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-none mb-1">
           Transações
         </h1>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-[13px] text-muted-foreground/60">
           Histórico completo de receitas e despesas.
         </p>
       </div>
-      <div class="flex items-center gap-2 shrink-0 sm:mt-1">
-        <!-- Search toggle button -->
+      <div class="flex items-center gap-2 mt-1 shrink-0">
+        <!-- Search toggle -->
         <button
           type="button"
-          class="h-8 w-8 flex items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:bg-accent/40 hover:text-foreground transition-colors"
-          :class="searchOpen ? 'bg-accent/40 text-foreground border-border' : ''"
+          class="h-9 w-9 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          :class="searchOpen ? 'bg-muted text-foreground' : ''"
           @click="toggleSearch"
         >
-          <Search :size="14" />
+          <Search :size="15" />
         </button>
+        <!-- + Transação — desktop only, FAB covers mobile -->
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
           @click="openCreate"
         >
           <Plus :size="14" />
@@ -165,7 +292,7 @@ const pendingExpenses = computed(() =>
       </div>
     </div>
 
-    <!-- Inline search bar (expandable) -->
+    <!-- ── Inline search ───────────────────────────────────────────────── -->
     <Transition
       enter-active-class="transition-all duration-200 ease-out"
       enter-from-class="opacity-0 -translate-y-1"
@@ -178,25 +305,24 @@ const pendingExpenses = computed(() =>
         <div class="relative">
           <Search
             :size="14"
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 pointer-events-none"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
           />
           <input
             ref="searchInputRef"
             v-model="searchQuery"
             type="text"
-            placeholder="Buscar por descrição, categoria ou conta…"
-            class="w-full h-9 pl-8 pr-8 rounded-lg bg-muted/60 border border-border/50 text-[13px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary/40"
+            placeholder="Buscar por nome, categoria, valor..."
+            class="w-full h-10 pl-9 pr-9 rounded-lg border border-border bg-card text-[13px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/60"
           />
           <button
             v-if="searchQuery"
             type="button"
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors"
             @click="clearSearch"
           >
             <X :size="13" />
           </button>
         </div>
-        <!-- Result count while searching -->
         <p v-if="searchQuery" class="mt-1.5 text-[11px] text-muted-foreground/50">
           {{ filteredTransactions.length }} resultado{{ filteredTransactions.length !== 1 ? 's' : '' }}
           para "{{ searchQuery }}"
@@ -204,36 +330,230 @@ const pendingExpenses = computed(() =>
       </div>
     </Transition>
 
+    <!-- ── Extended summary card ────────────────────────────────────────── -->
+    <div class="bg-card border border-border rounded-lg mb-4">
+      <!-- TransactionSummaryCard: neutralise its own border+radius so the outer div controls them -->
+      <TransactionSummaryCard
+        :month="filterState.month.value"
+        :income="monthIncome"
+        :expenses="monthExpenses"
+        :total-balance="totalBalance"
+        :pending-income="pendingIncome"
+        :pending-expenses="pendingExpenses"
+        class="!border-0 !rounded-none !shadow-none"
+        @prev="filterState.prevMonth()"
+        @next="filterState.nextMonth()"
+        @reset="filterState.resetToCurrentMonth()"
+      />
 
+      <!-- Enrichment row: transaction count + biggest expense -->
+      <div
+        v-if="!store.loading"
+        class="border-t border-border/40 px-4 pb-3 pt-2.5 grid grid-cols-2 gap-4"
+      >
+        <div>
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
+            Transações
+          </p>
+          <p class="text-[14px] font-semibold tabular-nums text-foreground">
+            {{ transactionCount }} no mês
+          </p>
+        </div>
+        <div v-if="biggestExpense">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
+            Maior despesa
+          </p>
+          <p class="text-[14px] font-semibold tabular-nums text-destructive">
+            {{ formatCurrency(biggestExpense.amount) }}
+          </p>
+          <p class="text-[11px] text-muted-foreground/50 truncate leading-tight mt-0.5">
+            {{ biggestExpense.category?.name ?? biggestExpense.description }}
+          </p>
+        </div>
+      </div>
+    </div>
 
-    <!-- Period summary card: nav + RECEITAS · DESPESAS · SALDO + context line -->
-    <TransactionSummaryCard
-      :month="filterState.month.value"
-      :income="monthIncome"
-      :expenses="monthExpenses"
-      :total-balance="totalBalance"
-      :pending-income="pendingIncome"
-      :pending-expenses="pendingExpenses"
-      class="mb-4"
-      @prev="filterState.prevMonth()"
-      @next="filterState.nextMonth()"
-      @reset="filterState.resetToCurrentMonth()"
-    />
+    <!-- ── Filter chips ─────────────────────────────────────────────────── -->
+    <div class="flex items-center gap-2 mb-4">
 
-    <!-- List label -->
-    <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
-      {{ searchQuery ? 'Resultados da busca' : 'Todas as transações' }}
-    </h2>
+      <!-- Scrollable chips area -->
+      <div class="flex-1 overflow-x-auto scrollbar-none min-w-0">
+        <div class="flex gap-2 py-0.5 w-max">
 
+          <!-- Type chips -->
+          <button
+            v-for="chip in CHIPS"
+            :key="chip.id"
+            type="button"
+            class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 whitespace-nowrap"
+            :class="activeChip === chip.id
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+            @click="setChip(chip.id)"
+          >
+            {{ chip.label }}
+          </button>
+
+          <!-- Divider -->
+          <div class="w-px h-5 bg-border/60 shrink-0 self-center" />
+
+          <!-- Account chip -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <button
+                type="button"
+                class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
+                :class="selectedAccountName
+                  ? 'bg-primary/15 text-primary border border-primary/30'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+              >
+                <span class="max-w-[100px] truncate">{{ selectedAccountName ?? 'Conta' }}</span>
+                <ChevronDown :size="10" class="opacity-60 shrink-0" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" class="w-48">
+              <DropdownMenuItem @click="setAccount(undefined)">
+                <span :class="!filterState.account_id.value ? 'text-primary font-medium' : ''">
+                  Todas as contas
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator v-if="store.activeAccounts.length" />
+              <DropdownMenuItem
+                v-for="acc in store.activeAccounts"
+                :key="acc.id"
+                @click="setAccount(acc.id)"
+              >
+                <span :class="filterState.account_id.value === acc.id ? 'text-primary font-medium' : ''">
+                  {{ acc.name }}
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <!-- Category chip -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <button
+                type="button"
+                class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
+                :class="selectedCategoryName
+                  ? 'bg-primary/15 text-primary border border-primary/30'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+              >
+                <span class="max-w-[100px] truncate">{{ selectedCategoryName ?? 'Categoria' }}</span>
+                <ChevronDown :size="10" class="opacity-60 shrink-0" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" class="w-48 max-h-64 overflow-y-auto">
+              <DropdownMenuItem @click="setCategory(undefined)">
+                <span :class="!filterState.category_id.value ? 'text-primary font-medium' : ''">
+                  Todas as categorias
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator v-if="filterableCategories.length" />
+              <DropdownMenuItem
+                v-for="cat in filterableCategories"
+                :key="cat.id"
+                @click="setCategory(cat.id)"
+              >
+                <span :class="filterState.category_id.value === cat.id ? 'text-primary font-medium' : ''">
+                  {{ cat.name }}
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <!-- Day picker chip -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <button
+                type="button"
+                class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
+                :class="selectedDay
+                  ? 'bg-primary/15 text-primary border border-primary/30'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+              >
+                {{ selectedDay ? formatDayLabel(selectedDay) : 'Data' }}
+                <ChevronDown :size="10" class="opacity-60 shrink-0" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" class="w-56 p-2">
+              <button
+                type="button"
+                class="w-full text-left text-[12px] px-2 py-1.5 rounded-md transition-colors hover:bg-muted/50"
+                :class="!selectedDay ? 'text-primary font-medium' : 'text-muted-foreground'"
+                @click="selectDay(null)"
+              >
+                Todos os dias
+              </button>
+              <div class="mt-1.5 border-t border-border/40 pt-2">
+                <!-- Days header -->
+                <div class="grid grid-cols-7 gap-0.5 mb-1">
+                  <span
+                    v-for="d in ['D','S','T','Q','Q','S','S']"
+                    :key="d"
+                    class="h-6 flex items-center justify-center text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/40"
+                  >{{ d }}</span>
+                </div>
+                <!-- Day grid -->
+                <div class="grid grid-cols-7 gap-0.5">
+                  <button
+                    v-for="{ day, dateStr, hasTx } in monthDays"
+                    :key="dateStr"
+                    type="button"
+                    class="h-7 w-full rounded-md text-[11px] flex items-center justify-center transition-colors"
+                    :class="[
+                      selectedDay === dateStr
+                        ? 'bg-primary text-primary-foreground font-semibold'
+                        : hasTx
+                          ? 'text-foreground font-medium hover:bg-muted/50 cursor-pointer'
+                          : 'text-muted-foreground/25 cursor-default',
+                    ]"
+                    @click="hasTx ? selectDay(dateStr) : undefined"
+                  >
+                    {{ day }}
+                  </button>
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+        </div>
+      </div>
+
+      <!-- Clear filters — fixed right, outside scroll -->
+      <Transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-100"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <button
+          v-if="hasAnyFilter"
+          type="button"
+          class="shrink-0 h-7 px-2.5 rounded-full text-[11px] font-medium flex items-center gap-1 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+          @click="clearFilters"
+        >
+          <X :size="10" />
+          Limpar
+        </button>
+      </Transition>
+    </div>
+
+    <!-- ── Transaction list ──────────────────────────────────────────────── -->
     <TransactionList
       :transactions="filteredTransactions"
       :loading="store.loading"
+      :has-filter="hasAnyFilter || !!searchQuery"
       @select="openDetail"
       @add-new="openCreate"
     />
+
   </AppPageContainer>
 
-  <!-- Transaction detail bottom sheet -->
+  <!-- ── Dialogs ──────────────────────────────────────────────────────── -->
   <TransactionDetailSheet
     v-model:open="detailOpen"
     :transaction="detailTransaction"
