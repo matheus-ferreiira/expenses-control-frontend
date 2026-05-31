@@ -6,6 +6,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Input } from '@ui/input'
 import { Loader2, Wifi } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
@@ -36,6 +43,7 @@ watch(
     if (isOpen) {
       if (props.card) fromCard(props.card)
       else reset()
+      if (!store.activeAccounts.length) store.fetchAccounts()
     }
   },
 )
@@ -45,7 +53,7 @@ function close() {
 }
 
 async function submit() {
-  if (!validate()) return
+  if (!validate(!!props.card)) return
   submitting.value = true
   try {
     if (props.card) {
@@ -140,6 +148,24 @@ const cardGradient = computed(
             <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="h-10 bg-card border-border/60" />
           </AppFormField>
         </div>
+
+        <AppFormField label="Conta bancária" :error="errors.bank_account_id" required>
+          <Select v-model="form.bank_account_id">
+            <SelectTrigger class="h-10 bg-card border-border/60 text-[13px]">
+              <SelectValue placeholder="Selecione a conta que paga este cartão" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="acc in store.activeAccounts"
+                :key="acc.id"
+                :value="acc.id"
+                class="text-[13px]"
+              >
+                {{ acc.name }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </AppFormField>
 
         <div class="space-y-1.5">
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">Cor do cartão</p>

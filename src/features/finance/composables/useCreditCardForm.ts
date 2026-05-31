@@ -9,6 +9,7 @@ export interface CreditCardFormData {
   closing_day: string
   due_day: string
   color: string
+  bank_account_id: string
 }
 
 export interface CreditCardFormErrors {
@@ -16,6 +17,7 @@ export interface CreditCardFormErrors {
   limit_amount?: string
   closing_day?: string
   due_day?: string
+  bank_account_id?: string
 }
 
 const DEFAULTS: CreditCardFormData = {
@@ -24,6 +26,7 @@ const DEFAULTS: CreditCardFormData = {
   closing_day: '1',
   due_day: '10',
   color: CARD_COLORS[0] ?? '#8b5cf6',
+  bank_account_id: '',
 }
 
 export function useCreditCardForm() {
@@ -37,6 +40,7 @@ export function useCreditCardForm() {
     form.closing_day = card.closing_day.toString()
     form.due_day = card.due_day.toString()
     form.color = card.color
+    form.bank_account_id = card.bank_account_id ?? ''
     Object.assign(errors, {})
   }
 
@@ -46,7 +50,7 @@ export function useCreditCardForm() {
     submitting.value = false
   }
 
-  function validate(): boolean {
+  function validate(isEdit = false): boolean {
     Object.assign(errors, {})
     let valid = true
     if (!form.name.trim()) {
@@ -68,6 +72,10 @@ export function useCreditCardForm() {
       errors.due_day = 'Dia inválido (1–31)'
       valid = false
     }
+    if (!isEdit && !form.bank_account_id) {
+      errors.bank_account_id = 'Selecione a conta bancária que pagará este cartão'
+      valid = false
+    }
     return valid
   }
 
@@ -79,6 +87,7 @@ export function useCreditCardForm() {
       due_day: parseInt(form.due_day) || 10,
       color: form.color,
       is_active: true,
+      bank_account_id: form.bank_account_id || undefined,
     }
   }
 

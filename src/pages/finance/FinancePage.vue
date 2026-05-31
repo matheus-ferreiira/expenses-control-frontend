@@ -624,27 +624,46 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Saldo previsto — separate card matching Lovable exactly -->
+      <!-- Saldo previsto -->
       <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-xl p-4">
-        <p class="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-          <Calendar :size="14" />
-          Saldo previsto
-        </p>
-        <div class="mt-2 grid grid-cols-2 gap-3 divide-x divide-border">
-          <div class="pr-3">
-            <p class="text-[11px] text-muted-foreground">Saldo atual</p>
-            <p class="block text-[18px] font-semibold tabular-nums mt-0.5">{{ formatCurrency(totalBalance) }}</p>
+        <!-- Header -->
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Calendar :size="16" class="text-primary" />
           </div>
-          <div class="pl-3">
-            <p class="text-[11px] text-muted-foreground">Saldo previsto</p>
-            <p class="block text-[18px] font-semibold tabular-nums mt-0.5 text-muted-foreground">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+            Saldo Previsto
+          </p>
+        </div>
+
+        <!-- Values — 2 columns -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo atual</p>
+            <p
+              class="text-[20px] font-semibold tabular-nums leading-none"
+              :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
+            >
+              {{ formatCurrency(totalBalance) }}
+            </p>
+          </div>
+          <div>
+            <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo previsto</p>
+            <p
+              class="text-[20px] font-semibold tabular-nums leading-none"
+              :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
+            >
               {{ formatCurrency(projectedBalance) }}
             </p>
           </div>
         </div>
-        <p class="text-[10.5px] text-foreground/60 mt-2 leading-snug">
-          Considera transações agendadas e recorrentes pendentes.
-        </p>
+
+        <!-- Footer note -->
+        <div class="border-t border-border/30 mt-4 pt-3">
+          <p class="text-[11px] text-muted-foreground/40 italic leading-snug">
+            considera transações agendadas e recorrentes pendentes
+          </p>
+        </div>
       </div>
     </div>
 

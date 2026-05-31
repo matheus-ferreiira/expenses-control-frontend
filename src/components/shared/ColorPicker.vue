@@ -23,7 +23,7 @@ const palette = props.colors ?? ICON_PALETTE_COLORS
       :class="[
         'w-7 h-7 rounded-full transition-all hover:scale-110',
         modelValue === color
-          ? 'ring-2 ring-offset-2 ring-offset-background ring-foreground scale-110'
+          ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110'
           : '',
       ]"
       :style="{ backgroundColor: color }"
