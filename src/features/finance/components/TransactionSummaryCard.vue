@@ -108,45 +108,46 @@ function balanceColor(v: number): string {
         <p class="text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
       </div>
       <div>
-        <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+        <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Resultado</p>
         <p class="text-[17px] font-semibold tabular-nums mt-1" :class="balanceColor(monthlyBalance)">
           {{ formatCurrency(monthlyBalance) }}
         </p>
       </div>
     </div>
 
-    <!-- Context line -->
+    <!-- Account balance row -->
     <div class="mt-3 pt-3 border-t border-border/40">
       <template v-if="monthContext === 'current'">
-        <p class="text-[11.5px] text-muted-foreground leading-snug">
-          Saldo atual:
-          <span class="font-semibold text-foreground tabular-nums">{{ formatCurrency(totalBalance) }}</span>
-          &nbsp;·&nbsp;
-          Disponível:
-          <span class="font-semibold tabular-nums" :class="balanceColor(totalBalance - pendingExpenses)">
-            {{ formatCurrency(totalBalance - pendingExpenses) }}
-          </span>
-        </p>
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
+          <p class="tabular-nums font-semibold text-[14px]" :class="balanceColor(totalBalance)">
+            {{ formatCurrency(totalBalance) }}
+          </p>
+        </div>
       </template>
 
       <template v-else-if="monthContext === 'future'">
-        <p class="text-[11.5px] text-muted-foreground leading-snug">
-          Saldo previsto:
-          <span class="font-semibold text-foreground tabular-nums">
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo previsto</p>
+          <p
+            class="tabular-nums font-semibold text-[14px]"
+            :class="balanceColor(totalBalance + pendingIncome - pendingExpenses)"
+          >
             {{ formatCurrency(totalBalance + pendingIncome - pendingExpenses) }}
-          </span>
-          &nbsp;·&nbsp;inclui pendentes
-        </p>
+          </p>
+        </div>
       </template>
 
       <template v-else>
         <p v-if="loadingPastBalance" class="text-[11.5px] text-muted-foreground/50 animate-pulse">
           Calculando saldo final…
         </p>
-        <p v-else-if="pastEndBalance !== null" class="text-[11.5px] text-muted-foreground leading-snug">
-          Saldo final do mês:
-          <span class="font-semibold text-foreground tabular-nums">{{ formatCurrency(pastEndBalance) }}</span>
-        </p>
+        <div v-else-if="pastEndBalance !== null" class="flex items-center justify-between">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
+          <p class="tabular-nums font-semibold text-[14px]" :class="balanceColor(pastEndBalance)">
+            {{ formatCurrency(pastEndBalance) }}
+          </p>
+        </div>
         <p v-else class="text-[11.5px] text-muted-foreground/40">
           Saldo histórico não disponível
         </p>
