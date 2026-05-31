@@ -6,15 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@ui/dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Input } from '@ui/input'
-import { Loader2, Wifi } from 'lucide-vue-next'
+import { Loader2, Wifi, ChevronDown } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
 import type { CreditCard } from '@/types/finance'
 import { useCreditCardForm } from '../composables/useCreditCardForm'
@@ -150,21 +143,26 @@ const cardGradient = computed(
         </div>
 
         <AppFormField label="Conta bancária" :error="errors.bank_account_id" required>
-          <Select v-model="form.bank_account_id">
-            <SelectTrigger class="h-10 bg-card border-border/60 text-[13px]">
-              <SelectValue placeholder="Selecione a conta que paga este cartão" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
+          <div class="relative">
+            <select
+              v-model="form.bank_account_id"
+              class="w-full h-10 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer"
+              :class="!form.bank_account_id ? 'text-muted-foreground/50' : ''"
+            >
+              <option value="" disabled>Selecione a conta que paga este cartão</option>
+              <option
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 :value="acc.id"
-                class="text-[13px]"
               >
                 {{ acc.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+              </option>
+            </select>
+            <ChevronDown
+              :size="14"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+            />
+          </div>
         </AppFormField>
 
         <div class="space-y-1.5">

@@ -625,9 +625,9 @@ onMounted(async () => {
       </div>
 
       <!-- Saldo previsto -->
-      <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-xl p-4">
+      <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-lg p-4">
         <!-- Header -->
-        <div class="flex items-center gap-2 mb-4">
+        <div class="flex items-center gap-2 mb-3">
           <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
             <Calendar :size="16" class="text-primary" />
           </div>
@@ -637,7 +637,7 @@ onMounted(async () => {
         </div>
 
         <!-- Values — 2 columns -->
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div>
             <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo atual</p>
             <p
@@ -659,7 +659,7 @@ onMounted(async () => {
         </div>
 
         <!-- Footer note -->
-        <div class="border-t border-border/30 mt-4 pt-3">
+        <div class="border-t border-border/40 mt-3 pt-3">
           <p class="text-[11px] text-muted-foreground/40 italic leading-snug">
             considera transações agendadas e recorrentes pendentes
           </p>
