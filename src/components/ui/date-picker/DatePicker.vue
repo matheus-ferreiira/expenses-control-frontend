@@ -3,9 +3,7 @@ import { computed, ref } from 'vue'
 import { type DateValue, CalendarDate, parseDate } from '@internationalized/date'
 import { CalendarIcon } from 'lucide-vue-next'
 import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
-import { Button } from '@ui/button'
 import { Calendar } from '@ui/calendar'
-import { cn } from '@/lib/utils'
 
 const props = defineProps<{
   modelValue?: string | null
@@ -53,18 +51,18 @@ function clearDate() {
 <template>
   <Popover v-model:open="open">
     <PopoverTrigger as-child>
-      <Button
-        variant="outline"
-        :class="cn(
-          'h-9 w-full justify-start text-left font-normal px-3 gap-2',
-          !modelValue && 'text-muted-foreground',
-          props.class,
-        )"
+      <button
+        type="button"
+        class="h-10 w-full flex items-center gap-2.5 px-3.5 rounded-lg border border-border bg-card text-left transition-colors hover:border-border/80 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="disabled"
+        :class="props.class"
       >
-        <CalendarIcon :size="14" class="shrink-0 opacity-50" />
-        <span class="flex-1 truncate text-[13px]">{{ displayLabel }}</span>
-      </Button>
+        <CalendarIcon :size="14" class="shrink-0 text-muted-foreground/60" />
+        <span class="flex-1 truncate text-[13px]"
+              :class="modelValue ? 'text-foreground' : 'text-muted-foreground/50'">
+          {{ displayLabel }}
+        </span>
+      </button>
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0" align="start">
       <Calendar
@@ -75,6 +73,7 @@ function clearDate() {
       />
       <div v-if="modelValue" class="border-t border-border px-3 py-2">
         <button
+          type="button"
           class="text-[12px] text-muted-foreground hover:text-foreground transition-colors"
           @click="clearDate"
         >
