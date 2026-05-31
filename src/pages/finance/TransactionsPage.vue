@@ -245,10 +245,14 @@ const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
 const monthIncome = computed(() =>
-  store.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+  store.transactions
+    .filter(t => t.type === 'income' && t.status === 'confirmed')
+    .reduce((s, t) => s + t.amount, 0),
 )
 const monthExpenses = computed(() =>
-  store.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+  store.transactions
+    .filter(t => t.type === 'expense' && t.status === 'confirmed')
+    .reduce((s, t) => s + t.amount, 0),
 )
 const pendingIncome = computed(() =>
   store.transactions
