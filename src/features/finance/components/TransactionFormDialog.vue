@@ -427,7 +427,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="inc in QUICK_INCREMENTS"
                 :key="inc"
                 type="button"
-                class="h-7 px-3 rounded-full text-[11px] font-medium border border-border bg-transparent text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                class="h-7 px-3 rounded-full text-[11px] font-medium border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
                 @click="addAmount(inc)"
               >
                 +{{ inc }}
@@ -498,7 +498,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <input
               v-model="form.description"
               :placeholder="descriptionPlaceholder"
-              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-transparent border border-border/50"
+              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-card border border-border"
             />
             <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
           </div>
@@ -514,7 +514,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
                 :class="dateShortcut === 'today'
                   ? 'bg-transparent border border-primary/50 text-foreground'
-                  : 'bg-transparent border border-border/40 text-muted-foreground'"
+                  : 'bg-card border-border text-muted-foreground'"
                 @click="form.transaction_date = todayStr"
               >
                 Hoje
@@ -524,7 +524,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
                 :class="dateShortcut === 'yesterday'
                   ? 'bg-transparent border border-primary/50 text-foreground'
-                  : 'bg-transparent border border-border/40 text-muted-foreground'"
+                  : 'bg-card border-border text-muted-foreground'"
                 @click="form.transaction_date = yesterdayStr"
               >
                 Ontem
@@ -534,7 +534,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
                 :class="dateShortcut === 'custom'
                   ? 'bg-transparent border border-primary/50 text-foreground'
-                  : 'bg-transparent border border-border/40 text-muted-foreground'"
+                  : 'bg-card border-border text-muted-foreground'"
                 @click="form.transaction_date = dateShortcut === 'custom' ? form.transaction_date : ''"
               >
                 Personalizado
@@ -563,7 +563,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
                   class="w-full flex items-center gap-3 h-12 px-3 rounded-lg border transition-all outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-                  :class="form.account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border/40 bg-transparent'"
+                  :class="form.account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border bg-card'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -596,7 +596,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.account_id"
                   class="w-full flex items-center gap-3 h-12 px-3 rounded-lg border transition-all outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-                  :class="form.destination_account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border/40 bg-transparent'"
+                  :class="form.destination_account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border bg-card'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -629,7 +629,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 :key="acc.id"
                 type="button"
                 class="w-full flex items-center gap-3 h-12 px-3 rounded-lg border transition-all outline-none"
-                :class="form.account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border/40 bg-transparent'"
+                :class="form.account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border bg-card'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span
@@ -691,7 +691,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                     :class="form.recurrence_frequency === opt.value
                       ? 'bg-transparent border border-primary/50 text-foreground'
-                      : 'bg-transparent border border-border/40 text-muted-foreground hover:text-foreground'"
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                     @click="form.recurrence_frequency = opt.value"
                   >
                     {{ opt.label }}
@@ -708,7 +708,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                     :class="form.recurrence_end_type === 'never'
                       ? 'bg-transparent border border-primary/50 text-foreground'
-                      : 'bg-transparent border border-border/40 text-muted-foreground hover:text-foreground'"
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                     @click="form.recurrence_end_type = 'never'"
                   >
                     Sem término
@@ -718,7 +718,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                     :class="form.recurrence_end_type === 'count'
                       ? 'bg-transparent border border-primary/50 text-foreground'
-                      : 'bg-transparent border border-border/40 text-muted-foreground hover:text-foreground'"
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                     @click="form.recurrence_end_type = 'count'"
                   >
                     Nº de vezes
@@ -728,7 +728,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                     :class="form.recurrence_end_type === 'date'
                       ? 'bg-transparent border border-primary/50 text-foreground'
-                      : 'bg-transparent border border-border/40 text-muted-foreground hover:text-foreground'"
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                     @click="form.recurrence_end_type = 'date'"
                   >
                     Data limite
@@ -741,7 +741,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     inputmode="numeric"
                     min="2"
                     max="260"
-                    class="w-20 h-10 px-3 rounded-lg bg-transparent border border-border/50 text-[14px] text-center text-foreground outline-none tabular-nums"
+                    class="w-20 h-10 px-3 rounded-lg bg-card border border-border text-[14px] text-center text-foreground outline-none tabular-nums"
                   />
                   <span class="text-[13px] text-muted-foreground">ocorrências</span>
                 </div>
@@ -749,7 +749,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   v-if="form.recurrence_end_type === 'date'"
                   v-model="form.recurrence_end_date"
                   type="date"
-                  class="h-10 px-3 rounded-lg bg-transparent border border-border/50 text-[13px] text-foreground outline-none w-full"
+                  class="h-10 px-3 rounded-lg bg-card border border-border text-[13px] text-foreground outline-none w-full"
                 />
               </div>
 
@@ -805,7 +805,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   class="h-8 px-3 rounded-md text-[12px] font-medium border transition-all"
                   :class="form.total_installments === n
                     ? 'bg-transparent border border-primary/50 text-foreground'
-                    : 'bg-transparent border border-border/40 text-muted-foreground hover:text-foreground'"
+                    : 'bg-card border-border text-muted-foreground hover:text-foreground'"
                   @click="form.total_installments = n"
                 >
                   {{ n }}x
@@ -833,7 +833,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 class="inline-flex items-center gap-1 h-7 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                 :class="form.tag_ids.includes(tag.id)
                   ? 'border-transparent text-white'
-                  : 'border-border/40 text-muted-foreground bg-transparent hover:text-foreground'"
+                  : 'border-border text-muted-foreground bg-card hover:text-foreground'"
                 :style="form.tag_ids.includes(tag.id) ? { background: tag.color } : {}"
                 @click="toggleTag(tag.id)"
               >
@@ -842,7 +842,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </button>
 
               <!-- Inline create -->
-              <div class="inline-flex items-center h-7 rounded-md border border-dashed border-border/50 overflow-hidden bg-transparent">
+              <div class="inline-flex items-center h-7 rounded-md border border-dashed border-border/50 overflow-hidden bg-card">
                 <input
                   v-model="newTagName"
                   placeholder="Nova tag..."
@@ -871,7 +871,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <Textarea
                 v-model="form.notes"
                 placeholder="Detalhes extras, referência, contexto..."
-                class="resize-none h-20 text-sm rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors bg-transparent border border-border/50"
+                class="resize-none h-20 text-sm rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors bg-card border border-border"
               />
               <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
                 {{ form.notes?.length ?? 0 }}/500
