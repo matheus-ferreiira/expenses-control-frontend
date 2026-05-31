@@ -21,7 +21,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
-import { utilizationPercent, monthLabel as getMonthLabel, getCardBillingPeriod } from '@/features/finance/utils/financeHelpers'
+import { utilizationPercent, monthLabel as getMonthLabel, getCardBillingPeriod, currentMonth } from '@/features/finance/utils/financeHelpers'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -533,7 +533,7 @@ onMounted(async () => {
       :expenses="expenses"
       :total-balance="totalBalance"
       :projected-balance="projectedBalance"
-      :is-current-month="filterState.isCurrentMonth()"
+      :is-current-month="filterState.month.value >= currentMonth()"
       :loading="store.loading"
       :month-label="kpiMonthLabel"
       :account-count="store.activeAccounts.length"
@@ -625,7 +625,7 @@ onMounted(async () => {
       </div>
 
       <!-- Saldo previsto -->
-      <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-lg p-4">
+      <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card border border-border rounded-lg p-4">
         <!-- Header -->
         <div class="flex items-center gap-2 mb-3">
           <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
