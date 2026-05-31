@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowUp, ArrowDown, ArrowLeftRight, ArrowRight, Clock, Repeat } from 'lucide-vue-next'
+import { ArrowLeftRight, ArrowRight, Clock, Repeat } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
@@ -16,13 +16,6 @@ const emit = defineEmits<{
 
 const isPending = computed(() => props.transaction.status === 'pending')
 
-/** Fallback color when no category */
-const sideColor = computed(() => {
-  if (props.transaction.type === 'income') return 'hsl(var(--success))'
-  if (props.transaction.type === 'expense') return 'hsl(var(--destructive))'
-  return 'hsl(var(--muted-foreground))'
-})
-
 const highlightBg = computed(() => {
   if (!props.highlighted) return ''
   if (props.transaction.type === 'income') return 'bg-success/[0.08]'
@@ -35,7 +28,7 @@ const highlightBg = computed(() => {
   <li :id="`tx-${transaction.id}`" class="relative">
     <button
       type="button"
-      class="w-full flex items-center gap-3 pl-4 pr-4 min-h-[56px] text-left hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors duration-150 cursor-pointer"
+      class="w-full flex items-center gap-3 pl-4 pr-4 min-h-[56px] text-left hover:bg-muted/40 active:bg-muted/60 transition-colors duration-150 cursor-pointer"
       :class="[isPending ? 'opacity-60' : '', highlightBg]"
       @click="emit('select', transaction)"
     >
@@ -43,11 +36,11 @@ const highlightBg = computed(() => {
       <div :class="isPending ? 'ring-1 ring-dashed ring-muted-foreground/40 rounded-lg p-0.5 shrink-0' : 'shrink-0'">
         <span
           v-if="transaction.type !== 'transfer'"
-          class="rounded-lg grid place-items-center size-9"
+          class="rounded-xl flex items-center justify-center w-10 h-10 shrink-0"
           :style="{
             background: transaction.category?.color
               ? transaction.category.color + '26'
-              : 'hsl(var(--muted)/0.08)',
+              : 'hsl(var(--muted))',
             color: transaction.category?.color ?? 'hsl(var(--muted-foreground))',
           }"
         >
@@ -57,13 +50,13 @@ const highlightBg = computed(() => {
             :size="18"
             :stroke-width="1.9"
           />
-          <span v-else class="text-sm font-bold">
+          <span v-else class="text-[13px] font-semibold">
             {{ transaction.description.charAt(0).toUpperCase() }}
           </span>
         </span>
         <span
           v-else
-          class="rounded-lg grid place-items-center size-9 bg-white/[0.08] text-muted-foreground"
+          class="rounded-xl flex items-center justify-center w-10 h-10 shrink-0 bg-muted/30 text-muted-foreground"
         >
           <ArrowLeftRight :size="16" :stroke-width="1.9" />
         </span>

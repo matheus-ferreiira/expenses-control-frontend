@@ -625,7 +625,7 @@ onMounted(async () => {
       </div>
 
       <!-- Saldo previsto — separate card matching Lovable exactly -->
-      <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-lg p-4">
+      <div v-if="filterState.isCurrentMonth() && !store.loading" class="bg-card border border-border rounded-xl p-4">
         <p class="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
           <Calendar :size="14" />
           Saldo previsto
@@ -818,10 +818,10 @@ onMounted(async () => {
                 v-for="f in QUICK_FILTERS"
                 :key="f.id"
                 type="button"
-                class="h-8 px-3 rounded-full text-[12px] font-medium whitespace-nowrap border transition-colors shrink-0"
+                class="h-7 px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors duration-150 shrink-0"
                 :class="filterState.quickFilter.value === f.id
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-muted-foreground hover:text-foreground'"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                 @click="filterState.setQuickFilter(f.id)"
               >
                 {{ f.label }}
@@ -878,19 +878,21 @@ onMounted(async () => {
       <div class="lg:col-span-1 space-y-4">
 
         <!-- Contas -->
-        <div class="bg-card border border-border rounded-md overflow-hidden">
-          <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
-            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Contas</h2>
+        <div class="bg-card border border-border rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[16px] font-semibold text-foreground">Contas</h2>
             <RouterLink
               :to="{ name: 'finance-accounts' }"
-              class="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
             >
-              Ver todas
+              Ver todas →
             </RouterLink>
-          </header>
-          <div v-if="store.loading" class="divide-y divide-border">
-            <div v-for="i in 3" :key="i" class="flex items-center gap-3 px-4 py-3">
-              <div class="size-9 rounded-md bg-muted/60 animate-pulse shrink-0" />
+          </div>
+
+          <!-- Loading skeleton -->
+          <div v-if="store.loading">
+            <div v-for="i in 3" :key="i" class="flex items-center gap-3 py-3 border-b border-border/30 last:border-0">
+              <div class="w-10 h-10 rounded-xl bg-muted/60 animate-pulse shrink-0" />
               <div class="flex-1 space-y-1.5">
                 <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
                 <div class="h-2.5 w-16 rounded bg-muted/60 animate-pulse" />
@@ -898,126 +900,113 @@ onMounted(async () => {
               <div class="h-4 w-20 rounded bg-muted/60 animate-pulse" />
             </div>
           </div>
-          <div v-else-if="store.activeAccounts.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
+
+          <!-- Empty state -->
+          <p v-else-if="store.activeAccounts.length === 0" class="text-[12px] text-muted-foreground/60 py-2">
             Nenhuma conta cadastrada
-          </div>
-          <ul v-else class="divide-y divide-white/5">
-            <li
+          </p>
+
+          <!-- Account rows -->
+          <div v-else>
+            <div
               v-for="account in store.activeAccounts.slice(0, 4)"
               :key="account.id"
-              class="flex items-center gap-3 px-4 py-3"
+              class="flex items-center gap-3 py-3 border-b border-border/30 last:border-0"
             >
-              <!-- Avatar: 36px, 15% opacity bg, color text -->
               <span
-                class="size-9 rounded-lg grid place-items-center font-bold text-[13px] shrink-0"
+                class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-[13px] shrink-0"
                 :style="{
-                  background: (account.color ?? '#6b7280') + '26',
-                  color: account.color ?? '#6b7280',
+                  background: account.color ? account.color + '26' : 'hsl(var(--primary) / 0.15)',
+                  color: account.color ?? 'hsl(var(--primary))',
                 }"
               >
                 {{ account.name.slice(0, 2).toUpperCase() }}
               </span>
               <div class="flex-1 min-w-0">
-                <p class="text-[14px] font-medium text-foreground truncate">{{ account.name }}</p>
-                <p class="text-[12px] text-muted-foreground">{{ account.bank_name || account.type }}</p>
+                <p class="text-[14px] font-medium text-foreground truncate leading-tight">{{ account.name }}</p>
+                <p class="text-[12px] text-muted-foreground/50 mt-0.5 capitalize truncate">
+                  {{ account.bank_name || account.type }}
+                </p>
               </div>
-              <span
-                class="text-[16px] font-semibold tabular-nums shrink-0"
-                :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
-              >
-                {{ formatCurrency(account.balance) }}
-              </span>
-            </li>
-          </ul>
+              <div class="flex items-center gap-2 shrink-0">
+                <span
+                  class="text-[14px] font-semibold tabular-nums"
+                  :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
+                >
+                  {{ formatCurrency(account.balance) }}
+                </span>
+                <ChevronRight :size="14" class="text-muted-foreground/30" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Cartões -->
-        <div class="bg-card border border-border rounded-md overflow-hidden">
-          <header class="flex items-center justify-between px-3.5 h-9 border-b border-border">
-            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Cartões</h2>
+        <div class="bg-card border border-border rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[16px] font-semibold text-foreground">Cartões</h2>
             <RouterLink
               :to="{ name: 'finance-cards' }"
-              class="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
             >
-              Ver todos
+              Ver todos →
             </RouterLink>
-          </header>
-          <div v-if="store.loading" class="divide-y divide-border">
-            <div v-for="i in 2" :key="i" class="px-4 py-3 space-y-2">
-              <div class="flex items-center gap-2">
-                <div class="size-8 rounded-md bg-muted/60 animate-pulse shrink-0" />
-                <div class="flex-1 space-y-1.5">
-                  <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
-                  <div class="h-2.5 w-20 rounded bg-muted/60 animate-pulse" />
-                </div>
+          </div>
+
+          <!-- Loading skeleton -->
+          <div v-if="store.loading">
+            <div v-for="i in 2" :key="i" class="py-3 border-b border-border/30 last:border-0 space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-muted/60 animate-pulse shrink-0" />
+                <div class="flex-1 h-3 rounded bg-muted/60 animate-pulse" />
+                <div class="h-3 w-16 rounded bg-muted/60 animate-pulse" />
               </div>
-              <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
+              <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse ml-6" />
             </div>
           </div>
-          <div v-else-if="store.activeCards.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/60">
+
+          <!-- Empty state -->
+          <p v-else-if="store.activeCards.length === 0" class="text-[12px] text-muted-foreground/60 py-2">
             Nenhum cartão cadastrado
-          </div>
-          <ul v-else class="divide-y divide-white/5">
-            <li
+          </p>
+
+          <!-- Card rows -->
+          <div v-else>
+            <div
               v-for="card in store.activeCards.slice(0, 3)"
               :key="card.id"
-              class="px-4 py-3 hover:bg-white/[0.02] transition-colors"
+              class="flex flex-col gap-2 py-3 border-b border-border/30 last:border-0"
             >
-              <div class="flex items-start gap-3 text-sm">
-                <!-- Avatar: solid card color (only place color appears) -->
-                <span
-                  class="size-9 rounded-lg grid place-items-center font-bold text-[11px] text-white shrink-0"
-                  :style="{ background: card.color || '#6b7280' }"
-                >
-                  {{ card.name.slice(0, 2).toUpperCase() }}
-                </span>
-                <div class="flex-1 min-w-0">
-                  <p class="font-medium truncate">{{ card.name }}</p>
-                  <p class="text-[11px] text-muted-foreground">vence dia {{ card.due_day }}</p>
-                  <!-- Fatura atual -->
-                  <div class="mt-1.5 flex items-baseline gap-1.5">
-                    <span class="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fatura:</span>
-                    <span class="text-[14px] font-medium tabular-nums">{{ formatCurrency(cardUsed(card.id)) }}</span>
-                  </div>
-                  <!-- DueBadge -->
-                  <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    <span
-                      class="inline-flex items-center h-6 px-2 rounded text-[11px] font-semibold border"
-                      :style="
-                        card.due_day < today || (card.due_day - today) < 3
-                          ? 'background: rgba(255,77,77,0.12); border-color: rgba(255,77,77,0.25); color: #FF4D4D'
-                          : (card.due_day - today) <= 10
-                            ? 'background: rgba(245,166,35,0.10); border-color: rgba(245,166,35,0.25); color: #F5A623'
-                            : 'background: rgba(0,200,150,0.10); border-color: rgba(0,200,150,0.25); color: #00C896'
-                      "
-                    >
-                      {{
-                        card.due_day < today ? 'Vencida' :
-                        card.due_day - today === 0 ? 'Vence hoje' :
-                        card.due_day - today === 1 ? 'Vence amanhã' :
-                        `Vence em ${card.due_day - today} dias`
-                      }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <!-- Utilization bar -->
-              <div class="h-1 bg-muted rounded-full overflow-hidden mt-2.5">
+              <!-- Row 1: dot + name + usage amount -->
+              <div class="flex items-center gap-3">
                 <div
-                  class="h-full transition-all duration-500"
-                  :class="
-                    utilizationPercent(cardUsed(card.id), card.limit_amount) >= 76 ? 'bg-destructive' :
-                    utilizationPercent(cardUsed(card.id), card.limit_amount) >= 51 ? 'bg-warning' : 'bg-success'
-                  "
-                  :style="{ width: utilizationPercent(cardUsed(card.id), card.limit_amount) + '%' }"
+                  class="w-3 h-3 rounded-full shrink-0"
+                  :style="{ background: card.color || 'hsl(var(--muted-foreground))' }"
                 />
+                <p class="text-[14px] font-medium text-foreground flex-1 truncate">{{ card.name }}</p>
+                <span class="text-[14px] font-semibold tabular-nums text-foreground shrink-0">
+                  {{ formatCurrency(cardUsed(card.id)) }}
+                </span>
               </div>
-              <div class="flex justify-between text-[10.5px] text-muted-foreground/80 mt-1 tabular-nums">
-                <span>{{ formatCurrency(cardUsed(card.id)) }} / {{ formatCurrency(card.limit_amount) }}</span>
-                <span>{{ utilizationPercent(cardUsed(card.id), card.limit_amount) }}%</span>
+              <!-- Row 2: bar + meta text -->
+              <div class="pl-6">
+                <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all duration-500"
+                    :style="{
+                      width: utilizationPercent(cardUsed(card.id), card.limit_amount) + '%',
+                      background: utilizationPercent(cardUsed(card.id), card.limit_amount) >= 80
+                        ? 'hsl(var(--destructive) / 0.7)'
+                        : (card.color || 'hsl(var(--primary))'),
+                    }"
+                  />
+                </div>
+                <p class="text-[11px] text-muted-foreground/40 mt-1 tabular-nums">
+                  Limite {{ formatCurrency(card.limit_amount) }} · Vence dia {{ card.due_day }}
+                </p>
               </div>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
 
         <!-- Upcoming bills — within 10 days -->
