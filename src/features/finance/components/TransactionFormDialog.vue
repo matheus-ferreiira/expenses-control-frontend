@@ -64,7 +64,34 @@ const QUICK_INCREMENTS = [10, 50, 100, 500]
 
 function addAmount(inc: number) {
   const current = parseFloat(form.amount.replace(',', '.')) || 0
-  form.amount = (current + inc).toFixed(2).replace('.', ',')
+  const next = current + inc
+  form.amount = next.toFixed(2).replace('.', ',')
+  if (amountInputRef.value) {
+    amountInputRef.value.value = formatAmountDisplay(Math.round(next * 100).toString())
+  }
+}
+
+// ── Currency mask — centavos style ───────────────────────────────────────────
+function formatAmountDisplay(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return ''
+  const cents = parseInt(digits, 10)
+  return (cents / 100).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+function onAmountInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  const digits = raw.replace(/\D/g, '')
+  form.amount = digits ? (parseInt(digits, 10) / 100).toFixed(2).replace('.', ',') : ''
+  ;(e.target as HTMLInputElement).value = formatAmountDisplay(digits)
+}
+
+function onAmountFocus(e: Event) {
+  const input = e.target as HTMLInputElement
+  setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0)
 }
 
 // ── Recurring scope dialog ───────────────────────────────────────────────────
@@ -383,12 +410,14 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <span class="text-[18px] font-medium text-muted-foreground/60">R$</span>
               <input
                 ref="amountInputRef"
-                v-model="form.amount"
-                inputmode="decimal"
+                inputmode="numeric"
                 placeholder="0,00"
                 class="bg-transparent outline-none text-[40px] font-semibold tabular-nums tracking-tight w-auto max-w-[260px] text-center placeholder:text-muted-foreground/20"
                 :class="typeConfig.amountColor"
+                :value="form.amount"
                 size="8"
+                @input="onAmountInput"
+                @focus="onAmountFocus"
               />
             </div>
             <p v-if="errors.amount" class="text-xs text-destructive mb-2">{{ errors.amount }}</p>
@@ -469,7 +498,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <input
               v-model="form.description"
               :placeholder="descriptionPlaceholder"
-              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-input border border-border focus:border-primary"
+              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-input border border-border focus:border-border"
             />
             <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
           </div>
@@ -673,46 +702,67 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <!-- End condition -->
               <div>
                 <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Término</p>
-                <div class="space-y-2">
-                  <label class="flex items-center gap-2.5 cursor-pointer">
-                    <input type="radio" :checked="form.recurrence_end_type === 'never'" class="accent-primary" @change="form.recurrence_end_type = 'never'" />
-                    <span class="text-[12px]">Sem data de término</span>
-                  </label>
-                  <label class="flex items-center gap-2.5 cursor-pointer">
-                    <input type="radio" :checked="form.recurrence_end_type === 'count'" class="accent-primary" @change="form.recurrence_end_type = 'count'" />
-                    <span class="text-[12px]">Após</span>
-                    <input
-                      v-model.number="form.recurrence_count"
-                      type="number"
-                      inputmode="numeric"
-                      min="2"
-                      max="260"
-                      class="w-16 h-7 px-2 rounded bg-background border border-border text-[12px] text-center outline-none focus:border-primary tabular-nums"
-                      @focus="form.recurrence_end_type = 'count'"
-                    />
-                    <span class="text-[12px] text-muted-foreground">ocorrências</span>
-                  </label>
-                  <label class="flex items-center gap-2.5 cursor-pointer">
-                    <input type="radio" :checked="form.recurrence_end_type === 'date'" class="accent-primary" @change="form.recurrence_end_type = 'date'" />
-                    <span class="text-[12px]">Em uma data</span>
-                    <input
-                      v-model="form.recurrence_end_date"
-                      type="date"
-                      class="flex-1 h-7 px-2 rounded bg-background border border-border text-[12px] outline-none focus:border-primary"
-                      @focus="form.recurrence_end_type = 'date'"
-                    />
-                  </label>
+                <div class="flex gap-1.5 flex-wrap mb-3">
+                  <button
+                    type="button"
+                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    :class="form.recurrence_end_type === 'never'
+                      ? 'bg-card border-primary/40 text-foreground'
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                    @click="form.recurrence_end_type = 'never'"
+                  >
+                    Sem término
+                  </button>
+                  <button
+                    type="button"
+                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    :class="form.recurrence_end_type === 'count'
+                      ? 'bg-card border-primary/40 text-foreground'
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                    @click="form.recurrence_end_type = 'count'"
+                  >
+                    Nº de vezes
+                  </button>
+                  <button
+                    type="button"
+                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    :class="form.recurrence_end_type === 'date'
+                      ? 'bg-card border-primary/40 text-foreground'
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                    @click="form.recurrence_end_type = 'date'"
+                  >
+                    Data limite
+                  </button>
                 </div>
+                <div v-if="form.recurrence_end_type === 'count'" class="flex items-center gap-2.5">
+                  <input
+                    v-model.number="form.recurrence_count"
+                    type="number"
+                    inputmode="numeric"
+                    min="2"
+                    max="260"
+                    class="w-20 h-10 px-3 rounded-lg bg-card border border-border text-[14px] text-center text-foreground outline-none focus:border-border tabular-nums"
+                  />
+                  <span class="text-[13px] text-muted-foreground">ocorrências</span>
+                </div>
+                <input
+                  v-if="form.recurrence_end_type === 'date'"
+                  v-model="form.recurrence_end_date"
+                  type="date"
+                  class="h-10 px-3 rounded-lg bg-card border border-border text-[13px] text-foreground outline-none focus:border-border w-full"
+                />
               </div>
 
               <!-- Preview -->
-              <p class="text-[11px] text-muted-foreground/70 leading-relaxed">
-                A cada <strong class="text-foreground">{{ FREQ_LABELS[form.recurrence_frequency] ?? 'mês' }}</strong>
-                <template v-if="nextOccurrenceLabel"> · próxima em <strong class="text-foreground">{{ nextOccurrenceLabel }}</strong></template>
-                <template v-if="form.recurrence_end_type === 'count'"> · por <strong class="text-foreground">{{ form.recurrence_count }} ocorrências</strong></template>
-                <template v-else-if="form.recurrence_end_type === 'date' && form.recurrence_end_date"> · até <strong class="text-foreground">{{ new Date(form.recurrence_end_date + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }) }}</strong></template>
-                <template v-else> · sem data de término</template>
-              </p>
+              <div class="mt-1 px-3 py-2 rounded-lg bg-muted/40">
+                <p class="text-[11px] text-muted-foreground/70 leading-relaxed">
+                  A cada <strong class="text-foreground">{{ FREQ_LABELS[form.recurrence_frequency] ?? 'mês' }}</strong>
+                  <template v-if="nextOccurrenceLabel"> · próxima em <strong class="text-foreground">{{ nextOccurrenceLabel }}</strong></template>
+                  <template v-if="form.recurrence_end_type === 'count'"> · por <strong class="text-foreground">{{ form.recurrence_count }} ocorrências</strong></template>
+                  <template v-else-if="form.recurrence_end_type === 'date' && form.recurrence_end_date"> · até <strong class="text-foreground">{{ new Date(form.recurrence_end_date + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }) }}</strong></template>
+                  <template v-else> · sem data de término</template>
+                </p>
+              </div>
             </div>
           </div>
 
