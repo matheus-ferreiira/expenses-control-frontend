@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { formatCurrency } from '@/utils/currency'
 import { financeApi } from '@/services/api/finance'
-import { monthLabel, addMonths, currentMonth } from '@/features/finance/utils/financeHelpers'
+import { monthLabel, currentMonth } from '@/features/finance/utils/financeHelpers'
 
 const props = defineProps<{
   month: string
@@ -40,22 +40,9 @@ async function fetchPastEndBalance() {
   loadingPastBalance.value = true
   pastEndBalance.value = null
   try {
-    const nextMonthStart = addMonths(props.month, 1) + '-01'
-    const today = new Date().toLocaleDateString('en-CA')
-    const result = await financeApi.transactions.list({
-      start_date: nextMonthStart,
-      end_date: today,
-      status: 'confirmed',
-      per_page: 500,
-    })
-    const after = result.data
-    const incomeAfter = after
-      .filter((t) => t.type === 'income')
-      .reduce((s, t) => s + t.amount, 0)
-    const expenseAfter = after
-      .filter((t) => t.type === 'expense')
-      .reduce((s, t) => s + t.amount, 0)
-    pastEndBalance.value = props.totalBalance - incomeAfter + expenseAfter
+    const [year, month] = props.month.split('-').map(Number)
+    const result = await financeApi.getHistoricalBalance(year!, month!)
+    pastEndBalance.value = result.balance
   } catch {
     pastEndBalance.value = null
   } finally {

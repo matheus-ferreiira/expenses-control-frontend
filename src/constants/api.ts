@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
     CATEGORY_DETAIL: (id: string) => `${API_BASE}/finance/categories/${id}`,
     TAGS: `${API_BASE}/finance/tags`,
     TAG_DETAIL: (id: string) => `${API_BASE}/finance/tags/${id}`,
+    BALANCE_HISTORICAL: `${API_BASE}/finance/balance/historical`,
     REPORTS: `${API_BASE}/finance/reports`,
     REPORTS_MONTHLY: `${API_BASE}/finance/reports/monthly`,
     REPORTS_YEARLY: `${API_BASE}/finance/reports/yearly`,

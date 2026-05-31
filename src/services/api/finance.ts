@@ -148,6 +148,14 @@ export const financeApi = {
         .then(unwrap),
   },
 
+  getHistoricalBalance: (year: number, month: number) =>
+    client
+      .get<ApiResponse<{ balance: number; projected_balance: number }>>(
+        API_ENDPOINTS.FINANCE.BALANCE_HISTORICAL,
+        { params: { year, month } },
+      )
+      .then(unwrap),
+
   reports: (params?: { month?: string; year?: number }) =>
     client
       .get<ApiResponse<FinanceSummary>>(API_ENDPOINTS.FINANCE.REPORTS, { params })
