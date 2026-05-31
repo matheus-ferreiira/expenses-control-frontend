@@ -119,6 +119,15 @@ function initials(name?: string | null): string {
 const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.includes('Mac')
   ? '⌘K'
   : 'Ctrl K'
+
+const MOBILE_ICON_COLORS: Record<string, string> = {
+  [ROUTES.DASHBOARD]: 'text-blue-400',
+  [ROUTES.TASKS]: 'text-blue-400',
+  [ROUTES.HABITS]: 'text-orange-400',
+  [ROUTES.GOALS]: 'text-yellow-400',
+  [ROUTES.CALENDAR]: 'text-violet-400',
+  [ROUTES.SETTINGS]: 'text-muted-foreground',
+}
 </script>
 
 <template>
@@ -328,7 +337,14 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
                       : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg gap-3')"
                 @click="emit('navigate')"
               >
-                <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
+                <component
+                  :is="item.icon"
+                  :size="props.mobile ? 20 : 18"
+                  class="shrink-0"
+                  :class="props.mobile
+                    ? (isActive(item.route) ? (MOBILE_ICON_COLORS[item.route] ?? 'text-primary') : 'text-muted-foreground')
+                    : ''"
+                />
                 <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-sm'">{{ item.label }}</span>
                 <span
                   v-if="item.shortcut && !props.mobile"
