@@ -31,20 +31,25 @@ const monthContext = computed<'current' | 'future' | 'past'>(() => {
 const isCurrentMonth = computed(() => monthContext.value === 'current')
 const monthlyBalance = computed(() => props.income - props.expenses)
 
-// ── Past month: reconstruct account balance at end of that month ──────────────
-// Formula: balanceAtEndOfMonth = currentBalance - income received since then + expenses paid since then
+// ── Past/future: reconstruct balance via backend endpoint ─────────────────────
+// Past:   balanceAtEndOfMonth = currentBalance - confirmedIncomeSince + confirmedExpenseSince
+// Future: projectedBalance    = currentBalance - cumulative pending from today to end of month
 const pastEndBalance = ref<number | null>(null)
+const futureProjectedBalance = ref<number | null>(null)
 const loadingPastBalance = ref(false)
 
 async function fetchPastEndBalance() {
   loadingPastBalance.value = true
   pastEndBalance.value = null
+  futureProjectedBalance.value = null
   try {
     const [year, month] = props.month.split('-').map(Number)
     const result = await financeApi.getHistoricalBalance(year!, month!)
     pastEndBalance.value = result.balance
+    futureProjectedBalance.value = result.projected_balance
   } catch {
     pastEndBalance.value = null
+    futureProjectedBalance.value = null
   } finally {
     loadingPastBalance.value = false
   }
@@ -53,8 +58,11 @@ async function fetchPastEndBalance() {
 watch(
   () => [props.month, props.totalBalance] as const,
   () => {
-    if (monthContext.value === 'past') fetchPastEndBalance()
-    else pastEndBalance.value = null
+    if (monthContext.value === 'past' || monthContext.value === 'future') fetchPastEndBalance()
+    else {
+      pastEndBalance.value = null
+      futureProjectedBalance.value = null
+    }
   },
   { immediate: true },
 )
@@ -127,13 +135,16 @@ function balanceColor(v: number): string {
       </template>
 
       <template v-else-if="monthContext === 'future'">
-        <div class="flex items-center justify-between">
+        <p v-if="loadingPastBalance" class="text-[11.5px] text-muted-foreground/50 animate-pulse">
+          Calculando saldo previsto…
+        </p>
+        <div v-else class="flex items-center justify-between">
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo previsto</p>
           <p
             class="tabular-nums font-semibold text-[14px]"
-            :class="balanceColor(totalBalance + pendingIncome - pendingExpenses)"
+            :class="balanceColor(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses)"
           >
-            {{ formatCurrency(totalBalance + pendingIncome - pendingExpenses) }}
+            {{ formatCurrency(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses) }}
           </p>
         </div>
       </template>
