@@ -3,8 +3,9 @@ import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-vue-next'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatCurrency } from '@/utils/currency'
-import { financeApi } from '@/services/api/finance'
 import { monthLabel, currentMonth } from '@/features/finance/utils/financeHelpers'
+import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
+import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
 
 const props = defineProps<{
   month: string
@@ -73,41 +74,32 @@ function isPickerSelectedMonth(monthIdx: number): boolean {
   return props.month === `${pickerYear.value}-${m}`
 }
 
-// ── Past/future: reconstruct balance via backend endpoint ─────────────────────
-// Past:   balanceAtEndOfMonth = currentBalance - confirmedIncomeSince + confirmedExpenseSince
-// Future: projectedBalance    = currentBalance - cumulative pending from today to end of month
-const pastEndBalance = ref<number | null>(null)
-const futureProjectedBalance = ref<number | null>(null)
-const loadingPastBalance = ref(false)
-
-async function fetchPastEndBalance() {
-  loadingPastBalance.value = true
-  pastEndBalance.value = null
-  futureProjectedBalance.value = null
-  try {
-    const [year, month] = props.month.split('-').map(Number)
-    const result = await financeApi.getHistoricalBalance(year!, month!)
-    pastEndBalance.value = result.balance
-    futureProjectedBalance.value = result.projected_balance
-  } catch {
-    pastEndBalance.value = null
-    futureProjectedBalance.value = null
-  } finally {
-    loadingPastBalance.value = false
-  }
-}
-
-watch(
-  () => [props.month, props.totalBalance] as const,
-  () => {
-    if (monthContext.value === 'past' || monthContext.value === 'future') fetchPastEndBalance()
-    else {
-      pastEndBalance.value = null
-      futureProjectedBalance.value = null
-    }
-  },
-  { immediate: true },
+// ── Historical balance — shared composable (same endpoint as everywhere) ──────
+const {
+  loading: loadingPastBalance,
+  confirmedBalance: pastEndBalance,
+  projectedBalance: futureProjectedBalance,
+} = useHistoricalBalance(
+  computed(() => props.month),
+  computed(() => props.totalBalance),
 )
+
+// ── Balance detail sheet ──────────────────────────────────────────────────────
+const balanceSheetOpen = ref(false)
+
+const balanceSheetTitle = computed(() =>
+  monthContext.value === 'future' ? 'Saldo previsto' : 'Saldo da conta'
+)
+
+const balanceSheetAmount = computed(() => {
+  if (monthContext.value === 'future') {
+    return futureProjectedBalance.value ?? (props.totalBalance + props.pendingIncome - props.pendingExpenses)
+  }
+  if (monthContext.value === 'past') {
+    return pastEndBalance.value ?? props.totalBalance
+  }
+  return props.totalBalance
+})
 
 function balanceColor(v: number): string {
   if (v > 0) return 'text-success'
@@ -259,14 +251,21 @@ function balanceColor(v: number): string {
       </div>
     </div>
 
-    <!-- Account balance row -->
+    <!-- Account balance row — value is clickable, opens BalanceDetailSheet -->
     <div class="mt-3 pt-3 border-t border-border/40">
       <template v-if="monthContext === 'current'">
         <div class="flex items-center justify-between">
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
-          <p class="tabular-nums font-semibold text-[14px]" :class="balanceColor(totalBalance)">
-            {{ formatCurrency(totalBalance) }}
-          </p>
+          <button
+            type="button"
+            class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+            @click="balanceSheetOpen = true"
+          >
+            <span class="tabular-nums font-semibold text-[14px]" :class="balanceColor(totalBalance)">
+              {{ formatCurrency(totalBalance) }}
+            </span>
+            <ChevronDown :size="12" class="text-muted-foreground/40" />
+          </button>
         </div>
       </template>
 
@@ -276,12 +275,19 @@ function balanceColor(v: number): string {
         </p>
         <div v-else class="flex items-center justify-between">
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo previsto</p>
-          <p
-            class="tabular-nums font-semibold text-[14px]"
-            :class="balanceColor(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses)"
+          <button
+            type="button"
+            class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+            @click="balanceSheetOpen = true"
           >
-            {{ formatCurrency(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses) }}
-          </p>
+            <span
+              class="tabular-nums font-semibold text-[14px]"
+              :class="balanceColor(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses)"
+            >
+              {{ formatCurrency(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses) }}
+            </span>
+            <ChevronDown :size="12" class="text-muted-foreground/40" />
+          </button>
         </div>
       </template>
 
@@ -291,9 +297,16 @@ function balanceColor(v: number): string {
         </p>
         <div v-else-if="pastEndBalance !== null" class="flex items-center justify-between">
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
-          <p class="tabular-nums font-semibold text-[14px]" :class="balanceColor(pastEndBalance)">
-            {{ formatCurrency(pastEndBalance) }}
-          </p>
+          <button
+            type="button"
+            class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+            @click="balanceSheetOpen = true"
+          >
+            <span class="tabular-nums font-semibold text-[14px]" :class="balanceColor(pastEndBalance)">
+              {{ formatCurrency(pastEndBalance) }}
+            </span>
+            <ChevronDown :size="12" class="text-muted-foreground/40" />
+          </button>
         </div>
         <p v-else class="text-[11.5px] text-muted-foreground/40">
           Saldo histórico não disponível
@@ -301,4 +314,10 @@ function balanceColor(v: number): string {
       </template>
     </div>
   </div>
+
+  <BalanceDetailSheet
+    v-model:open="balanceSheetOpen"
+    :title="balanceSheetTitle"
+    :total-amount="balanceSheetAmount"
+  />
 </template>
