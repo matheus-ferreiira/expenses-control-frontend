@@ -21,7 +21,7 @@ const emit = defineEmits<{
       <ChevronLeft :size="14" />
     </Button>
 
-    <span class="text-sm font-medium text-foreground min-w-28 text-center">
+    <span class="text-[13px] font-medium text-foreground min-w-28 text-center">
       {{ monthLabel(month) }}
     </span>
 
@@ -33,7 +33,7 @@ const emit = defineEmits<{
       v-if="!isCurrentMonth"
       variant="ghost"
       size="sm"
-      class="h-7 px-2 text-xs text-muted-foreground ml-1"
+      class="h-7 px-2 text-[11px] text-muted-foreground ml-1"
       @click="emit('reset')"
     >
       <RotateCcw :size="11" class="mr-1" />

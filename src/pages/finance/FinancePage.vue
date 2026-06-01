@@ -478,7 +478,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 mb-4 pb-3 border-b border-border">
       <div>
-        <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/80 mb-0.5">
+        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/80 mb-0.5">
           Finanças
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
@@ -737,7 +737,7 @@ onMounted(async () => {
           class="flex items-center justify-between gap-3 rounded-md px-4 py-2.5 bg-card border border-border"
         >
           <div class="min-w-0">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
               Disponível para gastar
             </p>
             <p class="text-[11px] text-muted-foreground/60 mt-0.5">
@@ -791,10 +791,10 @@ onMounted(async () => {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" class="w-64 p-3 space-y-2">
-                      <div class="text-xs font-semibold text-foreground mb-2">Período personalizado</div>
+                      <div class="text-[11px] font-semibold text-foreground mb-2">Período personalizado</div>
                       <div class="space-y-2">
                         <div class="flex flex-col">
-                          <label class="text-xs text-muted-foreground mb-1">De:</label>
+                          <label class="text-[11px] text-muted-foreground mb-1">De:</label>
                           <input
                             v-model="periodStartDate"
                             type="date"
@@ -802,7 +802,7 @@ onMounted(async () => {
                           />
                         </div>
                         <div class="flex flex-col">
-                          <label class="text-xs text-muted-foreground mb-1">Até:</label>
+                          <label class="text-[11px] text-muted-foreground mb-1">Até:</label>
                           <input
                             v-model="periodEndDate"
                             type="date"
@@ -815,7 +815,7 @@ onMounted(async () => {
                           type="button"
                           @click="applyCustomPeriod"
                           :disabled="!periodStartDate || !periodEndDate"
-                          class="flex-1 px-2 py-1.5 rounded text-xs font-medium bg-primary text-primary-foreground disabled:opacity-50 hover:opacity-90"
+                          class="flex-1 px-2 py-1.5 rounded text-[11px] font-medium bg-primary text-primary-foreground disabled:opacity-50 hover:opacity-90"
                         >
                           Aplicar
                         </button>
@@ -823,7 +823,7 @@ onMounted(async () => {
                           v-if="filterState.useCustomRange"
                           type="button"
                           @click="clearCustomPeriod"
-                          class="flex-1 px-2 py-1.5 rounded text-xs font-medium border border-border hover:bg-muted"
+                          class="flex-1 px-2 py-1.5 rounded text-[11px] font-medium border border-border hover:bg-muted"
                         >
                           Limpar
                         </button>
@@ -848,7 +848,7 @@ onMounted(async () => {
                   v-model="filterState.search.value"
                   autofocus
                   placeholder="Buscar transação..."
-                  class="flex-1 bg-transparent outline-none text-sm h-9"
+                  class="flex-1 bg-transparent outline-none text-[13px] h-9"
                 />
                 <button
                   type="button"
@@ -1133,11 +1133,11 @@ onMounted(async () => {
     <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
       <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
       <SheetHeader class="text-left">
-        <SheetTitle class="text-base flex items-center gap-2">
+        <SheetTitle class="text-[15px] flex items-center gap-2">
           <Flame class="size-4 text-warning" />
           {{ streak }} dias seguidos
         </SheetTitle>
-        <SheetDescription class="text-xs">
+        <SheetDescription class="text-[12px]">
           {{ streakActive
             ? 'Você está registrando há vários dias seguidos. Continue assim!'
             : 'Você ainda não registrou nada hoje. Registre uma transação para manter sua sequência.' }}

@@ -205,7 +205,7 @@ function hsl(token: string, alpha = 1): string {
     <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none">
       <div class="flex items-center gap-1 w-max border-b border-border">
         <button
-          class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
+          class="relative px-3 h-10 text-[13px] font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
           @click="$router.push({ name: 'finance-reports' })"
         >
           Mensal

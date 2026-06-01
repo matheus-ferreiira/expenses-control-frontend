@@ -198,15 +198,15 @@ function balanceColor(v: number): string {
     <!-- 3-col stats -->
     <div class="grid grid-cols-3 gap-2 text-center">
       <div>
-        <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+        <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
         <p class="text-[17px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(income) }}</p>
       </div>
       <div>
-        <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+        <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
         <p class="text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
       </div>
       <div>
-        <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Resultado</p>
+        <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Resultado</p>
         <p class="text-[17px] font-semibold tabular-nums mt-1" :class="balanceColor(monthlyBalance)">
           {{ formatCurrency(monthlyBalance) }}
         </p>

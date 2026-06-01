@@ -62,7 +62,7 @@ function cancel() {
               <RefreshCw :size="16" />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-foreground">Editar transação fix</h3>
+              <h3 class="text-[14px] font-semibold text-foreground">Editar transação fix</h3>
               <p class="text-[11px] text-muted-foreground/60 mt-0.5">Qual o escopo da alteração?</p>
             </div>
           </div>
@@ -100,14 +100,14 @@ function cancel() {
           <div class="flex gap-2">
             <button
               type="button"
-              class="flex-1 h-10 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+              class="flex-1 h-10 rounded-lg border border-border text-[13px] font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
               @click="cancel"
             >
               Cancelar
             </button>
             <button
               type="button"
-              class="flex-1 h-10 rounded-lg bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-opacity"
+              class="flex-1 h-10 rounded-lg bg-foreground text-background text-[14px] font-semibold hover:opacity-90 transition-opacity"
               @click="confirm"
             >
               Confirmar

@@ -145,7 +145,7 @@ const amountClass = computed(() => {
           </span>
 
           <div class="text-center">
-            <p class="text-base font-semibold text-foreground leading-snug">{{ transaction.description }}</p>
+            <p class="text-[15px] font-semibold text-foreground leading-snug">{{ transaction.description }}</p>
             <p class="text-3xl font-bold tabular-nums mt-1.5 leading-none" :class="amountClass">
               <ArrowUp v-if="transaction.type === 'income'" :size="20" class="inline mr-0.5 opacity-70 align-middle" />
               <ArrowDown v-else-if="transaction.type === 'expense'" :size="20" class="inline mr-0.5 opacity-70 align-middle" />
@@ -246,7 +246,7 @@ const amountClass = computed(() => {
             <button
               type="button"
               :disabled="confirming"
-              class="w-full h-[52px] rounded-xl bg-success text-background text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
+              class="w-full h-[52px] rounded-xl bg-success text-background text-[13px] font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
               @click="handleConfirm"
             >
               <CheckCircle2 :size="16" />

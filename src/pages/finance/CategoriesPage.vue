@@ -132,7 +132,7 @@ async function confirmDelete(id: string) {
         <section v-if="expenseCategories.length">
           <div class="bg-card rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.06em]">
+              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
                 DESPESAS
               </p>
               <button
@@ -146,7 +146,7 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in expenseCategories"
               :key="cat.id"
-              class="border-t border-white/5"
+              class="border-t border-border/30"
             >
               <!-- Confirm delete overlay -->
               <template v-if="confirmDeleteId === cat.id">
@@ -176,7 +176,7 @@ async function confirmDelete(id: string) {
                 <div class="flex items-center gap-3 px-4 h-[52px]">
                   <span
                     class="size-8 rounded-lg flex items-center justify-center shrink-0"
-                    :style="{ background: (cat.color ?? '#ef4444') + '22', color: cat.color ?? '#ef4444' }"
+                    :style="{ background: (cat.color ?? 'hsl(var(--destructive))') + '22', color: cat.color ?? 'hsl(var(--destructive))' }"
                   >
                     <component
                       v-if="cat.icon && findIcon(cat.icon)"
@@ -224,7 +224,7 @@ async function confirmDelete(id: string) {
         <section v-if="incomeCategories.length">
           <div class="bg-card rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.06em]">
+              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
                 RECEITAS
               </p>
               <button
@@ -238,7 +238,7 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in incomeCategories"
               :key="cat.id"
-              class="border-t border-white/5"
+              class="border-t border-border/30"
             >
               <!-- Confirm delete overlay -->
               <template v-if="confirmDeleteId === cat.id">
@@ -268,7 +268,7 @@ async function confirmDelete(id: string) {
                 <div class="flex items-center gap-3 px-4 h-[52px]">
                   <span
                     class="size-8 rounded-lg flex items-center justify-center shrink-0"
-                    :style="{ background: (cat.color ?? '#22c55e') + '22', color: cat.color ?? '#22c55e' }"
+                    :style="{ background: (cat.color ?? 'hsl(var(--success))') + '22', color: cat.color ?? 'hsl(var(--success))' }"
                   >
                     <component
                       v-if="cat.icon && findIcon(cat.icon)"

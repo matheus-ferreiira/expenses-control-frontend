@@ -25,7 +25,7 @@ const emit = defineEmits<{
       <Input
         :value="search"
         placeholder="Buscar transação..."
-        class="h-8 pl-8 text-sm"
+        class="h-8 pl-8 text-[13px]"
         @input="emit('update:search', ($event.target as HTMLInputElement).value)"
       />
     </div>

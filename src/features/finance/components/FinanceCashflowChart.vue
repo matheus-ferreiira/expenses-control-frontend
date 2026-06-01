@@ -256,7 +256,7 @@ onBeforeUnmount(() => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b border-border/50 gap-2 sm:gap-0">
       <div class="flex items-center gap-4 flex-wrap">
-        <span class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           Fluxo de caixa
         </span>
         <div v-if="!loading" class="flex items-center gap-3">

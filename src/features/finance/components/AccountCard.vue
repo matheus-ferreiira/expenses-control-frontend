@@ -6,7 +6,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { Button } from '@ui/button'
 import { MoreHorizontal, Pencil, Trash2, Archive, ArchiveRestore } from 'lucide-vue-next'
 import type { BankAccount } from '@/types/finance'
 import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
@@ -33,10 +32,10 @@ const emit = defineEmits<{
     <div class="p-4 flex items-start gap-3">
       <!-- Account type icon: 40×40, colored bg 20% opacity -->
       <span
-        class="flex items-center justify-center size-10 rounded-lg shrink-0"
+        class="flex items-center justify-center size-10 rounded-xl shrink-0"
         :style="{
-          background: account.is_active ? (account.color ?? '#6b7280') + '33' : 'rgba(255,255,255,0.07)',
-          color: account.is_active ? (account.color ?? '#6b7280') : '#888888',
+          background: account.is_active ? (account.color ?? '#6b7280') + '33' : 'hsl(var(--muted))',
+          color: account.is_active ? (account.color ?? '#6b7280') : 'hsl(var(--muted-foreground))',
         }"
       >
         <component :is="ACCOUNT_TYPE_ICONS[account.type]" :size="18" />

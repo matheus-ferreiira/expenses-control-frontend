@@ -121,7 +121,7 @@ async function save() {
           <input
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
-            class="w-full h-12 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-sm transition-colors"
+            class="w-full h-12 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-[13px] transition-colors"
             @keydown.enter="save"
           />
         </div>
@@ -184,7 +184,7 @@ async function save() {
               min="0"
               step="10"
               placeholder="Sem meta"
-              class="flex-1 bg-transparent text-sm outline-none tabular-nums"
+              class="flex-1 bg-transparent text-[13px] outline-none tabular-nums"
             />
             <button
               v-if="monthlyLimit"

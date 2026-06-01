@@ -163,7 +163,7 @@ const QUICK_ACTIONS = [
   { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, bgClass: 'bg-destructive/15', iconClass: 'text-destructive' },
   { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, bgClass: 'bg-success/15', iconClass: 'text-success' },
   { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, bgClass: 'bg-muted/60', iconClass: 'text-muted-foreground' },
-  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-orange-500/15', iconClass: 'text-orange-400' },
+  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-warning/15', iconClass: 'text-warning' },
   { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, bgClass: 'bg-violet-500/15', iconClass: 'text-violet-400' },
 ]
 </script>
@@ -173,24 +173,24 @@ const QUICK_ACTIONS = [
     <SheetContent side="bottom"
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] overflow-y-auto [&>button]:hidden">
       <!-- Drag handle -->
-      <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-muted-foreground/30" />
+      <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-muted-foreground/20" />
 
       <!-- ── Action menu ── -->
       <template v-if="!action">
         <div class="px-5 pt-2 pb-3">
-          <p class="text-base font-semibold">Adicionar rápido</p>
-          <p class="text-xs text-muted-foreground mt-0.5">O que você quer registrar agora?</p>
+          <p class="text-[15px] font-semibold">Adicionar rápido</p>
+          <p class="text-[12px] text-muted-foreground mt-0.5">O que você quer registrar agora?</p>
         </div>
         <ul class="px-2 pb-6">
           <li v-for="a in QUICK_ACTIONS" :key="a.id">
             <button
-              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-white/5"
+              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-muted/40"
               @click="selectAction(a.id)">
               <span class="size-10 rounded-lg grid place-items-center shrink-0" :class="a.bgClass">
                 <component :is="a.icon" :size="20" :class="a.iconClass" />
               </span>
               <span class="flex-1 min-w-0">
-                <span class="block text-sm font-medium">{{ a.label }}</span>
+                <span class="block text-[13px] font-medium">{{ a.label }}</span>
                 <span class="block text-[11px] text-muted-foreground">{{ a.desc }}</span>
               </span>
             </button>
@@ -206,13 +206,13 @@ const QUICK_ACTIONS = [
               @click="goBack">
               <ArrowLeft :size="16" />
             </button>
-            <h3 class="text-sm font-semibold">Nova tarefa</h3>
+            <h3 class="text-[13px] font-semibold">Nova tarefa</h3>
           </header>
           <div class="px-5 py-4 space-y-4">
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
               <input v-model="taskForm.title" autofocus placeholder="O que precisa ser feito?"
-                class="w-full h-11 px-3 rounded-md bg-card border border-border/60 focus:border-border outline-none text-sm" />
+                class="w-full h-11 px-3 rounded-lg bg-card border border-border/60 focus:border-border outline-none text-[13px]" />
             </div>
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data
@@ -222,7 +222,7 @@ const QUICK_ACTIONS = [
           </div>
           <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
             <button type="submit"
-              class="w-full h-12 rounded-lg font-semibold text-sm bg-foreground text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              class="w-full h-12 rounded-lg font-semibold text-[13px] bg-primary text-primary-foreground flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
               :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               <Check v-else :size="14" />
@@ -240,10 +240,10 @@ const QUICK_ACTIONS = [
               @click="goBack">
               <ArrowLeft :size="16" />
             </button>
-            <h3 class="text-sm font-semibold">Marcar hábito de hoje</h3>
+            <h3 class="text-[13px] font-semibold">Marcar hábito de hoje</h3>
           </header>
           <div class="px-5 py-2">
-            <p v-if="todayActiveHabits.length === 0" class="text-sm text-muted-foreground py-6 text-center">
+            <p v-if="todayActiveHabits.length === 0" class="text-[13px] text-muted-foreground py-6 text-center">
               Nenhum hábito ativo encontrado.
             </p>
             <ul v-else class="divide-y divide-border">
@@ -259,7 +259,7 @@ const QUICK_ACTIONS = [
                     <component :is="habit.icon && findIcon(habit.icon) ? findIcon(habit.icon)!.component : null"
                       v-if="habit.icon && findIcon(habit.icon)" :size="14" />
                   </span>
-                  <span class="text-sm flex-1">{{ habit.name }}</span>
+                  <span class="text-[13px] flex-1">{{ habit.name }}</span>
                   <span v-if="isCompletedToday(habit)" class="text-[10px] text-success/70">✓ hoje</span>
                 </label>
               </li>
@@ -267,7 +267,7 @@ const QUICK_ACTIONS = [
           </div>
           <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
             <button type="submit"
-              class="w-full h-12 rounded-lg font-semibold text-sm bg-success text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              class="w-full h-12 rounded-lg font-semibold text-[13px] bg-primary text-primary-foreground flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
               :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               Confirmar
@@ -284,13 +284,13 @@ const QUICK_ACTIONS = [
               @click="goBack">
               <ArrowLeft :size="16" />
             </button>
-            <h3 class="text-sm font-semibold">Novo evento</h3>
+            <h3 class="text-[13px] font-semibold">Novo evento</h3>
           </header>
           <div class="px-5 py-4 space-y-4">
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
               <input v-model="eventForm.title" autofocus placeholder="Reunião, almoço, dentista..."
-                class="w-full h-11 px-3 rounded-md bg-card border border-border/60 focus:border-border outline-none text-sm" />
+                class="w-full h-11 px-3 rounded-lg bg-card border border-border/60 focus:border-border outline-none text-[13px]" />
             </div>
             <div>
               <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data</p>
@@ -299,7 +299,7 @@ const QUICK_ACTIONS = [
           </div>
           <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
             <button type="submit"
-              class="w-full h-12 rounded-lg font-semibold text-sm bg-foreground text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              class="w-full h-12 rounded-lg font-semibold text-[13px] bg-primary text-primary-foreground flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
               :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               Criar evento

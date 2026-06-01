@@ -141,27 +141,6 @@ const viewTitle = computed(() => {
   }
 })
 
-const mobileChipCounts = computed(() => {
-  const tasks = store.tasks
-  const today = todayStr()
-  const nextWeek = addDaysStr(7)
-  return {
-    today: tasks.filter((t) => t.due_date === today && t.status !== 'completed' && t.status !== 'cancelled').length,
-    upcoming: tasks.filter((t) => t.due_date && t.due_date > today && t.due_date <= nextWeek && t.status !== 'completed' && t.status !== 'cancelled').length,
-    overdue: tasks.filter((t) => isTaskOverdue(t)).length,
-    completed: tasks.filter((t) => t.status === 'completed').length,
-    noDate: tasks.filter((t) => !t.due_date && t.status !== 'completed' && t.status !== 'cancelled').length,
-  }
-})
-
-const mobileChips = computed(() => [
-  { id: 'today' as TaskViewId, label: 'Hoje', count: mobileChipCounts.value.today },
-  { id: 'upcoming' as TaskViewId, label: 'Próximas', count: mobileChipCounts.value.upcoming },
-  { id: 'overdue' as TaskViewId, label: 'Atrasadas', count: mobileChipCounts.value.overdue, tone: 'danger' as const },
-  { id: 'completed' as TaskViewId, label: 'Concluídas', count: mobileChipCounts.value.completed },
-  { id: 'no-date' as TaskViewId, label: 'Sem data', count: mobileChipCounts.value.noDate },
-])
-
 function openCreate() {
   editingTask.value = null
   formOpen.value = true

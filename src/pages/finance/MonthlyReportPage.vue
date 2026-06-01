@@ -235,7 +235,7 @@ onMounted(() => load())
           <span class="absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-primary" />
         </button>
         <button
-          class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
+          class="relative px-3 h-10 text-[13px] font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
           @click="router.push({ name: ROUTES.FINANCE_REPORTS_YEARLY })"
         >
           Anual
@@ -324,7 +324,7 @@ onMounted(() => load())
       >
         <div class="flex items-center gap-2 mb-3">
           <PieChart :size="13" class="text-muted-foreground/50" />
-          <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             Distribuição por categoria
           </p>
         </div>
@@ -357,7 +357,7 @@ onMounted(() => load())
       <!-- Category breakdown with mini-bars -->
       <div v-if="report.expenses_by_category.length > 0">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             Por categoria
           </p>
           <span class="text-[11px] text-muted-foreground/40">
@@ -408,8 +408,8 @@ onMounted(() => load())
         class="flex flex-col items-center justify-center py-12 text-center"
       >
         <PieChart :size="32" class="text-muted-foreground/20 mb-3" />
-        <p class="text-sm font-medium text-foreground">Nenhuma despesa registrada</p>
-        <p class="text-xs text-muted-foreground mt-0.5">
+        <p class="text-[13px] font-medium text-foreground">Nenhuma despesa registrada</p>
+        <p class="text-[11px] text-muted-foreground mt-0.5">
           Nenhuma transação de despesa em {{ monthLabel }}.
         </p>
       </div>
@@ -417,7 +417,7 @@ onMounted(() => load())
 
     <!-- Error -->
     <div v-else class="flex flex-col items-center justify-center py-16 text-center">
-      <p class="text-sm font-medium text-foreground">Erro ao carregar relatório</p>
+      <p class="text-[13px] font-medium text-foreground">Erro ao carregar relatório</p>
       <button
         type="button"
         class="text-[13px] font-medium text-primary underline-offset-2 hover:underline mt-3"

@@ -90,7 +90,7 @@ const limitBarClass = computed(() => {
         <div class="flex items-center gap-2.5 min-w-0">
           <!-- Avatar with solid card color (the only place color appears) -->
           <span
-            class="rounded-lg grid place-items-center shrink-0 size-9 text-[11px] font-bold text-white"
+            class="rounded-lg grid place-items-center shrink-0 size-9 text-[11px] font-semibold text-white"
             :style="{ background: card.color }"
           >
             {{ card.name.substring(0, 2).toUpperCase() }}
@@ -98,7 +98,7 @@ const limitBarClass = computed(() => {
           <div class="min-w-0">
             <p class="text-[13px] font-medium text-foreground truncate">{{ card.name }}</p>
             <!-- Billing period label (or fallback to closing/due days) -->
-            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mt-0.5">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-0.5">
               <template v-if="billingPeriod">
                 {{ billingPeriod.label }}
               </template>
@@ -147,10 +147,10 @@ const limitBarClass = computed(() => {
         <span
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border"
           :class="isOverdue
-            ? 'bg-destructive/12 border-destructive/25 text-destructive'
+            ? 'bg-destructive/10 border-destructive/25 text-destructive'
             : daysUntilDue <= 5
               ? 'bg-warning/10 border-warning/20 text-warning'
-              : 'bg-primary/12 border-primary/25 text-primary'"
+              : 'bg-primary/10 border-primary/25 text-primary'"
         >
           <AlertTriangle v-if="isOverdue" :size="9" />
           <CreditCard v-else :size="9" />
@@ -161,7 +161,7 @@ const limitBarClass = computed(() => {
         <span
           v-if="billingPeriod?.isClosed"
           :title="`Período encerrado. Pagamento até ${new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}.`"
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border cursor-help bg-white/5 border-white/[0.08] text-muted-foreground"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border cursor-help bg-muted/30 border-border/30 text-muted-foreground"
         >
           <Lock :size="9" />
           Fatura fechada
@@ -172,7 +172,7 @@ const limitBarClass = computed(() => {
       <div class="pt-1.5 border-t border-border/40">
         <div class="flex items-end justify-between mb-1.5">
           <div>
-            <p class="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/40 mb-0.5">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 mb-0.5">
               {{ billingPeriod?.isClosed ? 'Fatura fechada' : 'Fatura atual' }}
             </p>
             <p class="text-[17px] font-semibold tabular-nums leading-none text-foreground">
@@ -201,7 +201,7 @@ const limitBarClass = computed(() => {
         <!-- Ver extrato — always visible -->
         <button
           type="button"
-          class="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl text-sm font-medium border border-white/10 bg-card text-foreground hover:bg-popover transition-colors"
+          class="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl text-[13px] font-medium border border-border/30 bg-card text-foreground hover:bg-popover transition-colors"
           @click="emit('statement', card)"
         >
           <FileText :size="14" />

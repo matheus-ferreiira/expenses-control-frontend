@@ -74,7 +74,7 @@ const highlightBg = computed(() => {
           />
           <span
             v-if="transaction.installment_number && transaction.total_installments"
-            class="inline-flex items-center h-4 px-1.5 rounded text-[9.5px] font-semibold border border-white/8 text-muted-foreground/60 shrink-0 bg-white/5"
+            class="inline-flex items-center h-4 px-1.5 rounded text-[10px] font-semibold border border-border/30 text-muted-foreground/60 shrink-0 bg-muted/30"
           >
             {{ transaction.installment_number }}/{{ transaction.total_installments }}
           </span>

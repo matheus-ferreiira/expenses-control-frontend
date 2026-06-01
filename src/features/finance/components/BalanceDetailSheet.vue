@@ -22,7 +22,7 @@ const store = useFinanceStore()
       side="bottom"
       class="rounded-t-2xl max-w-lg mx-auto bg-card border-t-2 border-primary [&>button]:hidden"
     >
-      <div class="mx-auto -mt-2 mb-4 h-1 w-10 rounded-full bg-muted-foreground/30" />
+      <div class="mx-auto -mt-2 mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
       <div class="mb-4">
         <p class="text-[10px] uppercase tracking-widest text-muted-foreground/50 mb-1.5">
           {{ props.title }}

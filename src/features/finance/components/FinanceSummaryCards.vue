@@ -47,11 +47,11 @@ const budgetPctLabel = computed(() => {
           <div class="mt-2 pt-2 border-t border-border/40">
             <div class="flex items-center gap-1 mb-1">
               <CalendarClock :size="10" class="text-muted-foreground/40 shrink-0" />
-              <p class="text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/40">
+              <p class="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                 Previsto fim do mês
               </p>
             </div>
-            <p :class="['text-sm font-semibold tabular-nums leading-none', projectedBalance! >= totalBalance ? 'text-success/80' : 'text-destructive/70']">
+            <p :class="['text-[13px] font-semibold tabular-nums leading-none', projectedBalance! >= totalBalance ? 'text-success/80' : 'text-destructive/70']">
               {{ formatCurrency(projectedBalance!) }}
             </p>
           </div>

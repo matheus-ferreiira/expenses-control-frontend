@@ -264,11 +264,6 @@ const submitLabel = computed(() => {
   return typeConfig.value.saveText
 })
 
-const hasAmount = computed(() => {
-  const v = parseFloat(form.amount.replace(',', '.'))
-  return !isNaN(v) && v > 0
-})
-
 watch(
   () => props.open,
   (isOpen) => {
@@ -372,7 +367,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <ArrowLeft :size="18" />
           </button>
           <div>
-            <h2 class="text-[17px] font-bold leading-none">
+            <h2 class="text-[17px] font-semibold leading-none">
               {{ transaction ? 'Editar transação' : 'Nova transação' }}
             </h2>
             <p
@@ -420,7 +415,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 @focus="onAmountFocus"
               />
             </div>
-            <p v-if="errors.amount" class="text-xs text-destructive mb-2">{{ errors.amount }}</p>
+            <p v-if="errors.amount" class="text-[11px] text-destructive mb-2">{{ errors.amount }}</p>
             <!-- Quick increments -->
             <div class="flex gap-2 justify-center">
               <button
@@ -498,9 +493,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <input
               v-model="form.description"
               :placeholder="descriptionPlaceholder"
-              class="w-full h-11 rounded-lg px-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-card border border-border"
+              class="w-full h-11 rounded-lg px-3.5 text-[13px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/40 bg-card border border-border"
             />
-            <p v-if="errors.description" class="text-xs text-destructive mt-1">{{ errors.description }}</p>
+            <p v-if="errors.description" class="text-[11px] text-destructive mt-1">{{ errors.description }}</p>
           </div>
 
           <!-- ── DATA ─────────────────────────────────────── -->
@@ -544,7 +539,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p v-if="dateShortcut !== 'custom'" class="text-[12px] text-muted-foreground/60 mt-1.5 ml-0.5">
               {{ new Date(form.transaction_date + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
             </p>
-            <p v-if="errors.transaction_date" class="text-xs text-destructive mt-1">{{ errors.transaction_date }}</p>
+            <p v-if="errors.transaction_date" class="text-[11px] text-destructive mt-1">{{ errors.transaction_date }}</p>
           </div>
 
           <!-- ── CONTA(S) ──────────────────────────────────── -->
@@ -570,7 +565,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
-                    class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-bold"
+                    class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-semibold"
                     :style="{ background: acc.color ? acc.color + '25' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
                   >
                     {{ acc.name.charAt(0).toUpperCase() }}
@@ -589,7 +584,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   </div>
                 </button>
               </div>
-              <p v-if="errors.account_id" class="text-xs text-destructive mt-1">{{ errors.account_id }}</p>
+              <p v-if="errors.account_id" class="text-[11px] text-destructive mt-1">{{ errors.account_id }}</p>
             </div>
 
             <!-- Destination account -->
@@ -608,7 +603,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
-                    class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-bold"
+                    class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-semibold"
                     :style="{ background: acc.color ? acc.color + '25' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
                   >
                     {{ acc.name.charAt(0).toUpperCase() }}
@@ -627,7 +622,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   </div>
                 </button>
               </div>
-              <p v-if="errors.destination_account_id" class="text-xs text-destructive mt-1">{{ errors.destination_account_id }}</p>
+              <p v-if="errors.destination_account_id" class="text-[11px] text-destructive mt-1">{{ errors.destination_account_id }}</p>
             </div>
           </template>
 
@@ -646,7 +641,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span
-                  class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-bold"
+                  class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-semibold"
                   :style="{ background: acc.color ? acc.color + '25' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
                 >
                   {{ acc.name.charAt(0).toUpperCase() }}
@@ -665,7 +660,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 </div>
               </button>
             </div>
-            <p v-if="errors.account_id" class="text-xs text-destructive mt-1">{{ errors.account_id }}</p>
+            <p v-if="errors.account_id" class="text-[11px] text-destructive mt-1">{{ errors.account_id }}</p>
           </div>
 
           <!-- ── TRANSAÇÃO FIXA — inline toggle row ─────────── -->
@@ -889,7 +884,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <Textarea
                 v-model="form.notes"
                 placeholder="Detalhes extras, referência, contexto..."
-                class="resize-none h-20 text-sm rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors bg-card border border-border"
+                class="resize-none h-20 text-[13px] rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors bg-card border border-border"
               />
               <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
                 {{ form.notes?.length ?? 0 }}/500

@@ -203,31 +203,31 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     <div v-else class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
       <template v-if="props.open">
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-white/[0.04] hover:text-muted-foreground/80"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-muted/30 hover:text-muted-foreground/80"
           @click="emit('search')"
         >
           <Search :size="13" class="shrink-0" />
-          <span class="flex-1 text-[12.5px]">Buscar...</span>
+          <span class="flex-1 text-[13px]">Buscar...</span>
           <kbd class="text-[10px] font-mono text-muted-foreground/25">{{ searchShortcut }}</kbd>
         </button>
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-white/[0.04] hover:text-muted-foreground/80"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-muted/30 hover:text-muted-foreground/80"
           @click="emit('quickAdd')"
         >
           <Plus :size="13" class="shrink-0" />
-          <span class="flex-1 text-[12.5px]">Quick add</span>
+          <span class="flex-1 text-[13px]">Quick add</span>
           <kbd class="text-[10px] font-mono text-muted-foreground/25">N</kbd>
         </button>
       </template>
       <template v-else>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-white/5 hover:text-muted-foreground/70"
+          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-muted/40 hover:text-muted-foreground/70"
           @click="emit('search')"
         >
           <Search :size="14" />
         </button>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-white/5 hover:text-muted-foreground/70"
+          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-muted/40 hover:text-muted-foreground/70"
           @click="emit('quickAdd')"
         >
           <Plus :size="14" />
@@ -270,15 +270,15 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 class="group flex items-center w-full transition-colors duration-150 mb-0.5"
                 :class="isOnFinance
                   ? (props.mobile
-                      ? 'bg-white/[0.08] pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
-                      : 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                      ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
+                      : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
-                      ? 'px-4 py-3 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg gap-3')"
+                      ? 'px-4 py-3 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-xl gap-3.5'
+                      : 'px-3 py-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-lg gap-3')"
                 @click="financeGroupOpen = !financeGroupOpen"
               >
                 <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
-                <span class="flex-1 truncate text-left" :class="props.mobile ? 'text-[14px]' : 'text-sm'">{{ item.label }}</span>
+                <span class="flex-1 truncate text-left" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
                 <ChevronDown
                   :size="12"
                   class="shrink-0 transition-transform duration-200 text-muted-foreground"
@@ -294,10 +294,10 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                   :to="{ name: child.route }"
                   class="flex items-center rounded-lg transition-colors duration-150 mb-0.5"
                   :class="[
-                    props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2 pl-9 pr-3 py-1.5 text-xs',
+                    props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2 pl-9 pr-3 py-1.5 text-[12px]',
                     isChildActive(child.route)
                       ? 'text-primary font-medium'
-                      : 'text-muted-foreground/70 hover:bg-white/5 hover:text-foreground',
+                      : 'text-muted-foreground/70 hover:bg-muted/40 hover:text-foreground',
                   ]"
                   @click="emit('navigate')"
                 >
@@ -312,8 +312,8 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 :to="{ name: item.route }"
                 class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
                 :class="isOnFinance
-                  ? 'bg-white/[0.08] text-foreground'
-                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'"
+                  ? 'bg-sidebar-accent text-foreground'
+                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'"
                 @click="emit('navigate')"
               >
                 <component :is="item.icon" :size="18" />
@@ -330,11 +330,11 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 class="group flex items-center transition-colors duration-150 mb-0.5"
                 :class="isActive(item.route)
                   ? (props.mobile
-                      ? 'bg-white/[0.08] pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
-                      : 'bg-white/[0.08] pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                      ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
+                      : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
-                      ? 'px-4 py-3 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg gap-3')"
+                      ? 'px-4 py-3 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-xl gap-3.5'
+                      : 'px-3 py-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-lg gap-3')"
                 @click="emit('navigate')"
               >
                 <component
@@ -345,10 +345,10 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                     ? (isActive(item.route) ? (MOBILE_ICON_COLORS[item.route] ?? 'text-primary') : 'text-muted-foreground')
                     : ''"
                 />
-                <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-sm'">{{ item.label }}</span>
+                <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
                 <span
                   v-if="item.shortcut && !props.mobile"
-                  class="text-[9.5px] font-mono text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  class="text-[10px] font-mono text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                 >{{ item.shortcut }}</span>
               </RouterLink>
 
@@ -358,8 +358,8 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 :to="{ name: item.route }"
                 class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
                 :class="isActive(item.route)
-                  ? 'bg-white/[0.08] text-foreground'
-                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'"
+                  ? 'bg-sidebar-accent text-foreground'
+                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'"
                 @click="emit('navigate')"
               >
                 <component :is="item.icon" :size="18" />
@@ -392,7 +392,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- Theme toggle (expanded) -->
       <button
         v-if="props.open"
-        class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground/50 hover:bg-white/5 hover:text-muted-foreground transition-colors duration-150"
+        class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground/50 hover:bg-muted/40 hover:text-muted-foreground transition-colors duration-150"
         @click="ui.toggleTheme()"
       >
         <Moon v-if="ui.theme === 'dark'" :size="13" class="shrink-0" />
@@ -406,7 +406,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- Expand toggle (collapsed) -->
       <button
         v-if="!props.open"
-        class="flex justify-center w-full p-2 text-muted-foreground/30 hover:bg-white/5 hover:text-muted-foreground/60 transition-colors duration-150 mt-1 mb-1"
+        class="flex justify-center w-full p-2 text-muted-foreground/30 hover:bg-muted/40 hover:text-muted-foreground/60 transition-colors duration-150 mt-1 mb-1"
         @click="emit('toggle')"
       >
         <PanelLeftOpen :size="14" />
@@ -415,18 +415,18 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- User row (expanded) -->
       <div v-if="props.open" class="flex items-center gap-2.5 px-3 py-3">
         <Avatar class="h-8 w-8 shrink-0">
-          <AvatarFallback class="text-xs font-medium bg-primary/20 text-primary">
+          <AvatarFallback class="text-[12px] font-medium bg-primary/20 text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-foreground truncate leading-tight">
+          <p class="text-[13px] font-medium text-foreground truncate leading-tight">
             {{ auth.user?.name ?? 'Usuário' }}
           </p>
         </div>
         <RouterLink
           :to="{ name: ROUTES.SETTINGS }"
-          class="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors duration-150"
+          class="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors duration-150"
           @click="emit('navigate')"
         >
           <Settings :size="16" />
