@@ -159,12 +159,12 @@ async function submitEvent() {
 }
 
 const QUICK_ACTIONS = [
-  { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, bgClass: 'bg-blue-500/15', iconClass: 'text-blue-400' },
+  { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, bgClass: 'bg-[hsl(var(--color-task)/0.15)]', iconClass: 'text-[hsl(var(--color-task))]' },
   { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, bgClass: 'bg-destructive/15', iconClass: 'text-destructive' },
   { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, bgClass: 'bg-success/15', iconClass: 'text-success' },
   { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, bgClass: 'bg-muted/60', iconClass: 'text-muted-foreground' },
   { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-warning/15', iconClass: 'text-warning' },
-  { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, bgClass: 'bg-violet-500/15', iconClass: 'text-violet-400' },
+  { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, bgClass: 'bg-[hsl(var(--color-event)/0.15)]', iconClass: 'text-[hsl(var(--color-event))]' },
 ]
 </script>
 

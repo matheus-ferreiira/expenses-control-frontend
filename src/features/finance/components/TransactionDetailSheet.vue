@@ -4,6 +4,7 @@ import { Sheet, SheetContent } from '@ui/sheet'
 import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat, CheckCircle2, Copy } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
+import { getContrastColor } from '@/utils/color'
 import { findIcon } from '@/lib/icons'
 import { financeApi } from '@/services/api/finance'
 
@@ -230,8 +231,8 @@ const amountClass = computed(() => {
               <span
                 v-for="tag in transaction.tags"
                 :key="tag.id"
-                class="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium text-white"
-                :style="{ background: tag.color }"
+                class="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium"
+                :style="{ background: tag.color, color: getContrastColor(tag.color) }"
               >
                 {{ tag.name }}
               </span>

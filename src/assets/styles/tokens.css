@@ -101,6 +101,10 @@
   --tone-success:           162 100% 39%;  /* #00C896 */
   --tone-info:              162  70% 50%;  /* green-info */
 
+  /* --- Module colors (task, event identity across the app) --- */
+  --color-task:             210 100% 60%;  /* azul — módulo de tarefas */
+  --color-event:            270  70% 65%;  /* violeta — módulo de agenda */
+
   /* --- Chart --- */
   --chart-1:                162 100% 39%;  /* green */
   --chart-2:                  0 100% 65%;  /* red */
@@ -162,6 +166,9 @@
   --tone-attn:               52  88% 58%;
   --tone-success:           162  80% 35%;
   --tone-info:              162  60% 40%;
+
+  --color-task:             210 100% 45%;  /* azul mais escuro no light */
+  --color-event:            270  60% 55%;  /* violeta mais escuro no light */
 
   --chart-1:                162  80% 35%;
   --chart-2:                  0  85% 55%;

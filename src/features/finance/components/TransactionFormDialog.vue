@@ -18,6 +18,7 @@ import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { toISODate } from '@/utils/date'
 import { formatCurrency } from '@/utils/currency'
+import { getContrastColor } from '@/utils/color'
 import RecurringEditScopeDialog from './RecurringEditScopeDialog.vue'
 
 export interface TransactionPrefill {
@@ -845,9 +846,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 type="button"
                 class="inline-flex items-center gap-1 h-7 px-2.5 rounded-md text-[11px] font-medium border transition-all"
                 :class="form.tag_ids.includes(tag.id)
-                  ? 'border-transparent text-white'
+                  ? 'border-transparent'
                   : 'border-border text-muted-foreground bg-card hover:text-foreground'"
-                :style="form.tag_ids.includes(tag.id) ? { background: tag.color } : {}"
+                :style="form.tag_ids.includes(tag.id) ? { background: tag.color, color: getContrastColor(tag.color) } : {}"
                 @click="toggleTag(tag.id)"
               >
                 {{ tag.name }}
