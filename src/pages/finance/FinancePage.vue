@@ -15,10 +15,12 @@ import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
+import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useAuthStore } from '@/stores/auth'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
+import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { utilizationPercent, monthLabel as getMonthLabel, getCardBillingPeriod, currentMonth } from '@/features/finance/utils/financeHelpers'
@@ -154,9 +156,9 @@ const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
 
-// Projected end-of-month balance = current balance + pending income - pending expenses
-// Only meaningful for the current month (pending transactions from other months are historical)
-const projectedBalance = computed(() => {
+// Projected balance: local fallback for current month, corrected by API for future months.
+// Uses the same endpoint as TransactionSummaryCard via the shared composable.
+const localProjectedBalance = computed(() => {
   const pendingIncome = store.transactions
     .filter((t) => t.status === 'pending' && t.type === 'income')
     .reduce((s, t) => s + t.amount, 0)
@@ -165,6 +167,25 @@ const projectedBalance = computed(() => {
     .reduce((s, t) => s + t.amount, 0)
   return totalBalance.value + pendingIncome - pendingExpense
 })
+
+const { projectedBalance: historicalProjected } = useHistoricalBalance(
+  computed(() => filterState.month.value),
+  totalBalance,
+)
+
+// Displayed projected balance: API value (cumulative for future months) with local fallback
+const projectedBalance = computed(() => historicalProjected.value ?? localProjectedBalance.value)
+
+// ── Balance detail sheet ──────────────────────────────────────────────────────
+const balanceSheetOpen = ref(false)
+const balanceSheetTitle = ref('Saldo atual')
+const balanceSheetAmount = ref(0)
+
+function openBalanceSheet(title: string, amount: number) {
+  balanceSheetTitle.value = title
+  balanceSheetAmount.value = amount
+  balanceSheetOpen.value = true
+}
 
 // Spendable = current account balance minus all pending (scheduled) expenses this month
 // Answers: "how much can I safely spend without missing any scheduled bills?"
@@ -636,25 +657,35 @@ onMounted(async () => {
           </p>
         </div>
 
-        <!-- Values — 2 columns -->
+        <!-- Values — 2 columns, both clickable -->
         <div class="grid grid-cols-2 gap-3">
           <div>
             <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo atual</p>
-            <p
-              class="text-[20px] font-semibold tabular-nums leading-none"
-              :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
+            <button
+              type="button"
+              class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+              @click="openBalanceSheet('Saldo atual', totalBalance)"
             >
-              {{ formatCurrency(totalBalance) }}
-            </p>
+              <span
+                class="text-[20px] font-semibold tabular-nums leading-none"
+                :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
+              >{{ formatCurrency(totalBalance) }}</span>
+              <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+            </button>
           </div>
           <div>
             <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo previsto</p>
-            <p
-              class="text-[20px] font-semibold tabular-nums leading-none"
-              :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
+            <button
+              type="button"
+              class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+              @click="openBalanceSheet('Saldo previsto', projectedBalance)"
             >
-              {{ formatCurrency(projectedBalance) }}
-            </p>
+              <span
+                class="text-[20px] font-semibold tabular-nums leading-none"
+                :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
+              >{{ formatCurrency(projectedBalance) }}</span>
+              <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+            </button>
           </div>
         </div>
 
@@ -1061,6 +1092,12 @@ onMounted(async () => {
     </div>
 
   </AppPageContainer>
+
+  <BalanceDetailSheet
+    v-model:open="balanceSheetOpen"
+    :title="balanceSheetTitle"
+    :total-amount="balanceSheetAmount"
+  />
 
   <!-- Dialogs -->
   <TransactionFormDialog
