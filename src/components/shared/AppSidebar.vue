@@ -3,9 +3,11 @@ import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
+import { useFinanceStore } from '@/stores/finance'
 import { ROUTES } from '@/constants/routes'
 import { ScrollArea } from '@ui/scroll-area'
 import { Avatar, AvatarFallback } from '@ui/avatar'
+import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
 import {
   LayoutDashboard, CheckSquare, Flame, Target, CalendarDays,
   Wallet, FileText, BookOpen, Bookmark, ShoppingCart,
@@ -13,6 +15,7 @@ import {
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
   ArrowUpDown, Landmark, CreditCard, PieChart, Tag,
 } from 'lucide-vue-next'
+import { formatCurrency } from '@/utils/currency'
 
 const props = withDefaults(defineProps<{ open: boolean; mobile?: boolean }>(), { mobile: false })
 const emit = defineEmits<{
@@ -25,6 +28,9 @@ const emit = defineEmits<{
 const route = useRoute()
 const auth = useAuthStore()
 const ui = useUiStore()
+const financeStore = useFinanceStore()
+const sidebarBalanceOpen = ref(false)
+const totalBalance = computed(() => financeStore.activeAccounts.reduce((s, a) => s + a.balance, 0))
 
 // ── Finance group ─────────────────────────────────────────────────────────────
 const financeGroupOpen = ref(false)
@@ -388,6 +394,63 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
 
     <!-- ─── Desktop footer ───────────────────────────────────── -->
     <div v-else class="border-t border-border shrink-0">
+
+      <!-- Balance widget (expanded desktop) -->
+      <Popover v-if="props.open" v-model:open="sidebarBalanceOpen">
+        <PopoverTrigger as-child>
+          <button
+            type="button"
+            class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground/50 hover:bg-white/5 hover:text-foreground transition-colors duration-150"
+          >
+            <Wallet :size="13" class="shrink-0" />
+            <span class="flex-1 text-[12px] text-left tabular-nums font-medium" :class="totalBalance >= 0 ? 'text-foreground/60' : 'text-destructive/60'">
+              {{ formatCurrency(totalBalance) }}
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent class="w-56" align="start" side="right" :side-offset="8">
+          <div class="mb-3">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/50 mb-1">Saldo total</p>
+            <p
+              class="text-[20px] font-bold tabular-nums leading-none"
+              :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
+            >{{ formatCurrency(totalBalance) }}</p>
+          </div>
+          <div class="border-t border-border/40 pt-2">
+            <p v-if="!financeStore.activeAccounts.length" class="text-[12px] text-muted-foreground/50 py-1">
+              Nenhuma conta ativa
+            </p>
+            <div
+              v-for="account in financeStore.activeAccounts"
+              :key="account.id"
+              class="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0"
+            >
+              <span
+                class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-semibold shrink-0"
+                :style="{
+                  background: (account.color || 'hsl(var(--primary))') + '26',
+                  color: account.color || 'hsl(var(--primary))',
+                }"
+              >{{ account.name.slice(0, 2).toUpperCase() }}</span>
+              <span class="flex-1 text-[12px] font-medium truncate">{{ account.name }}</span>
+              <span
+                class="text-[12px] tabular-nums shrink-0 font-medium"
+                :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
+              >{{ formatCurrency(account.balance) }}</span>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+      <!-- Balance icon only (collapsed desktop) -->
+      <button
+        v-else-if="!props.mobile"
+        type="button"
+        class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/30 hover:bg-white/5 hover:text-muted-foreground/60 mt-0.5"
+        :title="`Saldo: ${formatCurrency(totalBalance)}`"
+        @click="emit('toggle')"
+      >
+        <Wallet :size="14" />
+      </button>
 
       <!-- Theme toggle (expanded) -->
       <button

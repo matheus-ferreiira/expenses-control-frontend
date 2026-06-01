@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-vue-next'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatCurrency } from '@/utils/currency'
 import { financeApi } from '@/services/api/finance'
 import { monthLabel, currentMonth } from '@/features/finance/utils/financeHelpers'
@@ -12,12 +13,14 @@ const props = defineProps<{
   totalBalance: number
   pendingIncome: number
   pendingExpenses: number
+  expenseDelta?: number | null
 }>()
 
 const emit = defineEmits<{
   prev: []
   next: []
   reset: []
+  selectMonth: [month: string]
 }>()
 
 const label = computed(() => monthLabel(props.month))
@@ -30,6 +33,45 @@ const monthContext = computed<'current' | 'future' | 'past'>(() => {
 
 const isCurrentMonth = computed(() => monthContext.value === 'current')
 const monthlyBalance = computed(() => props.income - props.expenses)
+
+// ── Budget bar ────────────────────────────────────────────────────────────────
+const budgetPercent = computed(() =>
+  props.income > 0 ? Math.min(100, Math.round((props.expenses / props.income) * 100)) : 0
+)
+const budgetBarColor = computed(() => {
+  if (budgetPercent.value >= 100) return 'bg-destructive'
+  if (budgetPercent.value >= 70) return 'bg-warning'
+  return 'bg-primary'
+})
+
+// ── Month picker ──────────────────────────────────────────────────────────────
+const pickerOpen = ref(false)
+const pickerYear = ref(new Date().getFullYear())
+
+const MONTHS_SHORT = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'] as const
+
+watch(pickerOpen, (open) => {
+  if (open) {
+    const [year] = props.month.split('-').map(Number)
+    pickerYear.value = year ?? new Date().getFullYear()
+  }
+})
+
+function selectMonthFromPicker(monthIdx: number) {
+  const m = String(monthIdx + 1).padStart(2, '0')
+  emit('selectMonth', `${pickerYear.value}-${m}`)
+  pickerOpen.value = false
+}
+
+function isPickerCurrentRealMonth(monthIdx: number): boolean {
+  const now = new Date()
+  return pickerYear.value === now.getFullYear() && monthIdx === now.getMonth()
+}
+
+function isPickerSelectedMonth(monthIdx: number): boolean {
+  const m = String(monthIdx + 1).padStart(2, '0')
+  return props.month === `${pickerYear.value}-${m}`
+}
 
 // ── Past/future: reconstruct balance via backend endpoint ─────────────────────
 // Past:   balanceAtEndOfMonth = currentBalance - confirmedIncomeSince + confirmedExpenseSince
@@ -86,7 +128,63 @@ function balanceColor(v: number): string {
         <ChevronLeft :size="20" />
       </button>
       <div class="flex items-center gap-2">
-        <p class="text-[15px] font-semibold">{{ label }}</p>
+        <!-- Month label → opens month picker popover -->
+        <Popover v-model:open="pickerOpen">
+          <PopoverTrigger as-child>
+            <button type="button" class="flex items-center gap-1 hover:text-primary transition-colors group">
+              <span class="text-[15px] font-semibold">{{ label }}</span>
+              <ChevronDown :size="12" class="text-muted-foreground/50 group-hover:text-primary transition-colors" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent class="w-60 p-4" align="center" :side-offset="8">
+            <!-- Year navigation -->
+            <div class="flex items-center justify-between mb-3">
+              <button
+                type="button"
+                class="size-7 flex items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                @click="pickerYear--"
+              >
+                <ChevronLeft :size="14" />
+              </button>
+              <span class="text-[14px] font-semibold tabular-nums">{{ pickerYear }}</span>
+              <button
+                type="button"
+                class="size-7 flex items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                @click="pickerYear++"
+              >
+                <ChevronRight :size="14" />
+              </button>
+            </div>
+            <!-- Month grid 6×2 -->
+            <div class="grid grid-cols-6 gap-1">
+              <button
+                v-for="(abbr, idx) in MONTHS_SHORT"
+                :key="abbr"
+                type="button"
+                class="h-8 rounded-md text-[11px] font-medium transition-colors"
+                :class="isPickerCurrentRealMonth(idx)
+                  ? 'bg-primary text-primary-foreground'
+                  : isPickerSelectedMonth(idx)
+                    ? 'bg-primary/20 text-primary'
+                    : 'text-foreground hover:bg-muted/40'"
+                @click="selectMonthFromPicker(idx)"
+              >{{ abbr }}</button>
+            </div>
+            <!-- Footer -->
+            <div class="flex items-center justify-between mt-3 pt-2 border-t border-border/40">
+              <button
+                type="button"
+                class="text-primary text-[13px] font-medium hover:text-primary/80 transition-colors"
+                @click="emit('reset'); pickerOpen = false"
+              >Mês atual</button>
+              <button
+                type="button"
+                class="text-muted-foreground text-[13px] hover:text-foreground transition-colors"
+                @click="pickerOpen = false"
+              >Cancelar</button>
+            </div>
+          </PopoverContent>
+        </Popover>
         <button
           v-if="!isCurrentMonth"
           type="button"
@@ -120,6 +218,44 @@ function balanceColor(v: number): string {
         <p class="text-[17px] font-semibold tabular-nums mt-1" :class="balanceColor(monthlyBalance)">
           {{ formatCurrency(monthlyBalance) }}
         </p>
+      </div>
+    </div>
+
+    <!-- Budget bar + vs mês anterior — shown when at least one has data -->
+    <div
+      v-if="income > 0 || (expenseDelta !== null && expenseDelta !== undefined)"
+      class="mt-3 pt-3 border-t border-border/40"
+    >
+      <!-- Budget bar (only when income > 0) -->
+      <template v-if="income > 0">
+        <div class="flex items-center justify-between mb-1.5">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Orçamento do mês</p>
+          <p class="text-[11px] text-muted-foreground/60 tabular-nums">
+            {{ formatCurrency(expenses) }} de {{ formatCurrency(income) }} · {{ budgetPercent }}%
+          </p>
+        </div>
+        <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-700"
+            :class="budgetBarColor"
+            :style="{ width: `${Math.min(100, budgetPercent)}%` }"
+          />
+        </div>
+      </template>
+      <!-- vs mês anterior -->
+      <div
+        v-if="expenseDelta !== null && expenseDelta !== undefined"
+        class="flex items-center gap-1 text-[12px] text-muted-foreground/50"
+        :class="income > 0 ? 'mt-1.5' : ''"
+      >
+        <span>vs mês anterior:</span>
+        <span
+          class="font-semibold tabular-nums"
+          :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
+        >
+          {{ expenseDelta <= 0 ? '↘' : '↗' }}
+          {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
+        </span>
       </div>
     </div>
 

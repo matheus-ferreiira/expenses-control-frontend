@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Plus, Search, X, ChevronDown } from 'lucide-vue-next'
+import { financeApi } from '@/services/api/finance'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -193,6 +194,7 @@ watch(
   () => {
     selectedDay.value = null
     loadTransactions()
+    loadPrevMonthReport()
   },
 )
 
@@ -230,7 +232,7 @@ async function confirmDelete() {
 }
 
 onMounted(async () => {
-  await Promise.all([store.fetchAll(), loadTransactions()])
+  await Promise.all([store.fetchAll(), loadTransactions(), loadPrevMonthReport()])
 })
 
 // ── Month context (for empty state copy) ─────────────────────────────────────
@@ -264,6 +266,24 @@ const pendingExpenses = computed(() =>
     .filter(t => t.status === 'pending' && t.type === 'expense')
     .reduce((s, t) => s + t.amount, 0),
 )
+
+// ── Previous month comparison ─────────────────────────────────────────────────
+const prevMonthReport = ref<{ income: number; expenses: number } | null>(null)
+const expenseDelta = computed(() => {
+  if (!prevMonthReport.value) return null
+  return monthExpenses.value - prevMonthReport.value.expenses
+})
+
+async function loadPrevMonthReport() {
+  const current = filterState.month.value
+  const d = new Date(current + '-01')
+  d.setMonth(d.getMonth() - 1)
+  try {
+    prevMonthReport.value = await financeApi.monthlyReport(d.getFullYear(), d.getMonth() + 1)
+  } catch {
+    prevMonthReport.value = null
+  }
+}
 </script>
 
 <template>
@@ -352,16 +372,19 @@ const pendingExpenses = computed(() =>
         :total-balance="totalBalance"
         :pending-income="pendingIncome"
         :pending-expenses="pendingExpenses"
+        :expense-delta="expenseDelta"
         class="!border-0 !rounded-none !shadow-none"
         @prev="filterState.prevMonth()"
         @next="filterState.nextMonth()"
         @reset="filterState.resetToCurrentMonth()"
+        @select-month="filterState.month.value = $event"
       />
 
-      <!-- Enrichment row: transaction count + biggest expense -->
+      <!-- Enrichment row: transaction count + biggest expense + pending -->
       <div
         v-if="!store.loading"
-        class="border-t border-border/40 px-4 pb-3 pt-2.5 grid grid-cols-2 gap-4"
+        class="border-t border-border/40 px-4 pb-3 pt-2.5 grid gap-3"
+        :class="(pendingIncome > 0 || pendingExpenses > 0) ? 'grid-cols-3' : 'grid-cols-2'"
       >
         <div>
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
@@ -380,6 +403,17 @@ const pendingExpenses = computed(() =>
           </p>
           <p class="text-[11px] text-muted-foreground/50 truncate leading-tight mt-0.5">
             {{ biggestExpense.category?.name ?? biggestExpense.description }}
+          </p>
+        </div>
+        <!-- Pending amounts (M2) -->
+        <div v-if="pendingIncome > 0 || pendingExpenses > 0">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
+            Pendentes
+          </p>
+          <p class="text-[13px] tabular-nums font-medium leading-snug">
+            <span v-if="pendingIncome > 0" class="text-success/70">+{{ formatCurrency(pendingIncome) }}</span>
+            <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground/30 mx-0.5">·</span>
+            <span v-if="pendingExpenses > 0" class="text-destructive/70">-{{ formatCurrency(pendingExpenses) }}</span>
           </p>
         </div>
       </div>
