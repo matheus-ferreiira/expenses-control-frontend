@@ -169,6 +169,8 @@ export const financeApi = {
         income: number
         expenses: number
         balance: number
+        pending_income: number
+        pending_expenses: number
         transactions_count: number
         expenses_by_category: Array<{
           category: string

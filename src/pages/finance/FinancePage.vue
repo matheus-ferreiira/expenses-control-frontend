@@ -19,6 +19,7 @@ import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useAuthStore } from '@/stores/auth'
+import { financeApi } from '@/services/api/finance'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
 import { useToast } from '@/composables/useToast'
@@ -70,7 +71,7 @@ const deleting = ref(false)
 const newlyCreatedId = ref<string | null>(null)
 
 async function onTransactionCreated(t: Transaction) {
-  await loadTransactions()
+  await Promise.all([loadTransactions(), loadCurrentMonthSummary()])
   newlyCreatedId.value = t.id
   // Scroll to the new transaction and clear highlight after 2.5s
   await nextTick()
@@ -111,11 +112,9 @@ function onDetailDuplicate(t: Transaction) {
 }
 
 async function handleTransactionConfirmed(updated: Transaction) {
-  // Update the transaction in-place in the store
   const idx = store.transactions.findIndex((t) => t.id === updated.id)
   if (idx !== -1) store.transactions[idx] = updated
-  // Refresh accounts so the updated balance is reflected in sidebar + KPI cards
-  await store.fetchAll()
+  await Promise.all([store.fetchAll(), loadCurrentMonthSummary()])
   toast.success('Transação confirmada')
 }
 
@@ -126,17 +125,22 @@ const deleteDescription = computed(() =>
     : 'Esta ação não pode ser desfeita.',
 )
 
-// Monthly income/expenses — confirmed only (pending goes into pendingIncome/pendingExpenses)
-const income = computed(() =>
-  store.transactions
-    .filter((t) => t.type === 'income' && t.status === 'confirmed')
-    .reduce((s, t) => s + t.amount, 0),
-)
-const expenses = computed(() =>
-  store.transactions
-    .filter((t) => t.type === 'expense' && t.status === 'confirmed')
-    .reduce((s, t) => s + t.amount, 0),
-)
+// Current month authoritative totals from backend — not affected by pagination.
+// Falls back to 0 while loading or on error.
+type MonthlySummary = Awaited<ReturnType<typeof financeApi.monthlyReport>>
+const currentMonthSummary = ref<MonthlySummary | null>(null)
+
+async function loadCurrentMonthSummary() {
+  const [year, month] = filterState.month.value.split('-').map(Number)
+  try {
+    currentMonthSummary.value = await financeApi.monthlyReport(year!, month!)
+  } catch {
+    currentMonthSummary.value = null
+  }
+}
+
+const income = computed(() => currentMonthSummary.value?.income ?? 0)
+const expenses = computed(() => currentMonthSummary.value?.expenses ?? 0)
 
 // Credit card used amount — filtered by real billing period, not calendar month.
 // store.transactions only covers the selected month, so amounts near billing boundaries
@@ -161,15 +165,12 @@ const totalBalance = computed(() =>
 )
 
 // Projected balance: local fallback for current month, corrected by API for future months.
-// Uses the same endpoint as TransactionSummaryCard via the shared composable.
 const localProjectedBalance = computed(() => {
-  const pendingIncome = store.transactions
-    .filter((t) => t.status === 'pending' && t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0)
-  const pendingExpense = store.transactions
-    .filter((t) => t.status === 'pending' && t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0)
-  return totalBalance.value + pendingIncome - pendingExpense
+  const pi = currentMonthSummary.value?.pending_income
+    ?? store.transactions.filter((t) => t.status === 'pending' && t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const pe = currentMonthSummary.value?.pending_expenses
+    ?? store.transactions.filter((t) => t.status === 'pending' && t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  return totalBalance.value + pi - pe
 })
 
 const { projectedBalance: historicalProjected } = useHistoricalBalance(
@@ -191,11 +192,9 @@ function openBalanceSheet(title: string, amount: number) {
 }
 
 // Spendable = current account balance minus all pending (scheduled) expenses this month
-// Answers: "how much can I safely spend without missing any scheduled bills?"
 const pendingExpenses = computed(() =>
-  store.transactions
-    .filter((t) => t.status === 'pending' && t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0),
+  currentMonthSummary.value?.pending_expenses
+  ?? store.transactions.filter((t) => t.status === 'pending' && t.type === 'expense').reduce((s, t) => s + t.amount, 0),
 )
 const spendable = computed(() => totalBalance.value - pendingExpenses.value)
 
@@ -376,11 +375,8 @@ async function loadPrevMonthReport() {
   const current = filterState.month.value
   const d = new Date(current + '-01')
   d.setMonth(d.getMonth() - 1)
-  const prevYear = d.getFullYear()
-  const prevMonth = d.getMonth() + 1
   try {
-    const { financeApi } = await import('@/services/api/finance')
-    prevMonthReport.value = await financeApi.monthlyReport(prevYear, prevMonth)
+    prevMonthReport.value = await financeApi.monthlyReport(d.getFullYear(), d.getMonth() + 1)
   } catch {
     prevMonthReport.value = null
   }
@@ -417,7 +413,9 @@ async function loadAllTransactions() {
 
 // Reload when month or quick-filter changes
 watch(() => filterState.month.value, () => {
+  currentMonthSummary.value = null
   loadTransactions()
+  loadCurrentMonthSummary()
   loadPrevMonthReport()
 })
 watch(() => filterState.quickFilter.value, () => loadTransactions())
@@ -454,6 +452,7 @@ async function confirmDelete() {
         (t) => t.installment_group_id !== installmentGroupId,
       )
     }
+    loadCurrentMonthSummary()
     toast.success(isRecurring ? 'Série fix excluída' : 'Transação excluída')
     deleteOpen.value = false
     deletingTransaction.value = null
@@ -465,7 +464,7 @@ async function confirmDelete() {
 }
 
 onMounted(async () => {
-  await Promise.all([store.fetchAll(), loadTransactions(), loadPrevMonthReport()])
+  await Promise.all([store.fetchAll(), loadTransactions(), loadCurrentMonthSummary(), loadPrevMonthReport()])
 })
 </script>
 

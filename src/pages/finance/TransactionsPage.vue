@@ -193,7 +193,9 @@ watch(
   () => filterState.month.value,
   () => {
     selectedDay.value = null
+    currentMonthSummary.value = null
     loadTransactions()
+    loadCurrentMonthSummary()
     loadPrevMonthReport()
   },
 )
@@ -228,6 +230,7 @@ async function confirmDelete() {
         (t) => t.installment_group_id !== installmentGroupId,
       )
     }
+    loadCurrentMonthSummary()
     toast.success('Transação excluída')
     deleteOpen.value = false
     deletingId.value = null
@@ -242,11 +245,12 @@ function handleTransactionConfirmed(updated: Transaction) {
   const idx = store.transactions.findIndex((t) => t.id === updated.id)
   if (idx !== -1) store.transactions[idx] = updated
   store.fetchAccounts().catch(() => {})
+  loadCurrentMonthSummary()
   toast.success('Transação confirmada')
 }
 
 onMounted(async () => {
-  await Promise.all([store.fetchAll(), loadTransactions(), loadPrevMonthReport()])
+  await Promise.all([store.fetchAll(), loadTransactions(), loadCurrentMonthSummary(), loadPrevMonthReport()])
 })
 
 // ── Month context (for empty state copy) ─────────────────────────────────────
@@ -260,25 +264,29 @@ const monthContext = computed<'current' | 'past' | 'future'>(() => {
 const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
-const monthIncome = computed(() =>
-  store.transactions
-    .filter(t => t.type === 'income' && t.status === 'confirmed')
-    .reduce((s, t) => s + t.amount, 0),
-)
-const monthExpenses = computed(() =>
-  store.transactions
-    .filter(t => t.type === 'expense' && t.status === 'confirmed')
-    .reduce((s, t) => s + t.amount, 0),
-)
+
+// Current month authoritative totals from backend — not affected by pagination
+type MonthlySummary = Awaited<ReturnType<typeof financeApi.monthlyReport>>
+const currentMonthSummary = ref<MonthlySummary | null>(null)
+
+async function loadCurrentMonthSummary() {
+  const [year, month] = filterState.month.value.split('-').map(Number)
+  try {
+    currentMonthSummary.value = await financeApi.monthlyReport(year!, month!)
+  } catch {
+    currentMonthSummary.value = null
+  }
+}
+
+const monthIncome = computed(() => currentMonthSummary.value?.income ?? 0)
+const monthExpenses = computed(() => currentMonthSummary.value?.expenses ?? 0)
 const pendingIncome = computed(() =>
-  store.transactions
-    .filter(t => t.status === 'pending' && t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0),
+  currentMonthSummary.value?.pending_income
+  ?? store.transactions.filter(t => t.status === 'pending' && t.type === 'income').reduce((s, t) => s + t.amount, 0),
 )
 const pendingExpenses = computed(() =>
-  store.transactions
-    .filter(t => t.status === 'pending' && t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0),
+  currentMonthSummary.value?.pending_expenses
+  ?? store.transactions.filter(t => t.status === 'pending' && t.type === 'expense').reduce((s, t) => s + t.amount, 0),
 )
 
 // ── Previous month comparison ─────────────────────────────────────────────────
@@ -627,8 +635,8 @@ async function loadPrevMonthReport() {
   <TransactionFormDialog
     v-model:open="formOpen"
     :transaction="editingTransaction"
-    @created="loadTransactions"
-    @updated="loadTransactions"
+    @created="() => { loadTransactions(); loadCurrentMonthSummary() }"
+    @updated="() => { loadTransactions(); loadCurrentMonthSummary() }"
   />
 
   <ConfirmDialog

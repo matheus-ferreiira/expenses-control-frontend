@@ -124,7 +124,7 @@ export function groupTransactionsByDate(
     for (const group of groups) {
       group.endBalance = running
       const confirmedNet = group.transactions
-        .filter((t) => t.status === 'confirmed')
+        .filter((t) => t.status === 'confirmed' && t.type !== 'transfer')
         .reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0)
       running -= confirmedNet
     }
