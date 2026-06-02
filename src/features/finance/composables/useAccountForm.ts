@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import type { BankAccount, AccountType } from '@/types/finance'
 import type { CreateAccountPayload } from '../types'
 import { ACCOUNT_COLORS } from '../types'
@@ -41,6 +41,10 @@ export function useAccountForm() {
     submitting.value = false
   }
 
+  const isFormValid = computed(
+    () => !!form.name.trim() && !isNaN(parseFloat(form.balance.replace(',', '.'))),
+  )
+
   function validate(): boolean {
     Object.assign(errors, {})
     let valid = true
@@ -67,5 +71,5 @@ export function useAccountForm() {
     }
   }
 
-  return { form, errors, submitting, fromAccount, reset, validate, toPayload }
+  return { form, errors, submitting, isFormValid, fromAccount, reset, validate, toPayload }
 }

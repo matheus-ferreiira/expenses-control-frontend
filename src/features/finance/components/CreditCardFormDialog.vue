@@ -142,7 +142,7 @@ const cardGradient = computed(
           </AppFormField>
         </div>
 
-        <AppFormField label="Conta bancária" :error="errors.bank_account_id" required>
+        <AppFormField label="Conta bancária" :error="errors.bank_account_id" :required="!card">
           <div class="relative">
             <select
               v-model="form.bank_account_id"

@@ -29,7 +29,7 @@ const emit = defineEmits<{
 
 const store = useFinanceStore()
 const toast = useToast()
-const { form, errors, submitting, fromAccount, reset, validate, toPayload } = useAccountForm()
+const { form, errors, submitting, isFormValid, fromAccount, reset, validate, toPayload } = useAccountForm()
 
 const accountTypes: AccountType[] = ['checking', 'savings', 'investment', 'wallet']
 
@@ -167,7 +167,7 @@ async function submit() {
         <button
           type="button"
           class="flex-1 h-11 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
-          :disabled="submitting"
+          :disabled="!isFormValid || submitting"
           @click="submit"
         >
           <Loader2 v-if="submitting" :size="14" class="animate-spin" />
