@@ -60,6 +60,14 @@ const savingsRate = computed(() =>
     : 0
 )
 
+const monthsWithData = computed(() =>
+  report.value?.months.filter((m) => m.income > 0 || m.expenses > 0).length ?? 0,
+)
+
+const avgMonthlyExpenses = computed(() =>
+  monthsWithData.value > 0 ? totalExpenses.value / monthsWithData.value : 0,
+)
+
 const worstMonth = computed(() => {
   if (!report.value) return null
   const m = [...report.value.months].sort((a, b) => b.expenses - a.expenses)[0]
@@ -283,7 +291,7 @@ function hsl(token: string, alpha = 1): string {
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Média mensal</p>
             <p class="text-[15px] font-semibold tabular-nums mt-0.5 text-destructive">
-              {{ formatCurrency(totalExpenses / 12) }}
+              {{ formatCurrency(avgMonthlyExpenses) }}
             </p>
           </div>
         </div>

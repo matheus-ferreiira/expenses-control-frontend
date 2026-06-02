@@ -100,6 +100,8 @@ const todayActiveHabits = computed(() =>
 )
 
 function toggleHabit(id: string) {
+  const habit = habitStore.habits.find((h) => h.id === id)
+  if (habit && isCompletedToday(habit)) return
   if (selectedHabits.value.has(id)) selectedHabits.value.delete(id)
   else selectedHabits.value.add(id)
 }
@@ -181,7 +183,7 @@ const QUICK_ACTIONS = [
           <p class="text-[15px] font-semibold">Adicionar rápido</p>
           <p class="text-[12px] text-muted-foreground mt-0.5">O que você quer registrar agora?</p>
         </div>
-        <ul class="px-2 pb-6">
+        <ul class="px-2 pb-6 divide-y divide-border/10">
           <li v-for="a in QUICK_ACTIONS" :key="a.id">
             <button
               class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-muted/40"
@@ -248,7 +250,10 @@ const QUICK_ACTIONS = [
             </p>
             <ul v-else class="divide-y divide-border">
               <li v-for="habit in todayActiveHabits" :key="habit.id">
-                <label class="flex items-center gap-3 py-3 cursor-pointer min-h-[56px]">
+                <label
+                  class="flex items-center gap-3 py-3 min-h-[56px]"
+                  :class="isCompletedToday(habit) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+                >
                   <div class="size-5 rounded border-2 flex items-center justify-center shrink-0 transition-all" :class="selectedHabits.has(habit.id)
                     ? 'bg-foreground border-foreground'
                     : 'border-border'" @click="toggleHabit(habit.id)">

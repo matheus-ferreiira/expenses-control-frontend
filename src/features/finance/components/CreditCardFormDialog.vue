@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@ui/dialog'
+import { Sheet, SheetContent } from '@ui/sheet'
 import { Input } from '@ui/input'
-import { Loader2, Wifi, ChevronDown } from 'lucide-vue-next'
+import { Loader2, Wifi, ChevronDown, ArrowLeft } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
 import type { CreditCard } from '@/types/finance'
 import { useCreditCardForm } from '../composables/useCreditCardForm'
@@ -75,22 +70,36 @@ const previewDue = computed(() => {
   const d = parseInt(form.due_day)
   return isNaN(d) ? '—' : `${d < 10 ? '0' : ''}${d}`
 })
-
 </script>
 
 <template>
-  <Dialog :open="open" @update:open="emit('update:open', $event)">
-    <DialogContent class="max-w-sm bg-background border-border">
-      <DialogHeader>
-        <DialogTitle>{{ card ? 'Editar cartão' : 'Novo cartão' }}</DialogTitle>
-      </DialogHeader>
+  <Sheet :open="open" @update:open="emit('update:open', $event)">
+    <SheetContent
+      side="bottom"
+      class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
+    >
+      <!-- Drag handle -->
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
-      <form class="space-y-4" @submit.prevent="submit">
+      <!-- Header -->
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+        <button
+          type="button"
+          class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
+          @click="close"
+        >
+          <ArrowLeft :size="18" />
+        </button>
+        <h3 class="text-[15px] font-semibold leading-none">
+          {{ card ? 'Editar cartão' : 'Novo cartão' }}
+        </h3>
+      </div>
+
+      <!-- Scrollable form body -->
+      <div class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
 
         <!-- Card preview -->
-        <div
-          class="relative w-full aspect-[1.586] rounded-xl p-5 overflow-hidden bg-card border border-border"
-        >
+        <div class="relative w-full aspect-[1.586] rounded-xl p-5 overflow-hidden bg-card border border-border">
           <!-- Color accent strip -->
           <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" :style="{ background: form.color }" />
 
@@ -160,17 +169,18 @@ const previewDue = computed(() => {
           </div>
         </AppFormField>
 
-        <div class="space-y-1.5">
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">Cor do cartão</p>
+        <div>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Cor do cartão</p>
           <ColorPicker v-model="form.color" />
         </div>
-      </form>
 
-      <!-- Footer buttons -->
-      <div class="flex gap-2 mt-2">
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-11 rounded-lg bg-card border border-border text-muted-foreground text-[13px] font-medium hover:bg-muted transition-colors"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
           :disabled="submitting"
           @click="close"
         >
@@ -178,14 +188,14 @@ const previewDue = computed(() => {
         </button>
         <button
           type="button"
-          class="flex-1 h-11 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
+          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           :disabled="submitting"
           @click="submit"
         >
-          <Loader2 v-if="submitting" :size="14" class="animate-spin" />
+          <Loader2 v-if="submitting" :size="16" class="animate-spin" />
           {{ card ? 'Salvar' : 'Criar cartão' }}
         </button>
       </div>
-    </DialogContent>
-  </Dialog>
+    </SheetContent>
+  </Sheet>
 </template>

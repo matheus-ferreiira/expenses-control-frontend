@@ -598,7 +598,7 @@ onMounted(async () => {
             <p class="block text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo do mês</p>
             <p class="block text-[17px] font-semibold tabular-nums mt-1">{{ formatCurrency(income - expenses) }}</p>
           </div>
         </div>
@@ -938,7 +938,7 @@ onMounted(async () => {
       <div class="lg:col-span-1 space-y-4">
 
         <!-- Contas -->
-        <div class="bg-card border border-border rounded-xl p-4">
+        <div class="bg-card border border-border rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-[16px] font-semibold text-foreground">Contas</h2>
             <RouterLink
@@ -1002,7 +1002,7 @@ onMounted(async () => {
         </div>
 
         <!-- Cartões -->
-        <div class="bg-card border border-border rounded-xl p-4">
+        <div class="bg-card border border-border rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-[16px] font-semibold text-foreground">Cartões</h2>
             <RouterLink
@@ -1070,7 +1070,7 @@ onMounted(async () => {
         </div>
 
         <!-- Upcoming bills — within 10 days -->
-        <div v-if="!store.loading && upcomingBills.length > 0" class="bg-card border border-border rounded-md overflow-hidden">
+        <div v-if="!store.loading && upcomingBills.length > 0" class="bg-card border border-border rounded-lg overflow-hidden">
           <header class="flex items-center px-3.5 h-9 border-b border-border">
             <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Próximos vencimentos</h2>
           </header>

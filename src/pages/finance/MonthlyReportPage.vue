@@ -6,14 +6,15 @@ import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
 import {
   ChevronLeft, ChevronRight, TrendingUp, PieChart,
-  AlertTriangle, Sparkles,
-  ShoppingCart, UtensilsCrossed, Car, Home, Heart, Tv2, Repeat, Tag,
-  Zap, Dumbbell, Book, Plane, Baby, PawPrint, Banknote, Briefcase, GraduationCap,
+  AlertTriangle, Sparkles, Tag,
 } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
+import { useFinanceStore } from '@/stores/finance'
+import { findIcon } from '@/lib/icons'
 
 const router = useRouter()
+const financeStore = useFinanceStore()
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -168,29 +169,11 @@ const narrativeCls = computed(() => {
   return 'bg-muted/50 text-foreground/80'
 })
 
-/** Map a category name to a Lucide icon component */
-const CATEGORY_ICONS: Record<string, object> = {
-  restaurante: UtensilsCrossed, alimentação: UtensilsCrossed, lanche: UtensilsCrossed,
-  padaria: UtensilsCrossed, café: UtensilsCrossed, bar: UtensilsCrossed,
-  supermercado: ShoppingCart, mercado: ShoppingCart, compras: ShoppingCart,
-  transporte: Car, uber: Car, ônibus: Car, combustível: Zap, gasolina: Zap,
-  moradia: Home, aluguel: Home, condomínio: Home,
-  saúde: Heart, farmácia: Heart, médico: Heart,
-  lazer: Tv2, entretenimento: Tv2, cinema: Tv2, streaming: Tv2,
-  assinaturas: Repeat, subscriptions: Repeat,
-  academia: Dumbbell, esporte: Dumbbell,
-  educação: GraduationCap, curso: GraduationCap, livro: Book,
-  viagem: Plane, hotel: Plane,
-  pets: PawPrint, animais: PawPrint,
-  bebê: Baby, filhos: Baby,
-  investimento: Banknote, poupança: Banknote,
-  trabalho: Briefcase, serviços: Briefcase,
-}
-
-function categoryIcon(name: string): object {
-  const key = name.toLowerCase().trim()
-  for (const [k, icon] of Object.entries(CATEGORY_ICONS)) {
-    if (key.includes(k)) return icon as object
+function categoryIcon(categoryName: string): object {
+  const cat = financeStore.categories.find((c) => c.name === categoryName)
+  if (cat?.icon) {
+    const found = findIcon(cat.icon)
+    if (found) return found.component as object
   }
   return Tag
 }
@@ -204,7 +187,10 @@ function hsl(token: string, alpha = 1): string {
   return alpha < 1 ? `hsl(${val} / ${alpha})` : `hsl(${val})`
 }
 
-onMounted(() => load())
+onMounted(() => {
+  if (!financeStore.categories.length) financeStore.fetchCategories()
+  load()
+})
 </script>
 
 <template>
@@ -278,7 +264,7 @@ onMounted(() => load())
       </div>
       <Skeleton class="h-48 w-full rounded-lg mt-4" />
       <Skeleton class="h-4 w-32 mt-4" />
-      <div v-for="i in 5" :key="i" class="rounded-lg border border-border/50 bg-card p-3.5 space-y-2">
+      <div v-for="i in 5" :key="i" class="rounded-lg border border-border bg-card p-3.5 space-y-2">
         <div class="flex justify-between">
           <Skeleton class="h-3 w-24" />
           <Skeleton class="h-3 w-16" />
@@ -290,18 +276,18 @@ onMounted(() => load())
     <!-- Content -->
     <template v-else-if="report">
       <!-- Period summary card -->
-      <div class="rounded-lg border border-border/50 bg-card p-4 mb-4">
+      <div class="rounded-lg border border-border bg-card p-4 mb-4">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
             <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(report.income) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
             <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(report.expenses) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo</p>
             <p
               class="text-[18px] font-semibold tabular-nums mt-1"
               :class="report.balance >= 0 ? 'text-success' : 'text-destructive'"
@@ -320,7 +306,7 @@ onMounted(() => load())
       <!-- Donut chart — distribuição por categoria -->
       <div
         v-if="report.expenses_by_category.length > 0"
-        class="rounded-lg border border-border/50 bg-card p-4 mb-4"
+        class="rounded-lg border border-border bg-card p-4 mb-4"
       >
         <div class="flex items-center gap-2 mb-3">
           <PieChart :size="13" class="text-muted-foreground/50" />

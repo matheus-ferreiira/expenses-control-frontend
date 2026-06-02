@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-vue-next'
+import { Skeleton } from '@ui/skeleton'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatCurrency } from '@/utils/currency'
 import { monthLabel, currentMonth } from '@/features/finance/utils/financeHelpers'
@@ -122,7 +123,7 @@ function balanceColor(v: number): string {
           <PopoverTrigger as-child>
             <button type="button" class="flex items-center gap-1 hover:text-primary transition-colors group">
               <span class="text-[15px] font-semibold">{{ label }}</span>
-              <ChevronDown :size="12" class="text-muted-foreground/50 group-hover:text-primary transition-colors" />
+              <ChevronDown :size="14" class="text-muted-foreground/50 group-hover:text-primary transition-colors" />
             </button>
           </PopoverTrigger>
           <PopoverContent class="w-60 p-4" align="center" :side-offset="8">
@@ -203,7 +204,7 @@ function balanceColor(v: number): string {
         <p class="text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
       </div>
       <div>
-        <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Resultado</p>
+        <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo do mês</p>
         <p class="text-[17px] font-semibold tabular-nums mt-1" :class="balanceColor(monthlyBalance)">
           {{ formatCurrency(monthlyBalance) }}
         </p>
@@ -261,15 +262,13 @@ function balanceColor(v: number): string {
             <span class="tabular-nums font-semibold text-[14px]" :class="balanceColor(totalBalance)">
               {{ formatCurrency(totalBalance) }}
             </span>
-            <ChevronDown :size="12" class="text-muted-foreground/40" />
+            <ChevronDown :size="14" class="text-muted-foreground/40" />
           </button>
         </div>
       </template>
 
       <template v-else-if="monthContext === 'future'">
-        <p v-if="loadingPastBalance" class="text-[11.5px] text-muted-foreground/50 animate-pulse">
-          Calculando saldo previsto…
-        </p>
+        <Skeleton v-if="loadingPastBalance" class="h-5 w-24" />
         <div v-else class="flex items-center justify-between">
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo previsto</p>
           <button
@@ -283,15 +282,13 @@ function balanceColor(v: number): string {
             >
               {{ formatCurrency(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses) }}
             </span>
-            <ChevronDown :size="12" class="text-muted-foreground/40" />
+            <ChevronDown :size="14" class="text-muted-foreground/40" />
           </button>
         </div>
       </template>
 
       <template v-else>
-        <p v-if="loadingPastBalance" class="text-[11.5px] text-muted-foreground/50 animate-pulse">
-          Calculando saldo final…
-        </p>
+        <Skeleton v-if="loadingPastBalance" class="h-5 w-24" />
         <div v-else-if="pastEndBalance !== null" class="flex items-center justify-between">
           <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
           <button
@@ -302,7 +299,7 @@ function balanceColor(v: number): string {
             <span class="tabular-nums font-semibold text-[14px]" :class="balanceColor(pastEndBalance)">
               {{ formatCurrency(pastEndBalance) }}
             </span>
-            <ChevronDown :size="12" class="text-muted-foreground/40" />
+            <ChevronDown :size="14" class="text-muted-foreground/40" />
           </button>
         </div>
         <p v-else class="text-[11.5px] text-muted-foreground/40">
