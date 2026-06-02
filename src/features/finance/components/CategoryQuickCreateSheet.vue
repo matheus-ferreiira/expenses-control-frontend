@@ -7,6 +7,7 @@ import CategoryIconPicker from './CategoryIconPicker.vue'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import type { TransactionCategory, TransactionType } from '@/types/finance'
+import { CATEGORY_PRESET_COLORS } from '../utils/categoryColors'
 
 const props = defineProps<{
   open: boolean
@@ -24,7 +25,7 @@ const toast = useToast()
 
 const name = ref('')
 const type = ref<'expense' | 'income'>('expense')
-const color = ref('#8b5cf6')
+const color = ref(CATEGORY_PRESET_COLORS[0]!)
 const icon = ref('')
 const saving = ref(false)
 
@@ -35,7 +36,7 @@ watch(
     if (isOpen) {
       name.value = ''
       icon.value = ''
-      color.value = '#8b5cf6'
+      color.value = CATEGORY_PRESET_COLORS[0]!
       type.value = (props.defaultType === 'income' ? 'income' : 'expense')
     }
   },
@@ -116,7 +117,7 @@ async function create() {
           <div class="grid grid-cols-2 gap-1 p-1 bg-card rounded-xl">
             <button
               type="button"
-              class="flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-semibold transition-all"
+              class="flex items-center justify-center gap-1.5 h-11 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'expense'
                 ? 'bg-destructive/15 text-destructive shadow-sm'
                 : 'text-muted-foreground/60'"
@@ -127,7 +128,7 @@ async function create() {
             </button>
             <button
               type="button"
-              class="flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-semibold transition-all"
+              class="flex items-center justify-center gap-1.5 h-11 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'income'
                 ? 'bg-success/15 text-success shadow-sm'
                 : 'text-muted-foreground/60'"

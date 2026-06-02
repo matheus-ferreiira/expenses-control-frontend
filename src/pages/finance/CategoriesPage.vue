@@ -130,7 +130,7 @@ async function confirmDelete(id: string) {
 
         <!-- Despesas -->
         <section v-if="expenseCategories.length">
-          <div class="bg-card rounded-lg overflow-hidden">
+          <div class="bg-card border border-border rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
               <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
                 DESPESAS
@@ -222,7 +222,7 @@ async function confirmDelete(id: string) {
 
         <!-- Receitas -->
         <section v-if="incomeCategories.length">
-          <div class="bg-card rounded-lg overflow-hidden">
+          <div class="bg-card border border-border rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
               <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
                 RECEITAS

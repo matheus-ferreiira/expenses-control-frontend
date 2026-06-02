@@ -853,7 +853,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           </div>
 
           <!-- ── TAGS ─────────────────────────────────────── -->
-          <div v-if="store.tags.length > 0 || true">
+          <div v-if="store.tags.length > 0">
             <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
               Tags
             </p>

@@ -7,6 +7,7 @@ import CategoryIconPicker from './CategoryIconPicker.vue'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import type { TransactionCategory } from '@/types/finance'
+import { CATEGORY_PRESET_COLORS } from '../utils/categoryColors'
 
 const props = defineProps<{
   open: boolean
@@ -26,7 +27,7 @@ const nameError = ref<string>('')
 
 const name = ref('')
 const type = ref<'expense' | 'income'>('expense')
-const color = ref('#8b5cf6')
+const color = ref(CATEGORY_PRESET_COLORS[0]!)
 const icon = ref('')
 const monthlyLimit = ref('')
 
@@ -37,7 +38,7 @@ watch(
     if (props.category) {
       name.value = props.category.name
       type.value = props.category.type as 'expense' | 'income'
-      color.value = props.category.color ?? '#8b5cf6'
+      color.value = props.category.color ?? CATEGORY_PRESET_COLORS[0]!
       icon.value = props.category.icon ?? ''
       monthlyLimit.value = props.category.monthly_limit != null
         ? String(props.category.monthly_limit)
@@ -45,7 +46,7 @@ watch(
     } else {
       name.value = ''
       type.value = props.defaultType ?? 'expense'
-      color.value = '#8b5cf6'
+      color.value = CATEGORY_PRESET_COLORS[0]!
       icon.value = ''
       monthlyLimit.value = ''
     }
@@ -144,7 +145,7 @@ async function save() {
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="flex items-center justify-center h-9 rounded-lg text-[12px] font-semibold transition-all"
+              class="flex items-center justify-center h-11 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'expense'
                 ? 'bg-destructive/12 border border-destructive/25 text-destructive'
                 : 'bg-muted/60 border border-border text-muted-foreground'"
@@ -154,7 +155,7 @@ async function save() {
             </button>
             <button
               type="button"
-              class="flex items-center justify-center h-9 rounded-lg text-[12px] font-semibold transition-all"
+              class="flex items-center justify-center h-11 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'income'
                 ? 'bg-primary/12 border border-primary/25 text-primary'
                 : 'bg-muted/60 border border-border text-muted-foreground'"

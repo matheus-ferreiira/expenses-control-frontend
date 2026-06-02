@@ -644,7 +644,7 @@ onMounted(async () => {
             class="inline-flex items-center gap-0.5 font-semibold tabular-nums"
             :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
           >
-            {{ expenseDelta <= 0 ? '↘' : '↗' }}
+            {{ expenseDelta <= 0 ? '↓' : '↑' }}
             {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
           </span>
         </div>
@@ -696,7 +696,7 @@ onMounted(async () => {
 
         <!-- Footer note -->
         <div class="border-t border-border/40 mt-3 pt-3">
-          <p class="text-[11px] text-muted-foreground/40 italic leading-snug">
+          <p class="text-[11px] text-muted-foreground/70 leading-snug">
             considera transações agendadas e recorrentes pendentes
           </p>
         </div>
@@ -738,7 +738,7 @@ onMounted(async () => {
 
         <!-- Spendable amount banner -->
         <div
-          v-if="!store.loading && pendingExpenses > 0"
+          v-if="!store.loading"
           class="flex items-center justify-between gap-3 rounded-md px-4 py-2.5 bg-card border border-border"
         >
           <div class="min-w-0">
@@ -746,7 +746,12 @@ onMounted(async () => {
               Disponível para gastar
             </p>
             <p class="text-[11px] text-muted-foreground/60 mt-0.5">
-              Saldo atual descontando {{ formatCurrency(pendingExpenses) }} em despesas agendadas
+              <template v-if="pendingExpenses > 0">
+                Saldo atual descontando {{ formatCurrency(pendingExpenses) }} em despesas agendadas
+              </template>
+              <template v-else>
+                Sem compromissos agendados
+              </template>
             </p>
           </div>
           <p

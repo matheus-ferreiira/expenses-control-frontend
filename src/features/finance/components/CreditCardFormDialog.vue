@@ -76,10 +76,6 @@ const previewDue = computed(() => {
   return isNaN(d) ? '—' : `${d < 10 ? '0' : ''}${d}`
 })
 
-const cardGradient = computed(
-  () =>
-    `linear-gradient(135deg, ${form.color}dd 0%, ${form.color}99 50%, ${form.color}55 100%)`,
-)
 </script>
 
 <template>
@@ -93,20 +89,19 @@ const cardGradient = computed(
 
         <!-- Card preview -->
         <div
-          class="relative w-full aspect-[1.586] rounded-xl p-5 text-white overflow-hidden shadow-lg"
-          :style="{ background: cardGradient }"
+          class="relative w-full aspect-[1.586] rounded-xl p-5 overflow-hidden bg-card border border-border"
         >
-          <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-foreground/10" />
-          <div class="absolute -right-2 top-8 w-20 h-20 rounded-full bg-foreground/5" />
+          <!-- Color accent strip -->
+          <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" :style="{ background: form.color }" />
 
           <div class="flex items-start justify-between mb-auto">
-            <p class="text-[13px] font-semibold truncate flex-1 drop-shadow">
+            <p class="text-[13px] font-semibold truncate flex-1 text-foreground">
               {{ form.name || 'Nome do Cartão' }}
             </p>
-            <Wifi :size="18" class="text-white/70 ml-2 shrink-0" />
+            <Wifi :size="18" class="text-muted-foreground/50 ml-2 shrink-0" />
           </div>
 
-          <div class="mt-6 mb-4 flex gap-3 font-mono text-[13px] tracking-widest text-white/60">
+          <div class="mt-6 mb-4 flex gap-3 font-mono text-[13px] tracking-widest text-muted-foreground/40">
             <span>••••</span>
             <span>••••</span>
             <span>••••</span>
@@ -115,12 +110,12 @@ const cardGradient = computed(
 
           <div class="flex items-end justify-between">
             <div>
-              <p class="text-[10px] text-white/50 uppercase tracking-wider">Limite</p>
-              <p class="text-[13px] font-bold tabular-nums">{{ previewLimit }}</p>
+              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Limite</p>
+              <p class="text-[13px] font-bold tabular-nums text-foreground">{{ previewLimit }}</p>
             </div>
             <div class="text-right">
-              <p class="text-[10px] text-white/50 uppercase tracking-wider">Vence dia</p>
-              <p class="text-[13px] font-bold">{{ previewDue }}</p>
+              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Vence dia</p>
+              <p class="text-[13px] font-bold text-foreground">{{ previewDue }}</p>
             </div>
           </div>
         </div>

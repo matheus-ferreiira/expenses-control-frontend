@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 <template>
   <div class="flex items-center gap-1">
-    <Button variant="ghost" size="icon" class="h-7 w-7" @click="emit('prev')">
+    <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px]" @click="emit('prev')">
       <ChevronLeft :size="14" />
     </Button>
 
@@ -25,7 +25,7 @@ const emit = defineEmits<{
       {{ monthLabel(month) }}
     </span>
 
-    <Button variant="ghost" size="icon" class="h-7 w-7" @click="emit('next')">
+    <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px]" @click="emit('next')">
       <ChevronRight :size="14" />
     </Button>
 
@@ -33,7 +33,7 @@ const emit = defineEmits<{
       v-if="!isCurrentMonth"
       variant="ghost"
       size="sm"
-      class="h-7 px-2 text-[11px] text-muted-foreground ml-1"
+      class="min-h-[44px] px-2 text-[11px] text-muted-foreground ml-1"
       @click="emit('reset')"
     >
       <RotateCcw :size="11" class="mr-1" />

@@ -65,7 +65,7 @@ const emit = defineEmits<{
             <DropdownMenuTrigger as-child>
               <button
                 type="button"
-                class="flex items-center justify-center size-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                class="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
               >
                 <MoreHorizontal :size="13" />
               </button>

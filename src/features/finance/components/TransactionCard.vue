@@ -28,12 +28,17 @@ const highlightBg = computed(() => {
   <li :id="`tx-${transaction.id}`" class="relative">
     <button
       type="button"
-      class="w-full flex items-center gap-3 py-3 px-1 text-left transition-colors duration-150 cursor-pointer"
-      :class="[isPending ? 'opacity-60' : '', highlightBg]"
+      class="w-full flex items-center gap-3 py-3 px-4 text-left transition-colors duration-150 cursor-pointer"
+      :class="[highlightBg]"
       @click="emit('select', transaction)"
     >
       <!-- Avatar — 36px, rounded-lg (8px) -->
-      <div :class="isPending ? 'ring-1 ring-dashed ring-muted-foreground/40 rounded-lg p-0.5 shrink-0' : 'shrink-0'">
+      <div
+        :class="[
+          isPending ? 'ring-1 ring-dashed ring-muted-foreground/40 rounded-lg p-0.5 shrink-0' : 'shrink-0',
+          isPending ? 'opacity-60' : '',
+        ]"
+      >
         <span
           v-if="transaction.type !== 'transfer'"
           class="rounded-xl flex items-center justify-center w-10 h-10 shrink-0"
@@ -63,7 +68,7 @@ const highlightBg = computed(() => {
       </div>
 
       <!-- Description + subtitle -->
-      <div class="flex-1 min-w-0">
+      <div class="flex-1 min-w-0" :class="isPending ? 'opacity-60' : ''">
         <div class="flex items-center gap-1.5">
           <Clock v-if="isPending" :size="10" class="text-warning shrink-0" />
           <p class="text-[14px] font-medium text-foreground leading-tight truncate">{{ transaction.description }}</p>

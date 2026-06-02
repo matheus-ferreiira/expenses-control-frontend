@@ -90,7 +90,7 @@ const limitBarClass = computed(() => {
         <div class="flex items-center gap-2.5 min-w-0">
           <!-- Avatar with solid card color (the only place color appears) -->
           <span
-            class="rounded-lg grid place-items-center shrink-0 size-9 text-[11px] font-semibold text-white"
+            class="rounded-lg grid place-items-center shrink-0 size-9 text-[11px] font-semibold text-foreground"
             :style="{ background: card.color }"
           >
             {{ card.name.substring(0, 2).toUpperCase() }}
@@ -176,11 +176,11 @@ const limitBarClass = computed(() => {
               {{ billingPeriod?.isClosed ? 'Fatura fechada' : 'Fatura atual' }}
             </p>
             <p class="text-[17px] font-semibold tabular-nums leading-none text-foreground">
-              {{ formatCurrency(card.limit_amount) }}
+              {{ formatCurrency(used) }}
             </p>
           </div>
           <span class="text-[11px] text-muted-foreground/50 tabular-nums">
-            {{ utilPct }}% usado
+            de {{ formatCurrency(card.limit_amount) }}
           </span>
         </div>
         <!-- Utilization bar -->
@@ -191,8 +191,8 @@ const limitBarClass = computed(() => {
             :style="{ width: `${utilPct}%` }"
           />
         </div>
-        <p v-if="used > 0" class="text-[10px] text-muted-foreground/40 mt-1 tabular-nums">
-          {{ formatCurrency(used) }} de {{ formatCurrency(card.limit_amount) }}
+        <p class="text-[10px] text-muted-foreground/40 mt-1 tabular-nums">
+          {{ utilPct }}% do limite
         </p>
       </div>
 

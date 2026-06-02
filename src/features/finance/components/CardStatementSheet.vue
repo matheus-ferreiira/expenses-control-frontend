@@ -121,7 +121,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
         <div class="flex items-center gap-3 px-4 py-3 border-b border-border shrink-0">
           <!-- Card avatar -->
           <span
-            class="flex items-center justify-center size-9 rounded-xl font-bold text-[11px] text-white shrink-0"
+            class="flex items-center justify-center size-9 rounded-xl font-bold text-[11px] text-foreground shrink-0"
             :style="{ background: card.color || '#6b7280' }"
           >
             {{ card.name.substring(0, 2).toUpperCase() }}
