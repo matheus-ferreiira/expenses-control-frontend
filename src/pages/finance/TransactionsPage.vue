@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { Plus, Search, X, ChevronDown } from 'lucide-vue-next'
+import { Plus, Search, X, ChevronDown, Calendar, ChevronRight } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
+import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
+import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -289,6 +291,28 @@ const pendingExpenses = computed(() =>
   ?? store.transactions.filter(t => t.status === 'pending' && t.type === 'expense').reduce((s, t) => s + t.amount, 0),
 )
 
+// ── Projected balance (same logic as FinancePage) ────────────────────────────
+const localProjectedBalance = computed(() =>
+  totalBalance.value + pendingIncome.value - pendingExpenses.value
+)
+
+const { projectedBalance: historicalProjected } = useHistoricalBalance(
+  computed(() => filterState.month.value),
+)
+
+const projectedBalance = computed(() => historicalProjected.value ?? localProjectedBalance.value)
+
+// ── Balance detail sheet ──────────────────────────────────────────────────────
+const balanceSheetOpen = ref(false)
+const balanceSheetTitle = ref('Saldo atual')
+const balanceSheetAmount = ref(0)
+
+function openBalanceSheet(title: string, amount: number) {
+  balanceSheetTitle.value = title
+  balanceSheetAmount.value = amount
+  balanceSheetOpen.value = true
+}
+
 // ── Previous month comparison ─────────────────────────────────────────────────
 const prevMonthReport = ref<{ income: number; expenses: number } | null>(null)
 const expenseDelta = computed(() => {
@@ -438,6 +462,56 @@ async function loadPrevMonthReport() {
             <span v-if="pendingExpenses > 0" class="text-destructive/70">-{{ formatCurrency(pendingExpenses) }}</span>
           </p>
         </div>
+      </div>
+    </div>
+
+    <!-- ── Saldo previsto card ───────────────────────────────────────────── -->
+    <div
+      v-if="filterState.month.value >= currentMonth() && !store.loading"
+      class="bg-card border border-border rounded-lg p-4 mb-4"
+    >
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <Calendar :size="16" class="text-primary" />
+        </div>
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          Saldo Previsto
+        </p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo atual</p>
+          <button
+            type="button"
+            class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+            @click="openBalanceSheet('Saldo atual', totalBalance)"
+          >
+            <span
+              class="text-[20px] font-semibold tabular-nums leading-none"
+              :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
+            >{{ formatCurrency(totalBalance) }}</span>
+            <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+          </button>
+        </div>
+        <div>
+          <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo previsto</p>
+          <button
+            type="button"
+            class="flex items-center gap-1 hover:opacity-80 transition-opacity"
+            @click="openBalanceSheet('Saldo previsto', projectedBalance)"
+          >
+            <span
+              class="text-[20px] font-semibold tabular-nums leading-none"
+              :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
+            >{{ formatCurrency(projectedBalance) }}</span>
+            <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+          </button>
+        </div>
+      </div>
+      <div class="border-t border-border/40 mt-3 pt-3">
+        <p class="text-[11px] text-muted-foreground/70 leading-snug">
+          considera transações agendadas e recorrentes pendentes
+        </p>
       </div>
     </div>
 
@@ -647,5 +721,11 @@ async function loadPrevMonthReport() {
     variant="destructive"
     :loading="deleting"
     @confirm="confirmDelete"
+  />
+
+  <BalanceDetailSheet
+    v-model:open="balanceSheetOpen"
+    :title="balanceSheetTitle"
+    :total-amount="balanceSheetAmount"
   />
 </template>

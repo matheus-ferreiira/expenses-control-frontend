@@ -164,14 +164,14 @@ const totalBalance = computed(() =>
   store.activeAccounts.reduce((s, a) => s + a.balance, 0),
 )
 
+// Pending amounts — from API summary (authoritative) with 0 fallback while loading
+const pendingIncome = computed(() => currentMonthSummary.value?.pending_income ?? 0)
+const pendingExpenses = computed(() => currentMonthSummary.value?.pending_expenses ?? 0)
+
 // Projected balance: local fallback for current month, corrected by API for future months.
-const localProjectedBalance = computed(() => {
-  const pi = currentMonthSummary.value?.pending_income
-    ?? store.transactions.filter((t) => t.status === 'pending' && t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const pe = currentMonthSummary.value?.pending_expenses
-    ?? store.transactions.filter((t) => t.status === 'pending' && t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-  return totalBalance.value + pi - pe
-})
+const localProjectedBalance = computed(() =>
+  totalBalance.value + pendingIncome.value - pendingExpenses.value
+)
 
 const { projectedBalance: historicalProjected } = useHistoricalBalance(
   computed(() => filterState.month.value),
@@ -191,12 +191,16 @@ function openBalanceSheet(title: string, amount: number) {
   balanceSheetOpen.value = true
 }
 
-// Spendable = current account balance minus all pending (scheduled) expenses this month
-const pendingExpenses = computed(() =>
-  currentMonthSummary.value?.pending_expenses
-  ?? store.transactions.filter((t) => t.status === 'pending' && t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+// Enrichment stats for mobile summary row
+const transactionCount = computed(() =>
+  currentMonthSummary.value?.transactions_count ?? store.transactions.length
 )
-const spendable = computed(() => totalBalance.value - pendingExpenses.value)
+
+const biggestExpense = computed(() => {
+  const exp = store.transactions.filter((t) => t.type === 'expense')
+  if (!exp.length) return null
+  return exp.reduce((max, t) => (t.amount > max.amount ? t : max))
+})
 
 const today = new Date().getDate()
 
@@ -649,6 +653,31 @@ onMounted(async () => {
             {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
           </span>
         </div>
+
+        <!-- Enrichment row: count + biggest expense + pending -->
+        <div
+          v-if="!store.loading"
+          class="mt-3 pt-3 border-t border-border/40 grid gap-3"
+          :class="(pendingIncome > 0 || pendingExpenses > 0) ? 'grid-cols-3' : 'grid-cols-2'"
+        >
+          <div>
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">Transações</p>
+            <p class="text-[14px] font-semibold tabular-nums text-foreground">{{ transactionCount }} no mês</p>
+          </div>
+          <div v-if="biggestExpense">
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">Maior despesa</p>
+            <p class="text-[14px] font-semibold tabular-nums text-destructive">{{ formatCurrency(biggestExpense.amount) }}</p>
+            <p class="text-[11px] text-muted-foreground/50 truncate leading-tight mt-0.5">{{ biggestExpense.category?.name ?? biggestExpense.description }}</p>
+          </div>
+          <div v-if="pendingIncome > 0 || pendingExpenses > 0">
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">Pendentes</p>
+            <p class="text-[13px] tabular-nums font-medium leading-snug">
+              <span v-if="pendingIncome > 0" class="text-success/70">+{{ formatCurrency(pendingIncome) }}</span>
+              <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground/30 mx-0.5">·</span>
+              <span v-if="pendingExpenses > 0" class="text-destructive/70">-{{ formatCurrency(pendingExpenses) }}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Saldo previsto -->
@@ -736,32 +765,6 @@ onMounted(async () => {
 
       <!-- Main column -->
       <div class="lg:col-span-2 space-y-6">
-
-        <!-- Spendable amount banner -->
-        <div
-          v-if="!store.loading"
-          class="flex items-center justify-between gap-3 rounded-md px-4 py-2.5 bg-card border border-border"
-        >
-          <div class="min-w-0">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-              Disponível para gastar
-            </p>
-            <p class="text-[11px] text-muted-foreground/60 mt-0.5">
-              <template v-if="pendingExpenses > 0">
-                Saldo atual descontando {{ formatCurrency(pendingExpenses) }} em despesas agendadas
-              </template>
-              <template v-else>
-                Sem compromissos agendados
-              </template>
-            </p>
-          </div>
-          <p
-            class="text-[18px] font-semibold tabular-nums shrink-0"
-            :class="spendable >= 0 ? 'text-success' : 'text-destructive'"
-          >
-            {{ formatCurrency(spendable) }}
-          </p>
-        </div>
 
         <!-- Cashflow chart — anchored to the selected month -->
         <div class="hidden lg:block">
