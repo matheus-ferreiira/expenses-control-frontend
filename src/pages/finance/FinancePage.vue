@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CalendarClock, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CalendarClock, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -322,10 +322,6 @@ const mobileStatus = computed(() => {
   return { tone: 'ok' as const, text: 'Você está no ritmo certo para este mês' }
 })
 
-// Month label for mobile summary (long, e.g. "Maio de 2026")
-// Uses local-time constructor via getMonthLabel to avoid UTC timezone shift
-const monthLabel = computed(() => getMonthLabel(filterState.month.value))
-
 // Short label for KPI cards — "este mês" when current, otherwise "abril de 2026"
 const kpiMonthLabel = computed(() => {
   if (filterState.isCurrentMonth()) return 'este mês'
@@ -575,20 +571,15 @@ onMounted(async () => {
 
       <!-- Main card: month nav + stats + budget + status chip + vs mês anterior -->
       <div class="bg-card border border-border rounded-lg p-4">
-        <div class="flex items-center justify-between mb-3">
-          <button
-            class="min-w-11 h-11 -m-1.5 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
-            @click="filterState.prevMonth()"
-          >
-            <ChevronLeft :size="20" />
-          </button>
-          <p class="text-[15px] font-semibold">{{ monthLabel }}</p>
-          <button
-            class="min-w-11 h-11 -m-1.5 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
-            @click="filterState.nextMonth()"
-          >
-            <ChevronRight :size="20" />
-          </button>
+        <div class="flex justify-center mb-3">
+          <MonthNavigator
+            :month="filterState.month.value"
+            :is-current-month="filterState.isCurrentMonth()"
+            @prev="filterState.prevMonth()"
+            @next="filterState.nextMonth()"
+            @reset="filterState.resetToCurrentMonth()"
+            @select-month="filterState.month.value = $event"
+          />
         </div>
 
         <!-- 3-column stats -->
@@ -796,6 +787,7 @@ onMounted(async () => {
                     @prev="filterState.prevMonth()"
                     @next="filterState.nextMonth()"
                     @reset="filterState.resetToCurrentMonth()"
+                    @select-month="filterState.month.value = $event"
                   />
                   <!-- Custom period picker button -->
                   <DropdownMenu v-model:open="showPeriodPicker">
