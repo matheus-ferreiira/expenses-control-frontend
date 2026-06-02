@@ -231,6 +231,13 @@ async function confirmDelete() {
   }
 }
 
+function handleTransactionConfirmed(updated: Transaction) {
+  const idx = store.transactions.findIndex((t) => t.id === updated.id)
+  if (idx !== -1) store.transactions[idx] = updated
+  store.fetchAccounts().catch(() => {})
+  toast.success('Transação confirmada')
+}
+
 onMounted(async () => {
   await Promise.all([store.fetchAll(), loadTransactions(), loadPrevMonthReport()])
 })
@@ -607,6 +614,7 @@ async function loadPrevMonthReport() {
     :transaction="detailTransaction"
     @edit="openEdit"
     @delete="openDelete"
+    @confirmed="handleTransactionConfirmed"
   />
 
   <TransactionFormDialog
