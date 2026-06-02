@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { authApi } from '@/services/api/auth'
 import type { User, LoginCredentials, RegisterPayload } from '@/types/auth'
+import { useFinanceStore } from '@/stores/finance'
 
 const TOKEN_KEY = 'auth_token'
 
@@ -59,6 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (token.value) await authApi.logout()
     } finally {
       clearAuth()
+      useFinanceStore().resetState()
     }
   }
 
