@@ -59,18 +59,26 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  let _fetchTxVersion = 0
+
   async function fetchTransactions(filters?: TransactionFilters) {
+    const version = ++_fetchTxVersion
     loading.value = true
     error.value = null
     try {
       const result = await financeApi.transactions.list(filters)
+      if (version !== _fetchTxVersion) return // superseded by a later call
       transactions.value = result.data
       transactionsMeta.value = result.meta
     } catch (e: unknown) {
-      error.value = 'Erro ao carregar transações'
-      throw e
+      if (version === _fetchTxVersion) {
+        error.value = 'Erro ao carregar transações'
+        throw e
+      }
     } finally {
-      loading.value = false
+      if (version === _fetchTxVersion) {
+        loading.value = false
+      }
     }
   }
 
@@ -268,6 +276,16 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function deleteCategory(id: string): Promise<void> {
+    try {
+      await financeApi.categories.delete(id)
+      categories.value = categories.value.filter((c) => c.id !== id)
+    } catch (e: unknown) {
+      error.value = 'Erro ao excluir categoria'
+      throw e
+    }
+  }
+
   async function updateCard(id: string, payload: UpdateCreditCardPayload): Promise<CreditCard> {
     try {
       const updated = await financeApi.cards.update(id, payload)
@@ -288,6 +306,18 @@ export const useFinanceStore = defineStore('finance', () => {
       error.value = 'Erro ao excluir cartão'
       throw e
     }
+  }
+
+  function resetState(): void {
+    accounts.value = []
+    cards.value = []
+    transactions.value = []
+    transactionsMeta.value = null
+    categories.value = []
+    tags.value = []
+    loading.value = false
+    error.value = null
+    _fetchTxVersion = 0
   }
 
   return {
@@ -318,11 +348,13 @@ export const useFinanceStore = defineStore('finance', () => {
     deleteTag,
     createCategory,
     updateCategory,
+    deleteCategory,
     createAccount,
     updateAccount,
     deleteAccount,
     createCard,
     updateCard,
     deleteCard,
+    resetState,
   }
 })
