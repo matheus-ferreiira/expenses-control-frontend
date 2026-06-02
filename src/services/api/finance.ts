@@ -79,7 +79,7 @@ export const financeApi = {
 
     create: (payload: CreateTransactionPayload) =>
       client
-        .post<ApiResponse<Transaction>>(API_ENDPOINTS.FINANCE.TRANSACTIONS, payload)
+        .post<ApiResponse<Transaction | Transaction[]>>(API_ENDPOINTS.FINANCE.TRANSACTIONS, payload)
         .then(unwrap),
 
     update: (id: string, payload: UpdateTransactionPayload) =>

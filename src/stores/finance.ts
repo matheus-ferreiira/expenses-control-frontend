@@ -27,7 +27,19 @@ export const useFinanceStore = defineStore('finance', () => {
   const transactionsMeta = ref<PaginationMeta | null>(null)
   const categories = ref<TransactionCategory[]>([])
   const tags = ref<TransactionTag[]>([])
-  const loading = ref(false)
+  const loadingAccounts = ref(false)
+  const loadingCards = ref(false)
+  const loadingTransactions = ref(false)
+  const loadingCategories = ref(false)
+  const loadingTags = ref(false)
+  const loading = computed(
+    () =>
+      loadingAccounts.value ||
+      loadingCards.value ||
+      loadingTransactions.value ||
+      loadingCategories.value ||
+      loadingTags.value,
+  )
   const error = ref<string | null>(null)
 
   const activeAccounts = computed(() => accounts.value.filter((a) => a.is_active))
@@ -38,24 +50,24 @@ export const useFinanceStore = defineStore('finance', () => {
   // ── Fetch ────────────────────────────────────────────────────────────────
 
   async function fetchAccounts() {
-    loading.value = true
+    loadingAccounts.value = true
     try {
       accounts.value = await financeApi.accounts.list()
     } catch {
       error.value = 'Erro ao carregar contas'
     } finally {
-      loading.value = false
+      loadingAccounts.value = false
     }
   }
 
   async function fetchCards() {
-    loading.value = true
+    loadingCards.value = true
     try {
       cards.value = await financeApi.cards.list()
     } catch {
       error.value = 'Erro ao carregar cartões'
     } finally {
-      loading.value = false
+      loadingCards.value = false
     }
   }
 
@@ -63,7 +75,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
   async function fetchTransactions(filters?: TransactionFilters) {
     const version = ++_fetchTxVersion
-    loading.value = true
+    loadingTransactions.value = true
     error.value = null
     try {
       const result = await financeApi.transactions.list(filters)
@@ -77,27 +89,30 @@ export const useFinanceStore = defineStore('finance', () => {
       }
     } finally {
       if (version === _fetchTxVersion) {
-        loading.value = false
+        loadingTransactions.value = false
       }
     }
   }
 
   async function fetchCategories() {
-    loading.value = true
+    loadingCategories.value = true
     try {
       categories.value = await financeApi.categories.list()
     } catch {
       error.value = 'Erro ao carregar categorias'
     } finally {
-      loading.value = false
+      loadingCategories.value = false
     }
   }
 
   async function fetchTags() {
+    loadingTags.value = true
     try {
       tags.value = await financeApi.tags.list()
     } catch {
       error.value = 'Erro ao carregar tags'
+    } finally {
+      loadingTags.value = false
     }
   }
 
@@ -107,13 +122,17 @@ export const useFinanceStore = defineStore('finance', () => {
 
   // ── Transactions CRUD ────────────────────────────────────────────────────
 
-  async function createTransaction(payload: CreateTransactionPayload): Promise<Transaction> {
+  async function createTransaction(payload: CreateTransactionPayload): Promise<Transaction | Transaction[]> {
     try {
-      const t = await financeApi.transactions.create(payload)
-      transactions.value.unshift(t)
+      const result = await financeApi.transactions.create(payload)
+      if (Array.isArray(result)) {
+        transactions.value.unshift(...result)
+      } else {
+        transactions.value.unshift(result)
+      }
       // Refresh account balances since backend adjusts them on transaction create
       fetchAccounts().catch(() => {})
-      return t
+      return result
     } catch (e: unknown) {
       error.value = 'Erro ao criar transação'
       throw e
@@ -315,7 +334,11 @@ export const useFinanceStore = defineStore('finance', () => {
     transactionsMeta.value = null
     categories.value = []
     tags.value = []
-    loading.value = false
+    loadingAccounts.value = false
+    loadingCards.value = false
+    loadingTransactions.value = false
+    loadingCategories.value = false
+    loadingTags.value = false
     error.value = null
     _fetchTxVersion = 0
   }

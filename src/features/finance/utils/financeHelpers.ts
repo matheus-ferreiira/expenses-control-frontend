@@ -225,7 +225,7 @@ export function getCardBillingPeriod(
     startDate = iso(todayYear, todayMonthIdx, startDay)
     endDate   = iso(nextYear, nextMonthIdx, endDay)
     dueDate   = iso(dueYear, dueMonthIdx, dueDayEff)
-    isClosed  = false // still open
+    isClosed  = true // closing day passed — previous cycle is closed, awaiting payment
   } else {
     // Today is on or before closing day → cycle closes this month on closingDay.
     // Cycle started on (prevMonthClose + 1) of last month.
@@ -249,12 +249,7 @@ export function getCardBillingPeriod(
     const dueDayEff = Math.min(dueDay, daysIn(dueYear, dueMonthIdx))
     dueDate = iso(dueYear, dueMonthIdx, dueDayEff)
 
-    // Closed = today is past the endDate (closing day already passed today)
-    isClosed = todayDay === todayClose
-      ? false // closing day itself → still open (end of day)
-      : false // we're before closing day → open (handled by the outer else)
-    // Note: if today > todayClose we'd be in the first branch; here today <= todayClose
-    // so the cycle is always still open in this branch.
+    isClosed = false // today ≤ closingDay → cycle still open
   }
 
   return {

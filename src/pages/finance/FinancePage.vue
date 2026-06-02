@@ -174,7 +174,6 @@ const localProjectedBalance = computed(() => {
 
 const { projectedBalance: historicalProjected } = useHistoricalBalance(
   computed(() => filterState.month.value),
-  totalBalance,
 )
 
 // Displayed projected balance: API value (cumulative for future months) with local fallback
@@ -444,13 +443,16 @@ async function confirmDelete() {
   deleting.value = true
   const isRecurring = isRecurringDelete.value
   const groupId = deletingTransaction.value.recurrence_group_id
+  const installmentGroupId = deletingTransaction.value.installment_group_id
   const id = deletingTransaction.value.id
   try {
     await store.deleteTransaction(id)
-    // If recurring, the backend cascade-deleted all occurrences.
-    // Clean them all from local state too so UI is immediately consistent.
     if (isRecurring && groupId) {
       store.removeTransactionGroup(groupId)
+    } else if (installmentGroupId) {
+      store.transactions = store.transactions.filter(
+        (t) => t.installment_group_id !== installmentGroupId,
+      )
     }
     toast.success(isRecurring ? 'Série fix excluída' : 'Transação excluída')
     deleteOpen.value = false

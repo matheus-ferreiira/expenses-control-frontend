@@ -219,8 +219,15 @@ function openDelete(id: string) {
 async function confirmDelete() {
   if (!deletingId.value) return
   deleting.value = true
+  const tx = store.transactions.find((t) => t.id === deletingId.value)
+  const installmentGroupId = tx?.installment_group_id ?? null
   try {
     await store.deleteTransaction(deletingId.value)
+    if (installmentGroupId) {
+      store.transactions = store.transactions.filter(
+        (t) => t.installment_group_id !== installmentGroupId,
+      )
+    }
     toast.success('Transação excluída')
     deleteOpen.value = false
     deletingId.value = null
