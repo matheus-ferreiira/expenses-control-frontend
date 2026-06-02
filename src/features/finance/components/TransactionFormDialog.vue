@@ -140,7 +140,13 @@ const isInstallment = computed(() => form.total_installments >= 2)
 const installmentAmount = computed(() => {
   const total = parseFloat(form.amount.replace(',', '.'))
   if (!total || total <= 0 || !isInstallment.value) return 0
-  return Math.floor((total / form.total_installments) * 100) / 100
+  return Math.round((total / form.total_installments) * 100) / 100
+})
+
+const lastInstallmentAmount = computed(() => {
+  const total = parseFloat(form.amount.replace(',', '.'))
+  if (!total || total <= 0 || !isInstallment.value || form.total_installments < 2) return 0
+  return Math.round((total - installmentAmount.value * (form.total_installments - 1)) * 100) / 100
 })
 
 function toggleInstallments(n: number) {
@@ -327,7 +333,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       emit('updated', updated)
       toast.success('Transação atualizada')
     } else {
-      const created = await store.createTransaction(toPayload())
+      const result = await store.createTransaction(toPayload())
+      const created = Array.isArray(result) ? result[0]! : result
       emit('created', created)
       toast.success('Transação registrada')
       if ('vibrate' in navigator) navigator.vibrate(50)
@@ -825,11 +832,22 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   {{ n }}x
                 </button>
               </div>
-              <div v-if="installmentAmount > 0" class="flex items-center justify-between text-[11px]">
-                <span class="text-muted-foreground">{{ form.total_installments }} parcelas de</span>
-                <span class="tabular-nums font-semibold text-foreground">
-                  R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
-                </span>
+              <div v-if="installmentAmount > 0" class="space-y-0.5">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-muted-foreground">{{ form.total_installments }} parcelas de</span>
+                  <span class="tabular-nums font-semibold text-foreground">
+                    R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
+                  </span>
+                </div>
+                <div
+                  v-if="lastInstallmentAmount !== installmentAmount"
+                  class="flex items-center justify-between text-[10px]"
+                >
+                  <span class="text-muted-foreground/60">última parcela</span>
+                  <span class="tabular-nums text-muted-foreground/60">
+                    R$ {{ lastInstallmentAmount.toFixed(2).replace('.', ',') }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

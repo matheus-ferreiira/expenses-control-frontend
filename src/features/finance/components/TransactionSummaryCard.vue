@@ -79,10 +79,7 @@ const {
   loading: loadingPastBalance,
   confirmedBalance: pastEndBalance,
   projectedBalance: futureProjectedBalance,
-} = useHistoricalBalance(
-  computed(() => props.month),
-  computed(() => props.totalBalance),
-)
+} = useHistoricalBalance(computed(() => props.month))
 
 // ── Balance detail sheet ──────────────────────────────────────────────────────
 const balanceSheetOpen = ref(false)

@@ -2,10 +2,7 @@ import { ref, watch, computed } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
 import { financeApi } from '@/services/api/finance'
 
-export function useHistoricalBalance(
-  month: Ref<string> | ComputedRef<string>,
-  currentBalance: Ref<number> | ComputedRef<number>,
-) {
+export function useHistoricalBalance(month: Ref<string> | ComputedRef<string>) {
   const data = ref<{ balance: number; projected_balance: number } | null>(null)
   const loading = ref(false)
 
@@ -22,7 +19,7 @@ export function useHistoricalBalance(
     }
   }
 
-  watch([month, currentBalance], fetchBalance, { immediate: true })
+  watch(month, fetchBalance, { immediate: true })
 
   return {
     loading,
