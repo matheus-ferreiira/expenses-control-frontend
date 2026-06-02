@@ -126,12 +126,16 @@ const deleteDescription = computed(() =>
     : 'Esta ação não pode ser desfeita.',
 )
 
-// Monthly income/expenses from loaded transactions
+// Monthly income/expenses — confirmed only (pending goes into pendingIncome/pendingExpenses)
 const income = computed(() =>
-  store.transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+  store.transactions
+    .filter((t) => t.type === 'income' && t.status === 'confirmed')
+    .reduce((s, t) => s + t.amount, 0),
 )
 const expenses = computed(() =>
-  store.transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+  store.transactions
+    .filter((t) => t.type === 'expense' && t.status === 'confirmed')
+    .reduce((s, t) => s + t.amount, 0),
 )
 
 // Credit card used amount — filtered by real billing period, not calendar month.
