@@ -38,6 +38,12 @@ const emit = defineEmits<{
   loadAll: []
   /** Emitted when the user clicks "Tentar novamente" in the error state. */
   retry: []
+  /** Long press quick-confirm (parent calls the API). */
+  confirm: [transaction: Transaction]
+  /** Long press quick-delete (parent opens confirm dialog). */
+  quickDelete: [id: string]
+  /** Long press quick-duplicate (parent opens form with prefill). */
+  quickDuplicate: [transaction: Transaction]
 }>()
 
 const groups = computed(() => groupTransactionsByDate(props.transactions, props.totalBalance))
@@ -118,9 +124,9 @@ const isTruncated = computed(() =>
 
   <!-- Grouped list -->
   <div v-else :class="nested ? '' : 'rounded-md border border-border overflow-clip'">
-    <template v-for="group in groups" :key="group.date">
+    <template v-for="(group, groupIndex) in groups" :key="group.date">
       <!-- Date header -->
-      <div class="flex justify-between items-center mt-5 mb-1 px-1">
+      <div class="flex justify-between items-center mb-1 px-1" :class="groupIndex === 0 ? 'mt-1' : 'mt-3'">
         <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           {{ group.label }}
         </span>
@@ -140,6 +146,9 @@ const isTruncated = computed(() =>
           :transaction="t"
           :highlighted="t.id === highlightedId"
           @select="emit('select', $event)"
+          @confirm="emit('confirm', $event)"
+          @quick-delete="emit('quickDelete', $event)"
+          @quick-duplicate="emit('quickDuplicate', $event)"
         />
       </ul>
     </template>

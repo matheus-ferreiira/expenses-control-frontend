@@ -118,6 +118,15 @@ async function handleTransactionConfirmed(updated: Transaction) {
   toast.success('Transação confirmada')
 }
 
+async function handleQuickConfirm(t: Transaction) {
+  try {
+    const updated = await financeApi.transactions.confirm(t.id)
+    handleTransactionConfirmed(updated)
+  } catch {
+    toast.error('Erro ao confirmar transação')
+  }
+}
+
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
 const deleteDescription = computed(() =>
   isRecurringDelete.value
@@ -925,6 +934,9 @@ onMounted(async () => {
             @select="openDetail"
             @add-new="formOpen = true"
             @load-all="loadAllTransactions"
+            @confirm="handleQuickConfirm"
+            @quick-delete="openDelete"
+            @quick-duplicate="onDetailDuplicate"
           />
         </div>
 

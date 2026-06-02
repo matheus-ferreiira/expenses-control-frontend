@@ -14,7 +14,7 @@ import {
 import { AppPageContainer } from '@/components/shared'
 import TransactionSummaryCard from '@/features/finance/components/TransactionSummaryCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
-import TransactionFormDialog from '@/features/finance/components/TransactionFormDialog.vue'
+import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
@@ -31,6 +31,7 @@ const toast = useToast()
 // ── Dialogs ───────────────────────────────────────────────────────────────────
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
+const transactionPrefill = ref<TransactionPrefill | null>(null)
 const deleteOpen = ref(false)
 const deletingId = ref<string | null>(null)
 const deleting = ref(false)
@@ -205,12 +206,14 @@ watch(
 // ── CRUD ──────────────────────────────────────────────────────────────────────
 function openCreate() {
   editingTransaction.value = null
+  transactionPrefill.value = null
   formOpen.value = true
 }
 
 function openEdit(t: Transaction) {
   detailOpen.value = false
   editingTransaction.value = t
+  transactionPrefill.value = null
   formOpen.value = true
 }
 
@@ -249,6 +252,27 @@ function handleTransactionConfirmed(updated: Transaction) {
   store.fetchAccounts().catch(() => {})
   loadCurrentMonthSummary()
   toast.success('Transação confirmada')
+}
+
+async function handleQuickConfirm(t: Transaction) {
+  try {
+    const updated = await financeApi.transactions.confirm(t.id)
+    handleTransactionConfirmed(updated)
+  } catch {
+    toast.error('Erro ao confirmar transação')
+  }
+}
+
+function handleQuickDuplicate(t: Transaction) {
+  editingTransaction.value = null
+  transactionPrefill.value = {
+    type: t.type,
+    description: t.description,
+    amount: t.amount.toString(),
+    category_id: t.category_id ?? undefined,
+    account_id: t.account_id ?? undefined,
+  }
+  formOpen.value = true
 }
 
 onMounted(async () => {
@@ -693,6 +717,9 @@ async function loadPrevMonthReport() {
       :month-context="monthContext"
       @select="openDetail"
       @add-new="openCreate"
+      @confirm="handleQuickConfirm"
+      @quick-delete="openDelete"
+      @quick-duplicate="handleQuickDuplicate"
     />
 
   </AppPageContainer>
@@ -709,7 +736,8 @@ async function loadPrevMonthReport() {
   <TransactionFormDialog
     v-model:open="formOpen"
     :transaction="editingTransaction"
-    @created="() => { loadTransactions(); loadCurrentMonthSummary() }"
+    :prefill="transactionPrefill"
+    @created="() => { loadTransactions(); loadCurrentMonthSummary(); transactionPrefill = null }"
     @updated="() => { loadTransactions(); loadCurrentMonthSummary() }"
   />
 

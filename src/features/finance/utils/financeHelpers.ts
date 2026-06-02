@@ -80,6 +80,9 @@ export function groupTransactionsByDate(
   const yesterdayDate = new Date()
   yesterdayDate.setDate(yesterdayDate.getDate() - 1)
   const yesterdayStr = toISODate(yesterdayDate)
+  const twoDaysAgoDate = new Date()
+  twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2)
+  const twoDaysAgoStr = toISODate(twoDaysAgoDate)
   const currentYear = new Date().getFullYear()
 
   const map = new Map<string, Transaction[]>()
@@ -100,6 +103,8 @@ export function groupTransactionsByDate(
       label = 'Hoje'
     } else if (date === yesterdayStr) {
       label = 'Ontem'
+    } else if (date === twoDaysAgoStr) {
+      label = 'Anteontem'
     } else {
       const d = new Date(`${date}T12:00:00`)
       const year = d.getFullYear()
@@ -107,7 +112,7 @@ export function groupTransactionsByDate(
         day: 'numeric',
         month: 'short',
         ...(year !== currentYear ? { year: 'numeric' } : {}),
-      })
+      }).toUpperCase()
     }
 
     const income = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
