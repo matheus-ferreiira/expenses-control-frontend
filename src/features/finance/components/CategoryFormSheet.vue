@@ -22,6 +22,7 @@ const emit = defineEmits<{
 const store = useFinanceStore()
 const toast = useToast()
 const saving = ref(false)
+const nameError = ref<string>('')
 
 const name = ref('')
 const type = ref<'expense' | 'income'>('expense')
@@ -57,6 +58,7 @@ function close() {
 
 async function save() {
   if (!name.value.trim()) return
+  nameError.value = ''
   saving.value = true
   try {
     const raw = monthlyLimit.value.replace(',', '.').trim()
@@ -79,8 +81,14 @@ async function save() {
     }
     emit('saved', saved)
     close()
-  } catch {
-    toast.error('Erro ao salvar categoria')
+  } catch (e: unknown) {
+    const apiErrors = (e as { response?: { data?: { errors?: Record<string, string[]> } } })
+      ?.response?.data?.errors
+    if (apiErrors?.name?.[0]) {
+      nameError.value = apiErrors.name[0]
+    } else {
+      toast.error('Erro ao salvar categoria')
+    }
   } finally {
     saving.value = false
   }
@@ -122,8 +130,10 @@ async function save() {
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
             class="w-full h-12 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-[13px] transition-colors"
+            :class="nameError ? 'border-destructive' : ''"
             @keydown.enter="save"
           />
+          <p v-if="nameError" class="text-[11px] text-destructive mt-1">{{ nameError }}</p>
         </div>
 
         <!-- Tipo -->

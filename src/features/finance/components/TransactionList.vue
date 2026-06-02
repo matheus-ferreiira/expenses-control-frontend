@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Skeleton } from '@ui/skeleton'
-import { Search, Inbox, Plus, Loader2, ChevronDown } from 'lucide-vue-next'
+import { Search, Inbox, Plus, Loader2, ChevronDown, AlertCircle } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { groupTransactionsByDate } from '../utils/financeHelpers'
@@ -27,6 +27,8 @@ const props = defineProps<{
   highlightedId?: string
   /** Month context: drives empty-state copy. */
   monthContext?: 'current' | 'past' | 'future'
+  /** Error message to display instead of the transaction list. */
+  error?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -34,6 +36,8 @@ const emit = defineEmits<{
   addNew: []
   /** Emitted when the user clicks "Carregar todas" in the truncation banner. */
   loadAll: []
+  /** Emitted when the user clicks "Tentar novamente" in the error state. */
+  retry: []
 }>()
 
 const groups = computed(() => groupTransactionsByDate(props.transactions, props.totalBalance))
@@ -61,6 +65,22 @@ const isTruncated = computed(() =>
         <Skeleton class="h-3.5 w-20 shrink-0" />
       </div>
     </div>
+  </div>
+
+  <!-- Error state -->
+  <div v-else-if="error" class="flex flex-col items-center justify-center py-16 gap-3">
+    <div class="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center">
+      <AlertCircle :size="22" class="text-destructive/60" />
+    </div>
+    <p class="text-[14px] font-semibold text-foreground">Erro ao carregar transações</p>
+    <p class="text-[12px] text-muted-foreground/50">Verifique sua conexão e tente novamente</p>
+    <button
+      type="button"
+      class="text-[13px] text-primary font-medium mt-1"
+      @click="emit('retry')"
+    >
+      Tentar novamente
+    </button>
   </div>
 
   <!-- Empty state -->

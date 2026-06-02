@@ -7,6 +7,7 @@ import { formatCurrency } from '@/utils/currency'
 import { getContrastColor } from '@/utils/color'
 import { findIcon } from '@/lib/icons'
 import { financeApi } from '@/services/api/finance'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{
   transaction: Transaction | null
@@ -21,7 +22,9 @@ const emit = defineEmits<{
   confirmed: [transaction: Transaction]
 }>()
 
+const toast = useToast()
 const confirming = ref(false)
+
 async function handleConfirm() {
   if (!props.transaction || confirming.value) return
   confirming.value = true
@@ -29,6 +32,8 @@ async function handleConfirm() {
     const updated = await financeApi.transactions.confirm(props.transaction.id)
     emit('confirmed', updated)
     close()
+  } catch {
+    toast.error('Não foi possível confirmar a transação. Tente novamente.')
   } finally {
     confirming.value = false
   }
