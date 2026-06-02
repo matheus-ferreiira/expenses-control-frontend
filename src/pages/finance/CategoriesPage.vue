@@ -5,7 +5,7 @@ import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
 import { Skeleton } from '@ui/skeleton'
-import { Plus, Pencil, Trash2, Loader2, Tags } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, Loader2, Tags, Tag } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { formatCurrency } from '@/utils/currency'
 import CategoryFormSheet from '@/features/finance/components/CategoryFormSheet.vue'
@@ -129,10 +129,10 @@ async function confirmDelete(id: string) {
       <div v-else class="space-y-6">
 
         <!-- Despesas -->
-        <section v-if="expenseCategories.length">
+        <section>
           <div class="bg-card border border-border rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
+              <p class="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-widest">
                 DESPESAS
               </p>
               <button
@@ -141,6 +141,18 @@ async function confirmDelete(id: string) {
                 @click="openCreate('expense')"
               >
                 + Adicionar
+              </button>
+            </div>
+            <!-- Per-section empty state -->
+            <div v-if="!expenseCategories.length" class="border-t border-border/30 px-4 py-6 flex flex-col items-center gap-3">
+              <Tag :size="16" class="text-muted-foreground/50" />
+              <p class="text-[13px] text-muted-foreground/50">Nenhuma categoria de despesa criada.</p>
+              <button
+                type="button"
+                class="h-8 px-3 rounded-lg text-[12px] border border-border/50 text-muted-foreground hover:bg-muted transition-colors"
+                @click="openCreate('expense')"
+              >
+                Adicionar
               </button>
             </div>
             <div
@@ -221,10 +233,10 @@ async function confirmDelete(id: string) {
         </section>
 
         <!-- Receitas -->
-        <section v-if="incomeCategories.length">
+        <section>
           <div class="bg-card border border-border rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
+              <p class="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-widest">
                 RECEITAS
               </p>
               <button
@@ -233,6 +245,18 @@ async function confirmDelete(id: string) {
                 @click="openCreate('income')"
               >
                 + Adicionar
+              </button>
+            </div>
+            <!-- Per-section empty state -->
+            <div v-if="!incomeCategories.length" class="border-t border-border/30 px-4 py-6 flex flex-col items-center gap-3">
+              <Tag :size="16" class="text-muted-foreground/50" />
+              <p class="text-[13px] text-muted-foreground/50">Nenhuma categoria de receita criada.</p>
+              <button
+                type="button"
+                class="h-8 px-3 rounded-lg text-[12px] border border-border/50 text-muted-foreground hover:bg-muted transition-colors"
+                @click="openCreate('income')"
+              >
+                Adicionar
               </button>
             </div>
             <div

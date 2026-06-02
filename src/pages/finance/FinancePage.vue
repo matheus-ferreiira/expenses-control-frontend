@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CalendarClock, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -541,7 +541,7 @@ onMounted(async () => {
 
     <!-- Hero: total balance — desktop only, no card wrapper -->
     <div v-if="!store.loading" class="hidden lg:block mb-6">
-      <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60 mb-1">Saldo total</p>
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1">Saldo total</p>
       <p
         class="text-[36px] font-semibold tabular-nums tracking-tight leading-none"
         :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
@@ -590,15 +590,15 @@ onMounted(async () => {
         <!-- 3-column stats -->
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
             <p class="block text-[17px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(income) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
             <p class="block text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo do mês</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo do mês</p>
             <p class="block text-[17px] font-semibold tabular-nums mt-1">{{ formatCurrency(income - expenses) }}</p>
           </div>
         </div>
@@ -607,9 +607,10 @@ onMounted(async () => {
         <div class="mt-4">
           <div class="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
             <span>Orçamento do mês</span>
-            <span class="tabular-nums font-medium text-foreground">
-              {{ formatCurrency(expenses) }} de {{ formatCurrency(income) }} · {{ budgetPercent }}%
-            </span>
+            <div class="flex flex-col items-end">
+              <span class="tabular-nums font-medium text-foreground">{{ formatCurrency(expenses) }} de {{ formatCurrency(income) }}</span>
+              <span class="tabular-nums text-muted-foreground/60">{{ budgetPercent }}%</span>
+            </div>
           </div>
           <div class="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
@@ -657,7 +658,7 @@ onMounted(async () => {
           <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
             <Calendar :size="16" class="text-primary" />
           </div>
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             Saldo Previsto
           </p>
         </div>
@@ -1071,7 +1072,8 @@ onMounted(async () => {
 
         <!-- Upcoming bills — within 10 days -->
         <div v-if="!store.loading && upcomingBills.length > 0" class="bg-card border border-border rounded-lg overflow-hidden">
-          <header class="flex items-center px-3.5 h-9 border-b border-border">
+          <header class="flex items-center gap-2 px-3.5 h-9 border-b border-border">
+            <CalendarClock :size="13" class="text-warning shrink-0" />
             <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Próximos vencimentos</h2>
           </header>
           <div class="divide-y divide-border">

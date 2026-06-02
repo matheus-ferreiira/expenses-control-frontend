@@ -44,6 +44,11 @@ const report = ref<{
 
 const monthLabel = computed(() => `${MONTH_NAMES[month.value - 1]} de ${year.value}`)
 
+const isCurrentMonth = computed(() => {
+  const now = new Date()
+  return year.value === now.getFullYear() && month.value === now.getMonth() + 1
+})
+
 // ── Donut chart ──────────────────────────────────────────────────────────────
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -238,7 +243,13 @@ onMounted(() => {
       >
         <ChevronLeft :size="18" />
       </button>
-      <span class="text-[15px] font-semibold text-foreground">{{ monthLabel }}</span>
+      <div class="flex items-center gap-2">
+        <span class="text-[15px] font-semibold text-foreground">{{ monthLabel }}</span>
+        <span
+          v-if="isCurrentMonth"
+          class="text-[11px] bg-primary/10 text-primary border border-primary/20 rounded px-2 py-0.5"
+        >Mês atual</span>
+      </div>
       <button
         type="button"
         class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"

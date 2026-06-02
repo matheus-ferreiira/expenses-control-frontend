@@ -136,7 +136,7 @@ onMounted(async () => {
 
     <!-- Hero: total balance — desktop only -->
     <div v-if="!loading && store.activeAccounts.length > 0" class="hidden lg:block mb-6">
-      <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60 mb-1">Saldo total</p>
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1">Saldo total</p>
       <p
         class="text-[36px] font-semibold tabular-nums tracking-tight leading-none"
         :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"

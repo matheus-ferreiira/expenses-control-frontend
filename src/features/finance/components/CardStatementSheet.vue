@@ -175,7 +175,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
         <div class="px-4 py-3 border-b border-border/50 shrink-0">
           <div class="flex items-end justify-between mb-2">
             <div>
-              <p class="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-semibold mb-0.5">
+              <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-0.5">
                 Total da fatura
               </p>
               <p class="text-2xl font-bold tabular-nums text-destructive">
@@ -230,7 +230,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
             <template v-for="group in groups" :key="group.date">
               <!-- Date header -->
               <div class="sticky top-0 z-10 bg-background/95 backdrop-blur px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
-                <span class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                <span class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                   {{ group.label }}
                 </span>
                 <span
