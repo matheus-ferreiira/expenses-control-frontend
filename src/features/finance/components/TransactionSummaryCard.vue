@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, ChevronDown, RotateCcw } from 'lucide-vue-next'
 import { Skeleton } from '@ui/skeleton'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatCurrency } from '@/utils/currency'
@@ -178,9 +178,10 @@ function balanceColor(v: number): string {
         <button
           v-if="!isCurrentMonth"
           type="button"
-          class="text-[11px] font-semibold text-primary px-2 py-0.5 rounded border border-primary/30 hover:bg-primary/10 transition-colors"
+          class="min-h-[44px] px-2 text-[11px] text-muted-foreground hover:bg-muted/50 rounded-md transition-colors flex items-center"
           @click="emit('reset')"
         >
+          <RotateCcw :size="11" class="mr-1" />
           Hoje
         </button>
       </div>

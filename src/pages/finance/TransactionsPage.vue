@@ -360,15 +360,15 @@ async function loadPrevMonthReport() {
   <AppPageContainer>
 
     <!-- ── Header ─────────────────────────────────────────────────────── -->
-    <div class="flex items-start justify-between mb-5 pb-3 border-b border-border">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 mb-4 pb-3 border-b border-border">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-0.5">
+        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/80 mb-0.5">
           Finanças
         </p>
-        <h1 class="text-[22px] font-bold tracking-tight text-foreground leading-none mb-1">
+        <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
           Transações
         </h1>
-        <p class="text-[13px] text-muted-foreground/60">
+        <p class="text-[12px] text-muted-foreground mt-1 max-w-prose leading-relaxed">
           Histórico completo de receitas e despesas.
         </p>
       </div>

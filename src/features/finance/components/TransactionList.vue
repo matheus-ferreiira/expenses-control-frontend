@@ -126,7 +126,7 @@ const isTruncated = computed(() =>
   <div v-else :class="nested ? '' : 'rounded-md border border-border overflow-clip'">
     <template v-for="(group, groupIndex) in groups" :key="group.date">
       <!-- Date header -->
-      <div class="flex justify-between items-center mb-1 px-1" :class="groupIndex === 0 ? 'mt-1' : 'mt-3'">
+      <div class="flex justify-between items-center mb-1 px-1" :class="groupIndex === 0 ? 'mt-5' : 'mt-4'">
         <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           {{ group.label }}
         </span>
