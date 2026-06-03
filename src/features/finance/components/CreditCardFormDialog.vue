@@ -177,10 +177,10 @@ const previewDue = computed(() => {
 
         <div class="grid grid-cols-2 gap-3">
           <AppFormField label="Fecha dia" :error="errors.closing_day" required>
-            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="h-10 bg-card border-border/60" />
+            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="h-10 bg-card border-border/60 text-center" />
           </AppFormField>
           <AppFormField label="Vence dia" :error="errors.due_day" required>
-            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="h-10 bg-card border-border/60" />
+            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="h-10 bg-card border-border/60 text-center" />
           </AppFormField>
         </div>
 
@@ -188,7 +188,7 @@ const previewDue = computed(() => {
           <div class="relative">
             <select
               v-model="form.bank_account_id"
-              class="w-full h-10 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer"
+              class="w-full h-10 rounded-lg border border-border/60 bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
               :class="!form.bank_account_id ? 'text-muted-foreground/50' : ''"
             >
               <option value="" disabled>Selecione a conta que paga este cartão</option>

@@ -157,18 +157,18 @@ async function submit() {
         <!-- Type selector -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Tipo</p>
-          <div class="grid grid-cols-2 gap-1.5">
+          <div class="grid grid-cols-2 gap-2">
             <button
               v-for="t in accountTypes"
               :key="t"
               type="button"
-              class="h-10 rounded-lg text-[13px] font-medium border transition-all flex items-center justify-center gap-1.5"
+              class="h-10 rounded-lg text-[13px] font-medium border transition-all flex items-center justify-center gap-2"
               :class="form.type === t
-                ? 'bg-primary/12 border-primary/40 text-primary'
-                : 'bg-muted border-border text-muted-foreground'"
+                ? 'bg-primary/15 border-primary/30 text-primary'
+                : 'bg-muted/30 border-transparent text-muted-foreground/60 hover:bg-muted/50'"
               @click="form.type = t"
             >
-              <component :is="TYPE_ICONS[t]" :size="14" />
+              <component :is="TYPE_ICONS[t]" :size="14" aria-hidden="true" />
               {{ ACCOUNT_TYPE_LABELS[t] }}
             </button>
           </div>

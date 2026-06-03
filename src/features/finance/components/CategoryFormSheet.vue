@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { ArrowLeft, Loader2, CheckCircle, X } from 'lucide-vue-next'
+import { ArrowLeft, Loader2, X } from 'lucide-vue-next'
 import CategoryColorPicker from './CategoryColorPicker.vue'
 import CategoryIconPicker from './CategoryIconPicker.vue'
 import { useFinanceStore } from '@/stores/finance'
@@ -164,7 +164,7 @@ async function save() {
           <input
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
-            class="w-full h-12 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-[13px] transition-colors"
+            class="w-full h-10 px-3 rounded-lg bg-card border border-border/60 focus:border-primary/60 outline-none text-[13px] transition-colors"
             :class="nameError ? 'border-destructive' : ''"
             @keydown.enter="save"
           />
@@ -179,20 +179,20 @@ async function save() {
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="flex items-center justify-center h-11 rounded-lg text-[12px] font-semibold transition-all"
+              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium border transition-all"
               :class="type === 'expense'
-                ? 'bg-destructive/12 border border-destructive/25 text-destructive'
-                : 'bg-muted/60 border border-border text-muted-foreground'"
+                ? 'bg-primary/15 border-primary/30 text-primary'
+                : 'bg-muted/30 border-transparent text-muted-foreground/60 hover:bg-muted/50'"
               @click="type = 'expense'"
             >
               Despesa
             </button>
             <button
               type="button"
-              class="flex items-center justify-center h-11 rounded-lg text-[12px] font-semibold transition-all"
+              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium border transition-all"
               :class="type === 'income'
-                ? 'bg-primary/12 border border-primary/25 text-primary'
-                : 'bg-muted/60 border border-border text-muted-foreground'"
+                ? 'bg-primary/15 border-primary/30 text-primary'
+                : 'bg-muted/30 border-transparent text-muted-foreground/60 hover:bg-muted/50'"
               @click="type = 'income'"
             >
               Receita
@@ -221,8 +221,8 @@ async function save() {
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Meta mensal <span class="text-muted-foreground/30 normal-case font-normal">(opcional)</span>
           </p>
-          <div class="flex items-center gap-2 h-12 px-4 rounded-lg bg-card border border-border/60 focus-within:border-primary transition-colors">
-            <span class="text-[13px] text-muted-foreground shrink-0">R$</span>
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
+            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
             <input
               ref="limitInputRef"
               type="text"
@@ -258,14 +258,11 @@ async function save() {
         <button
           type="button"
           :disabled="saving || !name.trim()"
-          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-background disabled:opacity-40 disabled:cursor-not-allowed"
+          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           @click="save"
         >
           <Loader2 v-if="saving" :size="16" class="animate-spin" />
-          <template v-else>
-            <CheckCircle :size="16" :stroke-width="2.5" />
-            {{ category ? 'Salvar' : 'Criar categoria' }}
-          </template>
+          <template v-else>{{ category ? 'Salvar' : 'Criar categoria' }}</template>
         </button>
       </div>
     </SheetContent>
