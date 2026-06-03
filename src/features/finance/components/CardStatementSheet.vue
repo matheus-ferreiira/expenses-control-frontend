@@ -8,6 +8,7 @@ import { formatCurrency } from '@/utils/currency'
 import { groupTransactionsByDate, getCardBillingPeriod, utilizationPercent } from '../utils/financeHelpers'
 import { financeApi } from '@/services/api/finance'
 import TransactionCard from './TransactionCard.vue'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{
   open: boolean
@@ -18,6 +19,8 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
   selectTransaction: [transaction: Transaction]
 }>()
+
+const toast = useToast()
 
 // ── Billing cycle navigation ────────────────────────────────────────────────
 
@@ -59,6 +62,7 @@ async function loadTransactions() {
     transactions.value = result.data
   } catch {
     transactions.value = []
+    toast.error('Erro ao carregar extrato')
   } finally {
     loading.value = false
   }

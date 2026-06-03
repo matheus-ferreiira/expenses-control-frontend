@@ -111,8 +111,8 @@ const limitBarClass = computed(() => {
 
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px] shrink-0 -mr-2 -mt-1">
-              <MoreHorizontal :size="13" />
+            <Button variant="ghost" size="icon" aria-label="Opções do cartão" class="min-h-[44px] min-w-[44px] shrink-0 -mr-2 -mt-1">
+              <MoreHorizontal :size="13" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-36">

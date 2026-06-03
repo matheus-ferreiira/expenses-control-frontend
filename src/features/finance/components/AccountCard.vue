@@ -65,9 +65,10 @@ const emit = defineEmits<{
             <DropdownMenuTrigger as-child>
               <button
                 type="button"
+                aria-label="Opções da conta"
                 class="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
               >
-                <MoreHorizontal :size="13" />
+                <MoreHorizontal :size="13" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" class="w-36">

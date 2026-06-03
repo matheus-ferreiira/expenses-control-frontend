@@ -297,7 +297,7 @@ onBeforeUnmount(() => {
       <div v-if="loading" class="absolute inset-4">
         <Skeleton class="h-full w-full rounded" />
       </div>
-      <canvas v-show="!loading" ref="canvasRef" />
+      <canvas v-show="!loading" ref="canvasRef" role="img" aria-label="Gráfico de fluxo de caixa do mês" />
     </div>
   </div>
 </template>

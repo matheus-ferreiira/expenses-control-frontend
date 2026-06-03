@@ -182,6 +182,7 @@ onUnmounted(() => {
           :is="findIcon(transaction.category.icon)!.component"
           :size="18"
           :stroke-width="1.9"
+          aria-hidden="true"
         />
         <span v-else class="text-[13px] font-semibold">
           {{ transaction.description.charAt(0).toUpperCase() }}
@@ -192,7 +193,7 @@ onUnmounted(() => {
         class="rounded-xl flex items-center justify-center w-10 h-10 shrink-0 text-muted-foreground"
         style="background: rgba(255,255,255,0.08)"
       >
-        <ArrowLeftRight :size="16" :stroke-width="1.9" />
+        <ArrowLeftRight :size="16" :stroke-width="1.9" aria-hidden="true" />
       </span>
 
       <!-- Description + subtitle -->

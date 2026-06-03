@@ -127,10 +127,11 @@ const amountClass = computed(() => {
           </span>
           <button
             type="button"
+            aria-label="Fechar"
             class="size-7 rounded-full grid place-items-center text-muted-foreground hover:bg-muted transition-colors"
             @click="close"
           >
-            <X :size="15" />
+            <X :size="15" aria-hidden="true" />
           </button>
         </div>
 
