@@ -107,7 +107,7 @@ function cancel() {
             </button>
             <button
               type="button"
-              class="flex-1 h-10 rounded-lg bg-foreground text-background text-[14px] font-semibold hover:opacity-90 transition-opacity"
+              class="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold hover:bg-primary/90 transition-colors"
               @click="confirm"
             >
               Confirmar

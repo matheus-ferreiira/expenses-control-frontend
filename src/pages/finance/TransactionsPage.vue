@@ -385,7 +385,7 @@ async function loadPrevMonthReport() {
         <!-- + Transação — desktop only, FAB covers mobile -->
         <button
           type="button"
-          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           @click="openCreate"
         >
           <Plus :size="14" />

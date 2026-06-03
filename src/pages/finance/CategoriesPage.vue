@@ -88,7 +88,7 @@ async function confirmDelete(id: string) {
         </div>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shrink-0"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shrink-0"
           @click="openCreate()"
         >
           <Plus :size="14" :stroke-width="2.5" />

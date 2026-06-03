@@ -518,7 +518,7 @@ onMounted(async () => {
         <!-- Nova transação (hidden on mobile) -->
         <button
           type="button"
-          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           @click="editingTransaction = null; transactionPrefill = null; formOpen = true"
         >
           <Plus class="size-3.5" />
@@ -914,7 +914,7 @@ onMounted(async () => {
             <button
               type="button"
               class="h-6 px-2.5 rounded text-[11px] font-medium transition-all"
-              :class="filterState.useCustomRange.value ? 'bg-foreground text-background' : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border/60'"
+              :class="filterState.useCustomRange.value ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border/60'"
               @click="filterState.useCustomRange.value ? (filterState.clearCustomRange(), loadTransactions()) : (filterState.applyCustomRange(), loadTransactions())"
             >
               {{ filterState.useCustomRange.value ? 'Limpar' : 'Filtrar' }}
@@ -1165,7 +1165,7 @@ onMounted(async () => {
       <button
         v-if="!streakActive"
         type="button"
-        class="w-full mt-4 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-md text-[14.5px] lg:h-8 lg:px-2.5 lg:text-[12.5px] font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors"
+        class="w-full mt-4 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-md text-[14.5px] lg:h-8 lg:px-2.5 lg:text-[12.5px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         @click="streakSheetOpen = false; editingTransaction = null; transactionPrefill = null; formOpen = true"
       >
         <Plus class="size-4" /> Registrar agora
