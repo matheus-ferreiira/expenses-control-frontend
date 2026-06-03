@@ -155,7 +155,7 @@ async function submit() {
             v-model="form.name"
             type="text"
             placeholder="Ex: Itaú Corrente"
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
           />
         </AppFormField>
 

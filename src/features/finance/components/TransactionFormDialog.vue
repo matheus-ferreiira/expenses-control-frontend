@@ -562,34 +562,30 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
                 Conta de origem <span class="text-destructive">*</span>
               </p>
-              <div class="space-y-2">
+              <div class="space-y-1.5">
                 <button
                   v-for="acc in store.activeAccounts"
                   :key="acc.id"
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
-                  class="w-full flex items-center gap-3 h-14 px-4 rounded-xl border transition-all outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border/50 bg-card hover:border-border'"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
+                  :class="form.account_id === acc.id ? 'bg-primary/10 border border-primary/30' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
-                    class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-semibold"
-                    :style="{ background: acc.color ? acc.color + '25' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold"
+                    :style="{ background: acc.color ? acc.color + '26' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
                   >
                     {{ acc.name.charAt(0).toUpperCase() }}
                   </span>
                   <div class="min-w-0 flex-1 text-left">
-                    <p class="text-[14px] font-medium text-foreground leading-none">{{ acc.name }}</p>
-                    <p class="text-[11px] text-muted-foreground mt-1 leading-none">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
+                    <p class="text-[11px] text-muted-foreground/50 capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                   </div>
-                  <div class="text-right shrink-0">
-                    <p class="text-[14px] tabular-nums font-semibold" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
-                      {{ formatCurrency(acc.balance) }}
-                    </p>
-                    <div v-if="form.account_id === acc.id" class="flex justify-end mt-0.5">
-                      <Check :size="10" class="text-primary" />
-                    </div>
-                  </div>
+                  <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
+                    {{ formatCurrency(acc.balance) }}
+                  </span>
+                  <Check v-if="form.account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
                 </button>
               </div>
               <p v-if="errors.account_id" class="text-[11px] text-destructive mt-1">{{ errors.account_id }}</p>
@@ -600,34 +596,30 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
                 Conta de destino <span class="text-destructive">*</span>
               </p>
-              <div class="space-y-2">
+              <div class="space-y-1.5">
                 <button
                   v-for="acc in store.activeAccounts"
                   :key="acc.id"
                   type="button"
                   :disabled="acc.id === form.account_id"
-                  class="w-full flex items-center gap-3 h-14 px-4 rounded-xl border transition-all outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.destination_account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border/50 bg-card hover:border-border'"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
+                  :class="form.destination_account_id === acc.id ? 'bg-primary/10 border border-primary/30' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
-                    class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-semibold"
-                    :style="{ background: acc.color ? acc.color + '25' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold"
+                    :style="{ background: acc.color ? acc.color + '26' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
                   >
                     {{ acc.name.charAt(0).toUpperCase() }}
                   </span>
                   <div class="min-w-0 flex-1 text-left">
-                    <p class="text-[14px] font-medium text-foreground leading-none">{{ acc.name }}</p>
-                    <p class="text-[11px] text-muted-foreground mt-1 leading-none">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
+                    <p class="text-[11px] text-muted-foreground/50 capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                   </div>
-                  <div class="text-right shrink-0">
-                    <p class="text-[14px] tabular-nums font-semibold" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
-                      {{ formatCurrency(acc.balance) }}
-                    </p>
-                    <div v-if="form.destination_account_id === acc.id" class="flex justify-end mt-0.5">
-                      <Check :size="10" class="text-primary" />
-                    </div>
-                  </div>
+                  <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
+                    {{ formatCurrency(acc.balance) }}
+                  </span>
+                  <Check v-if="form.destination_account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
                 </button>
               </div>
               <p v-if="errors.destination_account_id" class="text-[11px] text-destructive mt-1">{{ errors.destination_account_id }}</p>
@@ -639,33 +631,29 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
               Conta <span class="text-destructive">*</span>
             </p>
-            <div class="space-y-2">
+            <div class="space-y-1.5">
               <button
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 type="button"
-                class="w-full flex items-center gap-3 h-14 px-4 rounded-xl border transition-all outline-none active:scale-[0.99]"
-                :class="form.account_id === acc.id ? 'border-primary/40 bg-primary/5' : 'border-border/50 bg-card hover:border-border'"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
+                :class="form.account_id === acc.id ? 'bg-primary/10 border border-primary/30' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span
-                  class="size-10 rounded-xl flex items-center justify-center shrink-0 text-[14px] font-semibold"
-                  :style="{ background: acc.color ? acc.color + '25' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold"
+                  :style="{ background: acc.color ? acc.color + '26' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
                 >
                   {{ acc.name.charAt(0).toUpperCase() }}
                 </span>
                 <div class="min-w-0 flex-1 text-left">
-                  <p class="text-[14px] font-medium text-foreground leading-none">{{ acc.name }}</p>
-                  <p class="text-[11px] text-muted-foreground mt-1 leading-none">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
+                  <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
+                  <p class="text-[11px] text-muted-foreground/50 capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                 </div>
-                <div class="text-right shrink-0">
-                  <p class="text-[14px] tabular-nums font-semibold" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
-                    {{ formatCurrency(acc.balance) }}
-                  </p>
-                  <div v-if="form.account_id === acc.id" class="flex justify-end mt-0.5">
-                    <Check :size="10" class="text-primary" />
-                  </div>
-                </div>
+                <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
+                  {{ formatCurrency(acc.balance) }}
+                </span>
+                <Check v-if="form.account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
               </button>
             </div>
             <p v-if="errors.account_id" class="text-[11px] text-destructive mt-1">{{ errors.account_id }}</p>
@@ -703,16 +691,16 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <div v-if="form.is_recurring" class="pt-3 pb-4 space-y-3">
               <!-- Frequency pills -->
               <div>
-                <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Frequência</p>
-                <div class="flex gap-1.5 flex-wrap">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-2">Frequência</p>
+                <div class="flex gap-2 flex-wrap">
                   <button
                     v-for="opt in FREQUENCY_OPTIONS"
                     :key="opt.value"
                     type="button"
-                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                     :class="form.recurrence_frequency === opt.value
-                      ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                     @click="form.recurrence_frequency = opt.value"
                   >
                     {{ opt.label }}
@@ -722,34 +710,34 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
 
               <!-- End condition -->
               <div>
-                <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Término</p>
-                <div class="flex gap-1.5 flex-wrap mb-3">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-2">Término</p>
+                <div class="flex gap-2 flex-wrap mb-3">
                   <button
                     type="button"
-                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                     :class="form.recurrence_end_type === 'never'
-                      ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                     @click="form.recurrence_end_type = 'never'"
                   >
                     Sem término
                   </button>
                   <button
                     type="button"
-                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                     :class="form.recurrence_end_type === 'count'
-                      ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                     @click="form.recurrence_end_type = 'count'"
                   >
                     Nº de vezes
                   </button>
                   <button
                     type="button"
-                    class="h-8 px-2.5 rounded-md text-[11px] font-medium border transition-all"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                     :class="form.recurrence_end_type === 'date'
-                      ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                      : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                     @click="form.recurrence_end_type = 'date'"
                   >
                     Data limite
@@ -818,37 +806,27 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
 
             <!-- Installment count pills -->
             <div v-if="isInstallment" class="pt-3 pb-4">
-              <div class="flex gap-1.5 flex-wrap mb-2.5">
+              <div class="flex gap-2 flex-wrap mb-2.5">
                 <button
                   v-for="n in INSTALLMENT_OPTIONS"
                   :key="n"
                   type="button"
-                  class="h-8 px-3 rounded-md text-[12px] font-medium border transition-all"
+                  class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                   :class="form.total_installments === n
-                    ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                    : 'bg-card border-border text-muted-foreground hover:text-foreground'"
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                   @click="form.total_installments = n"
                 >
                   {{ n }}x
                 </button>
               </div>
-              <div v-if="installmentAmount > 0" class="space-y-0.5">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span class="text-muted-foreground">{{ form.total_installments }} parcelas de</span>
-                  <span class="tabular-nums font-semibold text-foreground">
-                    R$ {{ installmentAmount.toFixed(2).replace('.', ',') }}
-                  </span>
-                </div>
-                <div
-                  v-if="lastInstallmentAmount !== installmentAmount"
-                  class="flex items-center justify-between text-[10px]"
-                >
-                  <span class="text-muted-foreground/60">última parcela</span>
-                  <span class="tabular-nums text-muted-foreground/60">
-                    R$ {{ lastInstallmentAmount.toFixed(2).replace('.', ',') }}
-                  </span>
-                </div>
-              </div>
+              <p v-if="installmentAmount > 0" class="text-[12px] text-muted-foreground/50">
+                {{ form.total_installments }}x de
+                <span class="text-foreground font-medium">{{ formatCurrency(installmentAmount) }}</span>
+                <template v-if="lastInstallmentAmount !== installmentAmount">
+                  · última <span class="text-foreground font-medium">{{ formatCurrency(lastInstallmentAmount) }}</span>
+                </template>
+              </p>
             </div>
           </div>
 
