@@ -173,28 +173,45 @@ VITE_APP_NAME=Productivity Control
 
 ## Design System
 
-Dark mode por padrão. Paleta neutral zinc/gray — sem azul ou roxo nos fundos.
+Dark mode por padrão. Fintech premium — verde esmeralda como primária. Sem azul ou roxo.
 
 **Arquivo de tokens:** `src/assets/styles/tokens.css` — fonte única de verdade para todas as variáveis CSS.
+**Referência visual completa:** `.tasks/vaultos_visual_reference.md`
+
+⚠️ Os valores abaixo são verificados diretamente de `tokens.css` — não editar sem verificar o arquivo real.
 
 | Token | Dark (padrão) | Light (.light) | Tailwind class |
 |-------|--------------|----------------|----------------|
-| `--background` | `0 0% 4%` (#0a0a0a — cinza puro) | `0 0% 98%` (white) | `bg-background` |
-| `--surface` | `0 0% 7%` (#121212) | `0 0% 100%` | `bg-surface` |
-| `--card` | `0 0% 10%` (#1a1a1a) | `0 0% 100%` | `bg-card` |
-| `--foreground` | `0 0% 93%` (near-white) | `222 47% 11%` | `text-foreground` |
-| `--muted-foreground` | `0 0% 55%` (#8c8c8c) | `240 5% 46%` | `text-muted-foreground` |
-| `--primary` | `225 70% 60%` (blue-violet) | `225 70% 44%` | `bg-primary` |
-| `--secondary` | `0 0% 16%` (#292929) | `240 10% 97%` | `bg-secondary` |
-| `--muted` | `0 0% 15%` (#262626) | `240 10% 96%` | `bg-muted` |
-| `--border` | `0 0% 15%` (#262626) | `240 6% 88%` | `border-border` |
-| `--ring` | `225 70% 60%` (brand blue) | `225 70% 44%` | `outline-ring` |
-| `--destructive` | `5 62% 50%` (red) | `5 68% 54%` | `bg-destructive` |
-| `--success` | `145 45% 48%` (green) | `145 52% 40%` | `bg-success` |
-| `--warning` | `38 75% 58%` (amber) | `38 80% 52%` | `bg-warning` |
-| `--radius` | `0.375rem` (6px) | — | `rounded-lg` |
+| `--background` | `0 0% 3%` (#080808) | `0 0% 98%` | `bg-background` |
+| `--surface` / `--card` | `0 0% 7%` (#111111) | `0 0% 100%` | `bg-card` |
+| `--sheet` | `0 0% 8.6%` (#161616) | `0 0% 99%` | — |
+| `--popover` | `0 0% 10%` (#1a1a1a) | `0 0% 100%` | `bg-popover` |
+| `--foreground` | `0 0% 94%` (#F0F0F0) | `222 47% 11%` | `text-foreground` |
+| `--muted-foreground` | `0 0% 53%` (#888888) | `240 5% 46%` | `text-muted-foreground` |
+| `--primary` | `162 100% 39%` (#00C896 — verde) | `162 80% 35%` | `bg-primary`, `text-primary` |
+| `--primary-foreground` | `0 0% 0%` (#000000 — preto!) | `0 0% 98%` | `text-primary-foreground` |
+| `--muted` | `0 0% 10%` (#1a1a1a) | `240 10% 96%` | `bg-muted` |
+| `--border` | `0 0% 9%` (~#171717) | `240 6% 88%` | `border-border` |
+| `--ring` | `162 100% 39%` (#00C896) | `162 80% 35%` | `outline-ring` |
+| `--destructive` | `0 100% 65%` (#FF4D4D) | `0 85% 55%` | `text-destructive` |
+| `--success` | `162 100% 39%` (#00C896 — = primary) | `162 80% 35%` | `text-success` |
+| `--warning` | `38 90% 55%` (#F5A623) | `38 80% 52%` | `text-warning` |
+| `--radius` | `0.5rem` (8px) | — | `rounded-lg` |
+
+**Atenção:** `--primary-foreground` é PRETO em dark mode. Botões `bg-primary` usam `text-primary-foreground` (preto), não `text-white`.
 
 Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve conter valores de cores.
+
+## Referências canônicas de componente
+
+Antes de criar qualquer componente visual, ler o canônico correspondente:
+
+| Se criar | Ler primeiro |
+|---|---|
+| Card com dados/métricas | `src/features/finance/components/TransactionSummaryCard.vue` |
+| Formulário em sheet | `src/features/finance/components/CreditCardFormDialog.vue` |
+| Sheet de seleção | `src/components/shared/QuickAddDialog.vue` |
+| Sheet de detalhe | `src/features/finance/components/TransactionDetailSheet.vue` |
 
 ## Padrão de KPI Visual — Card Único
 
