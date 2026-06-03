@@ -76,6 +76,13 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE}/purchases`,
     DETAIL: (id: string) => `${API_BASE}/purchases/${id}`,
   },
+  SHOPPING: {
+    SESSIONS: `${API_BASE}/shopping/sessions`,
+    SESSION_DETAIL: (id: string) => `${API_BASE}/shopping/sessions/${id}`,
+    SESSION_FINISH: (id: string) => `${API_BASE}/shopping/sessions/${id}/finish`,
+    SESSION_ITEMS: (sessionId: string) => `${API_BASE}/shopping/sessions/${sessionId}/items`,
+    ITEM_DETAIL: (id: string) => `${API_BASE}/shopping/items/${id}`,
+  },
   NOTES: {
     BASE: `${API_BASE}/notes`,
     DETAIL: (id: string) => `${API_BASE}/notes/${id}`,

@@ -1,188 +1,199 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { ShoppingCart, Trash2, Loader2 } from 'lucide-vue-next'
-import { Input } from '@ui/input'
-import { Button } from '@ui/button'
-import { Checkbox } from '@ui/checkbox'
-import { Badge } from '@ui/badge'
-import { EmptyState } from '@/components/shared'
-import { usePurchaseStore } from '@/stores/purchases'
-import { useToast } from '@/composables/useToast'
+import { onMounted } from 'vue'
+import { ShoppingCart, Plus, Loader2, History, Trash2 } from 'lucide-vue-next'
+import { useShoppingSessionStore } from '@/stores/shoppingSessions'
+import { useShoppingSession } from '@/features/purchases/composables/useShoppingSession'
+import { formatCurrency } from '@/utils/currency'
+import ShoppingSessionCard from '@/features/purchases/components/ShoppingSessionCard.vue'
+import ShoppingSessionView from '@/features/purchases/components/ShoppingSessionView.vue'
+import FinishSessionSheet from '@/features/purchases/components/FinishSessionSheet.vue'
+import NewSessionDialog from '@/features/purchases/components/NewSessionDialog.vue'
 
-const store = usePurchaseStore()
-const toast = useToast()
+const store = useShoppingSessionStore()
 
-const newName = ref('')
-const newCategory = ref('')
-const adding = ref(false)
+const {
+  sessionViewOpen,
+  finishSheetOpen,
+  newSessionDialogOpen,
+  openSessionView,
+  openFinishSheet,
+  openNewSessionDialog,
+  handleDeleteSession,
+} = useShoppingSession()
 
-onMounted(() => store.fetchItems())
+onMounted(() => store.fetchSessions())
 
-const pendingItems = computed(() => store.items.filter((i) => !i.is_bought))
-const boughtItems = computed(() => store.items.filter((i) => i.is_bought))
-
-const groupedPending = computed(() => {
-  const groups: Record<string, typeof store.items> = {}
-  for (const item of pendingItems.value) {
-    const key = item.category || 'Sem categoria'
-    if (!groups[key]) groups[key] = []
-    groups[key].push(item)
-  }
-  return groups
-})
-
-async function addItem() {
-  const name = newName.value.trim()
-  if (!name) return
-  adding.value = true
-  try {
-    await store.addItem(name, newCategory.value.trim() || undefined)
-    newName.value = ''
-    newCategory.value = ''
-  } catch {
-    toast.error('Erro ao adicionar item')
-  } finally {
-    adding.value = false
-  }
-}
-
-async function toggle(id: string) {
-  try {
-    await store.toggleBought(id)
-  } catch {
-    toast.error('Erro ao atualizar item')
-  }
-}
-
-async function remove(id: string) {
-  try {
-    await store.removeItem(id)
-  } catch {
-    toast.error('Erro ao remover item')
-  }
-}
-
-function handleKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter') addItem()
+function onFinishSessionSheet() {
+  finishSheetOpen.value = false
+  sessionViewOpen.value = false
 }
 </script>
 
 <template>
-  <div class="p-6 max-w-2xl mx-auto space-y-6">
+  <div class="p-5 max-w-2xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="flex items-start justify-between gap-4 mb-6">
-      <div>
-        <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-1.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">PESSOAL</p>
-        <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">Compras</h1>
-        <p class="mt-1 text-[13px] text-muted-foreground/60">Organize sua lista de compras e desejos.</p>
-      </div>
-      <Badge variant="secondary" class="mt-1 shrink-0">
-        {{ pendingItems.length }} pendente{{ pendingItems.length !== 1 ? 's' : '' }}
-      </Badge>
-    </div>
-
-    <!-- Add form -->
-    <div class="flex gap-2">
-      <Input
-        v-model="newName"
-        placeholder="Nome do item..."
-        class="flex-1"
-        @keydown="handleKeydown"
-      />
-      <Input
-        v-model="newCategory"
-        placeholder="Categoria (opcional)"
-        class="w-44"
-        @keydown="handleKeydown"
-      />
-      <Button :disabled="adding || !newName.trim()" @click="addItem">
-        <Loader2 v-if="adding" :size="14" class="mr-1.5 animate-spin" />
-        Adicionar
-      </Button>
+    <div>
+      <p class="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground/40 mb-1.5 select-none">
+        PESSOAL
+      </p>
+      <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">Compras</h1>
+      <p class="mt-1 text-[13px] text-muted-foreground/60">Gerencie suas idas ao mercado.</p>
     </div>
 
     <!-- Loading -->
-    <div v-if="store.loading" class="flex items-center justify-center py-12 text-muted-foreground">
+    <div v-if="store.loading" class="flex items-center justify-center py-16 text-muted-foreground">
       <Loader2 :size="20" class="animate-spin mr-2" />
-      Carregando...
+      <span class="text-[13px]">Carregando...</span>
     </div>
 
-    <!-- Empty state -->
-    <EmptyState
-      v-else-if="store.items.length === 0"
-      :icon="ShoppingCart"
-      title="Lista vazia"
-      description="Adicione itens acima para começar sua lista de compras."
-    />
+    <template v-else>
+      <!-- ── Sessão ativa ──────────────────────────────────────────── -->
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">
+          LISTA ATUAL
+        </p>
 
-    <!-- Pending items grouped by category -->
-    <div v-else class="space-y-5">
-      <template v-for="(items, category) in groupedPending" :key="category">
-        <div class="space-y-1">
-          <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1">
-            {{ category }}
-          </p>
-          <div class="rounded-lg border divide-y divide-border overflow-hidden">
-            <div
-              v-for="item in items"
-              :key="item.id"
-              class="flex items-center gap-3 px-3 py-2.5 bg-card hover:bg-accent/30 transition-base"
-            >
-              <Checkbox
-                :id="`item-${item.id}`"
-                :checked="item.is_bought"
-                @update:checked="toggle(item.id)"
-              />
-              <label
-                :for="`item-${item.id}`"
-                class="flex-1 text-sm cursor-pointer select-none"
-                :class="item.is_bought ? 'line-through text-muted-foreground' : ''"
-              >
-                {{ item.name }}
-              </label>
+        <!-- Active session card -->
+        <div
+          v-if="store.activeSession"
+          class="bg-card border border-border rounded-xl overflow-hidden"
+        >
+          <!-- Accent line -->
+          <div class="h-0.5 bg-primary" />
+
+          <div class="p-4">
+            <!-- Top row -->
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="size-8 rounded-lg bg-primary/20 grid place-items-center shrink-0">
+                  <ShoppingCart :size="15" class="text-primary" />
+                </span>
+                <span class="text-[10px] font-semibold uppercase tracking-widest text-primary">
+                  EM ANDAMENTO
+                </span>
+              </div>
               <button
-                class="text-muted-foreground hover:text-destructive transition-base p-1"
-                @click="remove(item.id)"
+                type="button"
+                class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-destructive transition-colors"
+                @click="handleDeleteSession(store.activeSession!.id)"
               >
                 <Trash2 :size="14" />
               </button>
             </div>
+
+            <!-- Title + date -->
+            <p class="text-[16px] font-semibold text-foreground">{{ store.activeSession.title }}</p>
+
+            <!-- Progress -->
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-[12px] text-muted-foreground/70">
+                {{ store.activeSession.bought_count }} / {{ store.activeSession.items_count }} itens
+              </span>
+              <span
+                v-if="store.activeSession.suggested_total > 0"
+                class="text-[12px] font-semibold tabular-nums text-primary"
+              >
+                {{ formatCurrency(store.activeSession.suggested_total) }}
+              </span>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="h-1 rounded-full bg-muted/30 overflow-hidden mt-2">
+              <div
+                class="h-full rounded-full bg-primary transition-all duration-500"
+                :style="{
+                  width: store.activeSession.items_count
+                    ? `${Math.round((store.activeSession.bought_count / store.activeSession.items_count) * 100)}%`
+                    : '0%',
+                }"
+              />
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 mt-4">
+              <button
+                type="button"
+                class="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[13px] font-semibold hover:opacity-90 transition-opacity"
+                @click="openSessionView"
+              >
+                Continuar compra
+              </button>
+              <button
+                type="button"
+                class="flex-1 h-10 rounded-lg bg-card border border-border text-foreground text-[13px] font-semibold hover:bg-muted/30 transition-colors"
+                @click="openFinishSheet"
+              >
+                Finalizar
+              </button>
+            </div>
           </div>
         </div>
-      </template>
 
-      <!-- Bought items -->
-      <div v-if="boughtItems.length > 0" class="space-y-1">
-        <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1">
-          Comprados ({{ boughtItems.length }})
-        </p>
-        <div class="rounded-lg border divide-y divide-border overflow-hidden opacity-60">
-          <div
-            v-for="item in boughtItems"
-            :key="item.id"
-            class="flex items-center gap-3 px-3 py-2.5 bg-card hover:bg-accent/30 transition-base"
-          >
-            <Checkbox
-              :id="`item-${item.id}`"
-              :checked="item.is_bought"
-              @update:checked="toggle(item.id)"
-            />
-            <label
-              :for="`item-${item.id}`"
-              class="flex-1 text-sm cursor-pointer select-none line-through text-muted-foreground"
-            >
-              {{ item.name }}
-              <span v-if="item.category" class="ml-1 text-xs opacity-60">· {{ item.category }}</span>
-            </label>
-            <button
-              class="text-muted-foreground hover:text-destructive transition-base p-1"
-              @click="remove(item.id)"
-            >
-              <Trash2 :size="14" />
-            </button>
+        <!-- No active session — CTA -->
+        <button
+          v-else
+          type="button"
+          class="w-full bg-card border border-border border-dashed rounded-xl p-6 flex flex-col items-center gap-3 hover:bg-muted/20 transition-colors group"
+          @click="openNewSessionDialog"
+        >
+          <span class="size-11 rounded-xl bg-primary/10 grid place-items-center group-hover:bg-primary/20 transition-colors">
+            <Plus :size="20" class="text-primary" />
+          </span>
+          <div class="text-center">
+            <p class="text-[14px] font-semibold text-foreground">Nova lista de compras</p>
+            <p class="text-[12px] text-muted-foreground/60 mt-0.5">Inicie uma nova ida ao mercado</p>
           </div>
+        </button>
+      </div>
+
+      <!-- ── Histórico ─────────────────────────────────────────────── -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+            HISTÓRICO
+          </p>
+          <span class="flex items-center gap-1 text-[11px] text-muted-foreground/40">
+            <History :size="11" />
+            {{ store.finishedSessions.length }} registros
+          </span>
+        </div>
+
+        <!-- Empty history -->
+        <div
+          v-if="store.finishedSessions.length === 0"
+          class="py-10 text-center"
+        >
+          <p class="text-[13px] text-muted-foreground/40">Nenhuma compra finalizada ainda.</p>
+        </div>
+
+        <!-- Session list -->
+        <div v-else class="space-y-2">
+          <ShoppingSessionCard
+            v-for="session in store.finishedSessions"
+            :key="session.id"
+            :session="session"
+          />
         </div>
       </div>
-    </div>
+    </template>
   </div>
+
+  <!-- ShoppingSessionView sheet -->
+  <ShoppingSessionView
+    v-if="store.activeSession"
+    v-model:open="sessionViewOpen"
+    :session="store.activeSession"
+    @finish="openFinishSheet"
+  />
+
+  <!-- FinishSessionSheet -->
+  <FinishSessionSheet
+    v-if="store.activeSession"
+    v-model:open="finishSheetOpen"
+    :session="store.activeSession"
+    @finished="onFinishSessionSheet"
+  />
+
+  <!-- NewSessionDialog -->
+  <NewSessionDialog v-model:open="newSessionDialogOpen" />
 </template>
