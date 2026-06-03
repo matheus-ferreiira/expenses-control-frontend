@@ -11,7 +11,7 @@ import {
   Wallet, FileText, BookOpen, Bookmark, ShoppingCart,
   Lock, Settings, Search, Plus, Moon, Sun,
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
-  ArrowUpDown, Landmark, CreditCard, PieChart, Tag,
+  ArrowUpDown, Landmark, CreditCard, PieChart, Tag, Flag,
 } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{ open: boolean; mobile?: boolean }>(), { mobile: false })
@@ -36,6 +36,8 @@ const FINANCE_CHILDREN = [
   { label: 'Transações', icon: ArrowUpDown, route: ROUTES.FINANCE_TRANSACTIONS },
   { label: 'Contas', icon: Landmark, route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões', icon: CreditCard, route: ROUTES.FINANCE_CARDS },
+  { label: 'Orçamento', icon: PieChart, route: ROUTES.FINANCE_BUDGET },
+  { label: 'Metas', icon: Flag, route: ROUTES.FINANCE_GOALS },
   { label: 'Relatórios', icon: PieChart, route: ROUTES.FINANCE_REPORTS },
   { label: 'Categorias', icon: Tag, route: ROUTES.FINANCE_CATEGORIES },
 ]
