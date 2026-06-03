@@ -2,6 +2,7 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { ArrowLeft, Loader2, Plus, X } from 'lucide-vue-next'
+import { isAxiosError } from 'axios'
 import { findIcon } from '@/lib/icons'
 import { useToast } from '@/composables/useToast'
 import { useFinanceStore } from '@/stores/finance'
@@ -57,7 +58,31 @@ const baseAmount = computed(() => {
   return isNaN(v) ? 0 : v
 })
 
-const isFormValid = computed(() => baseAmount.value > 0)
+// Soma das % dos itens (derivada de amount/baseAmount)
+const itemsPercentageTotal = computed(() => {
+  if (baseAmount.value <= 0) return 0
+  return items.value.reduce((sum, i) => sum + (i.amount / baseAmount.value) * 100, 0)
+})
+
+// Soma das % das metas ativas (do store)
+const goalsPercentageTotal = computed(() => {
+  if (baseAmount.value <= 0) return 0
+  return store.goals
+    .filter((g) => g.status === 'active' && g.monthly_contribution > 0)
+    .reduce((sum, g) => sum + (g.monthly_contribution / baseAmount.value) * 100, 0)
+})
+
+const totalAllocatedPercentage = computed(() =>
+  Math.round((itemsPercentageTotal.value + goalsPercentageTotal.value) * 100) / 100,
+)
+
+const percentageOverflowError = computed(() =>
+  totalAllocatedPercentage.value > 100
+    ? `Total alocado excede 100% do valor base (${totalAllocatedPercentage.value.toFixed(1)}%). Reduza os limites antes de salvar.`
+    : null,
+)
+
+const isFormValid = computed(() => baseAmount.value > 0 && !percentageOverflowError.value)
 
 function formatAmount(raw: string): string {
   const digits = raw.replace(/\D/g, '')
@@ -158,8 +183,19 @@ async function submit() {
     }
     emit('saved', saved)
     close()
-  } catch {
-    toast.error('Erro ao salvar orçamento')
+  } catch (err: unknown) {
+    if (isAxiosError(err) && err.response?.status === 422) {
+      const errors = err.response.data?.errors ?? {}
+      const itemsError = errors['items']
+      if (itemsError) {
+        const msg = Array.isArray(itemsError) ? itemsError[0] : itemsError
+        toast.error(String(msg))
+      } else {
+        toast.error('Verifique os campos do formulário')
+      }
+    } else {
+      toast.error('Erro ao salvar orçamento')
+    }
   } finally {
     submitting.value = false
   }
@@ -235,9 +271,9 @@ async function submit() {
                   v-if="getCategoryById(item.category_id)?.icon && findIcon(getCategoryById(item.category_id)!.icon!)"
                   :is="findIcon(getCategoryById(item.category_id)!.icon!)!.component"
                   :size="18"
-                  :style="{ color: getCategoryById(item.category_id)?.color }"
+                  :style="{ color: getCategoryById(item.category_id)?.color ?? '#888' }"
                 />
-                <span v-else class="text-[12px] font-bold" :style="{ color: getCategoryById(item.category_id)?.color }">
+                <span v-else class="text-[12px] font-bold" :style="{ color: getCategoryById(item.category_id)?.color ?? '#888' }">
                   {{ getCategoryById(item.category_id)?.name?.charAt(0) ?? '?' }}
                 </span>
               </span>
@@ -248,7 +284,7 @@ async function submit() {
                 </p>
                 <p class="text-[11px] text-muted-foreground/50 tabular-nums">
                   R$ {{ item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                  · {{ item.percentage.toFixed(1) }}%
+                  · {{ baseAmount > 0 ? ((item.amount / baseAmount) * 100).toFixed(1) : '0.0' }}%
                 </p>
               </div>
 
@@ -270,6 +306,11 @@ async function submit() {
             </div>
           </div>
 
+          <!-- Erro de % inline -->
+          <p v-if="percentageOverflowError" class="text-[12px] text-destructive mb-2 leading-snug">
+            {{ percentageOverflowError }}
+          </p>
+
           <button
             type="button"
             class="w-full flex items-center justify-center gap-2 h-10 rounded-lg border border-dashed border-border/60 text-[13px] text-muted-foreground/60 hover:text-primary hover:border-primary/40 transition-colors"
@@ -278,6 +319,45 @@ async function submit() {
             <Plus :size="16" />
             Adicionar categoria
           </button>
+        </div>
+
+        <!-- Resumo de alocação -->
+        <div v-if="baseAmount > 0 && (items.length > 0 || store.goals.some(g => g.status === 'active' && g.monthly_contribution > 0))">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+            Resumo da alocação
+          </p>
+          <div class="bg-card border border-border/30 rounded-lg px-3 py-2.5 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[12px] text-muted-foreground/60">Categorias</span>
+              <span class="text-[12px] tabular-nums text-foreground">
+                {{ itemsPercentageTotal.toFixed(1) }}%
+              </span>
+            </div>
+            <div
+              v-if="store.goals.some(g => g.status === 'active' && g.monthly_contribution > 0)"
+              class="flex items-center justify-between"
+            >
+              <span class="text-[12px] text-muted-foreground/60">Metas</span>
+              <span class="text-[12px] tabular-nums text-foreground">
+                {{ goalsPercentageTotal.toFixed(1) }}%
+              </span>
+            </div>
+            <div class="border-t border-border/30 pt-1.5 flex items-center justify-between">
+              <span class="text-[12px] font-medium text-foreground">Total alocado</span>
+              <span
+                class="text-[12px] font-semibold tabular-nums"
+                :class="totalAllocatedPercentage > 100 ? 'text-destructive' : 'text-foreground'"
+              >
+                {{ totalAllocatedPercentage.toFixed(1) }}%
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[12px] text-success/80">Livre</span>
+              <span class="text-[12px] tabular-nums text-success/80">
+                {{ Math.max(0, 100 - totalAllocatedPercentage).toFixed(1) }}%
+              </span>
+            </div>
+          </div>
         </div>
 
       </div>

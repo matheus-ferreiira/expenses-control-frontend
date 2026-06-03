@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { ChevronLeft, ChevronRight, Settings, Plus, Copy } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Settings, Plus, Copy, Flag } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import { AppPageContainer } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
-
+import { ROUTES } from '@/constants/routes'
 import type { Budget } from '@/types/finance'
 import BudgetConfigSheet from '@/features/finance/components/BudgetConfigSheet.vue'
 
 const store = useFinanceStore()
 const toast = useToast()
+const router = useRouter()
 
 const now = new Date()
 const selectedMonth = ref(now.getMonth() + 1)
@@ -80,6 +82,7 @@ watch([selectedMonth, selectedYear], () => {
 
 onMounted(async () => {
   if (!store.categories.length) await store.fetchCategories()
+  if (!store.goals.length) store.fetchGoals()
   await Promise.all([loadBudget(), loadPreviousBudget()])
 })
 
@@ -125,6 +128,10 @@ const totalBarColor = computed(() => {
   if (totalSpentPercent.value >= 70) return 'bg-warning'
   return 'bg-primary'
 })
+
+const hasGoalsItems = computed(() =>
+  (budget.value?.goals_items?.length ?? 0) > 0,
+)
 </script>
 
 <template>
@@ -181,7 +188,10 @@ const totalBarColor = computed(() => {
           </div>
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Livre</p>
-            <p class="text-[17px] font-semibold tabular-nums mt-1 text-success">
+            <p
+              class="text-[17px] font-semibold tabular-nums mt-1"
+              :class="budget.summary.free_amount >= 0 ? 'text-success' : 'text-destructive'"
+            >
               {{ formatCurrency(budget.summary.free_amount) }}
             </p>
           </div>
@@ -206,6 +216,31 @@ const totalBarColor = computed(() => {
           <p class="text-[11px] text-muted-foreground/50 mt-1">
             {{ budget.summary.free_percentage.toFixed(1) }}% do total ainda disponível
           </p>
+        </div>
+
+        <!-- Resumo: categorias + metas + livre -->
+        <div class="mt-3 pt-3 border-t border-border/40 space-y-1">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-muted-foreground/50">Categorias</span>
+            <span class="text-muted-foreground/70 tabular-nums">
+              {{ formatCurrency(budget.summary.total_from_categories) }}
+              · {{ budget.summary.categories_percentage.toFixed(1) }}%
+            </span>
+          </div>
+          <div v-if="hasGoalsItems" class="flex items-center justify-between text-[11px]">
+            <span class="text-muted-foreground/50">Metas</span>
+            <span class="text-muted-foreground/70 tabular-nums">
+              {{ formatCurrency(budget.summary.total_from_goals) }}
+              · {{ budget.summary.goals_percentage.toFixed(1) }}%
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-success/80">Livre</span>
+            <span class="text-success/80 tabular-nums font-medium">
+              {{ formatCurrency(budget.summary.free_amount) }}
+              · {{ budget.summary.free_percentage.toFixed(1) }}%
+            </span>
+          </div>
         </div>
       </template>
 
@@ -234,7 +269,7 @@ const totalBarColor = computed(() => {
           v-if="previousBudget"
           type="button"
           :disabled="copyingPrevious"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card border border-border text-left transition-colors hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card border border-border text-left transition-colors hover:bg-muted/20 active:scale-[0.99]"
           @click="copyFromPrevious"
         >
           <span class="size-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -248,7 +283,7 @@ const totalBarColor = computed(() => {
 
         <button
           type="button"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card border border-border text-left transition-colors hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card border border-border text-left transition-colors hover:bg-muted/20 active:scale-[0.99]"
           @click="configSheetOpen = true"
         >
           <span class="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
@@ -262,8 +297,10 @@ const totalBarColor = computed(() => {
       </div>
     </template>
 
-    <!-- Lista de itens do orçamento -->
+    <!-- Listas quando tem orçamento -->
     <template v-else-if="budget">
+
+      <!-- Seção: Categorias -->
       <div class="flex items-center justify-between mb-3">
         <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
           Categorias
@@ -278,7 +315,7 @@ const totalBarColor = computed(() => {
         </button>
       </div>
 
-      <div class="space-y-2">
+      <div class="space-y-2 mb-5">
         <div
           v-for="item in budget.items"
           :key="item.category_id"
@@ -314,14 +351,11 @@ const totalBarColor = computed(() => {
               >
                 {{ item.spent_percentage.toFixed(0) }}%
               </p>
-              <span
-                v-if="item.status === 'warning'"
-                class="text-[10px] text-warning"
-              >⚠</span>
+              <span v-if="item.status === 'warning'" class="text-[10px] text-warning">⚠</span>
+              <span v-else-if="item.status === 'exceeded'" class="text-[10px] text-destructive">!</span>
             </div>
           </div>
 
-          <!-- Barra de progresso -->
           <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
             <div
               class="h-full rounded-full transition-all duration-700"
@@ -341,6 +375,49 @@ const totalBarColor = computed(() => {
           Adicionar categoria
         </button>
       </div>
+
+      <!-- Seção: Metas (read-only) -->
+      <template v-if="hasGoalsItems">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
+            Metas
+          </p>
+          <button
+            type="button"
+            class="text-[12px] text-primary/70 hover:text-primary transition-colors"
+            @click="router.push({ name: ROUTES.FINANCE_GOALS })"
+          >
+            Ver metas →
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <div
+            v-for="goalItem in budget.goals_items"
+            :key="goalItem.id"
+            class="bg-card border border-border rounded-lg px-4 py-3 flex items-center gap-3"
+          >
+            <span
+              class="size-10 rounded-xl flex items-center justify-center shrink-0"
+              :style="{ background: (goalItem.color ?? '#00C896') + '20' }"
+            >
+              <Flag :size="20" :style="{ color: goalItem.color ?? '#00C896' }" />
+            </span>
+
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-foreground truncate">{{ goalItem.name }}</p>
+              <p class="text-[12px] text-muted-foreground/50 tabular-nums mt-0.5">
+                {{ formatCurrency(goalItem.amount) }} / mês
+              </p>
+            </div>
+
+            <p class="text-[13px] font-semibold tabular-nums text-muted-foreground shrink-0">
+              {{ goalItem.percentage.toFixed(1) }}%
+            </p>
+          </div>
+        </div>
+      </template>
+
     </template>
 
   </AppPageContainer>
