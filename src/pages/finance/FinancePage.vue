@@ -755,7 +755,7 @@ onMounted(async () => {
         class="flex items-center gap-0.5 font-medium tabular-nums"
         :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
       >
-        {{ expenseDelta <= 0 ? '↘' : '↗' }}
+        {{ expenseDelta <= 0 ? '↓' : '↑' }}
         {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
       </span>
     </div>
@@ -772,12 +772,12 @@ onMounted(async () => {
         </div>
 
         <!-- Transactions — Lovable-style self-contained container -->
-        <div class="bg-card border border-border rounded-md overflow-hidden">
+        <div class="bg-card border border-border rounded-lg overflow-hidden">
 
           <!-- Header row: title + month nav + search -->
           <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
             <template v-if="!txSearchOpen">
-              <h2 class="text-sm font-semibold flex items-center gap-2">
+              <h2 class="text-[14px] font-semibold flex items-center gap-2">
                 Transações
                 <!-- "X de Y" counter when paginated -->
                 <span

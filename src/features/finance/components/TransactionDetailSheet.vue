@@ -152,7 +152,7 @@ const amountClass = computed(() => {
 
           <div class="text-center">
             <p class="text-[15px] font-semibold text-foreground leading-snug">{{ transaction.description }}</p>
-            <p class="text-3xl font-bold tabular-nums mt-1.5 leading-none" :class="amountClass">
+            <p class="text-[30px] font-bold tabular-nums mt-1.5 leading-none" :class="amountClass">
               <ArrowUp v-if="transaction.type === 'income'" :size="20" class="inline mr-0.5 opacity-70 align-middle" />
               <ArrowDown v-else-if="transaction.type === 'expense'" :size="20" class="inline mr-0.5 opacity-70 align-middle" />
               {{ formatCurrency(transaction.amount) }}
@@ -164,7 +164,7 @@ const amountClass = computed(() => {
         <div class="mb-4">
           <!-- Date -->
           <div class="px-5 py-3 flex items-start justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Data</span>
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Data</span>
             <span class="text-[13px] font-medium text-foreground text-right capitalize">
               {{ formatTransactionDate(transaction.transaction_date) }}
             </span>
@@ -172,13 +172,13 @@ const amountClass = computed(() => {
 
           <!-- Category -->
           <div v-if="transaction.category" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Categoria</span>
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Categoria</span>
             <span class="text-[13px] font-medium text-foreground text-right">{{ transaction.category.name }}</span>
           </div>
 
           <!-- Account / Card -->
           <div v-if="transaction.account || transaction.card" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
             <span class="text-[13px] font-medium text-foreground text-right">
               {{ transaction.account?.name ?? transaction.card?.name }}
             </span>
@@ -186,7 +186,7 @@ const amountClass = computed(() => {
 
           <!-- Status -->
           <div class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Status</span>
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Status</span>
             <span
               class="inline-flex items-center gap-1 text-[13px] font-medium"
               :class="transaction.status === 'pending' ? 'text-warning' : 'text-success'"
@@ -198,7 +198,7 @@ const amountClass = computed(() => {
 
           <!-- Fix indicator with frequency -->
           <div v-if="transaction.is_recurring" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Tipo</span>
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Tipo</span>
             <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
               <Repeat :size="12" />
               Fixa
@@ -217,7 +217,7 @@ const amountClass = computed(() => {
             v-if="transaction.installment_number && transaction.total_installments"
             class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30"
           >
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-wider shrink-0">Parcela</span>
+            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Parcela</span>
             <span class="text-[13px] font-semibold tabular-nums text-right text-foreground">
               {{ transaction.installment_number }} de {{ transaction.total_installments }}
             </span>
@@ -225,13 +225,13 @@ const amountClass = computed(() => {
 
           <!-- Notes -->
           <div v-if="transaction.notes" class="px-5 py-3 border-b border-border/30">
-            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-wider mb-1.5">Observações</p>
+            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-widest mb-1.5">Observações</p>
             <p class="text-[13px] text-foreground leading-relaxed">{{ transaction.notes }}</p>
           </div>
 
           <!-- Tags -->
           <div v-if="transaction.tags && transaction.tags.length > 0" class="px-5 py-3">
-            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-wider mb-2">Tags</p>
+            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-widest mb-2">Tags</p>
             <div class="flex flex-wrap gap-1.5">
               <span
                 v-for="tag in transaction.tags"

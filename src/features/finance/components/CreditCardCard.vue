@@ -184,14 +184,14 @@ const limitBarClass = computed(() => {
           </span>
         </div>
         <!-- Utilization bar -->
-        <div class="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+        <div class="h-2 bg-muted/60 rounded-full overflow-hidden">
           <div
             class="h-full rounded-full transition-all"
             :class="limitBarClass"
             :style="{ width: `${utilPct}%` }"
           />
         </div>
-        <p class="text-[10px] text-muted-foreground/40 mt-1 tabular-nums">
+        <p class="text-[10px] text-muted-foreground/50 mt-1 tabular-nums">
           {{ utilPct }}% do limite
         </p>
       </div>

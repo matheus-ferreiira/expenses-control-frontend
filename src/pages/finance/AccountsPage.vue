@@ -108,7 +108,7 @@ onMounted(async () => {
           Finanças
         </p>
         <div class="flex items-center gap-2 mb-1.5">
-          <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none">
+          <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none">
             Contas
           </h1>
           <!-- Archived badge — draws attention when there are archived accounts -->
@@ -119,7 +119,7 @@ onMounted(async () => {
             {{ store.archivedAccounts.length }} arquivada{{ store.archivedAccounts.length !== 1 ? 's' : '' }}
           </span>
         </div>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-[12px] text-muted-foreground">
           <span v-if="!loading">Total: {{ formatCurrency(totalBalance) }} · </span>
           {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
         </p>

@@ -96,7 +96,7 @@ const previewDue = computed(() => {
       </div>
 
       <!-- Scrollable form body -->
-      <div class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+      <div class="flex-1 overflow-y-auto px-4 py-5 space-y-5">
 
         <!-- Card preview -->
         <div class="relative w-full aspect-[1.586] rounded-xl p-5 overflow-hidden bg-card border border-border">
@@ -119,11 +119,11 @@ const previewDue = computed(() => {
 
           <div class="flex items-end justify-between">
             <div>
-              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Limite</p>
+              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-widest">Limite</p>
               <p class="text-[13px] font-bold tabular-nums text-foreground">{{ previewLimit }}</p>
             </div>
             <div class="text-right">
-              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Vence dia</p>
+              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-widest">Vence dia</p>
               <p class="text-[13px] font-bold text-foreground">{{ previewDue }}</p>
             </div>
           </div>

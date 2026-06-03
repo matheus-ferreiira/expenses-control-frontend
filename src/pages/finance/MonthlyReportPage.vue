@@ -202,15 +202,15 @@ onMounted(() => {
   <AppPageContainer>
     <div class="pb-20">
     <!-- Page header -->
-    <div class="flex items-start justify-between mb-6">
+    <div class="flex items-start justify-between mb-4">
       <div>
         <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
           Finanças
         </p>
-        <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
+        <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Relatório mensal
         </h1>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-[12px] text-muted-foreground">
           Resumo de receitas, despesas e categorias do mês.
         </p>
       </div>
@@ -290,15 +290,15 @@ onMounted(() => {
       <div class="rounded-lg border border-border bg-card p-4 mb-4">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
+            <p class="text-[10px] text-muted-foreground/70 uppercase tracking-widest">Receitas</p>
             <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(report.income) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
+            <p class="text-[10px] text-muted-foreground/70 uppercase tracking-widest">Despesas</p>
             <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(report.expenses) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo</p>
+            <p class="text-[10px] text-muted-foreground/70 uppercase tracking-widest">Saldo</p>
             <p
               class="text-[18px] font-semibold tabular-nums mt-1"
               :class="report.balance >= 0 ? 'text-success' : 'text-destructive'"

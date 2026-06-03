@@ -139,7 +139,7 @@ const isTruncated = computed(() =>
       </div>
 
       <!-- Transactions -->
-      <ul class="divide-y divide-border/20">
+      <ul class="divide-y divide-border/30">
         <TransactionCard
           v-for="t in group.transactions"
           :key="t.id"

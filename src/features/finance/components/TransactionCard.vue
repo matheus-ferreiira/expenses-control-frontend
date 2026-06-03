@@ -123,7 +123,7 @@ onUnmounted(() => {
     <!-- ── Long press action row ──────────────────────────────────────────── -->
     <div
       v-if="longPressActive"
-      class="flex items-center gap-2 px-4 py-2.5 animate-in fade-in duration-150"
+      class="flex items-center gap-2 px-4 py-2.5 animate-in fade-in duration-150 transition-all"
     >
       <button
         v-if="isPending"
@@ -200,7 +200,7 @@ onUnmounted(() => {
         <!-- Title row -->
         <div class="flex items-center gap-1.5">
           <!-- Amber dot — pending indicator -->
-          <span v-if="isPending" class="w-1.5 h-1.5 rounded-full bg-warning shrink-0" />
+          <span v-if="isPending" class="w-2 h-2 rounded-full bg-warning shrink-0" />
           <p class="text-[14px] font-medium text-foreground leading-tight truncate">
             {{ transaction.description }}
           </p>

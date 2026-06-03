@@ -905,7 +905,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 placeholder="Detalhes extras, referência, contexto..."
                 class="resize-none h-20 text-[13px] rounded-lg pr-12 placeholder:text-muted-foreground/40 outline-none transition-colors bg-card border border-border"
               />
-              <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/30 tabular-nums">
+              <span class="absolute bottom-2.5 right-3 text-[10px] text-muted-foreground/40 tabular-nums">
                 {{ form.notes?.length ?? 0 }}/500
               </span>
             </div>

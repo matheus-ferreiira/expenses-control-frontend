@@ -244,7 +244,7 @@ function balanceColor(v: number): string {
           class="font-semibold tabular-nums"
           :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
         >
-          {{ expenseDelta <= 0 ? '↘' : '↗' }}
+          {{ expenseDelta <= 0 ? '↓' : '↑' }}
           {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
         </span>
       </div>
