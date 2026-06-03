@@ -151,7 +151,7 @@ async function submit() {
         </div>
 
         <AppFormField label="Nome" :error="errors.name" required>
-          <Input v-model="form.name" placeholder="Ex: Itaú Corrente" class="h-10 bg-card border-border/60" />
+          <Input v-model="form.name" placeholder="Ex: Itaú Corrente" class="w-full h-10 rounded-lg text-[13px] bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
         </AppFormField>
 
         <!-- Type selector -->
@@ -175,7 +175,7 @@ async function submit() {
         </div>
 
         <AppFormField label="Saldo inicial (R$)" :error="errors.balance">
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
+          <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
             <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
             <input
               ref="balanceInputRef"

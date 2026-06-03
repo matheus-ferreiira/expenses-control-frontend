@@ -157,11 +157,11 @@ const previewDue = computed(() => {
         </div>
 
         <AppFormField label="Nome" :error="errors.name" required>
-          <Input v-model="form.name" placeholder="Ex: Nubank Platinum" class="h-10 bg-card border-border/60" />
+          <Input v-model="form.name" placeholder="Ex: Nubank Platinum" class="w-full h-10 rounded-lg text-[13px] bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
         </AppFormField>
 
         <AppFormField label="Limite (R$)" :error="errors.limit_amount" required>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
+          <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
             <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
             <input
               ref="limitInputRef"
@@ -177,10 +177,10 @@ const previewDue = computed(() => {
 
         <div class="grid grid-cols-2 gap-3">
           <AppFormField label="Fecha dia" :error="errors.closing_day" required>
-            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="h-10 bg-card border-border/60 text-center" />
+            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="w-full h-10 rounded-lg text-[13px] text-center bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
           </AppFormField>
           <AppFormField label="Vence dia" :error="errors.due_day" required>
-            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="h-10 bg-card border-border/60 text-center" />
+            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="w-full h-10 rounded-lg text-[13px] text-center bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
           </AppFormField>
         </div>
 
