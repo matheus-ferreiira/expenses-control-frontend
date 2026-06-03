@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CalendarClock, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CalendarClock, CheckCircle2, AlertTriangle, PieChart, Flag } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import TransactionDetailSheet from '@/features/finance/components/TransactionDet
 import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
+import { ROUTES } from '@/constants/routes'
 import { useAuthStore } from '@/stores/auth'
 import { financeApi } from '@/services/api/finance'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
@@ -473,7 +474,15 @@ async function confirmDelete() {
 }
 
 onMounted(async () => {
-  await Promise.all([store.fetchAll(), loadTransactions(), loadCurrentMonthSummary(), loadPrevMonthReport()])
+  const now = new Date()
+  await Promise.all([
+    store.fetchAll(),
+    loadTransactions(),
+    loadCurrentMonthSummary(),
+    loadPrevMonthReport(),
+    store.fetchBudget(now.getMonth() + 1, now.getFullYear()),
+    store.fetchGoals(),
+  ])
 })
 </script>
 
@@ -1106,6 +1115,140 @@ onMounted(async () => {
                   Limite {{ formatCurrency(card.limit_amount) }} · Vence dia {{ card.due_day }}
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orçamento do mês -->
+        <div class="bg-card border border-border rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[16px] font-semibold text-foreground">Orçamento do mês</h2>
+            <RouterLink
+              :to="{ name: ROUTES.FINANCE_BUDGET }"
+              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
+            >
+              Ver tudo →
+            </RouterLink>
+          </div>
+
+          <!-- Loading -->
+          <div v-if="store.loadingBudget" class="space-y-2">
+            <div class="h-3 w-full rounded bg-muted/60 animate-pulse" />
+            <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
+          </div>
+
+          <!-- Sem orçamento -->
+          <div v-else-if="!store.currentBudget" class="flex flex-col items-center gap-2 py-4">
+            <PieChart :size="20" class="text-muted-foreground/30" />
+            <p class="text-[12px] text-muted-foreground/50">Configure seu orçamento mensal</p>
+            <RouterLink
+              :to="{ name: ROUTES.FINANCE_BUDGET }"
+              class="text-[12px] text-primary/70 hover:text-primary transition-colors"
+            >
+              Configurar →
+            </RouterLink>
+          </div>
+
+          <!-- Com orçamento -->
+          <template v-else>
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11px] text-muted-foreground/50 tabular-nums">
+                {{ formatCurrency(store.currentBudget.summary.total_spent) }} de
+                {{ formatCurrency(store.currentBudget.summary.total_budgeted) }}
+              </p>
+              <p class="text-[11px] text-muted-foreground/60 tabular-nums">
+                {{ Math.round((store.currentBudget.summary.total_spent / Math.max(1, store.currentBudget.summary.total_budgeted)) * 100) }}%
+              </p>
+            </div>
+            <div class="h-1 rounded-full bg-muted/30 overflow-hidden mb-3">
+              <div
+                class="h-full rounded-full transition-all duration-700"
+                :class="store.currentBudget.summary.total_spent >= store.currentBudget.summary.total_budgeted ? 'bg-destructive' : store.currentBudget.summary.total_spent / store.currentBudget.summary.total_budgeted >= 0.7 ? 'bg-warning' : 'bg-primary'"
+                :style="{ width: `${Math.min(100, Math.round((store.currentBudget.summary.total_spent / Math.max(1, store.currentBudget.summary.total_budgeted)) * 100))}%` }"
+              />
+            </div>
+
+            <!-- Top 3 categorias -->
+            <div class="space-y-2.5">
+              <div
+                v-for="item in store.currentBudget.items.slice(0, 3).sort((a, b) => b.spent_percentage - a.spent_percentage)"
+                :key="item.category_id"
+                class="flex items-center gap-2"
+              >
+                <span
+                  class="size-2 rounded-full shrink-0"
+                  :style="{ background: item.category_color ?? '#888' }"
+                />
+                <span class="text-[12px] text-foreground/80 flex-1 truncate">{{ item.category_name }}</span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <div class="w-14 h-1 rounded-full bg-muted/30 overflow-hidden">
+                    <div
+                      class="h-full rounded-full"
+                      :class="item.status === 'exceeded' ? 'bg-destructive' : item.status === 'warning' ? 'bg-warning' : 'bg-primary'"
+                      :style="{ width: `${Math.min(100, item.spent_percentage)}%` }"
+                    />
+                  </div>
+                  <span class="text-[11px] text-muted-foreground/50 tabular-nums w-7 text-right">{{ item.spent_percentage.toFixed(0) }}%</span>
+                  <span v-if="item.status === 'warning' || item.status === 'exceeded'" class="text-warning text-[10px]">⚠</span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Metas -->
+        <div class="bg-card border border-border rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[16px] font-semibold text-foreground">Metas</h2>
+            <RouterLink
+              :to="{ name: ROUTES.FINANCE_GOALS }"
+              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
+            >
+              Ver todas →
+            </RouterLink>
+          </div>
+
+          <!-- Loading -->
+          <div v-if="store.loadingGoals" class="space-y-3">
+            <div v-for="i in 2" :key="i" class="space-y-1.5">
+              <div class="h-3 w-28 rounded bg-muted/60 animate-pulse" />
+              <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
+            </div>
+          </div>
+
+          <!-- Sem metas -->
+          <div v-else-if="store.goals.filter(g => g.status === 'active').length === 0" class="flex flex-col items-center gap-2 py-4">
+            <Flag :size="20" class="text-muted-foreground/30" />
+            <p class="text-[12px] text-muted-foreground/50">Nenhuma meta ativa</p>
+            <RouterLink
+              :to="{ name: ROUTES.FINANCE_GOALS }"
+              class="text-[12px] text-primary/70 hover:text-primary transition-colors"
+            >
+              Criar meta →
+            </RouterLink>
+          </div>
+
+          <!-- Lista compacta (max 3) -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="goal in store.goals.filter(g => g.status === 'active').slice(0, 3)"
+              :key="goal.id"
+            >
+              <div class="flex items-center justify-between mb-1">
+                <p class="text-[13px] font-medium text-foreground truncate max-w-[60%]">{{ goal.name }}</p>
+                <p class="text-[11px] text-muted-foreground/50 tabular-nums text-right">
+                  {{ formatCurrency(goal.current_amount) }} / {{ formatCurrency(goal.target_amount) }}
+                </p>
+              </div>
+              <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-700"
+                  :style="{ width: `${Math.min(100, goal.progress_percentage)}%`, background: goal.color ?? 'hsl(var(--primary))' }"
+                />
+              </div>
+              <p class="text-[11px] text-muted-foreground/40 mt-0.5 tabular-nums">
+                {{ goal.progress_percentage.toFixed(0) }}% · faltam {{ formatCurrency(goal.remaining) }}
+              </p>
             </div>
           </div>
         </div>
