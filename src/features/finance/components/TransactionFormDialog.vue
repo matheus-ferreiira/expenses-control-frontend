@@ -511,33 +511,33 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
               Data
             </p>
-            <div class="flex gap-1.5 mb-2">
+            <div class="flex gap-2 mb-2">
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
+                class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                 :class="dateShortcut === 'today'
-                  ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                  : 'bg-card border-border text-muted-foreground'"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                 @click="form.transaction_date = todayStr"
               >
                 Hoje
               </button>
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
+                class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                 :class="dateShortcut === 'yesterday'
-                  ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                  : 'bg-card border-border text-muted-foreground'"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                 @click="form.transaction_date = yesterdayStr"
               >
                 Ontem
               </button>
               <button
                 type="button"
-                class="h-8 px-3 rounded-md text-[11px] font-medium border transition-all"
+                class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
                 :class="dateShortcut === 'custom'
-                  ? 'bg-primary/12 border border-primary/30 text-primary font-medium'
-                  : 'bg-card border-border text-muted-foreground'"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                 @click="form.transaction_date = dateShortcut === 'custom' ? form.transaction_date : ''"
               >
                 Personalizado
@@ -569,7 +569,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.account_id === acc.id ? 'bg-primary/10 border border-primary/30' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
+                  :class="form.account_id === acc.id ? 'bg-primary/15 border border-primary/50' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -603,7 +603,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.account_id"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.destination_account_id === acc.id ? 'bg-primary/10 border border-primary/30' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
+                  :class="form.destination_account_id === acc.id ? 'bg-primary/15 border border-primary/50' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -637,7 +637,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 :key="acc.id"
                 type="button"
                 class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-                :class="form.account_id === acc.id ? 'bg-primary/10 border border-primary/30' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
+                :class="form.account_id === acc.id ? 'bg-primary/15 border border-primary/50' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span
