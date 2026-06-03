@@ -3,11 +3,17 @@ import { API_ENDPOINTS } from '@/constants/api'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
   BankAccount,
+  Budget,
   CreditCard,
+  CreateBudgetDTO,
+  CreateGoalDTO,
+  FinanceGoal,
+  FinanceSummary,
   Transaction,
   TransactionCategory,
   TransactionTag,
-  FinanceSummary,
+  UpdateBudgetDTO,
+  UpdateGoalDTO,
   CreateTransactionPayload,
   UpdateTransactionPayload,
   TransactionFilters,
@@ -146,6 +152,47 @@ export const financeApi = {
       client
         .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.TAG_DETAIL(id))
         .then(unwrap),
+  },
+
+  budgets: {
+    get: (month: number, year: number) =>
+      client
+        .get<ApiResponse<Budget | null>>(API_ENDPOINTS.FINANCE.BUDGETS, { params: { month, year } })
+        .then(unwrap),
+
+    getPrevious: (month: number, year: number) =>
+      client
+        .get<ApiResponse<Budget | null>>(API_ENDPOINTS.FINANCE.BUDGET_PREVIOUS, { params: { month, year } })
+        .then(unwrap),
+
+    create: (data: CreateBudgetDTO) =>
+      client.post<ApiResponse<Budget>>(API_ENDPOINTS.FINANCE.BUDGETS, data).then(unwrap),
+
+    update: (id: string, data: UpdateBudgetDTO) =>
+      client.put<ApiResponse<Budget>>(API_ENDPOINTS.FINANCE.BUDGET_DETAIL(id), data).then(unwrap),
+
+    delete: (id: string) =>
+      client.delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.BUDGET_DETAIL(id)).then(unwrap),
+  },
+
+  goals: {
+    list: () =>
+      client.get<ApiResponse<FinanceGoal[]>>(API_ENDPOINTS.FINANCE.FINANCE_GOALS).then(unwrap),
+
+    create: (data: CreateGoalDTO) =>
+      client.post<ApiResponse<FinanceGoal & { create_recurring_transaction: boolean }>>(
+        API_ENDPOINTS.FINANCE.FINANCE_GOALS,
+        data,
+      ).then(unwrap),
+
+    update: (id: string, data: UpdateGoalDTO) =>
+      client.put<ApiResponse<FinanceGoal>>(API_ENDPOINTS.FINANCE.FINANCE_GOAL_DETAIL(id), data).then(unwrap),
+
+    complete: (id: string) =>
+      client.post<ApiResponse<FinanceGoal>>(API_ENDPOINTS.FINANCE.FINANCE_GOAL_COMPLETE(id), {}).then(unwrap),
+
+    delete: (id: string) =>
+      client.delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.FINANCE_GOAL_DETAIL(id)).then(unwrap),
   },
 
   getHistoricalBalance: (year: number, month: number) =>

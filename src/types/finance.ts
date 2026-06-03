@@ -92,6 +92,97 @@ export interface Transaction {
   updated_at: string
 }
 
+// ── Budget ─────────────────────────────────────────────────────────────────
+
+export type BudgetItemStatus = 'on_track' | 'warning' | 'exceeded'
+
+export interface BudgetItem {
+  id: string
+  category_id: string
+  category_name: string | null
+  category_color: string | null
+  category_icon: string | null
+  amount: number
+  percentage: number
+  spent: number
+  spent_percentage: number
+  remaining: number
+  status: BudgetItemStatus
+}
+
+export interface BudgetSummary {
+  base_amount: number
+  total_budgeted: number
+  total_budgeted_percentage: number
+  total_spent: number
+  free_amount: number
+  free_percentage: number
+}
+
+export interface Budget {
+  id: string
+  month: number
+  year: number
+  base_amount: number
+  is_template: boolean
+  summary: BudgetSummary
+  items: BudgetItem[]
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateBudgetDTO {
+  month: number
+  year: number
+  base_amount: number
+  is_template?: boolean
+  items?: Array<{ category_id: string; amount: number; percentage?: number }>
+}
+
+export interface UpdateBudgetDTO {
+  base_amount?: number
+  is_template?: boolean
+  items?: Array<{ category_id: string; amount: number; percentage?: number }>
+}
+
+// ── Finance Goals ──────────────────────────────────────────────────────────
+
+export type FinanceGoalStatus = 'active' | 'completed' | 'paused'
+
+export interface FinanceGoal {
+  id: string
+  name: string
+  target_amount: number
+  monthly_contribution: number
+  deadline: string | null
+  color: string | null
+  icon: string | null
+  bank_account_id: string | null
+  bank_account: { id: string; name: string } | null
+  status: FinanceGoalStatus
+  current_amount: number
+  progress_percentage: number
+  remaining: number
+  months_remaining: number | null
+  on_track: boolean | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateGoalDTO {
+  name: string
+  target_amount: number
+  monthly_contribution?: number
+  deadline?: string | null
+  color?: string | null
+  icon?: string | null
+  bank_account_id?: string | null
+}
+
+export interface UpdateGoalDTO extends Partial<CreateGoalDTO> {
+  status?: FinanceGoalStatus
+}
+
 export interface FinanceSummary {
   total_income: number
   total_expenses: number

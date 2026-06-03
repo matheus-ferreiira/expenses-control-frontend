@@ -50,6 +50,12 @@ export const API_ENDPOINTS = {
     REPORTS_YEARLY: `${API_BASE}/finance/reports/yearly`,
     REPORTS_CASHFLOW: `${API_BASE}/finance/reports/cashflow`,
     REPORTS_BALANCE: `${API_BASE}/finance/reports/balance`,
+    BUDGETS: `${API_BASE}/finance/budgets`,
+    BUDGET_DETAIL: (id: string) => `${API_BASE}/finance/budgets/${id}`,
+    BUDGET_PREVIOUS: `${API_BASE}/finance/budgets/previous`,
+    FINANCE_GOALS: `${API_BASE}/finance/goals`,
+    FINANCE_GOAL_DETAIL: (id: string) => `${API_BASE}/finance/goals/${id}`,
+    FINANCE_GOAL_COMPLETE: (id: string) => `${API_BASE}/finance/goals/${id}/complete`,
   },
   REPORTS: {
     HABITS_LOG_COUNT: `${API_BASE}/reports/habits-log-count`,

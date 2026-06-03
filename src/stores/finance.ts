@@ -3,11 +3,17 @@ import { defineStore } from 'pinia'
 import { financeApi } from '@/services/api/finance'
 import type {
   BankAccount,
+  Budget,
+  CreateBudgetDTO,
+  CreateGoalDTO,
   CreditCard,
+  FinanceGoal,
   Transaction,
   TransactionCategory,
   TransactionTag,
   TransactionFilters,
+  UpdateBudgetDTO,
+  UpdateGoalDTO,
   CreateTransactionPayload,
   UpdateTransactionPayload,
 } from '@/types/finance'
@@ -32,6 +38,10 @@ export const useFinanceStore = defineStore('finance', () => {
   const loadingTransactions = ref(false)
   const loadingCategories = ref(false)
   const loadingTags = ref(false)
+  const currentBudget = ref<Budget | null>(null)
+  const loadingBudget = ref(false)
+  const goals = ref<FinanceGoal[]>([])
+  const loadingGoals = ref(false)
   const loading = computed(
     () =>
       loadingAccounts.value ||
@@ -327,6 +337,72 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  // ── Budget ───────────────────────────────────────────────────────────────
+
+  async function fetchBudget(month: number, year: number) {
+    loadingBudget.value = true
+    try {
+      currentBudget.value = await financeApi.budgets.get(month, year)
+    } catch {
+      currentBudget.value = null
+    } finally {
+      loadingBudget.value = false
+    }
+  }
+
+  async function createBudget(data: CreateBudgetDTO): Promise<Budget> {
+    const created = await financeApi.budgets.create(data)
+    currentBudget.value = created
+    return created
+  }
+
+  async function updateBudget(id: string, data: UpdateBudgetDTO): Promise<Budget> {
+    const updated = await financeApi.budgets.update(id, data)
+    currentBudget.value = updated
+    return updated
+  }
+
+  async function deleteBudget(id: string): Promise<void> {
+    await financeApi.budgets.delete(id)
+    currentBudget.value = null
+  }
+
+  // ── Finance Goals ─────────────────────────────────────────────────────────
+
+  async function fetchGoals() {
+    loadingGoals.value = true
+    try {
+      goals.value = await financeApi.goals.list()
+    } finally {
+      loadingGoals.value = false
+    }
+  }
+
+  async function createGoal(data: CreateGoalDTO): Promise<FinanceGoal & { create_recurring_transaction: boolean }> {
+    const created = await financeApi.goals.create(data)
+    goals.value.unshift(created)
+    return created
+  }
+
+  async function updateGoal(id: string, data: UpdateGoalDTO): Promise<FinanceGoal> {
+    const updated = await financeApi.goals.update(id, data)
+    const idx = goals.value.findIndex((g) => g.id === id)
+    if (idx !== -1) goals.value[idx] = updated
+    return updated
+  }
+
+  async function completeGoal(id: string): Promise<FinanceGoal> {
+    const updated = await financeApi.goals.complete(id)
+    const idx = goals.value.findIndex((g) => g.id === id)
+    if (idx !== -1) goals.value[idx] = updated
+    return updated
+  }
+
+  async function deleteGoal(id: string): Promise<void> {
+    await financeApi.goals.delete(id)
+    goals.value = goals.value.filter((g) => g.id !== id)
+  }
+
   function resetState(): void {
     accounts.value = []
     cards.value = []
@@ -334,11 +410,15 @@ export const useFinanceStore = defineStore('finance', () => {
     transactionsMeta.value = null
     categories.value = []
     tags.value = []
+    currentBudget.value = null
+    goals.value = []
     loadingAccounts.value = false
     loadingCards.value = false
     loadingTransactions.value = false
     loadingCategories.value = false
     loadingTags.value = false
+    loadingBudget.value = false
+    loadingGoals.value = false
     error.value = null
     _fetchTxVersion = 0
   }
@@ -378,6 +458,19 @@ export const useFinanceStore = defineStore('finance', () => {
     createCard,
     updateCard,
     deleteCard,
+    currentBudget,
+    loadingBudget,
+    fetchBudget,
+    createBudget,
+    updateBudget,
+    deleteBudget,
+    goals,
+    loadingGoals,
+    fetchGoals,
+    createGoal,
+    updateGoal,
+    completeGoal,
+    deleteGoal,
     resetState,
   }
 })
