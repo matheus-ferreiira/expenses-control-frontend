@@ -731,6 +731,21 @@ onMounted(async () => {
           </p>
         </div>
       </div>
+
+      <!-- Cashflow summary (mobile only — desktop has the full chart) -->
+      <div v-if="!store.loading" class="bg-card border border-border rounded-lg p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">Fluxo de caixa</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/70">Entrada</p>
+            <p class="text-[17px] font-semibold tabular-nums text-success mt-1">{{ formatCurrency(income) }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/70">Saída</p>
+            <p class="text-[17px] font-semibold tabular-nums text-destructive mt-1">{{ formatCurrency(expenses) }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Alert banner — category budget exceeded (desktop only — mobile uses status chip) -->
