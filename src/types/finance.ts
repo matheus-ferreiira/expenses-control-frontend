@@ -112,11 +112,25 @@ export interface BudgetItem {
 
 export interface BudgetSummary {
   base_amount: number
+  total_from_categories: number
+  total_from_goals: number
   total_budgeted: number
   total_budgeted_percentage: number
   total_spent: number
   free_amount: number
   free_percentage: number
+  categories_percentage: number
+  goals_percentage: number
+}
+
+export interface BudgetGoalItem {
+  id: string
+  name: string
+  color: string | null
+  icon: string | null
+  amount: number
+  percentage: number
+  type: 'goal'
 }
 
 export interface Budget {
@@ -127,6 +141,7 @@ export interface Budget {
   is_template: boolean
   summary: BudgetSummary
   items: BudgetItem[]
+  goals_items: BudgetGoalItem[]
   created_at: string
   updated_at: string
 }
@@ -196,6 +211,7 @@ export interface CreateTransactionPayload {
   /** Required when type=transfer — must differ from account_id */
   destination_account_id?: string
   card_id?: string
+  goal_id?: string
   type: TransactionType
   amount: number
   description: string

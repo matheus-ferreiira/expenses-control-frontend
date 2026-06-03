@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { ArrowLeft, Loader2, ChevronDown } from 'lucide-vue-next'
+import { ArrowLeft, Loader2, Check, Eye } from 'lucide-vue-next'
+import { DatePicker } from '@ui/date-picker'
 import { useToast } from '@/composables/useToast'
 import { useFinanceStore } from '@/stores/finance'
 import { formatCurrency } from '@/utils/currency'
+import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
 import type { FinanceGoal } from '@/types/finance'
 
 const PRESET_COLORS = [
@@ -12,7 +14,6 @@ const PRESET_COLORS = [
   '#1ABC9C', '#E74C3C', '#F39C12', '#3498DB', '#8E44AD',
   '#2ECC71', '#E67E22', '#D35400', '#16A085', '#2980B9',
 ]
-
 
 const props = defineProps<{
   open: boolean
@@ -36,8 +37,8 @@ const form = ref({
   name: '',
   target_amount_raw: '',
   contribution_raw: '',
-  deadline: '',
-  bank_account_id: '',
+  deadline: null as string | null,
+  bank_account_id: null as string | null,
   color: PRESET_COLORS[0]!,
 })
 
@@ -95,8 +96,8 @@ watch(
           name: props.goal.name,
           target_amount_raw: Number(props.goal.target_amount).toFixed(2).replace('.', ','),
           contribution_raw: Number(props.goal.monthly_contribution).toFixed(2).replace('.', ','),
-          deadline: props.goal.deadline ?? '',
-          bank_account_id: props.goal.bank_account_id ?? '',
+          deadline: props.goal.deadline ?? null,
+          bank_account_id: props.goal.bank_account_id ?? null,
           color: props.goal.color ?? PRESET_COLORS[0]!,
         }
         nextTick(() => {
@@ -116,8 +117,8 @@ watch(
           name: '',
           target_amount_raw: '',
           contribution_raw: '',
-          deadline: '',
-          bank_account_id: '',
+          deadline: null,
+          bank_account_id: null,
           color: PRESET_COLORS[0]!,
         }
         nextTick(() => {
@@ -246,44 +247,69 @@ async function submit() {
           </p>
         </div>
 
-        <!-- Prazo -->
+        <!-- Prazo — DatePicker customizado -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Prazo (opcional)
           </p>
-          <input
+          <DatePicker
             v-model="form.deadline"
-            type="date"
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60"
+            placeholder="Selecione uma data (opcional)"
           />
         </div>
 
-        <!-- Conta vinculada -->
+        <!-- Conta vinculada — botões compactos -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             Conta vinculada (opcional)
           </p>
-          <div class="relative">
-            <select
-              v-model="form.bank_account_id"
-              class="w-full h-10 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-              :class="!form.bank_account_id ? 'text-muted-foreground/50' : ''"
+          <div class="space-y-1.5">
+            <!-- Opção "sem conta" -->
+            <button
+              type="button"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
+              :class="!form.bank_account_id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
+              @click="form.bank_account_id = null"
             >
-              <option value="">Sem conta vinculada (apenas controle visual)</option>
-              <option
-                v-for="acc in store.activeAccounts"
-                :key="acc.id"
-                :value="acc.id"
+              <div class="w-8 h-8 rounded-lg bg-muted/40 flex items-center justify-center shrink-0">
+                <Eye :size="14" class="text-muted-foreground/60" aria-hidden="true" />
+              </div>
+              <div class="flex-1 text-left min-w-0">
+                <p class="text-[13px] font-medium text-foreground">Apenas controle visual</p>
+                <p class="text-[11px] text-muted-foreground/50">Sem conta vinculada</p>
+              </div>
+              <Check v-if="!form.bank_account_id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
+            </button>
+
+            <!-- Uma conta por botão -->
+            <button
+              v-for="acc in store.activeAccounts"
+              :key="acc.id"
+              type="button"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
+              :class="form.bank_account_id === acc.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
+              @click="form.bank_account_id = acc.id"
+            >
+              <span
+                class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold"
+                :style="{ background: acc.color ? acc.color + '26' : 'hsl(var(--muted))', color: acc.color ?? 'hsl(var(--muted-foreground))' }"
               >
-                {{ acc.name }} · {{ formatCurrency(acc.balance) }}
-              </option>
-            </select>
-            <ChevronDown
-              :size="14"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
-            />
+                {{ acc.name.charAt(0).toUpperCase() }}
+              </span>
+              <div class="flex-1 text-left min-w-0">
+                <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
+                <p class="text-[11px] text-muted-foreground/50 capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
+              </div>
+              <span
+                class="text-[13px] font-semibold tabular-nums shrink-0"
+                :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'"
+              >
+                {{ formatCurrency(acc.balance) }}
+              </span>
+              <Check v-if="form.bank_account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
+            </button>
           </div>
-          <p class="text-[11px] text-muted-foreground/50 mt-1">
+          <p class="text-[11px] text-muted-foreground/50 mt-1.5">
             Se vinculada, o progresso reflete o saldo atual da conta
           </p>
         </div>

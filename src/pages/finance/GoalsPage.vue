@@ -52,16 +52,18 @@ function onGoalCreated(goal: FinanceGoal, createRecurring: boolean) {
 async function confirmCreateRecurring() {
   if (!pendingGoalForRecurring.value) return
   const goal = pendingGoalForRecurring.value
+  const today = new Date().toISOString().slice(0, 10)
+  const firstAccount = store.activeAccounts[0]
   try {
     await store.createTransaction({
       description: goal.name,
       amount: goal.monthly_contribution,
       type: 'expense',
-      transaction_date: new Date().toISOString().slice(0, 10),
+      transaction_date: today,
       is_recurring: true,
       recurrence_config: { frequency: 'monthly', end_type: 'never' },
-      account_id: goal.bank_account_id ?? undefined,
-      // goal_id not on CreateTransactionPayload yet — for now skip
+      account_id: goal.bank_account_id ?? firstAccount?.id,
+      goal_id: goal.id,
     })
     toast.success('Transação fixa criada')
   } catch {
