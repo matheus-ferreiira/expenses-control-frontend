@@ -569,7 +569,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.account_id === acc.id ? 'bg-primary/15 border border-primary/50' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
+                  :class="form.account_id === acc.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -603,7 +603,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.account_id"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.destination_account_id === acc.id ? 'bg-primary/15 border border-primary/50' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
+                  :class="form.destination_account_id === acc.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -637,7 +637,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 :key="acc.id"
                 type="button"
                 class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-                :class="form.account_id === acc.id ? 'bg-primary/15 border border-primary/50' : 'bg-muted/20 border border-transparent hover:bg-muted/40'"
+                :class="form.account_id === acc.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
                 @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
               >
                 <span
