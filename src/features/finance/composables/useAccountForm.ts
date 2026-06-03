@@ -42,7 +42,7 @@ export function useAccountForm() {
   }
 
   const isFormValid = computed(
-    () => !!form.name.trim() && !isNaN(parseFloat(form.balance.replace(',', '.'))),
+    () => !!form.name.trim() && (form.balance === '' || !isNaN(parseFloat(form.balance.replace(',', '.')))),
   )
 
   function validate(): boolean {
@@ -52,7 +52,7 @@ export function useAccountForm() {
       errors.name = 'Nome é obrigatório'
       valid = false
     }
-    const bal = parseFloat(form.balance.replace(',', '.'))
+    const bal = form.balance === '' ? 0 : parseFloat(form.balance.replace(',', '.'))
     if (isNaN(bal)) {
       errors.balance = 'Saldo inválido'
       valid = false
