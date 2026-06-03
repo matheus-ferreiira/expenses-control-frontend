@@ -1,6 +1,7 @@
 // shadcn-vue components — added via: npx shadcn-vue@latest add <name>
 // Do not modify these files directly; override in src/components/shared/ wrappers.
 
+export * from './alert-dialog'
 export * from './avatar'
 export * from './calendar'
 export * from './date-picker'

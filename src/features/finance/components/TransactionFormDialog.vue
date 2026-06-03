@@ -496,7 +496,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           <!-- ── TÍTULO ────────────────────────────────────── -->
           <div>
             <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
-              Título
+              Título <span class="text-destructive">*</span>
             </p>
             <input
               v-model="form.description"

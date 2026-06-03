@@ -5,6 +5,10 @@ import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
 import { Skeleton } from '@ui/skeleton'
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
+} from '@ui/alert-dialog'
 import { Plus, Pencil, Trash2, Loader2, Tags, Tag } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { formatCurrency } from '@/utils/currency'
@@ -19,7 +23,8 @@ const formOpen = ref(false)
 const editingCategory = ref<TransactionCategory | null>(null)
 const defaultFormType = ref<'expense' | 'income'>('expense')
 const deletingId = ref<string | null>(null)
-const confirmDeleteId = ref<string | null>(null)
+const deleteDialogOpen = ref(false)
+const categoryToDelete = ref<TransactionCategory | null>(null)
 
 onMounted(async () => {
   if (!store.categories.length) {
@@ -50,17 +55,16 @@ function openEdit(cat: TransactionCategory) {
   formOpen.value = true
 }
 
-function requestDelete(id: string) {
-  confirmDeleteId.value = id
+function openDelete(category: TransactionCategory) {
+  categoryToDelete.value = category
+  deleteDialogOpen.value = true
 }
 
-function cancelDelete() {
-  confirmDeleteId.value = null
-}
-
-async function confirmDelete(id: string) {
+async function confirmDelete() {
+  if (!categoryToDelete.value) return
+  const id = categoryToDelete.value.id
   deletingId.value = id
-  confirmDeleteId.value = null
+  deleteDialogOpen.value = false
   try {
     await financeApi.categories.delete(id)
     store.categories = store.categories.filter((c) => c.id !== id)
@@ -69,6 +73,7 @@ async function confirmDelete(id: string) {
     toast.error('Erro ao remover categoria')
   } finally {
     deletingId.value = null
+    categoryToDelete.value = null
   }
 }
 </script>
@@ -158,76 +163,46 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in expenseCategories"
               :key="cat.id"
-              class="border-t border-border/30"
+              class="border-t border-border/30 flex items-center gap-3 px-4 h-[52px]"
             >
-              <!-- Confirm delete overlay -->
-              <template v-if="confirmDeleteId === cat.id">
-                <div class="flex items-center justify-between px-4 py-3.5 gap-3">
-                  <p class="text-[13px] text-foreground/80">Remover <strong>{{ cat.name }}</strong>?</p>
-                  <div class="flex gap-2 shrink-0">
-                    <button
-                      type="button"
-                      class="h-8 px-3 rounded-lg text-[12px] border border-border/60 text-muted-foreground hover:bg-muted transition-colors"
-                      @click="cancelDelete"
-                    >Cancelar</button>
-                    <button
-                      type="button"
-                      :disabled="deletingId === cat.id"
-                      class="h-8 px-3 rounded-lg text-[12px] font-semibold bg-destructive/15 text-destructive hover:bg-destructive/25 transition-colors"
-                      @click="confirmDelete(cat.id)"
-                    >
-                      <Loader2 v-if="deletingId === cat.id" :size="12" class="animate-spin" />
-                      <span v-else>Remover</span>
-                    </button>
-                  </div>
-                </div>
-              </template>
+              <span
+                class="size-8 rounded-lg flex items-center justify-center shrink-0"
+                :style="{ background: (cat.color ?? 'hsl(var(--destructive))') + '22', color: cat.color ?? 'hsl(var(--destructive))' }"
+              >
+                <component
+                  v-if="cat.icon && findIcon(cat.icon)"
+                  :is="findIcon(cat.icon)!.component"
+                  :size="15"
+                  :stroke-width="1.8"
+                  aria-hidden="true"
+                />
+                <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
+              </span>
 
-              <!-- Normal view -->
-              <template v-else>
-                <div class="flex items-center gap-3 px-4 h-[52px]">
-                  <span
-                    class="size-8 rounded-lg flex items-center justify-center shrink-0"
-                    :style="{ background: (cat.color ?? 'hsl(var(--destructive))') + '22', color: cat.color ?? 'hsl(var(--destructive))' }"
-                  >
-                    <component
-                      v-if="cat.icon && findIcon(cat.icon)"
-                      :is="findIcon(cat.icon)!.component"
-                      :size="15"
-                      :stroke-width="1.8"
-                    />
-                    <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
-                  </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
+              </div>
 
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
-                  </div>
+              <span v-if="cat.monthly_limit" class="text-[12px] text-muted-foreground shrink-0">
+                {{ formatCurrency(cat.monthly_limit) }}
+              </span>
 
-                  <span
-                    v-if="cat.monthly_limit"
-                    class="text-[12px] text-muted-foreground shrink-0"
-                  >
-                    {{ formatCurrency(cat.monthly_limit) }}
-                  </span>
-
-                  <button
-                    type="button"
-                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                    @click="openEdit(cat)"
-                  >
-                    <Pencil :size="14" />
-                  </button>
-                  <button
-                    type="button"
-                    :disabled="deletingId === cat.id"
-                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
-                    @click="requestDelete(cat.id)"
-                  >
-                    <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
-                    <Trash2 v-else :size="14" />
-                  </button>
-                </div>
-              </template>
+              <button
+                type="button"
+                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                @click="openEdit(cat)"
+              >
+                <Pencil :size="14" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                :disabled="deletingId === cat.id"
+                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
+                @click="openDelete(cat)"
+              >
+                <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
+                <Trash2 v-else :size="14" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </section>
@@ -262,76 +237,46 @@ async function confirmDelete(id: string) {
             <div
               v-for="cat in incomeCategories"
               :key="cat.id"
-              class="border-t border-border/30"
+              class="border-t border-border/30 flex items-center gap-3 px-4 h-[52px]"
             >
-              <!-- Confirm delete overlay -->
-              <template v-if="confirmDeleteId === cat.id">
-                <div class="flex items-center justify-between px-4 py-3.5 gap-3">
-                  <p class="text-[13px] text-foreground/80">Remover <strong>{{ cat.name }}</strong>?</p>
-                  <div class="flex gap-2 shrink-0">
-                    <button
-                      type="button"
-                      class="h-8 px-3 rounded-lg text-[12px] border border-border/60 text-muted-foreground hover:bg-muted transition-colors"
-                      @click="cancelDelete"
-                    >Cancelar</button>
-                    <button
-                      type="button"
-                      :disabled="deletingId === cat.id"
-                      class="h-8 px-3 rounded-lg text-[12px] font-semibold bg-destructive/15 text-destructive hover:bg-destructive/25 transition-colors"
-                      @click="confirmDelete(cat.id)"
-                    >
-                      <Loader2 v-if="deletingId === cat.id" :size="12" class="animate-spin" />
-                      <span v-else>Remover</span>
-                    </button>
-                  </div>
-                </div>
-              </template>
+              <span
+                class="size-8 rounded-lg flex items-center justify-center shrink-0"
+                :style="{ background: (cat.color ?? 'hsl(var(--success))') + '22', color: cat.color ?? 'hsl(var(--success))' }"
+              >
+                <component
+                  v-if="cat.icon && findIcon(cat.icon)"
+                  :is="findIcon(cat.icon)!.component"
+                  :size="15"
+                  :stroke-width="1.8"
+                  aria-hidden="true"
+                />
+                <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
+              </span>
 
-              <!-- Normal view -->
-              <template v-else>
-                <div class="flex items-center gap-3 px-4 h-[52px]">
-                  <span
-                    class="size-8 rounded-lg flex items-center justify-center shrink-0"
-                    :style="{ background: (cat.color ?? 'hsl(var(--success))') + '22', color: cat.color ?? 'hsl(var(--success))' }"
-                  >
-                    <component
-                      v-if="cat.icon && findIcon(cat.icon)"
-                      :is="findIcon(cat.icon)!.component"
-                      :size="15"
-                      :stroke-width="1.8"
-                    />
-                    <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
-                  </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
+              </div>
 
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
-                  </div>
+              <span v-if="cat.monthly_limit" class="text-[12px] text-muted-foreground shrink-0">
+                {{ formatCurrency(cat.monthly_limit) }}
+              </span>
 
-                  <span
-                    v-if="cat.monthly_limit"
-                    class="text-[12px] text-muted-foreground shrink-0"
-                  >
-                    {{ formatCurrency(cat.monthly_limit) }}
-                  </span>
-
-                  <button
-                    type="button"
-                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                    @click="openEdit(cat)"
-                  >
-                    <Pencil :size="14" />
-                  </button>
-                  <button
-                    type="button"
-                    :disabled="deletingId === cat.id"
-                    class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
-                    @click="requestDelete(cat.id)"
-                  >
-                    <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
-                    <Trash2 v-else :size="14" />
-                  </button>
-                </div>
-              </template>
+              <button
+                type="button"
+                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                @click="openEdit(cat)"
+              >
+                <Pencil :size="14" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                :disabled="deletingId === cat.id"
+                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
+                @click="openDelete(cat)"
+              >
+                <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
+                <Trash2 v-else :size="14" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </section>
@@ -346,5 +291,27 @@ async function confirmDelete(id: string) {
       :default-type="defaultFormType"
       @saved="() => {}"
     />
+
+    <!-- Delete confirmation dialog -->
+    <AlertDialog v-model:open="deleteDialogOpen">
+      <AlertDialogContent class="bg-card border-border">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Excluir categoria</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza que deseja excluir <strong class="text-foreground">{{ categoryToDelete?.name }}</strong>?
+            As transações vinculadas ficarão sem categoria.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            @click="confirmDelete"
+          >
+            Excluir
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </AppPageContainer>
 </template>

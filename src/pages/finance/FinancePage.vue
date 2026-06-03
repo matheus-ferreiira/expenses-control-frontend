@@ -748,12 +748,12 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Alert banner — category budget exceeded (desktop only — mobile uses status chip) -->
+    <!-- Alert banner — category budget exceeded -->
     <div
       v-if="exceededCategory && !store.loading"
-      class="hidden lg:flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-destructive/10 border border-destructive/20"
+      class="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-destructive/10 border border-destructive/20"
     >
-      <span class="text-destructive shrink-0">⚠</span>
+      <AlertTriangle :size="14" class="text-destructive shrink-0" aria-hidden="true" />
       <p class="text-[12px] text-destructive/90 font-medium leading-snug">
         <span class="font-semibold">{{ exceededCategory.name }}</span>
         ultrapassou a meta em {{ formatCurrency(exceededCategory.total - (exceededCategory.monthlyLimit ?? 0)) }}
@@ -964,12 +964,20 @@ onMounted(async () => {
         <div class="bg-card border border-border rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-[16px] font-semibold text-foreground">Contas</h2>
-            <RouterLink
-              :to="{ name: 'finance-accounts' }"
-              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
-            >
-              Ver todas →
-            </RouterLink>
+            <div class="flex items-center gap-3">
+              <RouterLink
+                :to="{ name: 'finance-accounts', query: { new: '1' } }"
+                class="text-[12px] text-primary/70 hover:text-primary transition-colors"
+              >
+                + Nova
+              </RouterLink>
+              <RouterLink
+                :to="{ name: 'finance-accounts' }"
+                class="text-[12px] text-primary hover:text-primary/80 transition-colors"
+              >
+                Ver todas →
+              </RouterLink>
+            </div>
           </div>
 
           <!-- Loading skeleton -->
@@ -985,9 +993,10 @@ onMounted(async () => {
           </div>
 
           <!-- Empty state -->
-          <p v-else-if="store.activeAccounts.length === 0" class="text-[12px] text-muted-foreground/60 py-2">
-            Nenhuma conta cadastrada
-          </p>
+          <div v-else-if="store.activeAccounts.length === 0" class="flex flex-col items-center py-6 gap-1">
+            <p class="text-[13px] text-muted-foreground/60">Nenhuma conta cadastrada</p>
+            <p class="text-[12px] text-muted-foreground/40">Adicione uma conta para acompanhar seu saldo</p>
+          </div>
 
           <!-- Account rows -->
           <div v-else>
@@ -1028,12 +1037,20 @@ onMounted(async () => {
         <div class="bg-card border border-border rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-[16px] font-semibold text-foreground">Cartões</h2>
-            <RouterLink
-              :to="{ name: 'finance-cards' }"
-              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
-            >
-              Ver todos →
-            </RouterLink>
+            <div class="flex items-center gap-3">
+              <RouterLink
+                :to="{ name: 'finance-cards', query: { new: '1' } }"
+                class="text-[12px] text-primary/70 hover:text-primary transition-colors"
+              >
+                + Nova
+              </RouterLink>
+              <RouterLink
+                :to="{ name: 'finance-cards' }"
+                class="text-[12px] text-primary hover:text-primary/80 transition-colors"
+              >
+                Ver todos →
+              </RouterLink>
+            </div>
           </div>
 
           <!-- Loading skeleton -->
@@ -1049,9 +1066,10 @@ onMounted(async () => {
           </div>
 
           <!-- Empty state -->
-          <p v-else-if="store.activeCards.length === 0" class="text-[12px] text-muted-foreground/60 py-2">
-            Nenhum cartão cadastrado
-          </p>
+          <div v-else-if="store.activeCards.length === 0" class="flex flex-col items-center py-6 gap-1">
+            <p class="text-[13px] text-muted-foreground/60">Nenhum cartão cadastrado</p>
+            <p class="text-[12px] text-muted-foreground/40">Adicione um cartão para acompanhar seus gastos</p>
+          </div>
 
           <!-- Card rows -->
           <div v-else>
