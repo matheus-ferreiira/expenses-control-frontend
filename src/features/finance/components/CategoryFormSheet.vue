@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { ArrowLeft, Loader2, CheckCircle, X } from 'lucide-vue-next'
 import CategoryColorPicker from './CategoryColorPicker.vue'
@@ -30,6 +30,31 @@ const type = ref<'expense' | 'income'>('expense')
 const color = ref(CATEGORY_PRESET_COLORS[0]!)
 const icon = ref('')
 const monthlyLimit = ref('')
+const limitInputRef = ref<HTMLInputElement | null>(null)
+
+function formatAmountDisplay(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return ''
+  const cents = parseInt(digits, 10)
+  return (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function onLimitInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  const digits = raw.replace(/\D/g, '')
+  monthlyLimit.value = digits ? (parseInt(digits, 10) / 100).toFixed(2).replace('.', ',') : ''
+  ;(e.target as HTMLInputElement).value = formatAmountDisplay(digits)
+}
+
+function onLimitFocus(e: Event) {
+  const input = e.target as HTMLInputElement
+  setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0)
+}
+
+function clearLimit() {
+  monthlyLimit.value = ''
+  if (limitInputRef.value) limitInputRef.value.value = ''
+}
 
 watch(
   () => props.open,
@@ -40,9 +65,11 @@ watch(
       type.value = props.category.type as 'expense' | 'income'
       color.value = props.category.color ?? CATEGORY_PRESET_COLORS[0]!
       icon.value = props.category.icon ?? ''
-      monthlyLimit.value = props.category.monthly_limit != null
-        ? String(props.category.monthly_limit)
-        : ''
+      if (props.category.monthly_limit != null) {
+        monthlyLimit.value = props.category.monthly_limit.toFixed(2).replace('.', ',')
+      } else {
+        monthlyLimit.value = ''
+      }
     } else {
       name.value = ''
       type.value = props.defaultType ?? 'expense'
@@ -50,6 +77,13 @@ watch(
       icon.value = ''
       monthlyLimit.value = ''
     }
+    nextTick(() => {
+      if (limitInputRef.value) {
+        limitInputRef.value.value = monthlyLimit.value
+          ? formatAmountDisplay(String(Math.round(parseFloat(monthlyLimit.value.replace(',', '.')) * 100)))
+          : ''
+      }
+    })
   },
 )
 
@@ -190,20 +224,22 @@ async function save() {
           <div class="flex items-center gap-2 h-12 px-4 rounded-lg bg-card border border-border/60 focus-within:border-primary transition-colors">
             <span class="text-[13px] text-muted-foreground shrink-0">R$</span>
             <input
-              v-model="monthlyLimit"
-              type="number"
-              min="0"
-              step="10"
-              placeholder="Sem meta"
-              class="flex-1 bg-transparent text-[13px] outline-none tabular-nums"
+              ref="limitInputRef"
+              type="text"
+              inputmode="numeric"
+              placeholder="0,00"
+              class="flex-1 bg-transparent text-[13px] outline-none tabular-nums placeholder:text-muted-foreground/40"
+              @input="onLimitInput"
+              @focus="onLimitFocus"
             />
             <button
               v-if="monthlyLimit"
               type="button"
+              aria-label="Remover meta"
               class="text-muted-foreground/40 hover:text-foreground transition-colors"
-              @click="monthlyLimit = ''"
+              @click="clearLimit"
             >
-              <X :size="13" />
+              <X :size="13" aria-hidden="true" />
             </button>
           </div>
         </div>

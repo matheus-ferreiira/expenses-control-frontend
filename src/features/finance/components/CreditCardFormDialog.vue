@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Input } from '@ui/input'
 import { Loader2, Wifi, ChevronDown, ArrowLeft } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
 import type { CreditCard } from '@/types/finance'
@@ -25,6 +24,27 @@ const store = useFinanceStore()
 const toast = useToast()
 const { form, errors, submitting, fromCard, reset, validate, toPayload } = useCreditCardForm()
 
+const limitInputRef = ref<HTMLInputElement | null>(null)
+
+function formatAmountDisplay(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return ''
+  const cents = parseInt(digits, 10)
+  return (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function onLimitInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  const digits = raw.replace(/\D/g, '')
+  form.limit_amount = digits ? (parseInt(digits, 10) / 100).toFixed(2).replace('.', ',') : ''
+  ;(e.target as HTMLInputElement).value = formatAmountDisplay(digits)
+}
+
+function onLimitFocus(e: Event) {
+  const input = e.target as HTMLInputElement
+  setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0)
+}
+
 watch(
   () => props.open,
   (isOpen) => {
@@ -32,6 +52,13 @@ watch(
       if (props.card) fromCard(props.card)
       else reset()
       if (!store.activeAccounts.length) store.fetchAccounts()
+      nextTick(() => {
+        if (limitInputRef.value) {
+          limitInputRef.value.value = form.limit_amount
+            ? formatAmountDisplay(String(Math.round(parseFloat(form.limit_amount.replace(',', '.')) * 100)))
+            : ''
+        }
+      })
     }
   },
 )
@@ -134,7 +161,18 @@ const previewDue = computed(() => {
         </AppFormField>
 
         <AppFormField label="Limite (R$)" :error="errors.limit_amount" required>
-          <Input v-model="form.limit_amount" inputmode="decimal" placeholder="0,00" class="h-10 bg-card border-border/60" />
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
+            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+            <input
+              ref="limitInputRef"
+              type="text"
+              inputmode="numeric"
+              placeholder="0,00"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              @input="onLimitInput"
+              @focus="onLimitFocus"
+            />
+          </div>
         </AppFormField>
 
         <div class="grid grid-cols-2 gap-3">

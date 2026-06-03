@@ -36,7 +36,7 @@ export function useCreditCardForm() {
 
   function fromCard(card: CreditCard) {
     form.name = card.name
-    form.limit_amount = card.limit_amount.toString()
+    form.limit_amount = card.limit_amount.toFixed(2).replace('.', ',')
     form.closing_day = card.closing_day.toString()
     form.due_day = card.due_day.toString()
     form.color = card.color

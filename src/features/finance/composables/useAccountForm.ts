@@ -18,7 +18,7 @@ export interface AccountFormErrors {
 const DEFAULTS: AccountFormData = {
   name: '',
   type: 'checking',
-  balance: '0',
+  balance: '',
   color: ACCOUNT_COLORS[0] ?? '#3b82f6',
 }
 
@@ -30,7 +30,7 @@ export function useAccountForm() {
   function fromAccount(account: BankAccount) {
     form.name = account.name
     form.type = account.type
-    form.balance = account.balance.toString()
+    form.balance = account.balance.toFixed(2).replace('.', ',')
     form.color = account.color
     Object.assign(errors, {})
   }
