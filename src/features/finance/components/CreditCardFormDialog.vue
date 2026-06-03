@@ -157,7 +157,12 @@ const previewDue = computed(() => {
         </div>
 
         <AppFormField label="Nome" :error="errors.name" required>
-          <Input v-model="form.name" placeholder="Ex: Nubank Platinum" class="w-full h-10 rounded-lg text-[13px] bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
+          <input
+            v-model="form.name"
+            type="text"
+            placeholder="Ex: Nubank Platinum"
+            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+          />
         </AppFormField>
 
         <AppFormField label="Limite (R$)" :error="errors.limit_amount" required>
