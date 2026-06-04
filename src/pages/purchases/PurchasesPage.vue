@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { ShoppingCart, Plus, Loader2, History, Trash2 } from 'lucide-vue-next'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@ui/alert-dialog'
 import { useShoppingSessionStore } from '@/stores/shoppingSessions'
 import { useShoppingSession } from '@/features/purchases/composables/useShoppingSession'
 import { formatCurrency } from '@/utils/currency'
@@ -8,6 +18,7 @@ import ShoppingSessionCard from '@/features/purchases/components/ShoppingSession
 import ShoppingSessionView from '@/features/purchases/components/ShoppingSessionView.vue'
 import FinishSessionSheet from '@/features/purchases/components/FinishSessionSheet.vue'
 import NewSessionDialog from '@/features/purchases/components/NewSessionDialog.vue'
+import ShoppingSessionDetailSheet from '@/features/purchases/components/ShoppingSessionDetailSheet.vue'
 
 const store = useShoppingSessionStore()
 
@@ -15,10 +26,17 @@ const {
   sessionViewOpen,
   finishSheetOpen,
   newSessionDialogOpen,
+  deleteConfirmOpen,
+  sessionToDelete,
+  detailSheetOpen,
+  selectedHistorySession,
   openSessionView,
   openFinishSheet,
   openNewSessionDialog,
-  handleDeleteSession,
+  requestDeleteSession,
+  confirmDeleteSession,
+  cancelDeleteSession,
+  openHistoryDetail,
 } = useShoppingSession()
 
 onMounted(() => store.fetchSessions())
@@ -58,7 +76,6 @@ function onFinishSessionSheet() {
           v-if="store.activeSession"
           class="bg-card border border-border rounded-xl overflow-hidden"
         >
-          <!-- Accent line -->
           <div class="h-0.5 bg-primary" />
 
           <div class="p-4">
@@ -74,20 +91,24 @@ function onFinishSessionSheet() {
               </div>
               <button
                 type="button"
-                class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-destructive transition-colors"
-                @click="handleDeleteSession(store.activeSession!.id)"
+                class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                @click="requestDeleteSession(store.activeSession!)"
               >
                 <Trash2 :size="14" />
               </button>
             </div>
 
-            <!-- Title + date -->
             <p class="text-[16px] font-semibold text-foreground">{{ store.activeSession.title }}</p>
 
-            <!-- Progress -->
             <div class="mt-2 flex items-center justify-between">
-              <span class="text-[12px] text-muted-foreground/70">
-                {{ store.activeSession.bought_count }} / {{ store.activeSession.items_count }} itens
+              <span class="text-[12px]">
+                <span
+                  v-if="store.activeSession.items_count > 0 && store.activeSession.bought_count === store.activeSession.items_count"
+                  class="text-primary font-semibold"
+                >✓ Tudo comprado!</span>
+                <span v-else class="text-muted-foreground/70">
+                  {{ store.activeSession.bought_count }} / {{ store.activeSession.items_count }} itens
+                </span>
               </span>
               <span
                 v-if="store.activeSession.suggested_total > 0"
@@ -97,8 +118,7 @@ function onFinishSessionSheet() {
               </span>
             </div>
 
-            <!-- Progress bar -->
-            <div class="h-1 rounded-full bg-muted/30 overflow-hidden mt-2">
+            <div class="h-1.5 rounded-full bg-muted/30 overflow-hidden mt-2">
               <div
                 class="h-full rounded-full bg-primary transition-all duration-500"
                 :style="{
@@ -109,7 +129,6 @@ function onFinishSessionSheet() {
               />
             </div>
 
-            <!-- Actions -->
             <div class="flex gap-2 mt-4">
               <button
                 type="button"
@@ -158,7 +177,6 @@ function onFinishSessionSheet() {
           </span>
         </div>
 
-        <!-- Empty history -->
         <div
           v-if="store.finishedSessions.length === 0"
           class="py-10 text-center"
@@ -166,13 +184,17 @@ function onFinishSessionSheet() {
           <p class="text-[13px] text-muted-foreground/40">Nenhuma compra finalizada ainda.</p>
         </div>
 
-        <!-- Session list -->
+        <!-- Clickable history cards -->
         <div v-else class="space-y-2">
-          <ShoppingSessionCard
+          <button
             v-for="session in store.finishedSessions"
             :key="session.id"
-            :session="session"
-          />
+            type="button"
+            class="w-full text-left hover:opacity-80 active:scale-[0.99] transition-all"
+            @click="openHistoryDetail(session)"
+          >
+            <ShoppingSessionCard :session="session" />
+          </button>
         </div>
       </div>
     </template>
@@ -196,4 +218,32 @@ function onFinishSessionSheet() {
 
   <!-- NewSessionDialog -->
   <NewSessionDialog v-model:open="newSessionDialogOpen" />
+
+  <!-- History detail sheet (BUG 5) -->
+  <ShoppingSessionDetailSheet
+    v-if="selectedHistorySession"
+    v-model:open="detailSheetOpen"
+    :session="selectedHistorySession"
+  />
+
+  <!-- Delete confirmation (BUG 4) -->
+  <AlertDialog v-model:open="deleteConfirmOpen">
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Excluir lista?</AlertDialogTitle>
+        <AlertDialogDescription>
+          A lista <strong>"{{ sessionToDelete?.title }}"</strong> será excluída permanentemente. Essa ação não pode ser desfeita.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel @click="cancelDeleteSession">Cancelar</AlertDialogCancel>
+        <AlertDialogAction
+          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          @click="confirmDeleteSession"
+        >
+          Excluir
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>

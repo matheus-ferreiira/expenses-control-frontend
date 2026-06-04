@@ -32,6 +32,21 @@ export const useShoppingItemStore = defineStore('shoppingItems', () => {
   }
 
   async function toggleBought(itemId: string, currentValue: boolean): Promise<void> {
+    // Optimistic update — flip state immediately for instant UI feedback
+    const active = sessionStore.activeSession
+    if (active) {
+      sessionStore.updateSessionItems(active.id, (s) => {
+        const idx = s.items.findIndex((i) => i.id === itemId)
+        if (idx !== -1) {
+          s.items[idx]!.is_bought = !currentValue
+          s.bought_count = s.items.filter((i) => i.is_bought).length
+          s.suggested_total = s.items
+            .filter((i) => i.is_bought && i.price !== null)
+            .reduce((sum, i) => sum + (i.price ?? 0), 0)
+        }
+      })
+    }
+    // Reconcile with server response
     await updateItem(itemId, { is_bought: !currentValue })
   }
 
