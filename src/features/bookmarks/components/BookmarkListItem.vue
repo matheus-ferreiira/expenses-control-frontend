@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { onClickOutside } from '@vueuse/core'
 import { Star, ExternalLink, Copy, Pencil, Trash2, MoreHorizontal } from 'lucide-vue-next'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@ui/dropdown-menu'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -21,12 +24,8 @@ const emit = defineEmits<{
 
 const store = useBookmarkStore()
 const toast = useToast()
-const menuOpen = ref(false)
 const deleteOpen = ref(false)
 const imgError = ref(false)
-const menuRef = ref<HTMLElement | null>(null)
-
-onClickOutside(menuRef, () => { menuOpen.value = false })
 
 function getDomain(url: string): string {
   try {
@@ -51,7 +50,6 @@ async function copyUrl() {
   } catch {
     toast.error('Erro ao copiar')
   }
-  menuOpen.value = false
 }
 
 async function handleToggleFavorite() {
@@ -69,16 +67,6 @@ async function handleDelete() {
   } catch {
     toast.error('Erro ao remover link')
   }
-}
-
-function openEditMenu() {
-  menuOpen.value = false
-  emit('edit', props.bookmark)
-}
-
-function openDeleteMenu() {
-  menuOpen.value = false
-  deleteOpen.value = true
 }
 </script>
 
@@ -149,44 +137,35 @@ function openDeleteMenu() {
         <ExternalLink :size="13" />
       </button>
 
-      <!-- More menu -->
-      <div ref="menuRef" class="relative">
-        <button
-          type="button"
-          class="size-7 grid place-items-center rounded text-muted-foreground/30 hover:text-foreground opacity-0 group-hover:opacity-100 transition-all duration-150"
-          @click="menuOpen = !menuOpen"
-        >
-          <MoreHorizontal :size="14" />
-        </button>
-
-        <div
-          v-if="menuOpen"
-          class="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-lg shadow-md py-1 min-w-[140px]"
-        >
+      <!-- More menu — DropdownMenu teleports outside overflow containers -->
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
           <button
-            class="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted/40 transition-colors"
-            @click="copyUrl"
+            type="button"
+            class="size-7 grid place-items-center rounded text-muted-foreground/30 hover:text-foreground opacity-0 group-hover:opacity-100 transition-all duration-150"
           >
-            <Copy :size="12" />
+            <MoreHorizontal :size="14" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" class="min-w-[148px]">
+          <DropdownMenuItem class="text-[12px] cursor-pointer" @click="copyUrl">
+            <Copy class="size-3.5" />
             Copiar URL
-          </button>
-          <button
-            class="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted/40 transition-colors"
-            @click="openEditMenu"
-          >
-            <Pencil :size="12" />
+          </DropdownMenuItem>
+          <DropdownMenuItem class="text-[12px] cursor-pointer" @click="emit('edit', bookmark)">
+            <Pencil class="size-3.5" />
             Editar
-          </button>
-          <div class="h-px bg-border/30 mx-2 my-1" />
-          <button
-            class="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-destructive hover:bg-destructive/5 transition-colors"
-            @click="openDeleteMenu"
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            class="text-[12px] cursor-pointer text-destructive focus:text-destructive"
+            @click="deleteOpen = true"
           >
-            <Trash2 :size="12" />
+            <Trash2 class="size-3.5" />
             Excluir
-          </button>
-        </div>
-      </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   </div>
 
