@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Loader2, Check, CreditCard, Landmark, Receipt, X } from 'lucide-vue-next'
+import { formatCurrency } from '@/utils/currency'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { findIcon } from '@/lib/icons'
 import { useShoppingSessionStore } from '@/stores/shoppingSessions'
@@ -52,6 +53,12 @@ const parsedTotal = computed(() => {
 })
 
 const canSubmit = computed(() => parsedTotal.value > 0)
+
+function applySuggestedTotal() {
+  if (props.session.suggested_total > 0) {
+    totalCents.value = Math.round(props.session.suggested_total * 100).toString()
+  }
+}
 
 // ── Expense categories ────────────────────────────────────────────────────────
 const expenseCategories = computed(() =>
@@ -140,16 +147,18 @@ async function submit() {
           <input
             inputmode="numeric"
             placeholder="0,00"
-            class="w-full h-11 px-3 rounded-xl bg-card border border-border focus:border-primary/60 outline-none text-[15px] font-semibold tabular-nums transition-colors"
+            class="w-full h-14 px-3 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[24px] font-bold tabular-nums text-center transition-colors"
             :value="formatTotalCents(totalCents)"
             @input="handleTotalInput"
           />
-          <p
+          <button
             v-if="session.suggested_total > 0"
-            class="text-[11px] text-muted-foreground/50 mt-1"
+            type="button"
+            class="text-[12px] text-muted-foreground/60 hover:text-primary transition-colors mt-1.5 block w-full text-center"
+            @click="applySuggestedTotal"
           >
-            Soma dos itens comprados com preço registrado
-          </p>
+            Soma dos itens com preço: {{ formatCurrency(session.suggested_total) }} — toque para usar
+          </button>
         </div>
 
         <!-- Toggle criar transação -->
@@ -192,15 +201,16 @@ async function submit() {
                 v-for="account in financeStore.activeAccounts"
                 :key="account.id"
                 type="button"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left"
-                :class="selectedAccountId === account.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left border"
+                :class="selectedAccountId === account.id ? 'border-primary bg-primary/10' : 'border-border/40 bg-muted/20 hover:bg-muted/35'"
                 @click="selectAccount(account.id)"
               >
                 <span
-                  class="size-7 rounded-lg grid place-items-center shrink-0"
-                  :style="{ backgroundColor: (account.color ?? '#888') + '25', color: account.color ?? 'hsl(var(--muted-foreground))' }"
+                  class="size-9 rounded-xl grid place-items-center shrink-0 transition-colors"
+                  :class="selectedAccountId === account.id ? 'bg-primary/20 text-primary' : ''"
+                  :style="selectedAccountId !== account.id ? { backgroundColor: (account.color ?? '#888') + '25', color: account.color ?? 'hsl(var(--muted-foreground))' } : {}"
                 >
-                  <Landmark :size="13" />
+                  <Landmark :size="14" />
                 </span>
                 <span class="flex-1 min-w-0">
                   <span class="block text-[13px] font-medium truncate">{{ account.name }}</span>
@@ -220,15 +230,16 @@ async function submit() {
                 v-for="card in financeStore.activeCards"
                 :key="card.id"
                 type="button"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left"
-                :class="selectedCardId === card.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left border"
+                :class="selectedCardId === card.id ? 'border-primary bg-primary/10' : 'border-border/40 bg-muted/20 hover:bg-muted/35'"
                 @click="selectCard(card.id)"
               >
                 <span
-                  class="size-7 rounded-lg grid place-items-center shrink-0"
-                  :style="{ backgroundColor: (card.color ?? '#888') + '25', color: card.color ?? 'hsl(var(--muted-foreground))' }"
+                  class="size-9 rounded-xl grid place-items-center shrink-0 transition-colors"
+                  :class="selectedCardId === card.id ? 'bg-primary/20 text-primary' : ''"
+                  :style="selectedCardId !== card.id ? { backgroundColor: (card.color ?? '#888') + '25', color: card.color ?? 'hsl(var(--muted-foreground))' } : {}"
                 >
-                  <CreditCard :size="13" />
+                  <CreditCard :size="14" />
                 </span>
                 <span class="text-[13px] font-medium truncate">{{ card.name }}</span>
               </button>
@@ -251,24 +262,24 @@ async function submit() {
                 Limpar
               </button>
             </div>
-            <div class="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto">
+            <div class="grid grid-cols-3 gap-2 max-h-[200px] overflow-y-auto">
               <button
                 v-for="cat in expenseCategories"
                 :key="cat.id"
                 type="button"
-                class="flex flex-col items-center transition-all active:scale-95"
+                class="flex flex-col items-center p-3 rounded-xl border transition-all active:scale-95 cursor-pointer"
+                :class="selectedCategoryId === cat.id ? 'border-primary bg-primary/10' : 'border-border/40 bg-muted/20'"
                 @click="selectedCategoryId = selectedCategoryId === cat.id ? null : cat.id"
               >
                 <span
-                  class="size-14 rounded-xl flex items-center justify-center transition-all"
-                  :style="selectedCategoryId === cat.id
-                    ? { background: cat.color + '30', outline: '1.5px solid ' + cat.color + '60' }
-                    : { background: cat.color + '18' }"
+                  class="size-12 rounded-xl flex items-center justify-center transition-all"
+                  :style="selectedCategoryId === cat.id ? {} : { background: cat.color + '18' }"
+                  :class="selectedCategoryId === cat.id ? 'bg-primary/10' : ''"
                 >
                   <component
                     v-if="cat.icon && findIcon(cat.icon)"
                     :is="findIcon(cat.icon)!.component"
-                    :size="24"
+                    :size="22"
                     :style="{ color: cat.color }"
                   />
                   <span
@@ -277,7 +288,7 @@ async function submit() {
                     :style="{ color: cat.color }"
                   >{{ cat.name.charAt(0) }}</span>
                 </span>
-                <span class="text-[11px] text-muted-foreground mt-1.5 truncate max-w-[56px] text-center leading-tight">
+                <span class="text-[12px] font-medium text-muted-foreground mt-1.5 text-center leading-tight">
                   {{ cat.name }}
                 </span>
               </button>

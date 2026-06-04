@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
-import { X, Plus, Trash2, Loader2, CheckCircle2 } from 'lucide-vue-next'
+import { X, Plus, Trash2, Loader2, CheckCircle2, Check } from 'lucide-vue-next'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Checkbox } from '@ui/checkbox'
 import { useShoppingItemStore } from '@/stores/shoppingItems'
 import { useShoppingItems } from '@/features/purchases/composables/useShoppingItems'
 import { useToast } from '@/composables/useToast'
@@ -179,7 +178,7 @@ function handleFinish() {
 
         <div class="px-5 py-3 flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-[15px] font-semibold truncate">{{ session.title }}</p>
+            <p class="text-[16px] font-bold truncate">{{ session.title }}</p>
             <p class="text-[12px] mt-0.5">
               <span v-if="allBought" class="text-primary font-semibold">✓ Tudo comprado!</span>
               <span v-else class="text-muted-foreground">
@@ -208,33 +207,33 @@ function handleFinish() {
           <input
             ref="nameInputRef"
             v-model="newName"
-            placeholder="Nome do item — Enter para adicionar"
-            class="w-full h-11 px-3 rounded-xl bg-card border border-border focus:border-primary/60 outline-none text-[13px] transition-colors placeholder:text-muted-foreground/50"
+            placeholder="Nome do item..."
+            class="w-full h-12 px-4 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[15px] transition-colors placeholder:text-muted-foreground/50"
             @keydown="handleNameKeydown"
           />
           <div class="flex gap-2">
             <input
               v-model="newCategory"
               placeholder="Categoria (opcional)"
-              class="flex-1 h-9 px-3 rounded-xl bg-card border border-border focus:border-primary/60 outline-none text-[12px] transition-colors placeholder:text-muted-foreground/50"
+              class="flex-1 h-11 px-3 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[13px] transition-colors placeholder:text-muted-foreground/50"
               @keydown="handleFieldKeydown"
             />
             <input
               inputmode="numeric"
-              placeholder="0,00"
-              class="w-28 h-9 px-3 rounded-xl bg-card border border-border focus:border-primary/60 outline-none text-[12px] tabular-nums transition-colors placeholder:text-muted-foreground/50"
+              placeholder="R$ 0,00"
+              class="w-28 h-11 px-3 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[13px] tabular-nums text-right transition-colors placeholder:text-muted-foreground/50"
               :value="formatPriceCents(priceCents)"
               @input="handlePriceInput"
               @keydown="handleFieldKeydown"
             />
             <button
               type="button"
-              class="size-9 rounded-xl bg-primary/15 text-primary grid place-items-center hover:bg-primary/25 transition-colors disabled:opacity-40 shrink-0"
+              class="size-11 rounded-xl bg-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 shrink-0"
               :disabled="adding || !newName.trim()"
               @click="addItem"
             >
-              <Loader2 v-if="adding" :size="14" class="animate-spin" />
-              <Plus v-else :size="14" />
+              <Loader2 v-if="adding" :size="16" class="animate-spin text-primary-foreground" />
+              <Plus v-else :size="18" class="text-primary-foreground" />
             </button>
           </div>
         </div>
@@ -257,101 +256,92 @@ function handleFinish() {
         <!-- Groups -->
         <template v-for="([category, group]) in grouped" :key="category">
           <div v-if="group.pending.length > 0 || group.bought.length > 0">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70 font-semibold mb-1.5 px-1">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold mb-2 mt-4 border-l-2 border-primary/40 pl-2">
               {{ category }}
             </p>
 
-            <div class="bg-card border border-border rounded-xl overflow-hidden">
-              <!-- Pending items -->
-              <div
-                v-for="item in group.pending"
-                :key="item.id"
-                class="flex items-center gap-3 px-3 border-b border-border/40 last:border-0 min-h-[52px] transition-colors hover:bg-muted/20"
+            <!-- Pending items -->
+            <div
+              v-for="item in group.pending"
+              :key="item.id"
+              class="group flex items-center gap-3 py-3.5 border-b border-border/30 last:border-0 transition-colors"
+            >
+              <!-- Custom circular checkbox touch area -->
+              <button
+                type="button"
+                class="flex items-center justify-center size-11 -ml-2 shrink-0"
+                @click="toggle(item.id, item.is_bought)"
               >
-                <!-- Full-width touch area for checkbox (44×44 minimum) -->
-                <button
-                  type="button"
-                  class="flex items-center justify-center size-11 -ml-1 shrink-0"
-                  @click="toggle(item.id, item.is_bought)"
-                >
-                  <Checkbox :checked="item.is_bought" class="pointer-events-none" />
-                </button>
+                <span class="size-6 rounded-full border-2 border-border bg-transparent transition-all duration-200" />
+              </button>
 
-                <!-- Inline edit or display name -->
-                <div class="flex-1 min-w-0 py-3" @click="startEdit(item)">
-                  <template v-if="editingItemId === item.id">
-                    <div @click.stop>
-                      <input
-                        :id="`edit-name-${item.id}`"
-                        v-model="editName"
-                        class="w-full h-8 px-2 rounded-lg bg-background border border-primary/60 outline-none text-[13px] transition-colors"
-                        @keydown="handleEditNameKeydown($event, item)"
-                        @blur="saveEdit(item)"
-                      />
-                    </div>
-                  </template>
-                  <span
-                    v-else
-                    class="block text-[14px] text-foreground truncate cursor-text"
-                  >{{ item.name }}</span>
-                </div>
-
-                <span
-                  v-if="item.price !== null && editingItemId !== item.id"
-                  class="text-[13px] tabular-nums text-muted-foreground shrink-0"
-                >
-                  {{ formatCurrency(item.price) }}
-                </span>
-                <button
-                  type="button"
-                  class="size-8 grid place-items-center text-muted-foreground/30 hover:text-destructive transition-colors shrink-0"
-                  @click="removeItem(item.id)"
-                >
-                  <Trash2 :size="13" />
-                </button>
+              <!-- Inline edit or display name -->
+              <div class="flex-1 min-w-0" @click="startEdit(item)">
+                <template v-if="editingItemId === item.id">
+                  <div @click.stop>
+                    <input
+                      :id="`edit-name-${item.id}`"
+                      v-model="editName"
+                      class="w-full h-8 px-2 rounded-lg bg-background border border-primary/60 outline-none text-[13px] transition-colors"
+                      @keydown="handleEditNameKeydown($event, item)"
+                      @blur="saveEdit(item)"
+                    />
+                  </div>
+                </template>
+                <span v-else class="block text-[14px] font-medium text-foreground truncate cursor-text">{{ item.name }}</span>
               </div>
 
-              <!-- Bought items -->
-              <div
-                v-for="item in group.bought"
-                :key="item.id"
-                class="flex items-center gap-3 px-3 border-b border-border/40 last:border-0 min-h-[52px] transition-all duration-300 hover:bg-muted/20"
-                :class="item.is_bought ? 'opacity-50' : ''"
+              <span
+                v-if="item.price !== null && editingItemId !== item.id"
+                class="text-[13px] tabular-nums text-muted-foreground shrink-0"
               >
-                <button
-                  type="button"
-                  class="flex items-center justify-center size-11 -ml-1 shrink-0"
-                  @click="toggle(item.id, item.is_bought)"
-                >
-                  <Checkbox :checked="item.is_bought" class="pointer-events-none" />
-                </button>
-                <span class="flex-1 min-w-0 text-[14px] line-through text-muted-foreground/70 truncate py-3">
-                  {{ item.name }}
+                {{ formatCurrency(item.price) }}
+              </span>
+
+              <!-- Trash: hidden by default, visible on row hover only -->
+              <button
+                type="button"
+                class="size-8 grid place-items-center text-muted-foreground/30 hover:text-destructive transition-all opacity-0 group-hover:opacity-100 shrink-0"
+                @click="removeItem(item.id)"
+              >
+                <Trash2 :size="14" />
+              </button>
+            </div>
+
+            <!-- Bought items — check circle, no trash -->
+            <div
+              v-for="item in group.bought"
+              :key="item.id"
+              class="flex items-center gap-3 py-3.5 border-b border-border/30 last:border-0 opacity-60 transition-all duration-300"
+            >
+              <button
+                type="button"
+                class="flex items-center justify-center size-11 -ml-2 shrink-0"
+                @click="toggle(item.id, item.is_bought)"
+              >
+                <span class="size-6 rounded-full bg-primary border-2 border-primary flex items-center justify-center transition-all duration-200">
+                  <Check :size="14" class="text-primary-foreground" :stroke-width="3" />
                 </span>
-                <span
-                  v-if="item.price !== null"
-                  class="text-[13px] tabular-nums text-muted-foreground/50 shrink-0"
-                >
-                  {{ formatCurrency(item.price) }}
-                </span>
-                <button
-                  type="button"
-                  class="size-8 grid place-items-center text-muted-foreground/30 hover:text-destructive transition-colors shrink-0"
-                  @click="removeItem(item.id)"
-                >
-                  <Trash2 :size="13" />
-                </button>
-              </div>
+              </button>
+              <span class="flex-1 min-w-0 text-[14px] line-through text-muted-foreground truncate">
+                {{ item.name }}
+              </span>
+              <span
+                v-if="item.price !== null"
+                class="text-[13px] tabular-nums text-muted-foreground/50 shrink-0"
+              >
+                {{ formatCurrency(item.price) }}
+              </span>
             </div>
           </div>
         </template>
       </div>
 
-      <!-- Sticky footer (BUG 6 — z-index acima do bottom nav) -->
-      <div class="sticky bottom-0 z-20 bg-background border-t border-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
-        <div v-if="suggestedDisplay" class="mb-2 flex items-center justify-between">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70 font-semibold">TOTAL PARCIAL</p>
-          <p class="text-[16px] font-semibold tabular-nums text-foreground">{{ suggestedDisplay }}</p>
+      <!-- Sticky footer -->
+      <div class="sticky bottom-0 z-20 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
+        <div v-if="suggestedDisplay" class="mb-2 flex items-baseline justify-between">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70">TOTAL PARCIAL</p>
+          <p class="text-[17px] font-bold tabular-nums text-foreground">{{ suggestedDisplay }}</p>
         </div>
         <button
           type="button"

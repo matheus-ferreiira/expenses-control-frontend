@@ -152,15 +152,20 @@ function onFinishSessionSheet() {
         <button
           v-else
           type="button"
-          class="w-full bg-card border border-border border-dashed rounded-xl p-6 flex flex-col items-center gap-3 hover:bg-muted/20 transition-colors group"
+          class="w-full bg-card border border-border rounded-xl overflow-hidden flex hover:bg-card/80 transition-colors cursor-pointer"
           @click="openNewSessionDialog"
         >
-          <span class="size-11 rounded-xl bg-primary/10 grid place-items-center group-hover:bg-primary/20 transition-colors">
-            <Plus :size="20" class="text-primary" />
-          </span>
-          <div class="text-center">
-            <p class="text-[14px] font-semibold text-foreground">Nova lista de compras</p>
-            <p class="text-[12px] text-muted-foreground/60 mt-0.5">Inicie uma nova ida ao mercado</p>
+          <!-- Left accent -->
+          <div class="w-[2px] bg-primary shrink-0" />
+          <!-- Content -->
+          <div class="flex-1 p-5 flex flex-col items-center gap-3">
+            <span class="size-12 rounded-xl bg-primary/20 grid place-items-center text-primary">
+              <Plus :size="22" />
+            </span>
+            <div class="text-center">
+              <p class="text-[15px] font-semibold text-foreground">Nova lista de compras</p>
+              <p class="text-[13px] text-muted-foreground mt-0.5">Inicie uma nova ida ao mercado</p>
+            </div>
           </div>
         </button>
       </div>

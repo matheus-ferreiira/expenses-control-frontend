@@ -50,7 +50,7 @@ function handleKeydown(e: KeyboardEvent) {
 
       <div class="space-y-4 pt-1">
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1.5">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">
             Nome da lista
           </p>
           <input

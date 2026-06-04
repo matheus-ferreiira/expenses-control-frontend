@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CheckCircle2, Link } from 'lucide-vue-next'
+import { CheckCircle2, Link, Circle } from 'lucide-vue-next'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { formatCurrency } from '@/utils/currency'
 import { useShoppingItems } from '@/features/purchases/composables/useShoppingItems'
@@ -40,7 +40,7 @@ const totalCount = computed(() => props.session.items.length)
       <div class="px-5 pt-4 pb-5 border-b border-border/30">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-[15px] font-semibold text-foreground truncate">{{ session.title }}</p>
+            <p class="text-[16px] font-bold text-foreground truncate">{{ session.title }}</p>
             <p class="text-[12px] text-muted-foreground/60 mt-0.5">{{ finishedDate }}</p>
           </div>
           <span
@@ -94,42 +94,40 @@ const totalCount = computed(() => props.session.items.length)
         <!-- Groups -->
         <template v-for="([category, group]) in grouped" :key="category">
           <div v-if="group.pending.length > 0 || group.bought.length > 0">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70 font-semibold mb-1.5 px-1">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold mb-2 mt-4 border-l-2 border-primary/40 pl-2">
               {{ category }}
             </p>
 
-            <div class="bg-card border border-border rounded-xl overflow-hidden">
-              <!-- Bought items first in detail view -->
-              <div
-                v-for="item in group.bought"
-                :key="item.id"
-                class="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0 min-h-[48px]"
+            <!-- Bought items first in detail view — no card wrapper -->
+            <div
+              v-for="item in group.bought"
+              :key="item.id"
+              class="flex items-center gap-3 py-3 border-b border-border/30 last:border-0"
+            >
+              <CheckCircle2 :size="16" class="text-primary shrink-0" />
+              <span class="flex-1 min-w-0 text-[13px] text-muted-foreground line-through truncate">{{ item.name }}</span>
+              <span
+                v-if="item.price !== null"
+                class="text-[12px] tabular-nums text-muted-foreground shrink-0"
               >
-                <CheckCircle2 :size="16" class="text-primary shrink-0" />
-                <span class="flex-1 min-w-0 text-[14px] text-foreground line-through truncate">{{ item.name }}</span>
-                <span
-                  v-if="item.price !== null"
-                  class="text-[13px] tabular-nums text-muted-foreground shrink-0"
-                >
-                  {{ formatCurrency(item.price) }}
-                </span>
-              </div>
+                {{ formatCurrency(item.price) }}
+              </span>
+            </div>
 
-              <!-- Not-bought items (missed / skipped) -->
-              <div
-                v-for="item in group.pending"
-                :key="item.id"
-                class="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0 min-h-[48px] opacity-40"
+            <!-- Not-bought items (missed / skipped) -->
+            <div
+              v-for="item in group.pending"
+              :key="item.id"
+              class="flex items-center gap-3 py-3 border-b border-border/30 last:border-0"
+            >
+              <Circle :size="16" class="text-muted-foreground/40 shrink-0" />
+              <span class="flex-1 min-w-0 text-[13px] text-muted-foreground/60 truncate">{{ item.name }}</span>
+              <span
+                v-if="item.price !== null"
+                class="text-[12px] tabular-nums text-muted-foreground/50 shrink-0"
               >
-                <span class="size-4 rounded border border-border/60 shrink-0" />
-                <span class="flex-1 min-w-0 text-[14px] text-muted-foreground truncate">{{ item.name }}</span>
-                <span
-                  v-if="item.price !== null"
-                  class="text-[13px] tabular-nums text-muted-foreground/50 shrink-0"
-                >
-                  {{ formatCurrency(item.price) }}
-                </span>
-              </div>
+                {{ formatCurrency(item.price) }}
+              </span>
             </div>
           </div>
         </template>
