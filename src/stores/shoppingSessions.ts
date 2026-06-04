@@ -37,7 +37,7 @@ export const useShoppingSessionStore = defineStore('shoppingSessions', () => {
   async function createSession(title: string): Promise<ShoppingSession> {
     try {
       const session = await shoppingApi.sessions.create({ title })
-      sessions.value = [session, ...sessions.value]
+      sessions.value.unshift(session)
       return session
     } catch (e) {
       error.value = 'Erro ao criar sessão'
@@ -76,7 +76,8 @@ export const useShoppingSessionStore = defineStore('shoppingSessions', () => {
   async function deleteSession(id: string): Promise<void> {
     try {
       await shoppingApi.sessions.delete(id)
-      sessions.value = sessions.value.filter((s) => s.id !== id)
+      const idx = sessions.value.findIndex((s) => s.id === id)
+      if (idx !== -1) sessions.value.splice(idx, 1)
     } catch (e) {
       error.value = 'Erro ao excluir sessão'
       throw e

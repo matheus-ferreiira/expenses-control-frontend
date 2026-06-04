@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Loader2, Check, CreditCard, Landmark, Receipt } from 'lucide-vue-next'
+import { Loader2, Check, CreditCard, Landmark, Receipt, X } from 'lucide-vue-next'
 import { Sheet, SheetContent } from '@ui/sheet'
+import { findIcon } from '@/lib/icons'
 import { useShoppingSessionStore } from '@/stores/shoppingSessions'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
@@ -234,24 +235,53 @@ async function submit() {
             </div>
           </div>
 
-          <!-- Categoria -->
+          <!-- Categoria — grid de ícones (padrão Finance) -->
           <div v-if="expenseCategories.length > 0">
-            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-1.5">
-              CATEGORIA
-            </p>
-            <select
-              v-model="selectedCategoryId"
-              class="w-full h-11 px-3 rounded-xl bg-card border border-border focus:border-primary/60 outline-none text-[13px] text-foreground transition-colors appearance-none"
-            >
-              <option :value="null">Nenhuma categoria</option>
-              <option
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                CATEGORIA
+              </p>
+              <button
+                v-if="selectedCategoryId"
+                type="button"
+                class="text-[11px] text-muted-foreground/60 hover:text-muted-foreground flex items-center gap-0.5 transition-colors"
+                @click="selectedCategoryId = null"
+              >
+                <X :size="10" />
+                Limpar
+              </button>
+            </div>
+            <div class="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto">
+              <button
                 v-for="cat in expenseCategories"
                 :key="cat.id"
-                :value="cat.id"
+                type="button"
+                class="flex flex-col items-center transition-all active:scale-95"
+                @click="selectedCategoryId = selectedCategoryId === cat.id ? null : cat.id"
               >
-                {{ cat.name }}
-              </option>
-            </select>
+                <span
+                  class="size-14 rounded-xl flex items-center justify-center transition-all"
+                  :style="selectedCategoryId === cat.id
+                    ? { background: cat.color + '30', outline: '1.5px solid ' + cat.color + '60' }
+                    : { background: cat.color + '18' }"
+                >
+                  <component
+                    v-if="cat.icon && findIcon(cat.icon)"
+                    :is="findIcon(cat.icon)!.component"
+                    :size="24"
+                    :style="{ color: cat.color }"
+                  />
+                  <span
+                    v-else
+                    class="text-[14px] font-bold"
+                    :style="{ color: cat.color }"
+                  >{{ cat.name.charAt(0) }}</span>
+                </span>
+                <span class="text-[11px] text-muted-foreground mt-1.5 truncate max-w-[56px] text-center leading-tight">
+                  {{ cat.name }}
+                </span>
+              </button>
+            </div>
           </div>
 
           <p
