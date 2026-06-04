@@ -18,7 +18,6 @@ const toast = useToast()
 // ── Collection form state ───────────────────────────────────────────────────
 const collectionFormOpen = ref(false)
 const editingCollection = ref<BookmarkCollection | null>(null)
-const deletingCollectionId = ref<string | null>(null)
 
 // ── Bookmark form state ─────────────────────────────────────────────────────
 const bookmarkFormOpen = ref(false)
@@ -65,26 +64,15 @@ function openEditCollection(collection: BookmarkCollection) {
   collectionFormOpen.value = true
 }
 
-async function confirmDeleteCollection(collection: BookmarkCollection) {
-  if (deletingCollectionId.value === collection.id) {
-    try {
-      if (bookmarkStore.activeCollectionId === collection.id) {
-        bookmarkStore.clearCollection()
-      }
-      await collectionStore.deleteCollection(collection.id)
-      toast.success('Coleção excluída')
-    } catch {
-      toast.error('Erro ao excluir coleção')
-    } finally {
-      deletingCollectionId.value = null
+async function handleDeleteCollection(collection: BookmarkCollection) {
+  try {
+    if (bookmarkStore.activeCollectionId === collection.id) {
+      bookmarkStore.clearCollection()
     }
-  } else {
-    deletingCollectionId.value = collection.id
-    setTimeout(() => {
-      if (deletingCollectionId.value === collection.id) {
-        deletingCollectionId.value = null
-      }
-    }, 3000)
+    await collectionStore.deleteCollection(collection.id)
+    toast.success('Coleção excluída')
+  } catch {
+    toast.error('Erro ao excluir coleção')
   }
 }
 
@@ -163,41 +151,14 @@ onMounted(async () => {
 
         <!-- Collection grid -->
         <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <div
+          <BookmarkCollectionCard
             v-for="collection in collectionStore.collections"
             :key="collection.id"
-            class="relative"
-          >
-            <BookmarkCollectionCard
-              :collection="collection"
-              @click="enterCollection(collection)"
-              @edit="openEditCollection(collection)"
-              @delete="confirmDeleteCollection(collection)"
-            />
-            <!-- Confirmar exclusão inline -->
-            <div
-              v-if="deletingCollectionId === collection.id"
-              class="absolute inset-0 bg-background/90 rounded-2xl flex flex-col items-center justify-center gap-2 p-3 z-10"
-            >
-              <p class="text-[12px] text-foreground text-center font-medium">Excluir coleção?</p>
-              <div class="flex gap-2 w-full">
-                <button
-                  type="button"
-                  class="flex-1 h-8 rounded-lg text-[12px] bg-muted/60 text-muted-foreground transition-colors hover:bg-muted"
-                  @click="deletingCollectionId = null"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  class="flex-1 h-8 rounded-lg text-[12px] bg-destructive/15 text-destructive transition-colors hover:bg-destructive/25"
-                  @click="confirmDeleteCollection(collection)"
-                >
-                  Confirmar
-                </button>
-              </div>
-            </div>
-          </div>
+            :collection="collection"
+            @click="enterCollection(collection)"
+            @edit="openEditCollection(collection)"
+            @delete="handleDeleteCollection(collection)"
+          />
         </div>
       </div>
     </template>
@@ -209,10 +170,11 @@ onMounted(async () => {
         <div class="flex items-center gap-3 mb-3">
           <button
             type="button"
-            class="size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors shrink-0"
+            class="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-1 px-1 py-1 rounded-lg hover:bg-muted/40"
             @click="leaveCollection"
           >
-            <ArrowLeft :size="18" />
+            <ArrowLeft :size="16" />
+            <span class="text-[13px] font-medium">Bookmarks</span>
           </button>
           <div class="flex-1 min-w-0">
             <h2 class="text-[20px] font-bold text-foreground truncate leading-snug">

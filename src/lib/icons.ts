@@ -7,7 +7,7 @@ import {
   // Transport
   Car, Bus, Train, Bike, Plane, Fuel,
   // Home
-  Home, Sofa, Lamp, Wrench, BedDouble,
+  Home, Sofa, Lamp, Wrench, BedDouble, Folder,
   // Health
   Heart, Activity, Stethoscope, Pill, Dumbbell, Brain,
   // Entertainment
@@ -93,6 +93,7 @@ export const ICON_CATEGORIES: IconCategory[] = [
     label: 'Casa',
     icons: [
       { name: 'Home',      component: Home,      label: 'Casa' },
+      { name: 'Folder',    component: Folder,    label: 'Pasta' },
       { name: 'Sofa',      component: Sofa,      label: 'Sofá' },
       { name: 'Lamp',      component: Lamp,      label: 'Luminária' },
       { name: 'Wrench',    component: Wrench,    label: 'Ferramentas' },

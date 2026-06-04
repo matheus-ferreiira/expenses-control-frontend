@@ -2,6 +2,11 @@
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { Folder, MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@ui/alert-dialog'
 import { findIcon } from '@/lib/icons'
 import type { BookmarkCollection } from '@/types/bookmarks'
 
@@ -16,6 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const menuOpen = ref(false)
+const deleteOpen = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
 
 onClickOutside(menuRef, () => { menuOpen.value = false })
@@ -31,12 +37,16 @@ function handleMenuEdit(e: Event) {
 function handleMenuDelete(e: Event) {
   e.stopPropagation()
   menuOpen.value = false
-  emit('delete', props.collection)
+  deleteOpen.value = true
 }
 
 function toggleMenu(e: Event) {
   e.stopPropagation()
   menuOpen.value = !menuOpen.value
+}
+
+function handleDeleteDialogClick(e: Event) {
+  e.stopPropagation()
 }
 </script>
 
@@ -111,4 +121,25 @@ function toggleMenu(e: Event) {
       </div>
     </div>
   </div>
+
+  <!-- Delete confirmation -->
+  <AlertDialog v-model:open="deleteOpen">
+    <AlertDialogContent @click="handleDeleteDialogClick">
+      <AlertDialogHeader>
+        <AlertDialogTitle>Excluir coleção?</AlertDialogTitle>
+        <AlertDialogDescription>
+          A coleção "<span class="font-medium text-foreground">{{ collection.name }}</span>" e todos os seus links serão excluídos permanentemente. Essa ação não pode ser desfeita.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+        <AlertDialogAction
+          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          @click="emit('delete', collection)"
+        >
+          Excluir
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>

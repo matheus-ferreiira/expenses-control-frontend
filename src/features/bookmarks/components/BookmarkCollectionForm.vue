@@ -8,8 +8,9 @@ import { useToast } from '@/composables/useToast'
 import type { BookmarkCollection } from '@/types/bookmarks'
 
 const COLLECTION_ICONS = [
-  'Code', 'Briefcase', 'Home', 'ShoppingBag', 'Heart', 'Star',
-  'Music', 'Book', 'Camera', 'Plane', 'Car', 'Gamepad2',
+  'Folder', 'Code', 'Car', 'Home', 'ShoppingBag', 'Briefcase',
+  'Heart', 'Star', 'Music', 'Gamepad2', 'BookOpen', 'Plane',
+  'Wrench', 'Dumbbell', 'Coffee', 'Globe',
 ]
 
 const PRESET_COLORS = [
@@ -109,7 +110,7 @@ async function submit() {
             <!-- Sem ícone -->
             <button
               type="button"
-              class="h-10 rounded-xl text-[11px] font-medium transition-all"
+              class="size-11 rounded-xl flex items-center justify-center text-[11px] font-medium transition-all duration-150"
               :class="selectedIcon === null
                 ? 'bg-primary/15 text-primary'
                 : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
@@ -121,7 +122,7 @@ async function submit() {
               v-for="iconName in COLLECTION_ICONS"
               :key="iconName"
               type="button"
-              class="h-10 rounded-xl flex items-center justify-center transition-all"
+              class="size-11 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer"
               :class="selectedIcon === iconName
                 ? 'bg-primary/15 text-primary'
                 : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
@@ -130,7 +131,7 @@ async function submit() {
               <component
                 v-if="findIcon(iconName)"
                 :is="findIcon(iconName)!.component"
-                :size="16"
+                :size="18"
                 :style="selectedColor && selectedIcon === iconName ? { color: selectedColor } : {}"
               />
             </button>
