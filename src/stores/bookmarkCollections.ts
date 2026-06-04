@@ -42,6 +42,8 @@ export const useBookmarkCollectionStore = defineStore('bookmarkCollections', () 
   async function createCollection(payload: CreateBookmarkCollectionPayload): Promise<BookmarkCollection> {
     const collection = await bookmarksApi.collections.create(payload)
     collections.value.push({ ...collection, categories: [] })
+    activeCollectionId.value = collection.id
+    activeCategoryId.value = null
     return collection
   }
 

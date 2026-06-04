@@ -128,20 +128,30 @@ async function submit() {
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             CATEGORIA <span class="text-destructive ml-0.5">*</span>
           </p>
-          <div class="relative">
-            <select
-              v-model="selectedCategoryId"
-              class="w-full h-10 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer"
+
+          <!-- No categories available -->
+          <div
+            v-if="allCategories.length === 0"
+            class="flex items-center gap-2 p-3 rounded-xl bg-muted/20 border border-border/40"
+          >
+            <p class="text-[13px] text-muted-foreground/60">Crie uma categoria antes de adicionar bookmarks</p>
+          </div>
+
+          <!-- Category list -->
+          <div v-else class="space-y-1.5 max-h-44 overflow-y-auto">
+            <button
+              v-for="cat in allCategories"
+              :key="cat.id"
+              type="button"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors"
+              :class="selectedCategoryId === cat.id
+                ? 'bg-primary/15 text-primary'
+                : 'bg-muted/20 hover:bg-muted/40 text-foreground'"
+              @click="selectedCategoryId = cat.id"
             >
-              <option value="" disabled>Selecionar categoria...</option>
-              <option
-                v-for="cat in allCategories"
-                :key="cat.id"
-                :value="cat.id"
-              >
-                {{ cat.name }}
-              </option>
-            </select>
+              <span class="flex-1 text-[14px] font-medium">{{ cat.name }}</span>
+              <span class="text-[12px] tabular-nums opacity-50">{{ cat.bookmarks_count }}</span>
+            </button>
           </div>
         </div>
 

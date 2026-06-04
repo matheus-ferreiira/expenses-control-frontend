@@ -44,7 +44,7 @@ const store = useBookmarkCollectionStore()
         </button>
 
         <!-- Categories (expanded when this collection is active) -->
-        <template v-if="store.activeCollectionId === collection.id && collection.categories?.length">
+        <template v-if="store.activeCollectionId === collection.id">
           <button
             v-for="category in collection.categories"
             :key="category.id"
@@ -59,7 +59,7 @@ const store = useBookmarkCollectionStore()
             <span class="text-[10px] tabular-nums shrink-0 opacity-50">{{ category.bookmarks_count }}</span>
           </button>
 
-          <!-- Add category -->
+          <!-- Add category — always visible when collection is active -->
           <button
             type="button"
             class="w-full flex items-center gap-2 pl-8 pr-2.5 py-1.5 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-muted/30 transition-colors duration-150 text-[12px]"

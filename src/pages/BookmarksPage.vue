@@ -147,7 +147,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Category tabs -->
+      <!-- Category tabs (only when collection has categories) -->
       <BookmarkCategoryTabs
         v-if="activeCollection && activeCategories.length > 0"
         :categories="activeCategories"
@@ -155,6 +155,7 @@ onMounted(async () => {
         @select="handleCategorySelect"
         @new-category="openNewCategory"
       />
+
 
       <!-- Bookmark list -->
       <div class="flex-1 overflow-y-auto px-4 py-2">
@@ -197,9 +198,9 @@ onMounted(async () => {
           <p class="text-[12px] text-muted-foreground/50 mt-1">Adicione o primeiro usando o botão acima</p>
         </div>
 
-        <!-- No category selected -->
+        <!-- No category selected (categories exist) -->
         <div
-          v-else-if="activeCollection && !activeCategoryId"
+          v-else-if="activeCollection && activeCategories.length > 0 && !activeCategoryId"
           class="flex flex-col items-center justify-center py-16 text-center"
         >
           <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
@@ -207,6 +208,26 @@ onMounted(async () => {
           </span>
           <p class="text-[14px] font-medium text-muted-foreground">Selecione uma categoria</p>
           <p class="text-[12px] text-muted-foreground/50 mt-1">Clique em uma categoria acima para ver os bookmarks</p>
+        </div>
+
+        <!-- No categories in collection -->
+        <div
+          v-else-if="activeCollection && activeCategories.length === 0"
+          class="flex flex-col items-center justify-center py-16 text-center"
+        >
+          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
+            <Bookmark :size="22" class="text-muted-foreground/30" />
+          </span>
+          <p class="text-[14px] font-medium text-muted-foreground">Sem categorias</p>
+          <p class="text-[12px] text-muted-foreground/50 mt-1 mb-4">Crie uma categoria para organizar seus links</p>
+          <button
+            type="button"
+            class="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
+            @click="openNewCategory"
+          >
+            <Plus :size="14" />
+            Criar categoria
+          </button>
         </div>
 
         <!-- Bookmark list -->
