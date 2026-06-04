@@ -83,6 +83,18 @@ export const API_ENDPOINTS = {
     SESSION_ITEMS: (sessionId: string) => `${API_BASE}/shopping/sessions/${sessionId}/items`,
     ITEM_DETAIL: (id: string) => `${API_BASE}/shopping/items/${id}`,
   },
+  BOOKMARKS: {
+    COLLECTIONS: `${API_BASE}/bookmarks/collections`,
+    COLLECTION_DETAIL: (id: string) => `${API_BASE}/bookmarks/collections/${id}`,
+    COLLECTIONS_REORDER: `${API_BASE}/bookmarks/collections/reorder`,
+    CATEGORIES: (collectionId: string) => `${API_BASE}/bookmarks/collections/${collectionId}/categories`,
+    CATEGORIES_REORDER: (collectionId: string) => `${API_BASE}/bookmarks/collections/${collectionId}/categories/reorder`,
+    CATEGORY_DETAIL: (id: string) => `${API_BASE}/bookmarks/categories/${id}`,
+    BOOKMARKS: (categoryId: string) => `${API_BASE}/bookmarks/categories/${categoryId}/bookmarks`,
+    BOOKMARKS_REORDER: (categoryId: string) => `${API_BASE}/bookmarks/categories/${categoryId}/bookmarks/reorder`,
+    BOOKMARK_DETAIL: (id: string) => `${API_BASE}/bookmarks/bookmarks/${id}`,
+    BOOKMARK_FAVORITE: (id: string) => `${API_BASE}/bookmarks/bookmarks/${id}/favorite`,
+  },
   NOTES: {
     BASE: `${API_BASE}/notes`,
     DETAIL: (id: string) => `${API_BASE}/notes/${id}`,
