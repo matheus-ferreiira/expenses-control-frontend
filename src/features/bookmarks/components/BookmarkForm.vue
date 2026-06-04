@@ -3,60 +3,61 @@ import { ref, watch, computed } from 'vue'
 import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { useBookmarkStore } from '@/stores/bookmarks'
-import { useBookmarkCollectionStore } from '@/stores/bookmarkCollections'
 import { useToast } from '@/composables/useToast'
-import type { Bookmark, BookmarkCategory } from '@/types/bookmarks'
+import type { Bookmark } from '@/types/bookmarks'
 
 const props = defineProps<{
-  bookmark: Bookmark
+  collectionId: string
+  bookmark?: Bookmark | null
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
 const bookmarkStore = useBookmarkStore()
-const collectionStore = useBookmarkCollectionStore()
 const toast = useToast()
 
 const url = ref('')
 const title = ref('')
 const description = ref('')
-const selectedCategoryId = ref('')
 const isFavorite = ref(false)
 const submitting = ref(false)
 
-const allCategories = computed<BookmarkCategory[]>(() =>
-  collectionStore.collections.flatMap((c) => c.categories ?? []),
-)
+const isValid = computed(() => url.value.trim().length > 0 && title.value.trim().length > 0)
+const isEditing = computed(() => !!props.bookmark)
 
 watch(open, (val) => {
   if (val) {
-    url.value = props.bookmark.url
-    title.value = props.bookmark.title
-    description.value = props.bookmark.description ?? ''
-    selectedCategoryId.value = props.bookmark.bookmark_category_id
-    isFavorite.value = props.bookmark.is_favorite
+    url.value = props.bookmark?.url ?? ''
+    title.value = props.bookmark?.title ?? ''
+    description.value = props.bookmark?.description ?? ''
+    isFavorite.value = props.bookmark?.is_favorite ?? false
   }
 })
-
-const isValid = computed(() => url.value.trim() && title.value.trim() && selectedCategoryId.value)
 
 async function submit() {
   if (!isValid.value) return
   submitting.value = true
   try {
-    await bookmarkStore.updateBookmark(props.bookmark.id, {
-      url: url.value.trim(),
-      title: title.value.trim(),
-      description: description.value.trim() || null,
-      is_favorite: isFavorite.value,
-      bookmark_category_id: selectedCategoryId.value !== props.bookmark.bookmark_category_id
-        ? selectedCategoryId.value
-        : undefined,
-    })
-    toast.success('Bookmark atualizado')
+    if (props.bookmark) {
+      await bookmarkStore.updateBookmark(props.bookmark.id, {
+        url: url.value.trim(),
+        title: title.value.trim(),
+        description: description.value.trim() || null,
+        is_favorite: isFavorite.value,
+      })
+      toast.success('Link atualizado')
+    } else {
+      await bookmarkStore.createBookmark(props.collectionId, {
+        url: url.value.trim(),
+        title: title.value.trim(),
+        description: description.value.trim() || null,
+        is_favorite: isFavorite.value,
+      })
+      toast.success('Link salvo')
+    }
     open.value = false
   } catch {
-    toast.error('Erro ao atualizar bookmark')
+    toast.error(isEditing.value ? 'Erro ao atualizar link' : 'Erro ao salvar link')
   } finally {
     submitting.value = false
   }
@@ -79,35 +80,41 @@ async function submit() {
         >
           <ArrowLeft :size="18" />
         </button>
-        <h3 class="text-[15px] font-semibold leading-none">Editar bookmark</h3>
+        <h3 class="text-[15px] font-semibold leading-none">
+          {{ isEditing ? 'Editar link' : 'Salvar link' }}
+        </h3>
       </div>
 
       <div class="flex-1 overflow-y-auto px-4 py-5 space-y-5">
+        <!-- URL -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             URL <span class="text-destructive ml-0.5">*</span>
           </p>
           <input
             v-model="url"
+            autofocus
             type="url"
             placeholder="https://..."
             class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] font-mono text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40 placeholder:font-sans"
           />
         </div>
 
+        <!-- Título -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             TÍTULO <span class="text-destructive ml-0.5">*</span>
           </p>
           <input
             v-model="title"
-            autofocus
-            placeholder="Nome do link..."
+            type="text"
+            placeholder="Nome do link"
             class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
             @keydown.enter="submit"
           />
         </div>
 
+        <!-- Descrição -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             DESCRIÇÃO (opcional)
@@ -120,24 +127,9 @@ async function submit() {
           />
         </div>
 
-        <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
-            CATEGORIA <span class="text-destructive ml-0.5">*</span>
-          </p>
-          <div class="relative">
-            <select
-              v-model="selectedCategoryId"
-              class="w-full h-10 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer"
-            >
-              <option v-for="cat in allCategories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
+        <!-- Favorito -->
         <div class="flex items-center justify-between py-1">
-          <p class="text-[13px] font-medium text-foreground">Favorito</p>
+          <p class="text-[13px] font-medium text-foreground">Marcar como favorito</p>
           <button
             type="button"
             class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
@@ -156,18 +148,19 @@ async function submit() {
         <button
           type="button"
           class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          :disabled="submitting"
           @click="open = false"
         >
           Cancelar
         </button>
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40"
+          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           :disabled="!isValid || submitting"
           @click="submit"
         >
           <Loader2 v-if="submitting" :size="16" class="animate-spin" />
-          Salvar
+          {{ isEditing ? 'Salvar' : 'Salvar link' }}
         </button>
       </div>
     </SheetContent>

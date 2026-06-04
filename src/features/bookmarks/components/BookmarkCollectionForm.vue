@@ -2,10 +2,19 @@
 import { ref, watch } from 'vue'
 import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { ICON_PALETTE_COLORS, ICON_CATEGORIES } from '@/lib/icons'
+import { findIcon } from '@/lib/icons'
 import { useBookmarkCollectionStore } from '@/stores/bookmarkCollections'
 import { useToast } from '@/composables/useToast'
 import type { BookmarkCollection } from '@/types/bookmarks'
+
+const COLLECTION_ICONS = [
+  'Code', 'Briefcase', 'Home', 'ShoppingBag', 'Heart', 'Star',
+  'Music', 'Book', 'Camera', 'Plane', 'Car', 'Gamepad2',
+]
+
+const PRESET_COLORS = [
+  '#00C896', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899',
+]
 
 const props = defineProps<{
   collection?: BookmarkCollection | null
@@ -18,21 +27,14 @@ const toast = useToast()
 
 const name = ref('')
 const selectedIcon = ref<string | null>(null)
-const selectedColor = ref<string | null>(null)
+const selectedColor = ref<string | null>('#00C896')
 const submitting = ref(false)
-
-const BOOKMARK_ICONS = [
-  ...ICON_CATEGORIES.find((c) => c.id === 'work')?.icons ?? [],
-  ...ICON_CATEGORIES.find((c) => c.id === 'tech')?.icons ?? [],
-  ...ICON_CATEGORIES.find((c) => c.id === 'personal')?.icons ?? [],
-  ...ICON_CATEGORIES.find((c) => c.id === 'education')?.icons ?? [],
-].slice(0, 16)
 
 watch(open, (val) => {
   if (val) {
     name.value = props.collection?.name ?? ''
     selectedIcon.value = props.collection?.icon ?? null
-    selectedColor.value = props.collection?.color ?? null
+    selectedColor.value = props.collection?.color ?? '#00C896'
   }
 })
 
@@ -69,7 +71,6 @@ async function submit() {
     >
       <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
 
-      <!-- Header -->
       <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
         <button
           type="button"
@@ -83,9 +84,8 @@ async function submit() {
         </h3>
       </div>
 
-      <!-- Body -->
       <div class="flex-1 overflow-y-auto px-4 py-5 space-y-5">
-        <!-- Name -->
+        <!-- Nome -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             NOME <span class="text-destructive ml-0.5">*</span>
@@ -93,84 +93,81 @@ async function submit() {
           <input
             v-model="name"
             autofocus
-            placeholder="Ex: Trabalho, Estudos, Dev..."
+            type="text"
+            placeholder="Ex: Dev, Carro, Casa..."
             class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
             @keydown.enter="submit"
           />
         </div>
 
-        <!-- Icon selector -->
+        <!-- Ícone -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             ÍCONE (opcional)
           </p>
-          <div class="grid grid-cols-8 gap-1.5">
-            <!-- No icon option -->
+          <div class="grid grid-cols-6 gap-2">
+            <!-- Sem ícone -->
             <button
               type="button"
-              class="size-9 rounded-lg flex items-center justify-center transition-all border text-[10px] text-muted-foreground/40"
-              :class="selectedIcon === null ? 'border-primary bg-primary/10' : 'border-border/40 bg-muted/20 hover:bg-muted/40'"
+              class="h-10 rounded-xl text-[11px] font-medium transition-all"
+              :class="selectedIcon === null
+                ? 'bg-primary/15 text-primary'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
               @click="selectedIcon = null"
             >
               —
             </button>
             <button
-              v-for="entry in BOOKMARK_ICONS"
-              :key="entry.name"
+              v-for="iconName in COLLECTION_ICONS"
+              :key="iconName"
               type="button"
-              class="size-9 rounded-lg flex items-center justify-center transition-all border"
-              :class="selectedIcon === entry.name ? 'border-primary bg-primary/10' : 'border-border/40 bg-muted/20 hover:bg-muted/40'"
-              :title="entry.label"
-              @click="selectedIcon = entry.name"
+              class="h-10 rounded-xl flex items-center justify-center transition-all"
+              :class="selectedIcon === iconName
+                ? 'bg-primary/15 text-primary'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+              @click="selectedIcon = iconName"
             >
               <component
-                :is="entry.component"
+                v-if="findIcon(iconName)"
+                :is="findIcon(iconName)!.component"
                 :size="16"
-                :style="selectedColor ? { color: selectedColor } : {}"
-                class="text-muted-foreground"
+                :style="selectedColor && selectedIcon === iconName ? { color: selectedColor } : {}"
               />
             </button>
           </div>
         </div>
 
-        <!-- Color picker -->
+        <!-- Cor -->
         <div>
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
-            COR (opcional)
+            COR
           </p>
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex gap-3 flex-wrap">
             <button
-              type="button"
-              class="size-7 rounded-full transition-all border-2 border-transparent hover:scale-110"
-              :class="selectedColor === null ? 'ring-2 ring-muted-foreground ring-offset-2 ring-offset-background' : ''"
-              style="background: hsl(var(--muted))"
-              @click="selectedColor = null"
-            />
-            <button
-              v-for="color in ICON_PALETTE_COLORS"
+              v-for="color in PRESET_COLORS"
               :key="color"
               type="button"
               class="size-7 rounded-full transition-all hover:scale-110"
-              :class="selectedColor === color ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-110' : ''"
-              :style="{ background: color }"
+              :class="selectedColor === color ? 'ring-2 ring-offset-2 ring-offset-background scale-110' : ''"
+              :style="{ background: color, '--tw-ring-color': color }"
               @click="selectedColor = color"
             />
           </div>
         </div>
       </div>
 
-      <!-- Footer -->
       <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
         <button
           type="button"
           class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          :disabled="submitting"
           @click="open = false"
         >
           Cancelar
         </button>
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40"
+          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           :disabled="!name.trim() || submitting"
           @click="submit"
         >

@@ -1,178 +1,159 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Bookmark, FolderOpen, Search, Star, Plus, Menu, Loader2 } from 'lucide-vue-next'
-import { Sheet, SheetContent } from '@ui/sheet'
+import { Bookmark, Plus, ArrowLeft, Search, Star, Loader2 } from 'lucide-vue-next'
+import { useDebounceFn } from '@vueuse/core'
 import { useBookmarkCollectionStore } from '@/stores/bookmarkCollections'
 import { useBookmarkStore } from '@/stores/bookmarks'
-import { useBookmarks } from '@/features/bookmarks/composables/useBookmarks'
-import { useBookmarkCollections } from '@/features/bookmarks/composables/useBookmarkCollections'
-import BookmarkCollectionSidebar from '@/features/bookmarks/components/BookmarkCollectionSidebar.vue'
-import BookmarkCategoryTabs from '@/features/bookmarks/components/BookmarkCategoryTabs.vue'
+import { useToast } from '@/composables/useToast'
+import BookmarkCollectionCard from '@/features/bookmarks/components/BookmarkCollectionCard.vue'
+import BookmarkCollectionForm from '@/features/bookmarks/components/BookmarkCollectionForm.vue'
 import BookmarkListItem from '@/features/bookmarks/components/BookmarkListItem.vue'
-import BookmarkAddDialog from '@/features/bookmarks/components/BookmarkAddDialog.vue'
-import BookmarkEditDialog from '@/features/bookmarks/components/BookmarkEditDialog.vue'
-import CollectionFormDialog from '@/features/bookmarks/components/CollectionFormDialog.vue'
-import CategoryFormDialog from '@/features/bookmarks/components/CategoryFormDialog.vue'
+import BookmarkForm from '@/features/bookmarks/components/BookmarkForm.vue'
+import type { BookmarkCollection, Bookmark as BookmarkType } from '@/types/bookmarks'
 
 const collectionStore = useBookmarkCollectionStore()
 const bookmarkStore = useBookmarkStore()
+const toast = useToast()
 
-const {
-  addDialogOpen,
-  editDialogOpen,
-  editingBookmark,
-  onSearch,
-  toggleFavoritesFilter,
-  openEdit,
-} = useBookmarks()
+// ── Collection form state ───────────────────────────────────────────────────
+const collectionFormOpen = ref(false)
+const editingCollection = ref<BookmarkCollection | null>(null)
+const deletingCollectionId = ref<string | null>(null)
 
-const {
-  collectionDialogOpen,
-  categoryDialogOpen,
-  editingCollection,
-  editingCategory,
-  openNewCollection,
-  openNewCategory,
-} = useBookmarkCollections()
+// ── Bookmark form state ─────────────────────────────────────────────────────
+const bookmarkFormOpen = ref(false)
+const editingBookmark = ref<BookmarkType | null>(null)
 
-const mobileSidebarOpen = ref(false)
+// ── Active collection (View B) ──────────────────────────────────────────────
+const activeCollection = computed(() =>
+  collectionStore.collections.find((c) => c.id === bookmarkStore.activeCollectionId) ?? null,
+)
+
+const isViewB = computed(() => bookmarkStore.activeCollectionId !== null)
+
+// ── Search ──────────────────────────────────────────────────────────────────
 const searchInput = ref('')
-
-const activeCollection = computed(() => collectionStore.activeCollection)
-const activeCategories = computed(() => collectionStore.activeCategories)
-const activeCategoryId = computed(() => collectionStore.activeCategoryId)
-
-const allBookmarksForCollection = computed(() => {
-  if (!activeCategoryId.value) return bookmarkStore.bookmarks
-  return bookmarkStore.bookmarks
-})
-
-function handleCategorySelect(categoryId: string | null) {
-  collectionStore.setActiveCategory(categoryId)
-}
+const debouncedSearch = useDebounceFn((term: string) => {
+  bookmarkStore.setSearch(term)
+}, 300)
 
 function handleSearch(e: Event) {
   const term = (e.target as HTMLInputElement).value
   searchInput.value = term
-  onSearch(term)
+  debouncedSearch(term)
+}
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+async function enterCollection(collection: BookmarkCollection) {
+  searchInput.value = ''
+  await bookmarkStore.fetchBookmarks(collection.id)
+}
+
+function leaveCollection() {
+  bookmarkStore.clearCollection()
+  searchInput.value = ''
+}
+
+// ── Collection CRUD ─────────────────────────────────────────────────────────
+function openNewCollection() {
+  editingCollection.value = null
+  collectionFormOpen.value = true
+}
+
+function openEditCollection(collection: BookmarkCollection) {
+  editingCollection.value = collection
+  collectionFormOpen.value = true
+}
+
+async function confirmDeleteCollection(collection: BookmarkCollection) {
+  if (deletingCollectionId.value === collection.id) {
+    try {
+      if (bookmarkStore.activeCollectionId === collection.id) {
+        bookmarkStore.clearCollection()
+      }
+      await collectionStore.deleteCollection(collection.id)
+      toast.success('Coleção excluída')
+    } catch {
+      toast.error('Erro ao excluir coleção')
+    } finally {
+      deletingCollectionId.value = null
+    }
+  } else {
+    deletingCollectionId.value = collection.id
+    setTimeout(() => {
+      if (deletingCollectionId.value === collection.id) {
+        deletingCollectionId.value = null
+      }
+    }, 3000)
+  }
+}
+
+// ── Bookmark CRUD ───────────────────────────────────────────────────────────
+function openNewBookmark() {
+  editingBookmark.value = null
+  bookmarkFormOpen.value = true
+}
+
+function openEditBookmark(bookmark: BookmarkType) {
+  editingBookmark.value = bookmark
+  bookmarkFormOpen.value = true
 }
 
 onMounted(async () => {
   await collectionStore.fetchCollections()
-  if (collectionStore.activeCategoryId) {
-    await bookmarkStore.fetchBookmarks(collectionStore.activeCategoryId)
-  }
 })
 </script>
 
 <template>
-  <div class="flex h-full overflow-hidden">
+  <div class="flex flex-col h-full overflow-hidden">
 
-    <!-- ── Sidebar (desktop) ─────────────────────────────────────────── -->
-    <aside class="hidden md:flex w-56 shrink-0 border-r border-border flex-col overflow-hidden">
-      <div class="px-5 pt-5 pb-3 border-b border-border/40 shrink-0">
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/40 mb-1 select-none">
-          PESSOAL
-        </p>
-        <h1 class="text-[17px] font-semibold text-foreground tracking-tight">Bookmarks</h1>
-      </div>
-      <BookmarkCollectionSidebar
-        class="flex-1 overflow-y-auto"
-        @new-collection="openNewCollection"
-        @new-category="openNewCategory"
-      />
-    </aside>
-
-    <!-- ── Main content ──────────────────────────────────────────────── -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-
-      <!-- Content header -->
-      <div class="px-5 py-4 border-b border-border/30 shrink-0">
-        <!-- Mobile: hamburger + title row -->
-        <div class="flex items-center gap-3 mb-3 md:mb-0">
-          <button
-            type="button"
-            class="md:hidden size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors"
-            @click="mobileSidebarOpen = true"
-          >
-            <Menu :size="18" />
-          </button>
-
-          <div class="flex-1 min-w-0">
-            <h2 class="text-[16px] font-bold text-foreground truncate">
-              {{ activeCollection?.name ?? 'Bookmarks' }}
-            </h2>
-            <p class="text-[12px] text-muted-foreground/60 hidden md:block">
-              {{ activeCollection?.bookmarks_count ?? 0 }} bookmarks
+    <!-- ── VIEW A — Grid de coleções ───────────────────────────────────── -->
+    <template v-if="!isViewB">
+      <!-- Header -->
+      <div class="px-5 pt-6 pb-4 shrink-0">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1">
+              PESSOAL
+            </p>
+            <h1 class="text-[28px] font-bold text-foreground leading-none">Bookmarks</h1>
+            <p class="text-[13px] text-muted-foreground/60 mt-1.5">
+              Seus links organizados por coleção
             </p>
           </div>
-
-          <!-- Add bookmark button -->
           <button
-            v-if="activeCollection"
             type="button"
-            class="shrink-0 flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
-            @click="addDialogOpen = true"
+            class="shrink-0 flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity mt-1"
+            @click="openNewCollection"
           >
             <Plus :size="14" />
-            <span class="hidden sm:inline">Adicionar</span>
-          </button>
-        </div>
-
-        <!-- Search + favorites row (only when collection selected) -->
-        <div v-if="activeCollection" class="flex items-center gap-2 mt-3">
-          <!-- Search input -->
-          <div class="flex-1 relative">
-            <Search :size="13" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none" />
-            <input
-              :value="searchInput"
-              type="search"
-              placeholder="Buscar bookmarks..."
-              class="w-full h-9 pl-8 pr-3 rounded-xl bg-muted/40 border border-border text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
-              @input="handleSearch"
-            />
-          </div>
-
-          <!-- Favorites toggle -->
-          <button
-            type="button"
-            class="size-9 rounded-xl flex items-center justify-center transition-colors border"
-            :class="bookmarkStore.showFavoritesOnly
-              ? 'bg-warning/15 text-warning border-warning/30'
-              : 'bg-muted/40 text-muted-foreground/40 border-border hover:text-muted-foreground'"
-            @click="toggleFavoritesFilter"
-          >
-            <Star :size="14" :class="bookmarkStore.showFavoritesOnly ? 'fill-warning' : ''" />
+            Nova coleção
           </button>
         </div>
       </div>
 
-      <!-- Category tabs (only when collection has categories) -->
-      <BookmarkCategoryTabs
-        v-if="activeCollection && activeCategories.length > 0"
-        :categories="activeCategories"
-        :active-category-id="activeCategoryId"
-        @select="handleCategorySelect"
-        @new-category="openNewCategory"
-      />
+      <!-- Grid de coleções -->
+      <div class="flex-1 overflow-y-auto px-4 pb-6">
 
+        <!-- Loading -->
+        <div v-if="collectionStore.isLoading" class="flex items-center justify-center py-16 text-muted-foreground">
+          <Loader2 :size="18" class="animate-spin mr-2" />
+          <span class="text-[13px]">Carregando...</span>
+        </div>
 
-      <!-- Bookmark list -->
-      <div class="flex-1 overflow-y-auto px-4 py-2">
-
-        <!-- Empty: no collections -->
+        <!-- Empty state -->
         <div
-          v-if="collectionStore.collections.length === 0 && !collectionStore.loading"
-          class="flex flex-col items-center justify-center py-16 text-center"
+          v-else-if="collectionStore.collections.length === 0"
+          class="flex flex-col items-center justify-center py-20 text-center"
         >
-          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
-            <FolderOpen :size="22" class="text-muted-foreground/30" />
+          <span class="size-14 rounded-xl bg-muted/30 grid place-items-center mb-4">
+            <Bookmark :size="26" class="text-muted-foreground/30" />
           </span>
-          <p class="text-[14px] font-medium text-muted-foreground">Crie sua primeira coleção</p>
-          <p class="text-[12px] text-muted-foreground/50 mt-1 mb-4">Organize seus links em pastas</p>
+          <p class="text-[15px] font-semibold text-muted-foreground">Crie sua primeira coleção</p>
+          <p class="text-[13px] text-muted-foreground/50 mt-1 mb-5">Organize seus links em pastas</p>
           <button
             type="button"
-            class="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
+            class="flex items-center gap-1.5 h-9 px-5 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
             @click="openNewCollection"
           >
             <Plus :size="14" />
@@ -180,103 +161,166 @@ onMounted(async () => {
           </button>
         </div>
 
+        <!-- Collection grid -->
+        <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div
+            v-for="collection in collectionStore.collections"
+            :key="collection.id"
+            class="relative"
+          >
+            <BookmarkCollectionCard
+              :collection="collection"
+              @click="enterCollection(collection)"
+              @edit="openEditCollection(collection)"
+              @delete="confirmDeleteCollection(collection)"
+            />
+            <!-- Confirmar exclusão inline -->
+            <div
+              v-if="deletingCollectionId === collection.id"
+              class="absolute inset-0 bg-background/90 rounded-2xl flex flex-col items-center justify-center gap-2 p-3 z-10"
+            >
+              <p class="text-[12px] text-foreground text-center font-medium">Excluir coleção?</p>
+              <div class="flex gap-2 w-full">
+                <button
+                  type="button"
+                  class="flex-1 h-8 rounded-lg text-[12px] bg-muted/60 text-muted-foreground transition-colors hover:bg-muted"
+                  @click="deletingCollectionId = null"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 h-8 rounded-lg text-[12px] bg-destructive/15 text-destructive transition-colors hover:bg-destructive/25"
+                  @click="confirmDeleteCollection(collection)"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ── VIEW B — Lista de links ──────────────────────────────────────── -->
+    <template v-else>
+      <!-- Header da coleção -->
+      <div class="px-4 pt-4 pb-3 border-b border-border/30 shrink-0">
+        <div class="flex items-center gap-3 mb-3">
+          <button
+            type="button"
+            class="size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/40 transition-colors shrink-0"
+            @click="leaveCollection"
+          >
+            <ArrowLeft :size="18" />
+          </button>
+          <div class="flex-1 min-w-0">
+            <h2 class="text-[20px] font-bold text-foreground truncate leading-snug">
+              {{ activeCollection?.name ?? 'Bookmarks' }}
+            </h2>
+            <p class="text-[12px] text-muted-foreground/60">
+              {{ activeCollection?.bookmarks_count ?? 0 }}
+              {{ activeCollection?.bookmarks_count === 1 ? 'link' : 'links' }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="shrink-0 flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
+            @click="openNewBookmark"
+          >
+            <Plus :size="14" />
+            <span class="hidden sm:inline">Adicionar</span>
+          </button>
+        </div>
+
+        <!-- Search + favorites -->
+        <div class="flex items-center gap-2">
+          <div class="flex-1 relative">
+            <Search :size="13" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 pointer-events-none" />
+            <input
+              :value="searchInput"
+              type="search"
+              placeholder="Buscar links..."
+              class="w-full h-9 pl-8 pr-3 rounded-xl bg-muted/40 border border-border/60 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+              @input="handleSearch"
+            />
+          </div>
+          <button
+            type="button"
+            class="size-9 rounded-xl flex items-center justify-center transition-colors"
+            :class="bookmarkStore.showFavoritesOnly
+              ? 'bg-warning/15 text-warning'
+              : 'bg-muted/40 text-muted-foreground/40 hover:text-muted-foreground border border-border/60'"
+            @click="bookmarkStore.toggleFavoritesFilter()"
+          >
+            <Star :size="14" :class="bookmarkStore.showFavoritesOnly ? 'fill-warning' : ''" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Bookmark list -->
+      <div class="flex-1 overflow-y-auto px-4 py-2">
         <!-- Loading -->
-        <div v-else-if="bookmarkStore.isLoading" class="flex items-center justify-center py-12 text-muted-foreground">
+        <div v-if="bookmarkStore.isLoading" class="flex items-center justify-center py-12 text-muted-foreground">
           <Loader2 :size="18" class="animate-spin mr-2" />
           <span class="text-[13px]">Carregando...</span>
         </div>
 
-        <!-- Empty: no bookmarks in category -->
+        <!-- Empty: no links yet -->
         <div
-          v-else-if="!bookmarkStore.isLoading && activeCategoryId && allBookmarksForCollection.length === 0"
+          v-else-if="!bookmarkStore.isLoading && bookmarkStore.filteredBookmarks.length === 0 && !searchInput && !bookmarkStore.showFavoritesOnly"
           class="flex flex-col items-center justify-center py-16 text-center"
         >
           <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
             <Bookmark :size="22" class="text-muted-foreground/30" />
           </span>
-          <p class="text-[14px] font-medium text-muted-foreground">Nenhum bookmark ainda</p>
-          <p class="text-[12px] text-muted-foreground/50 mt-1">Adicione o primeiro usando o botão acima</p>
-        </div>
-
-        <!-- No category selected (categories exist) -->
-        <div
-          v-else-if="activeCollection && activeCategories.length > 0 && !activeCategoryId"
-          class="flex flex-col items-center justify-center py-16 text-center"
-        >
-          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
-            <Bookmark :size="22" class="text-muted-foreground/30" />
-          </span>
-          <p class="text-[14px] font-medium text-muted-foreground">Selecione uma categoria</p>
-          <p class="text-[12px] text-muted-foreground/50 mt-1">Clique em uma categoria acima para ver os bookmarks</p>
-        </div>
-
-        <!-- No categories in collection -->
-        <div
-          v-else-if="activeCollection && activeCategories.length === 0"
-          class="flex flex-col items-center justify-center py-16 text-center"
-        >
-          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
-            <Bookmark :size="22" class="text-muted-foreground/30" />
-          </span>
-          <p class="text-[14px] font-medium text-muted-foreground">Sem categorias</p>
-          <p class="text-[12px] text-muted-foreground/50 mt-1 mb-4">Crie uma categoria para organizar seus links</p>
+          <p class="text-[14px] font-medium text-muted-foreground">Nenhum link ainda</p>
+          <p class="text-[12px] text-muted-foreground/50 mt-1 mb-4">Adicione o primeiro link desta coleção</p>
           <button
             type="button"
             class="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
-            @click="openNewCategory"
+            @click="openNewBookmark"
           >
             <Plus :size="14" />
-            Criar categoria
+            Adicionar link
           </button>
         </div>
 
+        <!-- Empty: search/filter with no results -->
+        <div
+          v-else-if="!bookmarkStore.isLoading && bookmarkStore.filteredBookmarks.length === 0"
+          class="flex flex-col items-center justify-center py-16 text-center"
+        >
+          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
+            <Search :size="22" class="text-muted-foreground/30" />
+          </span>
+          <p class="text-[14px] font-medium text-muted-foreground">Nenhum resultado</p>
+          <p class="text-[12px] text-muted-foreground/50 mt-1">Tente outros termos ou limpe o filtro</p>
+        </div>
+
         <!-- Bookmark list -->
-        <div v-else class="divide-y divide-border/20">
+        <div v-else>
           <BookmarkListItem
-            v-for="bookmark in allBookmarksForCollection"
+            v-for="bookmark in bookmarkStore.filteredBookmarks"
             :key="bookmark.id"
             :bookmark="bookmark"
-            @edit="openEdit"
+            @edit="openEditBookmark"
           />
         </div>
       </div>
-    </div>
+    </template>
 
-    <!-- ── Mobile sidebar drawer ─────────────────────────────────────── -->
-    <Sheet v-model:open="mobileSidebarOpen">
-      <SheetContent side="left" class="p-0 w-72 bg-background border-r border-border [&>button]:hidden">
-        <div class="px-5 pt-5 pb-3 border-b border-border/40">
-          <h2 class="text-[16px] font-semibold text-foreground">Bookmarks</h2>
-        </div>
-        <BookmarkCollectionSidebar
-          @new-collection="() => { mobileSidebarOpen = false; openNewCollection() }"
-          @new-category="() => { mobileSidebarOpen = false; openNewCategory() }"
-        />
-      </SheetContent>
-    </Sheet>
-
-    <!-- ── Dialogs ────────────────────────────────────────────────────── -->
-    <BookmarkAddDialog
-      v-model:open="addDialogOpen"
-      :default-category-id="activeCategoryId"
-    />
-
-    <BookmarkEditDialog
-      v-if="editingBookmark"
-      v-model:open="editDialogOpen"
-      :bookmark="editingBookmark"
-    />
-
-    <CollectionFormDialog
-      v-model:open="collectionDialogOpen"
+    <!-- ── Sheets ─────────────────────────────────────────────────────────── -->
+    <BookmarkCollectionForm
+      v-model:open="collectionFormOpen"
       :collection="editingCollection"
     />
 
-    <CategoryFormDialog
-      v-if="collectionStore.activeCollectionId"
-      v-model:open="categoryDialogOpen"
-      :collection-id="collectionStore.activeCollectionId"
-      :category="editingCategory"
+    <BookmarkForm
+      v-if="bookmarkStore.activeCollectionId"
+      v-model:open="bookmarkFormOpen"
+      :collection-id="bookmarkStore.activeCollectionId"
+      :bookmark="editingBookmark"
     />
   </div>
 </template>

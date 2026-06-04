@@ -66,7 +66,7 @@ async function handleDelete() {
 <template>
   <div
     class="group flex items-start gap-3 py-3.5 border-b border-border/30 last:border-0 transition-colors hover:bg-muted/10 rounded-lg px-2"
-    :class="bookmark.is_favorite ? 'border-l-2 border-primary/60 pl-3' : ''"
+    :class="bookmark.is_favorite ? 'border-l-2 border-warning/60 pl-3 -ml-px' : ''"
   >
     <!-- Favicon -->
     <div class="size-5 rounded shrink-0 mt-0.5 overflow-hidden">

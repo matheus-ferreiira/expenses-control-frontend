@@ -5,20 +5,12 @@ export interface BookmarkCollection {
   color: string | null
   position: number
   bookmarks_count: number
-  categories?: BookmarkCategory[]
-}
-
-export interface BookmarkCategory {
-  id: string
-  bookmark_collection_id: string
-  name: string
-  position: number
-  bookmarks_count: number
+  created_at: string
 }
 
 export interface Bookmark {
   id: string
-  bookmark_category_id: string
+  bookmark_collection_id: string
   title: string
   url: string
   description: string | null
@@ -40,14 +32,6 @@ export interface UpdateBookmarkCollectionPayload {
   color?: string | null
 }
 
-export interface CreateBookmarkCategoryPayload {
-  name: string
-}
-
-export interface UpdateBookmarkCategoryPayload {
-  name?: string
-}
-
 export interface CreateBookmarkPayload {
   title: string
   url: string
@@ -60,7 +44,7 @@ export interface UpdateBookmarkPayload {
   url?: string
   description?: string | null
   is_favorite?: boolean
-  bookmark_category_id?: string
+  bookmark_collection_id?: string
 }
 
 export interface ReorderItem {

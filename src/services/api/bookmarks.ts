@@ -3,13 +3,10 @@ import { API_ENDPOINTS } from '@/constants/api'
 import type { ApiResponse } from '@/types/api'
 import type {
   Bookmark,
-  BookmarkCategory,
   BookmarkCollection,
-  CreateBookmarkCategoryPayload,
   CreateBookmarkCollectionPayload,
   CreateBookmarkPayload,
   ReorderItem,
-  UpdateBookmarkCategoryPayload,
   UpdateBookmarkCollectionPayload,
   UpdateBookmarkPayload,
 } from '@/types/bookmarks'
@@ -40,58 +37,33 @@ export const bookmarksApi = {
         .then(unwrap),
   },
 
-  categories: {
-    list: (collectionId: string) =>
+  links: {
+    list: (collectionId: string, params?: { search?: string; favorites?: boolean }) =>
       client
-        .get<ApiResponse<BookmarkCategory[]>>(API_ENDPOINTS.BOOKMARKS.CATEGORIES(collectionId))
+        .get<ApiResponse<Bookmark[]>>(API_ENDPOINTS.BOOKMARKS.LINKS(collectionId), { params })
         .then(unwrap),
 
-    create: (collectionId: string, payload: CreateBookmarkCategoryPayload) =>
+    create: (collectionId: string, payload: CreateBookmarkPayload) =>
       client
-        .post<ApiResponse<BookmarkCategory>>(API_ENDPOINTS.BOOKMARKS.CATEGORIES(collectionId), payload)
-        .then(unwrap),
-
-    update: (id: string, payload: UpdateBookmarkCategoryPayload) =>
-      client
-        .put<ApiResponse<BookmarkCategory>>(API_ENDPOINTS.BOOKMARKS.CATEGORY_DETAIL(id), payload)
-        .then(unwrap),
-
-    delete: (id: string) =>
-      client.delete(API_ENDPOINTS.BOOKMARKS.CATEGORY_DETAIL(id)),
-
-    reorder: (collectionId: string, items: ReorderItem[]) =>
-      client
-        .post<ApiResponse<unknown>>(API_ENDPOINTS.BOOKMARKS.CATEGORIES_REORDER(collectionId), { items })
-        .then(unwrap),
-  },
-
-  bookmarks: {
-    list: (categoryId: string, params?: { search?: string; favorites?: boolean }) =>
-      client
-        .get<ApiResponse<Bookmark[]>>(API_ENDPOINTS.BOOKMARKS.BOOKMARKS(categoryId), { params })
-        .then(unwrap),
-
-    create: (categoryId: string, payload: CreateBookmarkPayload) =>
-      client
-        .post<ApiResponse<Bookmark>>(API_ENDPOINTS.BOOKMARKS.BOOKMARKS(categoryId), payload)
+        .post<ApiResponse<Bookmark>>(API_ENDPOINTS.BOOKMARKS.LINKS(collectionId), payload)
         .then(unwrap),
 
     update: (id: string, payload: UpdateBookmarkPayload) =>
       client
-        .put<ApiResponse<Bookmark>>(API_ENDPOINTS.BOOKMARKS.BOOKMARK_DETAIL(id), payload)
+        .put<ApiResponse<Bookmark>>(API_ENDPOINTS.BOOKMARKS.LINK_DETAIL(id), payload)
         .then(unwrap),
 
     delete: (id: string) =>
-      client.delete(API_ENDPOINTS.BOOKMARKS.BOOKMARK_DETAIL(id)),
+      client.delete(API_ENDPOINTS.BOOKMARKS.LINK_DETAIL(id)),
 
     toggleFavorite: (id: string) =>
       client
-        .patch<ApiResponse<Bookmark>>(API_ENDPOINTS.BOOKMARKS.BOOKMARK_FAVORITE(id))
+        .patch<ApiResponse<Bookmark>>(API_ENDPOINTS.BOOKMARKS.LINK_FAVORITE(id))
         .then(unwrap),
 
-    reorder: (categoryId: string, items: ReorderItem[]) =>
+    reorder: (collectionId: string, items: ReorderItem[]) =>
       client
-        .post<ApiResponse<unknown>>(API_ENDPOINTS.BOOKMARKS.BOOKMARKS_REORDER(categoryId), { items })
+        .post<ApiResponse<unknown>>(API_ENDPOINTS.BOOKMARKS.LINKS_REORDER(collectionId), { items })
         .then(unwrap),
   },
 }
