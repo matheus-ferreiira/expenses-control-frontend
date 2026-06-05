@@ -4,10 +4,81 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), vue(), ...(process.env.NODE_ENV !== 'production' ? [vueDevTools()] : [])],
+  plugins: [
+    tailwindcss(),
+    vue(),
+    ...(process.env.NODE_ENV !== 'production' ? [vueDevTools()] : []),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+
+      workbox: {
+        navigateFallback: '/index.html',
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+
+        runtimeCaching: [
+          {
+            // API requests: always go to network, never cache
+            urlPattern: /\/api\//,
+            handler: 'NetworkOnly',
+          },
+          {
+            // Google favicon service: cache 1 day, max 200 entries
+            urlPattern: /^https:\/\/www\.google\.com\/s2\/favicons/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'favicons-cache',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24,
+              },
+            },
+          },
+        ],
+      },
+
+      manifest: {
+        name: 'VaultOS',
+        short_name: 'VaultOS',
+        description: 'Seu sistema financeiro pessoal',
+        theme_color: '#0a0a0a',
+        background_color: '#0a0a0a',
+        display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
+        icons: [
+          {
+            src: '/icons/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+
+      devOptions: {
+        enabled: false,
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
