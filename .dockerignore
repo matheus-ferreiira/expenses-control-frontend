@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+.git
+*.log
+.eslintcache
+coverage
+cypress/videos
+cypress/screenshots
+.vscode
+.DS_Store
+*.tsbuildinfo
