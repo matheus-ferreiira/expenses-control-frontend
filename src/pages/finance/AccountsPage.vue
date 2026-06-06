@@ -134,22 +134,8 @@ onMounted(async () => {
       </button>
     </div>
 
-    <!-- Hero: total balance — desktop only -->
-    <div v-if="!loading && store.activeAccounts.length > 0" class="hidden lg:block mb-6">
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1">Saldo total</p>
-      <p
-        class="text-[36px] font-semibold tabular-nums tracking-tight leading-none"
-        :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
-      >
-        {{ formatCurrency(totalBalance) }}
-      </p>
-      <p class="text-[13px] text-muted-foreground/60 mt-1">
-        {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
-      </p>
-    </div>
-
     <!-- Loading -->
-    <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+    <div v-if="loading" class="grid grid-cols-1 gap-3">
       <div v-for="i in 3" :key="i" class="rounded-lg border border-border/50 bg-card p-3.5 space-y-2.5">
         <div class="flex items-center gap-2.5">
           <Skeleton class="h-4 w-4 rounded shrink-0" />
@@ -174,7 +160,7 @@ onMounted(async () => {
 
     <template v-else>
       <!-- Active accounts grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 gap-3">
         <AccountCard
           v-for="account in store.activeAccounts"
           :key="account.id"
@@ -196,7 +182,7 @@ onMounted(async () => {
           <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
           <span>{{ showArchived ? 'Ocultar' : 'Ver' }} contas arquivadas ({{ store.archivedAccounts.length }})</span>
         </button>
-        <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 opacity-60">
+        <div v-if="showArchived" class="grid grid-cols-1 gap-3 opacity-60">
           <AccountCard
             v-for="account in store.archivedAccounts"
             :key="account.id"

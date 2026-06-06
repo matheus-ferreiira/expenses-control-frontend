@@ -189,7 +189,7 @@ onMounted(async () => {
 
 
     <!-- Loading -->
-    <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+    <div v-if="loading" class="grid grid-cols-1 gap-3">
       <div v-for="i in 3" :key="i" class="rounded-lg border border-border/50 bg-card p-3.5 space-y-2.5">
         <div class="flex items-center gap-2.5">
           <Skeleton class="h-4 w-4 rounded shrink-0" />
@@ -215,7 +215,7 @@ onMounted(async () => {
 
     <template v-else>
       <!-- Active cards grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 gap-3">
         <CreditCardCard
           v-for="card in store.activeCards"
           :key="card.id"
@@ -241,7 +241,7 @@ onMounted(async () => {
           <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
           <span>{{ showArchived ? 'Ocultar' : 'Ver' }} cartões arquivados ({{ store.archivedCards.length }})</span>
         </button>
-        <div v-if="showArchived" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div v-if="showArchived" class="grid grid-cols-1 gap-3">
           <CreditCardCard
             v-for="card in store.archivedCards"
             :key="card.id"

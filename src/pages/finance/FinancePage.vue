@@ -1,6 +1,6 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CalendarClock, CheckCircle2, AlertTriangle, PieChart, Flag } from 'lucide-vue-next'
+import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer } from '@/components/shared'
-import FinanceSummaryCards from '@/features/finance/components/FinanceSummaryCards.vue'
-import FinanceCashflowChart from '@/features/finance/components/FinanceCashflowChart.vue'
 import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
@@ -18,14 +16,13 @@ import TransactionDetailSheet from '@/features/finance/components/TransactionDet
 import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
-import { ROUTES } from '@/constants/routes'
 import { useAuthStore } from '@/stores/auth'
 import { financeApi } from '@/services/api/finance'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
-import { utilizationPercent, monthLabel as getMonthLabel, getCardBillingPeriod, currentMonth } from '@/features/finance/utils/financeHelpers'
+import { currentMonth } from '@/features/finance/utils/financeHelpers'
 import type { Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -152,22 +149,6 @@ async function loadCurrentMonthSummary() {
 const income = computed(() => currentMonthSummary.value?.income ?? 0)
 const expenses = computed(() => currentMonthSummary.value?.expenses ?? 0)
 
-// Credit card used amount — filtered by real billing period, not calendar month.
-// store.transactions only covers the selected month, so amounts near billing boundaries
-// may be partial. For the exact value, see the dedicated CardsPage which loads 60 days.
-function cardUsed(cardId: string): number {
-  const card = store.activeCards.find((c) => c.id === cardId)
-  if (!card) return 0
-  const period = getCardBillingPeriod(card.closing_day, card.due_day)
-  return store.transactions
-    .filter((t) =>
-      t.card_id === cardId &&
-      t.type === 'expense' &&
-      t.transaction_date >= period.startDate &&
-      t.transaction_date <= period.endDate,
-    )
-    .reduce((s, t) => s + t.amount, 0)
-}
 
 // Total balance across all active accounts
 const totalBalance = computed(() =>
@@ -212,7 +193,7 @@ const biggestExpense = computed(() => {
   return exp.reduce((max, t) => (t.amount > max.amount ? t : max))
 })
 
-const today = new Date().getDate()
+
 
 // Grouped categories panel:
 // Group A — categories WITH monthly_limit (always shown, even R$0 spent)
@@ -295,25 +276,6 @@ const daysLeftInMonth = computed(() => {
   return lastDay - now.getDate()
 })
 
-// Custom period picker for desktop
-const showPeriodPicker = ref(false)
-const periodStartDate = ref('')
-const periodEndDate = ref('')
-
-function applyCustomPeriod() {
-  if (periodStartDate.value && periodEndDate.value) {
-    filterState.customStartDate.value = periodStartDate.value
-    filterState.customEndDate.value = periodEndDate.value
-    filterState.applyCustomRange()
-    showPeriodPicker.value = false
-  }
-}
-
-function clearCustomPeriod() {
-  filterState.clearCustomRange()
-  periodStartDate.value = ''
-  periodEndDate.value = ''
-}
 
 // Mobile status chip — mirrors the Lovable MonthSummary status logic
 const mobileStatus = computed(() => {
@@ -332,18 +294,6 @@ const mobileStatus = computed(() => {
   return { tone: 'ok' as const, text: 'Você está no ritmo certo para este mês' }
 })
 
-// Short label for KPI cards — "este mês" when current, otherwise "abril de 2026"
-const kpiMonthLabel = computed(() => {
-  if (filterState.isCurrentMonth()) return 'este mês'
-  return getMonthLabel(filterState.month.value).toLowerCase()
-})
-
-// Cards with due_day within the next 10 days
-const upcomingBills = computed(() =>
-  store.activeCards
-    .filter((c) => c.due_day >= today && c.due_day - today <= 10)
-    .sort((a, b) => a.due_day - b.due_day),
-)
 
 // Quick filter pill definitions
 const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
@@ -363,8 +313,6 @@ function closeSearch() {
 }
 watch(filterState.search, () => loadTransactions())
 
-// Date range row toggle
-const txPeriodOpen = ref(false)
 
 // ── Previous month comparison ─────────────────────────────────────────────
 const prevMonthReport = ref<{
@@ -557,35 +505,8 @@ onMounted(async () => {
     <!-- Sub-nav -->
 
 
-    <!-- Hero: total balance — desktop only, no card wrapper -->
-    <div v-if="!store.loading" class="hidden lg:block mb-6">
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1">Saldo total</p>
-      <p
-        class="text-[36px] font-semibold tabular-nums tracking-tight leading-none"
-        :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
-      >
-        {{ formatCurrency(totalBalance) }}
-      </p>
-      <p class="text-[13px] text-muted-foreground/60 mt-1">
-        {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
-      </p>
-    </div>
-
-    <!-- Summary cards (4 KPI) — always first -->
-    <FinanceSummaryCards
-      :income="income"
-      :expenses="expenses"
-      :total-balance="totalBalance"
-      :projected-balance="projectedBalance"
-      :is-current-month="filterState.month.value >= currentMonth()"
-      :loading="store.loading"
-      :month-label="kpiMonthLabel"
-      :account-count="store.activeAccounts.length"
-      class="mt-4 mb-4"
-    />
-
-    <!-- Mobile Month Summary — lg:hidden, matches Lovable MonthSummary -->
-    <div class="lg:hidden mb-4 space-y-3">
+    <!-- Month Summary -->
+    <div class="mb-4 space-y-3">
 
       <!-- Main card: month nav + stats + budget + status chip + vs mês anterior -->
       <div class="bg-card border border-border rounded-lg p-4">
@@ -741,7 +662,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Cashflow summary (mobile only — desktop has the full chart) -->
+      <!-- Cashflow summary -->
       <div v-if="!store.loading" class="bg-card border border-border rounded-lg p-4">
         <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">Fluxo de caixa</p>
         <div class="grid grid-cols-2 gap-2">
@@ -769,33 +690,7 @@ onMounted(async () => {
       </p>
     </div>
 
-    <!-- Month comparison line (desktop only — mobile uses status chip inside summary card) -->
-    <div
-      v-if="expenseDelta !== null && !store.loading"
-      class="hidden lg:flex items-center gap-1.5 mb-4 text-[12px]"
-    >
-      <span class="text-muted-foreground/50">vs mês anterior:</span>
-      <span
-        class="flex items-center gap-0.5 font-medium tabular-nums"
-        :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
-      >
-        {{ expenseDelta <= 0 ? '↓' : '↑' }}
-        {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
-      </span>
-    </div>
-
-    <!-- 2-column layout: main (2/3) + sidebar (1/3) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Main column -->
-      <div class="lg:col-span-2 space-y-6">
-
-        <!-- Cashflow chart — anchored to the selected month -->
-        <div class="hidden lg:block">
-          <FinanceCashflowChart :month="filterState.month.value" />
-        </div>
-
-        <!-- Transactions — Lovable-style self-contained container -->
+    <!-- Transactions — Lovable-style self-contained container -->
         <div class="bg-card border border-border rounded-lg overflow-hidden">
 
           <!-- Header row: title + month nav + search -->
@@ -812,64 +707,6 @@ onMounted(async () => {
                 </span>
               </h2>
               <div class="flex items-center gap-1">
-                <!-- Month nav only on desktop — mobile uses the summary card nav -->
-                <div class="hidden lg:flex items-center gap-1">
-                  <MonthNavigator
-                    :month="filterState.month.value"
-                    :is-current-month="filterState.isCurrentMonth()"
-                    @prev="filterState.prevMonth()"
-                    @next="filterState.nextMonth()"
-                    @reset="filterState.resetToCurrentMonth()"
-                    @select-month="filterState.month.value = $event"
-                  />
-                  <!-- Custom period picker button -->
-                  <DropdownMenu v-model:open="showPeriodPicker">
-                    <DropdownMenuTrigger class="size-9 grid place-items-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" asChild>
-                      <button type="button" aria-label="Período personalizado" :class="filterState.useCustomRange ? 'text-foreground' : ''">
-                        <Calendar :size="16" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" class="w-64 p-3 space-y-2">
-                      <div class="text-[11px] font-semibold text-foreground mb-2">Período personalizado</div>
-                      <div class="space-y-2">
-                        <div class="flex flex-col">
-                          <label class="text-[11px] text-muted-foreground mb-1">De:</label>
-                          <input
-                            v-model="periodStartDate"
-                            type="date"
-                            class="px-2 py-1.5 rounded text-sm bg-background border border-border"
-                          />
-                        </div>
-                        <div class="flex flex-col">
-                          <label class="text-[11px] text-muted-foreground mb-1">Até:</label>
-                          <input
-                            v-model="periodEndDate"
-                            type="date"
-                            class="px-2 py-1.5 rounded text-sm bg-background border border-border"
-                          />
-                        </div>
-                      </div>
-                      <div class="flex gap-2 pt-2">
-                        <button
-                          type="button"
-                          @click="applyCustomPeriod"
-                          :disabled="!periodStartDate || !periodEndDate"
-                          class="flex-1 px-2 py-1.5 rounded text-[11px] font-medium bg-primary text-primary-foreground disabled:opacity-50 hover:opacity-90"
-                        >
-                          Aplicar
-                        </button>
-                        <button
-                          v-if="filterState.useCustomRange"
-                          type="button"
-                          @click="clearCustomPeriod"
-                          class="flex-1 px-2 py-1.5 rounded text-[11px] font-medium border border-border hover:bg-muted"
-                        >
-                          Limpar
-                        </button>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
                 <button
                   type="button"
                   aria-label="Buscar"
@@ -918,33 +755,6 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Date range filter — desktop only, toggled via header -->
-          <div
-            v-if="txPeriodOpen"
-            class="hidden lg:flex items-center gap-2 px-4 py-2 border-b border-border"
-          >
-            <span class="text-[10px] text-muted-foreground/50 shrink-0">Período:</span>
-            <input
-              v-model="filterState.customStartDate.value"
-              type="date"
-              class="h-6 px-1.5 rounded border border-border/60 bg-transparent text-[11px] text-foreground/80 outline-none focus:border-border"
-            />
-            <span class="text-[10px] text-muted-foreground/40">–</span>
-            <input
-              v-model="filterState.customEndDate.value"
-              type="date"
-              class="h-6 px-1.5 rounded border border-border/60 bg-transparent text-[11px] text-foreground/80 outline-none focus:border-border"
-            />
-            <button
-              type="button"
-              class="h-6 px-2.5 rounded text-[11px] font-medium transition-all"
-              :class="filterState.useCustomRange.value ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border/60'"
-              @click="filterState.useCustomRange.value ? (filterState.clearCustomRange(), loadTransactions()) : (filterState.applyCustomRange(), loadTransactions())"
-            >
-              {{ filterState.useCustomRange.value ? 'Limpar' : 'Filtrar' }}
-            </button>
-          </div>
-
           <!-- Transaction list — nested inside bg-card, no outer border -->
           <TransactionList
             :transactions="store.transactions"
@@ -964,327 +774,6 @@ onMounted(async () => {
           />
         </div>
 
-      </div>
-
-      <!-- Sidebar column -->
-      <div class="lg:col-span-1 space-y-4">
-
-        <!-- Contas -->
-        <div class="bg-card border border-border rounded-lg p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-[16px] font-semibold text-foreground">Contas</h2>
-            <div class="flex items-center gap-3">
-              <RouterLink
-                :to="{ name: 'finance-accounts', query: { new: '1' } }"
-                class="text-[12px] text-primary/70 hover:text-primary transition-colors"
-              >
-                + Nova
-              </RouterLink>
-              <RouterLink
-                :to="{ name: 'finance-accounts' }"
-                class="text-[12px] text-primary hover:text-primary/80 transition-colors"
-              >
-                Ver todas →
-              </RouterLink>
-            </div>
-          </div>
-
-          <!-- Loading skeleton -->
-          <div v-if="store.loading">
-            <div v-for="i in 3" :key="i" class="flex items-center gap-3 py-3 border-b border-border/30 last:border-0">
-              <div class="w-10 h-10 rounded-xl bg-muted/60 animate-pulse shrink-0" />
-              <div class="flex-1 space-y-1.5">
-                <div class="h-3 w-24 rounded bg-muted/60 animate-pulse" />
-                <div class="h-2.5 w-16 rounded bg-muted/60 animate-pulse" />
-              </div>
-              <div class="h-4 w-20 rounded bg-muted/60 animate-pulse" />
-            </div>
-          </div>
-
-          <!-- Empty state -->
-          <div v-else-if="store.activeAccounts.length === 0" class="flex flex-col items-center py-6 gap-1">
-            <p class="text-[13px] text-muted-foreground/60">Nenhuma conta cadastrada</p>
-            <p class="text-[12px] text-muted-foreground/40">Adicione uma conta para acompanhar seu saldo</p>
-          </div>
-
-          <!-- Account rows -->
-          <div v-else>
-            <div
-              v-for="account in store.activeAccounts.slice(0, 4)"
-              :key="account.id"
-              class="flex items-center gap-3 py-3 border-b border-border/30 last:border-0"
-            >
-              <span
-                class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-[13px] shrink-0"
-                :style="{
-                  background: account.color ? account.color + '26' : 'hsl(var(--primary) / 0.15)',
-                  color: account.color ?? 'hsl(var(--primary))',
-                }"
-              >
-                {{ account.name.slice(0, 2).toUpperCase() }}
-              </span>
-              <div class="flex-1 min-w-0">
-                <p class="text-[14px] font-medium text-foreground truncate leading-tight">{{ account.name }}</p>
-                <p class="text-[12px] text-muted-foreground/50 mt-0.5 capitalize truncate">
-                  {{ account.bank_name || account.type }}
-                </p>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <span
-                  class="text-[14px] font-semibold tabular-nums"
-                  :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
-                >
-                  {{ formatCurrency(account.balance) }}
-                </span>
-                <ChevronRight :size="14" class="text-muted-foreground/30" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cartões -->
-        <div class="bg-card border border-border rounded-lg p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-[16px] font-semibold text-foreground">Cartões</h2>
-            <div class="flex items-center gap-3">
-              <RouterLink
-                :to="{ name: 'finance-cards', query: { new: '1' } }"
-                class="text-[12px] text-primary/70 hover:text-primary transition-colors"
-              >
-                + Nova
-              </RouterLink>
-              <RouterLink
-                :to="{ name: 'finance-cards' }"
-                class="text-[12px] text-primary hover:text-primary/80 transition-colors"
-              >
-                Ver todos →
-              </RouterLink>
-            </div>
-          </div>
-
-          <!-- Loading skeleton -->
-          <div v-if="store.loading">
-            <div v-for="i in 2" :key="i" class="py-3 border-b border-border/30 last:border-0 space-y-2">
-              <div class="flex items-center gap-3">
-                <div class="w-3 h-3 rounded-full bg-muted/60 animate-pulse shrink-0" />
-                <div class="flex-1 h-3 rounded bg-muted/60 animate-pulse" />
-                <div class="h-3 w-16 rounded bg-muted/60 animate-pulse" />
-              </div>
-              <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse ml-6" />
-            </div>
-          </div>
-
-          <!-- Empty state -->
-          <div v-else-if="store.activeCards.length === 0" class="flex flex-col items-center py-6 gap-1">
-            <p class="text-[13px] text-muted-foreground/60">Nenhum cartão cadastrado</p>
-            <p class="text-[12px] text-muted-foreground/40">Adicione um cartão para acompanhar seus gastos</p>
-          </div>
-
-          <!-- Card rows -->
-          <div v-else>
-            <div
-              v-for="card in store.activeCards.slice(0, 3)"
-              :key="card.id"
-              class="flex flex-col gap-2 py-3 border-b border-border/30 last:border-0"
-            >
-              <!-- Row 1: dot + name + usage amount -->
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-3 h-3 rounded-full shrink-0"
-                  :style="{ background: card.color || 'hsl(var(--muted-foreground))' }"
-                />
-                <p class="text-[14px] font-medium text-foreground flex-1 truncate">{{ card.name }}</p>
-                <span class="text-[14px] font-semibold tabular-nums text-foreground shrink-0">
-                  {{ formatCurrency(cardUsed(card.id)) }}
-                </span>
-              </div>
-              <!-- Row 2: bar + meta text -->
-              <div class="pl-6">
-                <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
-                  <div
-                    class="h-full rounded-full transition-all duration-500"
-                    :style="{
-                      width: utilizationPercent(cardUsed(card.id), card.limit_amount) + '%',
-                      background: utilizationPercent(cardUsed(card.id), card.limit_amount) >= 80
-                        ? 'hsl(var(--destructive) / 0.7)'
-                        : (card.color || 'hsl(var(--primary))'),
-                    }"
-                  />
-                </div>
-                <p class="text-[11px] text-muted-foreground/40 mt-1 tabular-nums">
-                  Limite {{ formatCurrency(card.limit_amount) }} · Vence dia {{ card.due_day }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Orçamento do mês -->
-        <div class="bg-card border border-border rounded-lg p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-[16px] font-semibold text-foreground">Orçamento do mês</h2>
-            <RouterLink
-              :to="{ name: ROUTES.FINANCE_BUDGET }"
-              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
-            >
-              Ver tudo →
-            </RouterLink>
-          </div>
-
-          <!-- Loading -->
-          <div v-if="store.loadingBudget" class="space-y-2">
-            <div class="h-3 w-full rounded bg-muted/60 animate-pulse" />
-            <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
-          </div>
-
-          <!-- Sem orçamento -->
-          <div v-else-if="!store.currentBudget" class="flex flex-col items-center gap-2 py-4">
-            <PieChart :size="20" class="text-muted-foreground/30" />
-            <p class="text-[12px] text-muted-foreground/50">Configure seu orçamento mensal</p>
-            <RouterLink
-              :to="{ name: ROUTES.FINANCE_BUDGET }"
-              class="text-[12px] text-primary/70 hover:text-primary transition-colors"
-            >
-              Configurar →
-            </RouterLink>
-          </div>
-
-          <!-- Com orçamento -->
-          <template v-else>
-            <div class="flex items-center justify-between mb-1.5">
-              <p class="text-[11px] text-muted-foreground/50 tabular-nums">
-                {{ formatCurrency(store.currentBudget.summary.total_spent) }} de
-                {{ formatCurrency(store.currentBudget.summary.total_budgeted) }}
-              </p>
-              <p class="text-[11px] text-muted-foreground/60 tabular-nums">
-                {{ Math.round((store.currentBudget.summary.total_spent / Math.max(1, store.currentBudget.summary.total_budgeted)) * 100) }}%
-              </p>
-            </div>
-            <div class="h-1 rounded-full bg-muted/30 overflow-hidden mb-3">
-              <div
-                class="h-full rounded-full transition-all duration-700"
-                :class="store.currentBudget.summary.total_spent >= store.currentBudget.summary.total_budgeted ? 'bg-destructive' : store.currentBudget.summary.total_spent / store.currentBudget.summary.total_budgeted >= 0.7 ? 'bg-warning' : 'bg-primary'"
-                :style="{ width: `${Math.min(100, Math.round((store.currentBudget.summary.total_spent / Math.max(1, store.currentBudget.summary.total_budgeted)) * 100))}%` }"
-              />
-            </div>
-
-            <!-- Top 3 categorias -->
-            <div class="space-y-2.5">
-              <div
-                v-for="item in store.currentBudget.items.slice(0, 3).sort((a, b) => b.spent_percentage - a.spent_percentage)"
-                :key="item.category_id"
-                class="flex items-center gap-2"
-              >
-                <span
-                  class="size-2 rounded-full shrink-0"
-                  :style="{ background: item.category_color ?? '#888' }"
-                />
-                <span class="text-[12px] text-foreground/80 flex-1 truncate">{{ item.category_name }}</span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <div class="w-14 h-1 rounded-full bg-muted/30 overflow-hidden">
-                    <div
-                      class="h-full rounded-full"
-                      :class="item.status === 'exceeded' ? 'bg-destructive' : item.status === 'warning' ? 'bg-warning' : 'bg-primary'"
-                      :style="{ width: `${Math.min(100, item.spent_percentage)}%` }"
-                    />
-                  </div>
-                  <span class="text-[11px] text-muted-foreground/50 tabular-nums w-7 text-right">{{ item.spent_percentage.toFixed(0) }}%</span>
-                  <span v-if="item.status === 'warning' || item.status === 'exceeded'" class="text-warning text-[10px]">⚠</span>
-                </div>
-              </div>
-            </div>
-          </template>
-        </div>
-
-        <!-- Metas -->
-        <div class="bg-card border border-border rounded-lg p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-[16px] font-semibold text-foreground">Metas</h2>
-            <RouterLink
-              :to="{ name: ROUTES.FINANCE_GOALS }"
-              class="text-[12px] text-primary hover:text-primary/80 transition-colors"
-            >
-              Ver todas →
-            </RouterLink>
-          </div>
-
-          <!-- Loading -->
-          <div v-if="store.loadingGoals" class="space-y-3">
-            <div v-for="i in 2" :key="i" class="space-y-1.5">
-              <div class="h-3 w-28 rounded bg-muted/60 animate-pulse" />
-              <div class="h-1 w-full rounded-full bg-muted/60 animate-pulse" />
-            </div>
-          </div>
-
-          <!-- Sem metas -->
-          <div v-else-if="store.goals.filter(g => g.status === 'active').length === 0" class="flex flex-col items-center gap-2 py-4">
-            <Flag :size="20" class="text-muted-foreground/30" />
-            <p class="text-[12px] text-muted-foreground/50">Nenhuma meta ativa</p>
-            <RouterLink
-              :to="{ name: ROUTES.FINANCE_GOALS }"
-              class="text-[12px] text-primary/70 hover:text-primary transition-colors"
-            >
-              Criar meta →
-            </RouterLink>
-          </div>
-
-          <!-- Lista compacta (max 3) -->
-          <div v-else class="space-y-3">
-            <div
-              v-for="goal in store.goals.filter(g => g.status === 'active').slice(0, 3)"
-              :key="goal.id"
-            >
-              <div class="flex items-center justify-between mb-1">
-                <p class="text-[13px] font-medium text-foreground truncate max-w-[60%]">{{ goal.name }}</p>
-                <p class="text-[11px] text-muted-foreground/50 tabular-nums text-right">
-                  {{ formatCurrency(goal.current_amount) }} / {{ formatCurrency(goal.target_amount) }}
-                </p>
-              </div>
-              <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
-                <div
-                  class="h-full rounded-full transition-all duration-700"
-                  :style="{ width: `${Math.min(100, goal.progress_percentage)}%`, background: goal.color ?? 'hsl(var(--primary))' }"
-                />
-              </div>
-              <p class="text-[11px] text-muted-foreground/40 mt-0.5 tabular-nums">
-                {{ goal.progress_percentage.toFixed(0) }}% · faltam {{ formatCurrency(goal.remaining) }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Upcoming bills — within 10 days -->
-        <div v-if="!store.loading && upcomingBills.length > 0" class="bg-card border border-border rounded-lg overflow-hidden">
-          <header class="flex items-center gap-2 px-3.5 h-9 border-b border-border">
-            <CalendarClock :size="13" class="text-warning shrink-0" />
-            <h2 class="text-[12px] font-semibold tracking-tight text-foreground">Próximos vencimentos</h2>
-          </header>
-          <div class="divide-y divide-border">
-            <div
-              v-for="card in upcomingBills"
-              :key="card.id"
-              class="flex items-center justify-between px-4 py-3"
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <div class="h-2 w-2 rounded-full shrink-0" :style="{ background: card.color || 'hsl(var(--muted-foreground))' }" />
-                <span class="text-[12px] text-foreground/80 truncate">{{ card.name }}</span>
-              </div>
-              <span
-                class="text-[11px] shrink-0 ml-2 font-medium"
-                :class="
-                  card.due_day - today === 0 ? 'text-destructive/80' :
-                  card.due_day - today <= 3 ? 'text-warning/80' :
-                  'text-muted-foreground/50'
-                "
-              >
-                {{ card.due_day - today === 0 ? 'vence hoje' : `dia ${card.due_day}` }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
 
   </AppPageContainer>
 

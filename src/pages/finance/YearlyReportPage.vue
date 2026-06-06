@@ -246,7 +246,7 @@ function hsl(token: string, alpha = 1): string {
 
     <!-- Loading skeletons -->
     <div v-if="loading" class="space-y-4">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="grid grid-cols-2 gap-3">
         <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
       </div>
       <Skeleton class="h-64 rounded-xl" />
@@ -301,8 +301,8 @@ function hsl(token: string, alpha = 1): string {
         </p>
       </div>
 
-      <!-- Chart + Table side by side on desktop -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+      <!-- Chart + Table -->
+      <div class="grid grid-cols-1 gap-5 mb-5">
 
         <!-- Bar chart -->
         <div class="bg-card border border-border rounded-xl p-4">
