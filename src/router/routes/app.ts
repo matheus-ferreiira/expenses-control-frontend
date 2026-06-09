@@ -24,8 +24,7 @@ export const appRoutes: RouteRecordRaw[] = [
       },
       {
         path: 'tasks/:id',
-        name: ROUTES.TASK_DETAIL,
-        component: () => import('@/pages/tasks/TaskDetailPage.vue'),
+        redirect: { name: ROUTES.TASKS },
       },
       {
         path: 'habits',

@@ -29,11 +29,22 @@ export const useTaskStore = defineStore('tasks', () => {
     ),
   )
 
+  const tasksByDate = computed(() => {
+    const groups: Record<string, Task[]> = {}
+    for (const task of tasks.value) {
+      const key = task.due_date ?? 'no_date'
+      if (!groups[key]) groups[key] = []
+      groups[key].push(task)
+    }
+    return groups
+  })
+
   async function fetchTasks(filters?: TaskFilters) {
     loading.value = true
     error.value = null
     try {
-      const { data, meta } = await tasksApi.list(filters)
+      const merged: TaskFilters = { per_page: 200, ...filters }
+      const { data, meta } = await tasksApi.list(merged)
       tasks.value = data
       total.value = meta.total
     } catch (e: unknown) {
@@ -197,6 +208,7 @@ export const useTaskStore = defineStore('tasks', () => {
     total,
     pendingTasks,
     overdueTasks,
+    tasksByDate,
     fetchTasks,
     createTask,
     updateTask,

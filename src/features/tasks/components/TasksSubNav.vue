@@ -46,31 +46,29 @@ const tabs = computed(() => [
 
 function isActive(id: TaskViewId): boolean {
   if (props.selectedView === id) return true
-  if (id === 'all' && !['today','upcoming','overdue','completed','no-date'].includes(props.selectedView)) return true
+  if (id === 'all' && !['today', 'upcoming', 'overdue', 'completed', 'no-date'].includes(props.selectedView)) return true
   return false
 }
 </script>
 
 <template>
-  <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none scroll-fade-x">
-    <div class="flex items-center gap-1 w-max border-b border-border">
+  <div class="-mx-4 px-4 mb-4 overflow-x-auto scrollbar-none">
+    <div class="flex items-center gap-1.5 w-max py-0.5">
       <button
         v-for="tab in tabs"
         :key="tab.id"
-        class="relative flex items-center gap-1.5 px-3 h-10 text-sm font-medium whitespace-nowrap transition-colors shrink-0"
-        :class="isActive(tab.id) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
+        class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] whitespace-nowrap transition-colors shrink-0"
+        :class="isActive(tab.id)
+          ? 'bg-primary/15 text-primary font-medium'
+          : 'text-muted-foreground hover:text-foreground'"
         @click="emit('update:selectedView', tab.id)"
       >
         {{ tab.label }}
         <span
           v-if="tab.count > 0"
-          class="text-[10px] tabular-nums font-semibold"
-          :class="tab.danger && !isActive(tab.id) ? 'text-destructive' : isActive(tab.id) ? 'text-foreground/60' : 'text-muted-foreground/50'"
+          class="text-[11px] tabular-nums font-semibold"
+          :class="tab.danger && !isActive(tab.id) ? 'text-destructive' : 'opacity-60'"
         >{{ tab.count }}</span>
-        <span
-          v-if="isActive(tab.id)"
-          class="absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-primary"
-        />
       </button>
     </div>
   </div>
