@@ -4,7 +4,10 @@ import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
 import {
   Calendar,
+  Clock,
   Flag,
+  FolderOpen,
+  Tag,
   X,
   CheckCircle2,
   RotateCcw,
@@ -334,6 +337,40 @@ watch(() => props.open, (open) => {
                   : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
                 @click="selectPriority(p.value)"
               >{{ TASK_PRIORITY_LABELS[p.value] }}</button>
+            </div>
+          </div>
+
+          <!-- List row -->
+          <div v-if="task.task_list">
+            <div class="flex items-center gap-2 w-full py-2 -mx-1 px-1">
+              <FolderOpen :size="15" class="text-muted-foreground/60 shrink-0" />
+              <span class="text-[13px] text-muted-foreground">{{ task.task_list.name }}</span>
+            </div>
+          </div>
+
+          <!-- Tags row -->
+          <div v-if="task.tags && task.tags.length">
+            <div class="flex items-start gap-2 w-full py-2 -mx-1 px-1">
+              <Tag :size="15" class="text-muted-foreground/60 shrink-0 mt-0.5" />
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  v-for="tag in task.tags"
+                  :key="tag.id"
+                  class="inline-flex items-center h-5 px-2 rounded text-[11px] font-medium bg-muted/40 text-muted-foreground"
+                >{{ tag.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estimated time row -->
+          <div v-if="task.estimated_minutes">
+            <div class="flex items-center gap-2 w-full py-2 -mx-1 px-1">
+              <Clock :size="15" class="text-muted-foreground/60 shrink-0" />
+              <span class="text-[13px] text-muted-foreground tabular-nums">
+                {{ task.estimated_minutes >= 60
+                  ? `${Math.floor(task.estimated_minutes / 60)}h${task.estimated_minutes % 60 ? ` ${task.estimated_minutes % 60}min` : ''}`
+                  : `${task.estimated_minutes}min` }}
+              </span>
             </div>
           </div>
 

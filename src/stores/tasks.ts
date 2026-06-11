@@ -39,6 +39,30 @@ export const useTaskStore = defineStore('tasks', () => {
     return groups
   })
 
+  const tasksByPeriod = computed(() => {
+    const today = new Date().toLocaleDateString('en-CA')
+    return {
+      today: tasks.value.filter(
+        (t) => t.due_date && t.due_date.slice(0, 10) === today,
+      ),
+      upcoming: tasks.value.filter(
+        (t) =>
+          t.due_date &&
+          t.due_date.slice(0, 10) > today &&
+          t.status !== 'completed' &&
+          t.status !== 'cancelled',
+      ),
+      overdue: tasks.value.filter(
+        (t) =>
+          t.due_date &&
+          t.due_date.slice(0, 10) < today &&
+          t.status !== 'completed' &&
+          t.status !== 'cancelled',
+      ),
+      no_date: tasks.value.filter((t) => !t.due_date),
+    }
+  })
+
   async function fetchTasks(filters?: TaskFilters) {
     loading.value = true
     error.value = null
@@ -209,6 +233,7 @@ export const useTaskStore = defineStore('tasks', () => {
     pendingTasks,
     overdueTasks,
     tasksByDate,
+    tasksByPeriod,
     fetchTasks,
     createTask,
     updateTask,

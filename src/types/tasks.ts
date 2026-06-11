@@ -79,6 +79,9 @@ export interface CreateTaskPayload {
   due_date?: string
   due_time?: string
   label_ids?: string[]
+  tag_ids?: string[]
+  task_list_id?: string | null
+  estimated_minutes?: number | null
 }
 
 export type UpdateTaskPayload = Partial<CreateTaskPayload>

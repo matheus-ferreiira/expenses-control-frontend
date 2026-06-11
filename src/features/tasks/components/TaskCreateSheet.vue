@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { DatePicker } from '@ui/date-picker'
 import { Loader2 } from 'lucide-vue-next'
 import { useTaskStore } from '@/stores/tasks'
+import { useTaskListStore } from '@/stores/taskLists'
+import { useTaskTagStore } from '@/stores/taskTags'
 import { useToast } from '@/composables/useToast'
 import type { TaskPriority } from '@/types/tasks'
 
@@ -11,13 +13,23 @@ const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ 'update:open': [boolean] }>()
 
 const store = useTaskStore()
+const listStore = useTaskListStore()
+const tagStore = useTaskTagStore()
 const toast = useToast()
 
 const titleRef = ref<HTMLInputElement | null>(null)
 const title = ref('')
 const dueDate = ref<string | null>(null)
 const priority = ref<TaskPriority>('normal')
+const selectedListId = ref<string | null>(null)
+const selectedTagIds = ref<string[]>([])
+const estimatedMinutes = ref<number | null>(null)
 const submitting = ref(false)
+
+onMounted(async () => {
+  if (!listStore.lists.length) await listStore.fetchLists().catch(() => {})
+  if (!tagStore.tags.length) await tagStore.fetchTags().catch(() => {})
+})
 
 watch(
   () => props.open,
@@ -26,6 +38,9 @@ watch(
       title.value = ''
       dueDate.value = null
       priority.value = 'normal'
+      selectedListId.value = null
+      selectedTagIds.value = []
+      estimatedMinutes.value = null
       nextTick(() => titleRef.value?.focus())
     }
   },
@@ -77,6 +92,12 @@ const PRIORITIES: PriorityDef[] = [
   { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted/30 text-muted-foreground' },
 ]
 
+function toggleTag(id: string) {
+  const idx = selectedTagIds.value.indexOf(id)
+  if (idx === -1) selectedTagIds.value.push(id)
+  else selectedTagIds.value.splice(idx, 1)
+}
+
 function close() {
   emit('update:open', false)
 }
@@ -89,6 +110,9 @@ async function submit() {
       title: title.value.trim(),
       priority: priority.value,
       ...(dueDate.value ? { due_date: dueDate.value } : {}),
+      ...(selectedListId.value ? { task_list_id: selectedListId.value } : {}),
+      ...(selectedTagIds.value.length ? { tag_ids: selectedTagIds.value } : {}),
+      ...(estimatedMinutes.value ? { estimated_minutes: estimatedMinutes.value } : {}),
     })
     toast.success('Tarefa criada')
     close()
@@ -144,7 +168,6 @@ function handleKeydown(e: KeyboardEvent) {
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
             DATA (OPCIONAL)
           </p>
-          <!-- Quick chips -->
           <div class="flex flex-wrap gap-2 mb-3">
             <button
               v-for="qd in QUICK_DATES"
@@ -157,7 +180,6 @@ function handleKeydown(e: KeyboardEvent) {
               @click="selectQuickDate(qd)"
             >{{ qd.label }}</button>
           </div>
-          <!-- Custom date picker -->
           <DatePicker
             :model-value="dueDate ?? ''"
             @update:model-value="dueDate = $event || null"
@@ -181,6 +203,66 @@ function handleKeydown(e: KeyboardEvent) {
               @click="priority = p.value"
             >{{ p.label }}</button>
           </div>
+        </div>
+
+        <!-- Lista -->
+        <div v-if="listStore.lists.length">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+            LISTA
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
+              :class="selectedListId === null
+                ? 'bg-primary/15 text-primary font-medium'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+              @click="selectedListId = null"
+            >Nenhuma</button>
+            <button
+              v-for="list in listStore.lists"
+              :key="list.id"
+              type="button"
+              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
+              :class="selectedListId === list.id
+                ? 'bg-primary/15 text-primary font-medium'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+              @click="selectedListId = list.id"
+            >{{ list.name }}</button>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div v-if="tagStore.tags.length">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+            TAGS
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="tag in tagStore.tags"
+              :key="tag.id"
+              type="button"
+              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
+              :class="selectedTagIds.includes(tag.id)
+                ? 'bg-primary/15 text-primary font-medium'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+              @click="toggleTag(tag.id)"
+            >{{ tag.name }}</button>
+          </div>
+        </div>
+
+        <!-- Estimativa de tempo -->
+        <div>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+            ESTIMATIVA (MIN)
+          </p>
+          <input
+            v-model.number="estimatedMinutes"
+            type="number"
+            min="1"
+            placeholder="Ex: 30"
+            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[14px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+          />
         </div>
 
       </div>

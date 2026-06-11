@@ -22,6 +22,14 @@ export const API_ENDPOINTS = {
     LABELS: `${API_BASE}/task-labels`,
     LABEL_DETAIL: (id: string) => `${API_BASE}/task-labels/${id}`,
   },
+  TASK_LISTS: {
+    BASE: `${API_BASE}/task-lists`,
+    DETAIL: (id: string) => `${API_BASE}/task-lists/${id}`,
+  },
+  TASK_TAGS: {
+    BASE: `${API_BASE}/task-tags`,
+    DETAIL: (id: string) => `${API_BASE}/task-tags/${id}`,
+  },
   HABITS: {
     BASE: `${API_BASE}/habits`,
     DETAIL: (id: string) => `${API_BASE}/habits/${id}`,
