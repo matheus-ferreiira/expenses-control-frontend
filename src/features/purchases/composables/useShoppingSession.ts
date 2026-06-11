@@ -14,6 +14,8 @@ export function useShoppingSession() {
   const sessionToDelete = ref<ShoppingSession | null>(null)
   const detailSheetOpen = ref(false)
   const selectedHistorySession = ref<ShoppingSession | null>(null)
+  const reopenConfirmOpen = ref(false)
+  const sessionToReopen = ref<ShoppingSession | null>(null)
 
   function openSessionView() {
     sessionViewOpen.value = true
@@ -55,6 +57,34 @@ export function useShoppingSession() {
     detailSheetOpen.value = true
   }
 
+  function requestReopenSession(session: ShoppingSession) {
+    sessionToReopen.value = session
+    reopenConfirmOpen.value = true
+  }
+
+  async function confirmReopenSession() {
+    if (!sessionToReopen.value) return
+    try {
+      await store.reopenSession(sessionToReopen.value.id)
+      toast.success('Lista reaberta!')
+    } catch {
+      toast.error('Erro ao reabrir lista')
+    } finally {
+      reopenConfirmOpen.value = false
+      sessionToReopen.value = null
+    }
+  }
+
+  function cancelReopenSession() {
+    reopenConfirmOpen.value = false
+    sessionToReopen.value = null
+  }
+
+  function handleSessionReopened() {
+    selectedHistorySession.value = null
+    detailSheetOpen.value = false
+  }
+
   return {
     sessionViewOpen,
     finishSheetOpen,
@@ -63,6 +93,8 @@ export function useShoppingSession() {
     sessionToDelete,
     detailSheetOpen,
     selectedHistorySession,
+    reopenConfirmOpen,
+    sessionToReopen,
     openSessionView,
     openFinishSheet,
     openNewSessionDialog,
@@ -70,5 +102,9 @@ export function useShoppingSession() {
     confirmDeleteSession,
     cancelDeleteSession,
     openHistoryDetail,
+    requestReopenSession,
+    confirmReopenSession,
+    cancelReopenSession,
+    handleSessionReopened,
   }
 }

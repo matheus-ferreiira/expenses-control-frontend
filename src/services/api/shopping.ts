@@ -32,6 +32,16 @@ export const shoppingApi = {
         .post<ApiResponse<ShoppingSession>>(API_ENDPOINTS.SHOPPING.SESSION_FINISH(id), payload)
         .then(unwrap),
 
+    update: (id: string, payload: { title: string }) =>
+      client
+        .put<ApiResponse<ShoppingSession>>(API_ENDPOINTS.SHOPPING.SESSION_DETAIL(id), payload)
+        .then(unwrap),
+
+    reopen: (id: string) =>
+      client
+        .patch<ApiResponse<ShoppingSession>>(API_ENDPOINTS.SHOPPING.SESSION_REOPEN(id))
+        .then(unwrap),
+
     delete: (id: string) => client.delete(API_ENDPOINTS.SHOPPING.SESSION_DETAIL(id)),
   },
 

@@ -73,6 +73,37 @@ export const useShoppingSessionStore = defineStore('shoppingSessions', () => {
     }
   }
 
+  async function updateSession(id: string, payload: { title?: string }): Promise<void> {
+    const idx = sessions.value.findIndex((s) => s.id === id)
+    if (idx !== -1) Object.assign(sessions.value[idx]!, payload)
+    try {
+      const session = await shoppingApi.sessions.update(id, payload as { title: string })
+      const currentIdx = sessions.value.findIndex((s) => s.id === id)
+      if (currentIdx !== -1) sessions.value[currentIdx] = session
+    } catch (e) {
+      error.value = 'Erro ao atualizar sessão'
+      throw e
+    }
+  }
+
+  async function reopenSession(id: string): Promise<void> {
+    const idx = sessions.value.findIndex((s) => s.id === id)
+    if (idx !== -1) {
+      sessions.value[idx]!.status = 'active'
+      sessions.value[idx]!.finished_at = null
+      sessions.value[idx]!.total = null
+      sessions.value[idx]!.transaction_id = null
+    }
+    try {
+      const session = await shoppingApi.sessions.reopen(id)
+      const currentIdx = sessions.value.findIndex((s) => s.id === id)
+      if (currentIdx !== -1) sessions.value[currentIdx] = session
+    } catch (e) {
+      error.value = 'Erro ao reabrir sessão'
+      throw e
+    }
+  }
+
   async function deleteSession(id: string): Promise<void> {
     try {
       await shoppingApi.sessions.delete(id)
@@ -99,6 +130,8 @@ export const useShoppingSessionStore = defineStore('shoppingSessions', () => {
     createSession,
     fetchSession,
     finishSession,
+    updateSession,
+    reopenSession,
     deleteSession,
     updateSessionItems,
   }

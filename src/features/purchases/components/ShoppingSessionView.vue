@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
-import { X, Plus, Trash2, Loader2, CheckCircle2, Check } from 'lucide-vue-next'
+import { X, Plus, Trash2, Loader2, CheckCircle2, Check, Pencil } from 'lucide-vue-next'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { useShoppingItemStore } from '@/stores/shoppingItems'
 import { useShoppingItems } from '@/features/purchases/composables/useShoppingItems'
@@ -30,6 +30,8 @@ const adding = ref(false)
 // Inline edit state
 const editingItemId = ref<string | null>(null)
 const editName = ref('')
+const editCategory = ref('')
+const editPriceCents = ref('')
 const saving = ref(false)
 
 const { grouped } = useShoppingItems(() => props.session.items)
@@ -123,6 +125,8 @@ function handleFieldKeydown(e: KeyboardEvent) {
 function startEdit(item: ShoppingItem) {
   editingItemId.value = item.id
   editName.value = item.name
+  editCategory.value = item.category ?? ''
+  editPriceCents.value = item.price !== null ? Math.round(item.price * 100).toString() : ''
   nextTick(() => {
     const el = document.getElementById(`edit-name-${item.id}`)
     el?.focus()
@@ -138,7 +142,12 @@ async function saveEdit(item: ShoppingItem) {
   }
   saving.value = true
   try {
-    await itemStore.updateItem(item.id, { name })
+    const parsedPrice = editPriceCents.value ? parseInt(editPriceCents.value, 10) / 100 : null
+    await itemStore.updateItem(item.id, {
+      name,
+      category: editCategory.value.trim() || null,
+      price: parsedPrice,
+    })
   } catch {
     toast.error('Erro ao atualizar item')
   } finally {
@@ -154,6 +163,18 @@ function cancelEdit() {
 function handleEditNameKeydown(e: KeyboardEvent, item: ShoppingItem) {
   if (e.key === 'Enter') saveEdit(item)
   if (e.key === 'Escape') cancelEdit()
+}
+
+function handleEditFieldKeydown(e: KeyboardEvent, item: ShoppingItem) {
+  if (e.key === 'Enter') saveEdit(item)
+  if (e.key === 'Escape') cancelEdit()
+}
+
+function handleEditPriceInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  const digits = raw.replace(/\D/g, '')
+  editPriceCents.value = digits
+  ;(e.target as HTMLInputElement).value = formatPriceCents(digits)
 }
 
 // ── Finish guard ──────────────────────────────────────────────────────────────
@@ -264,48 +285,94 @@ function handleFinish() {
             <div
               v-for="item in group.pending"
               :key="item.id"
-              class="group flex items-center gap-3 py-3.5 border-b border-border/30 last:border-0 transition-colors"
+              class="group flex items-start gap-2 py-3 border-b border-border/30 last:border-0 transition-colors"
             >
               <!-- Custom circular checkbox touch area -->
               <button
                 type="button"
-                class="flex items-center justify-center size-11 -ml-2 shrink-0"
+                class="flex items-center justify-center size-11 -ml-2 shrink-0 mt-0.5"
                 @click="toggle(item.id, item.is_bought)"
               >
                 <span class="size-6 rounded-full border-2 border-border bg-transparent transition-all duration-200" />
               </button>
 
-              <!-- Inline edit or display name -->
-              <div class="flex-1 min-w-0" @click="startEdit(item)">
+              <!-- Name / edit area -->
+              <div class="flex-1 min-w-0">
                 <template v-if="editingItemId === item.id">
-                  <div @click.stop>
+                  <div class="space-y-1.5" @click.stop>
                     <input
                       :id="`edit-name-${item.id}`"
                       v-model="editName"
                       class="w-full h-8 px-2 rounded-lg bg-background border border-primary/60 outline-none text-[13px] transition-colors"
                       @keydown="handleEditNameKeydown($event, item)"
-                      @blur="saveEdit(item)"
                     />
+                    <div class="flex gap-1.5">
+                      <input
+                        v-model="editCategory"
+                        placeholder="Categoria"
+                        class="flex-1 h-7 px-2 rounded-lg bg-muted/40 border border-border text-[12px] outline-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/40"
+                        @keydown="handleEditFieldKeydown($event, item)"
+                      />
+                      <input
+                        inputmode="numeric"
+                        placeholder="R$ 0,00"
+                        class="w-24 h-7 px-2 rounded-lg bg-muted/40 border border-border text-[12px] tabular-nums text-right outline-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/40"
+                        :value="formatPriceCents(editPriceCents)"
+                        @input="handleEditPriceInput"
+                        @keydown="handleEditFieldKeydown($event, item)"
+                      />
+                    </div>
                   </div>
                 </template>
-                <span v-else class="block text-[14px] font-medium text-foreground truncate cursor-text">{{ item.name }}</span>
+                <span v-else class="block text-[14px] font-medium text-foreground truncate mt-1.5">{{ item.name }}</span>
               </div>
 
+              <!-- Price (display mode only) -->
               <span
                 v-if="item.price !== null && editingItemId !== item.id"
-                class="text-[13px] tabular-nums text-muted-foreground shrink-0"
+                class="text-[13px] tabular-nums text-muted-foreground shrink-0 mt-1.5"
               >
                 {{ formatCurrency(item.price) }}
               </span>
 
-              <!-- Trash: hidden by default, visible on row hover only -->
-              <button
-                type="button"
-                class="size-8 grid place-items-center text-muted-foreground/30 hover:text-destructive transition-all opacity-0 group-hover:opacity-100 shrink-0"
-                @click="removeItem(item.id)"
+              <!-- Action buttons: Pencil + Trash (hover, display mode) -->
+              <div
+                v-if="editingItemId !== item.id"
+                class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
               >
-                <Trash2 :size="14" />
-              </button>
+                <button
+                  type="button"
+                  class="size-8 grid place-items-center text-muted-foreground/30 hover:text-primary transition-colors"
+                  @click="startEdit(item)"
+                >
+                  <Pencil :size="13" />
+                </button>
+                <button
+                  type="button"
+                  class="size-8 grid place-items-center text-muted-foreground/30 hover:text-destructive transition-colors"
+                  @click="removeItem(item.id)"
+                >
+                  <Trash2 :size="14" />
+                </button>
+              </div>
+
+              <!-- Save/Cancel (edit mode) -->
+              <div v-else class="flex items-center gap-0.5 shrink-0 mt-0.5">
+                <button
+                  type="button"
+                  class="size-8 grid place-items-center text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                  @click.stop="saveEdit(item)"
+                >
+                  <Check :size="13" />
+                </button>
+                <button
+                  type="button"
+                  class="size-8 grid place-items-center text-muted-foreground/40 hover:bg-muted/30 rounded-lg transition-colors"
+                  @click.stop="cancelEdit()"
+                >
+                  <X :size="13" />
+                </button>
+              </div>
             </div>
 
             <!-- Bought items — check circle, no trash -->

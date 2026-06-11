@@ -80,6 +80,7 @@ export const API_ENDPOINTS = {
     SESSIONS: `${API_BASE}/shopping/sessions`,
     SESSION_DETAIL: (id: string) => `${API_BASE}/shopping/sessions/${id}`,
     SESSION_FINISH: (id: string) => `${API_BASE}/shopping/sessions/${id}/finish`,
+    SESSION_REOPEN: (id: string) => `${API_BASE}/shopping/sessions/${id}/reopen`,
     SESSION_ITEMS: (sessionId: string) => `${API_BASE}/shopping/sessions/${sessionId}/items`,
     ITEM_DETAIL: (id: string) => `${API_BASE}/shopping/items/${id}`,
   },

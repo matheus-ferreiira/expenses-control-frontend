@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { ShoppingCart, Plus, Loader2, History, Trash2 } from 'lucide-vue-next'
+import { ref, nextTick, onMounted } from 'vue'
+import { ShoppingCart, Plus, Loader2, History, Trash2, Pencil } from 'lucide-vue-next'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -13,6 +13,7 @@ import {
 } from '@ui/alert-dialog'
 import { useShoppingSessionStore } from '@/stores/shoppingSessions'
 import { useShoppingSession } from '@/features/purchases/composables/useShoppingSession'
+import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import ShoppingSessionCard from '@/features/purchases/components/ShoppingSessionCard.vue'
 import ShoppingSessionView from '@/features/purchases/components/ShoppingSessionView.vue'
@@ -21,6 +22,7 @@ import NewSessionDialog from '@/features/purchases/components/NewSessionDialog.v
 import ShoppingSessionDetailSheet from '@/features/purchases/components/ShoppingSessionDetailSheet.vue'
 
 const store = useShoppingSessionStore()
+const toast = useToast()
 
 const {
   sessionViewOpen,
@@ -30,6 +32,8 @@ const {
   sessionToDelete,
   detailSheetOpen,
   selectedHistorySession,
+  reopenConfirmOpen,
+  sessionToReopen,
   openSessionView,
   openFinishSheet,
   openNewSessionDialog,
@@ -37,7 +41,45 @@ const {
   confirmDeleteSession,
   cancelDeleteSession,
   openHistoryDetail,
+  requestReopenSession,
+  confirmReopenSession,
+  cancelReopenSession,
+  handleSessionReopened,
 } = useShoppingSession()
+
+// ── Inline title edit ──────────────────────────────────────────────────────
+const editingTitle = ref(false)
+const editTitleValue = ref('')
+
+function startTitleEdit() {
+  if (!store.activeSession) return
+  editTitleValue.value = store.activeSession.title
+  editingTitle.value = true
+  nextTick(() => {
+    const el = document.getElementById('session-title-input') as HTMLInputElement | null
+    el?.focus()
+    el?.select()
+  })
+}
+
+async function saveTitleEdit() {
+  const title = editTitleValue.value.trim()
+  if (!store.activeSession) { editingTitle.value = false; return }
+  editingTitle.value = false
+  if (title && title !== store.activeSession.title) {
+    try {
+      await store.updateSession(store.activeSession.id, { title })
+    } catch {
+      toast.error('Erro ao renomear lista')
+    }
+  }
+}
+
+function cancelTitleEdit() {
+  editingTitle.value = false
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => store.fetchSessions())
 
@@ -48,7 +90,7 @@ function onFinishSessionSheet() {
 </script>
 
 <template>
-  <div class="p-5 max-w-2xl mx-auto space-y-6">
+  <div class="p-5 space-y-6">
     <!-- Header -->
     <div>
       <p class="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground/40 mb-1.5 select-none">
@@ -98,7 +140,26 @@ function onFinishSessionSheet() {
               </button>
             </div>
 
-            <p class="text-[16px] font-semibold text-foreground">{{ store.activeSession.title }}</p>
+            <!-- Inline title edit -->
+            <div v-if="!editingTitle" class="flex items-center gap-1.5 group/title">
+              <p class="text-[16px] font-semibold text-foreground flex-1">{{ store.activeSession.title }}</p>
+              <button
+                type="button"
+                class="size-7 grid place-items-center rounded-lg text-muted-foreground/30 hover:text-primary hover:bg-primary/10 transition-colors opacity-0 group-hover/title:opacity-100"
+                @click="startTitleEdit"
+              >
+                <Pencil :size="13" />
+              </button>
+            </div>
+            <input
+              v-else
+              id="session-title-input"
+              v-model="editTitleValue"
+              class="w-full text-[16px] font-semibold bg-transparent border-b border-primary/60 outline-none pb-0.5 text-foreground"
+              @keydown.enter="saveTitleEdit"
+              @keydown.escape="cancelTitleEdit"
+              @blur="saveTitleEdit"
+            />
 
             <div class="mt-2 flex items-center justify-between">
               <span class="text-[12px]">
@@ -155,9 +216,7 @@ function onFinishSessionSheet() {
           class="w-full bg-card border border-border rounded-xl overflow-hidden flex hover:bg-card/80 transition-colors cursor-pointer"
           @click="openNewSessionDialog"
         >
-          <!-- Left accent -->
           <div class="w-[2px] bg-primary shrink-0" />
-          <!-- Content -->
           <div class="flex-1 p-5 flex flex-col items-center gap-3">
             <span class="size-12 rounded-xl bg-primary/20 grid place-items-center text-primary">
               <Plus :size="22" />
@@ -182,24 +241,19 @@ function onFinishSessionSheet() {
           </span>
         </div>
 
-        <div
-          v-if="store.finishedSessions.length === 0"
-          class="py-10 text-center"
-        >
+        <div v-if="store.finishedSessions.length === 0" class="py-10 text-center">
           <p class="text-[13px] text-muted-foreground/40">Nenhuma compra finalizada ainda.</p>
         </div>
 
-        <!-- Clickable history cards -->
-        <div v-else class="space-y-2">
-          <button
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ShoppingSessionCard
             v-for="session in store.finishedSessions"
             :key="session.id"
-            type="button"
-            class="w-full text-left hover:opacity-80 active:scale-[0.99] transition-all"
-            @click="openHistoryDetail(session)"
-          >
-            <ShoppingSessionCard :session="session" />
-          </button>
+            :session="session"
+            @open="openHistoryDetail(session)"
+            @reopen="requestReopenSession(session)"
+            @delete="requestDeleteSession(session)"
+          />
         </div>
       </div>
     </template>
@@ -224,14 +278,15 @@ function onFinishSessionSheet() {
   <!-- NewSessionDialog -->
   <NewSessionDialog v-model:open="newSessionDialogOpen" />
 
-  <!-- History detail sheet (BUG 5) -->
+  <!-- History detail sheet -->
   <ShoppingSessionDetailSheet
     v-if="selectedHistorySession"
     v-model:open="detailSheetOpen"
     :session="selectedHistorySession"
+    @reopened="handleSessionReopened"
   />
 
-  <!-- Delete confirmation (BUG 4) -->
+  <!-- Delete confirmation -->
   <AlertDialog v-model:open="deleteConfirmOpen">
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -247,6 +302,24 @@ function onFinishSessionSheet() {
           @click="confirmDeleteSession"
         >
           Excluir
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+
+  <!-- Reopen confirmation (from ⋮ menu) -->
+  <AlertDialog v-model:open="reopenConfirmOpen">
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Reabrir lista?</AlertDialogTitle>
+        <AlertDialogDescription>
+          A lista <strong>"{{ sessionToReopen?.title }}"</strong> será reaberta como ativa. O vínculo com a transação será removido.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel @click="cancelReopenSession">Cancelar</AlertDialogCancel>
+        <AlertDialogAction @click="confirmReopenSession">
+          Reabrir
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

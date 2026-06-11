@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ShoppingCart, Link } from 'lucide-vue-next'
+import {
+  ShoppingCart,
+  Link,
+  MoreVertical,
+  ExternalLink,
+  RefreshCw,
+  Trash2,
+} from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@ui/dropdown-menu'
 import { formatCurrency } from '@/utils/currency'
 import type { ShoppingSession } from '@/types/shopping'
 
@@ -8,22 +21,33 @@ const props = defineProps<{
   session: ShoppingSession
 }>()
 
+const emit = defineEmits<{
+  open: []
+  reopen: []
+  delete: []
+}>()
+
 const finishedDate = computed(() => {
   if (!props.session.finished_at) return ''
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(
-    new Date(props.session.finished_at),
-  )
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(props.session.finished_at))
 })
 </script>
 
 <template>
-  <div class="bg-card border border-border/60 rounded-xl overflow-hidden flex">
+  <div
+    class="group bg-card border border-border/60 rounded-xl overflow-hidden flex cursor-pointer hover:border-border transition-colors"
+    @click="emit('open')"
+  >
     <!-- Left accent bar -->
     <div class="w-[2px] bg-primary/40 shrink-0" />
 
     <!-- Content -->
-    <div class="flex-1 p-4">
-      <!-- Top row: icon + info + badge -->
+    <div class="flex-1 p-4 min-w-0">
+      <!-- Top row: icon + info + ⋮ menu -->
       <div class="flex items-center gap-3">
         <span class="size-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
           <ShoppingCart :size="16" />
@@ -41,6 +65,36 @@ const finishedDate = computed(() => {
           </div>
           <p class="text-[12px] text-muted-foreground mt-0.5">{{ finishedDate }}</p>
         </div>
+
+        <!-- ⋮ menu -->
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <button
+              type="button"
+              class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/30 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+              @click.stop
+            >
+              <MoreVertical :size="15" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" @click.stop>
+            <DropdownMenuItem @click.stop="emit('open')">
+              <ExternalLink :size="14" class="mr-2" />
+              Abrir detalhes
+            </DropdownMenuItem>
+            <DropdownMenuItem @click.stop="emit('reopen')">
+              <RefreshCw :size="14" class="mr-2" />
+              Reabrir lista
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              class="text-destructive focus:text-destructive"
+              @click.stop="emit('delete')"
+            >
+              <Trash2 :size="14" class="mr-2" />
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <!-- Bottom row: value + items count -->

@@ -17,16 +17,19 @@ export const useShoppingItemStore = defineStore('shoppingItems', () => {
 
   async function updateItem(itemId: string, payload: UpdateItemPayload): Promise<ShoppingItem> {
     const item = await shoppingApi.items.update(itemId, payload)
-    const active = sessionStore.activeSession
-    if (active) {
-      sessionStore.updateSessionItems(active.id, (s) => {
-        const idx = s.items.findIndex((i) => i.id === itemId)
-        if (idx !== -1) s.items[idx] = item
-        s.bought_count = s.items.filter((i) => i.is_bought).length
-        s.suggested_total = s.items
-          .filter((i) => i.is_bought && i.price !== null)
-          .reduce((sum, i) => sum + (i.price ?? 0), 0)
-      })
+    // Update item across all sessions (active or finished)
+    for (const s of sessionStore.sessions) {
+      const idx = s.items.findIndex((i) => i.id === itemId)
+      if (idx !== -1) {
+        sessionStore.updateSessionItems(s.id, (session) => {
+          session.items[idx] = item
+          session.bought_count = session.items.filter((i) => i.is_bought).length
+          session.suggested_total = session.items
+            .filter((i) => i.is_bought && i.price !== null)
+            .reduce((sum, i) => sum + (i.price ?? 0), 0)
+        })
+        break
+      }
     }
     return item
   }
