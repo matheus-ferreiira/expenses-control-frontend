@@ -9,8 +9,6 @@ export interface TaskFormData {
   due_date: string
   due_time: string
   label_ids: string[]
-  is_recurring: boolean
-  recurrence_pattern: string
 }
 
 export interface TaskFormErrors {
@@ -25,8 +23,6 @@ const DEFAULTS: TaskFormData = {
   due_date: '',
   due_time: '',
   label_ids: [],
-  is_recurring: false,
-  recurrence_pattern: '',
 }
 
 export function useTaskForm() {
@@ -42,8 +38,6 @@ export function useTaskForm() {
     form.due_date = task.due_date ?? ''
     form.due_time = task.due_time ?? ''
     form.label_ids = task.labels.map((l) => l.id)
-    form.is_recurring = task.is_recurring
-    form.recurrence_pattern = task.recurrence_pattern ?? ''
     Object.assign(errors, {})
   }
 

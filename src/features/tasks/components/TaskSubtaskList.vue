@@ -53,7 +53,7 @@ function cancelNew() {
         @update:checked="emit('toggle', sub.id)"
       />
       <span
-        :class="['flex-1 text-sm', sub.completed && 'line-through text-muted-foreground']"
+        :class="['flex-1 text-[13px]', sub.completed && 'line-through text-muted-foreground']"
       >
         {{ sub.title }}
       </span>
@@ -74,15 +74,15 @@ function cancelNew() {
         v-model="newTitle"
         autofocus
         placeholder="Nome da subtarefa..."
-        class="h-7 text-sm flex-1"
+        class="h-7 text-[13px] flex-1"
         @keydown.enter="submitNew"
         @keydown.esc="cancelNew"
       />
-      <Button size="sm" class="h-7 px-2 text-xs" :disabled="creating || !newTitle.trim()" @click="submitNew">
+      <Button size="sm" class="h-7 px-2 text-[11px]" :disabled="creating || !newTitle.trim()" @click="submitNew">
         <Loader2 v-if="creating" :size="12" class="animate-spin" />
         <span v-else>Adicionar</span>
       </Button>
-      <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="cancelNew">
+      <Button variant="ghost" size="sm" class="h-7 px-2 text-[11px]" @click="cancelNew">
         Cancelar
       </Button>
     </div>
@@ -90,7 +90,7 @@ function cancelNew() {
     <!-- Add trigger -->
     <button
       v-if="!adding"
-      class="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-base rounded-md hover:bg-accent/40 w-full"
+      class="flex items-center gap-2 px-2 py-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-base rounded-md hover:bg-accent/40 w-full"
       @click="adding = true"
     >
       <Plus :size="14" />

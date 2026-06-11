@@ -47,9 +47,9 @@ const PRIORITY_BTN_STYLE: Record<TaskPriority, { base: string; active: string; i
     idle:   'text-muted-foreground hover:bg-amber-500/10 hover:text-amber-400',
   },
   low: {
-    base:   'border-slate-500/30',
-    active: 'bg-slate-500/20 text-slate-400 border-slate-500/50',
-    idle:   'text-muted-foreground hover:bg-slate-500/10 hover:text-slate-400',
+    base:   'border-border/50',
+    active: 'bg-muted/40 text-muted-foreground border-border',
+    idle:   'text-muted-foreground/60 hover:bg-muted/30 hover:text-muted-foreground',
   },
 }
 import { useTaskForm } from '../composables/useTaskForm'
@@ -138,7 +138,7 @@ function toggleLabel(id: string) {
             :class="errors.title && 'border-destructive'"
             @keydown.enter="submit"
           />
-          <p v-if="errors.title" class="text-xs text-destructive">{{ errors.title }}</p>
+          <p v-if="errors.title" class="text-[11px] text-destructive">{{ errors.title }}</p>
         </div>
 
         <!-- Description -->
@@ -148,7 +148,7 @@ function toggleLabel(id: string) {
             id="task-desc"
             v-model="form.description"
             placeholder="Detalhes opcionais..."
-            class="min-h-[80px] resize-none text-sm"
+            class="min-h-[80px] resize-none text-[13px]"
           />
         </div>
 
@@ -176,7 +176,7 @@ function toggleLabel(id: string) {
               :key="p"
               type="button"
               :class="[
-                'h-8 rounded-md text-xs font-semibold border transition-all',
+                'h-8 rounded-md text-[11px] font-semibold border transition-all',
                 PRIORITY_BTN_STYLE[p].base,
                 form.priority === p ? PRIORITY_BTN_STYLE[p].active : PRIORITY_BTN_STYLE[p].idle,
               ]"

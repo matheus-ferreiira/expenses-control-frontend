@@ -70,7 +70,7 @@ function onAdd(evt: { item: HTMLElement }) {
       :group="{ name: 'tasks', pull: true, put: true }"
       :animation="150"
       ghost-class="opacity-40"
-      drag-class="shadow-xl ring-1 ring-primary/30"
+      drag-class="opacity-80 scale-[1.01] ring-1 ring-primary/30"
       handle=".drag-handle"
       :data-status="column.status"
       class="flex flex-col gap-1.5 min-h-[100px] max-h-[calc(100vh-200px)] overflow-y-auto rounded-lg p-2 border border-border/40 transition-base"
