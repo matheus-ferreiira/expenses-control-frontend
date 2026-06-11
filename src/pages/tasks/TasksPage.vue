@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { AlertTriangle } from 'lucide-vue-next'
 import TasksSubNav from '@/features/tasks/components/TasksSubNav.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
@@ -11,13 +12,17 @@ import type { Task } from '@/types/tasks'
 import type { TaskViewId } from '@/features/tasks/types'
 
 const store = useTaskStore()
+const route = useRoute()
 
-// ── Selected view — persisted ────────────────────────────────────────────────
+// ── Selected view — persisted + synced with URL query param ─────────────────
 const VIEW_KEY = 'tasks:selectedView'
 const selectedView = ref<TaskViewId>(
-  (localStorage.getItem(VIEW_KEY) as TaskViewId) ?? 'all',
+  (route.query.view as TaskViewId) ?? (localStorage.getItem(VIEW_KEY) as TaskViewId) ?? 'all',
 )
 watch(selectedView, (v) => localStorage.setItem(VIEW_KEY, v))
+watch(() => route.query.view, (view) => {
+  if (view && typeof view === 'string') selectedView.value = view as TaskViewId
+})
 
 // ── Derived tasks by selected view ───────────────────────────────────────────
 function todayStr() {
@@ -118,7 +123,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto w-full px-4 py-6">
+  <div class="w-full px-4 py-6">
 
     <!-- Header -->
     <div class="flex items-start justify-between mb-5">
