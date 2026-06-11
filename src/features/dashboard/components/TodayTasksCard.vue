@@ -31,9 +31,9 @@ function handleToggle(id: string) {
 }
 
 const PRIORITY_DOT: Record<string, string> = {
-  urgent: 'bg-red-400',
-  high: 'bg-orange-400',
-  normal: 'bg-blue-400/60',
+  urgent: 'bg-destructive',
+  high: 'bg-warning',
+  normal: 'bg-muted-foreground/40',
   low: 'bg-muted-foreground/30',
 }
 
@@ -59,7 +59,7 @@ function timeLabel(task: Task): string {
     <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
       <div class="flex items-center gap-2">
         <ClipboardList :size="13" class="text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">Tarefas de hoje</span>
+        <span class="text-[14px] font-medium text-foreground">Tarefas de hoje</span>
         <span
           v-if="!loading && tasks.length > 0"
           class="text-[10px] text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded-full tabular-nums"
@@ -68,7 +68,7 @@ function timeLabel(task: Task): string {
         </span>
       </div>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
+        class="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.TASKS })"
       >
         Ver todas <ArrowRight :size="10" />
@@ -93,7 +93,7 @@ function timeLabel(task: Task): string {
       class="flex flex-col items-center justify-center py-10 px-4 text-center gap-2"
     >
       <ClipboardList :size="20" class="text-muted-foreground/30" />
-      <p class="text-sm text-muted-foreground/50">Nenhuma tarefa para hoje</p>
+      <p class="text-[13px] text-muted-foreground/50">Nenhuma tarefa para hoje</p>
     </div>
 
     <!-- Task list -->
@@ -108,8 +108,8 @@ function timeLabel(task: Task): string {
           :class="[
             'shrink-0 h-[18px] w-[18px] rounded-full border flex items-center justify-center transition-all',
             task.status === 'completed'
-              ? 'bg-emerald-500/80 border-emerald-500/80 text-white'
-              : 'border-border/80 hover:border-emerald-500/50 hover:bg-emerald-500/5',
+              ? 'bg-success/80 border-success/80 text-primary-foreground'
+              : 'border-border/80 hover:border-success/50 hover:bg-success/5',
           ]"
           :disabled="togglingIds.has(task.id)"
           @click="handleToggle(task.id)"
@@ -161,7 +161,7 @@ function timeLabel(task: Task): string {
       <!-- More row -->
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-xs text-muted-foreground/60 hover:text-foreground transition-base"
+          class="text-[11px] text-muted-foreground/60 hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.TASKS })"
         >
           + {{ tasks.length - MAX_SHOWN }} mais

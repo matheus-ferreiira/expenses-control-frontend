@@ -15,8 +15,8 @@ defineProps<{
 const router = useRouter()
 
 function amountColor(type: Transaction['type']): string {
-  if (type === 'income') return 'text-emerald-400'
-  if (type === 'expense') return 'text-red-400'
+  if (type === 'income') return 'text-success'
+  if (type === 'expense') return 'text-destructive'
   return 'text-muted-foreground'
 }
 
@@ -34,9 +34,9 @@ function accountLabel(tx: Transaction): string {
 <template>
   <div class="rounded-lg border border-border/50 bg-card">
     <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
-      <span class="text-sm font-medium text-foreground">Transações recentes</span>
+      <span class="text-[14px] font-medium text-foreground">Transações recentes</span>
       <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
+        class="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-base"
         @click="router.push({ name: ROUTES.FINANCE })"
       >
         Ver todas <ArrowRight :size="10" />
@@ -60,7 +60,7 @@ function accountLabel(tx: Transaction): string {
       v-else-if="transactions.length === 0"
       class="flex flex-col items-center justify-center py-10 text-center"
     >
-      <p class="text-sm text-muted-foreground/50">Nenhuma transação recente.</p>
+      <p class="text-[13px] text-muted-foreground/50">Nenhuma transação recente.</p>
     </div>
 
     <!-- List -->
@@ -73,7 +73,7 @@ function accountLabel(tx: Transaction): string {
         <!-- Category color dot -->
         <div
           class="h-6 w-6 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold text-white"
-          :style="{ backgroundColor: tx.category?.color ?? '#6b7280' }"
+          :style="{ backgroundColor: tx.category?.color ?? 'hsl(var(--muted-foreground))' }"
         >
           {{ (tx.category?.name ?? tx.description).charAt(0).toUpperCase() }}
         </div>

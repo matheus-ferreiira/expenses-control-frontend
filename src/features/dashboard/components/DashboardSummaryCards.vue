@@ -45,7 +45,7 @@ function expenseRatio(): string {
       <template v-else>{{ completedToday }}/{{ pendingToday + completedToday }} tarefas</template>
     </div>
     <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px] text-foreground/80">
-      <Flame :size="12" class="text-orange-400/70 shrink-0" />
+      <Flame :size="12" class="text-warning/70 shrink-0" />
       <template v-if="loading"><span class="w-10 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
       <template v-else>{{ bestStreak }} dias</template>
     </div>
@@ -72,10 +72,10 @@ function expenseRatio(): string {
             Tarefas hoje
           </p>
         </div>
-        <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums">
+        <p class="text-[22px] font-semibold text-foreground leading-none mb-1.5 tabular-nums">
           {{ pendingToday }}
         </p>
-        <p class="text-xs text-muted-foreground/70">{{ taskSubtext() }}</p>
+        <p class="text-[11px] text-muted-foreground/70">{{ taskSubtext() }}</p>
       </template>
     </div>
 
@@ -88,15 +88,15 @@ function expenseRatio(): string {
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2.5">
-          <Flame :size="12" class="text-orange-400/70 shrink-0" />
+          <Flame :size="12" class="text-warning/70 shrink-0" />
           <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
             Maior streak
           </p>
         </div>
-        <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums">
-          {{ bestStreak }} <span class="text-sm font-normal text-muted-foreground">dias</span>
+        <p class="text-[22px] font-semibold text-foreground leading-none mb-1.5 tabular-nums">
+          {{ bestStreak }} <span class="text-[13px] font-normal text-muted-foreground">dias</span>
         </p>
-        <p class="text-xs text-muted-foreground/70 truncate">
+        <p class="text-[11px] text-muted-foreground/70 truncate">
           {{ bestStreakHabitName ?? 'Sem hábitos ativos' }}
         </p>
       </template>
@@ -117,12 +117,12 @@ function expenseRatio(): string {
           </p>
         </div>
         <p
-          class="text-2xl font-semibold leading-none mb-1.5 tabular-nums truncate"
+          class="text-[22px] font-semibold leading-none mb-1.5 tabular-nums truncate"
           :class="totalBalance >= 0 ? 'text-foreground' : 'text-destructive'"
         >
           {{ formatCurrency(totalBalance) }}
         </p>
-        <p class="text-xs text-muted-foreground/70">{{ balanceChange() }}</p>
+        <p class="text-[11px] text-muted-foreground/70">{{ balanceChange() }}</p>
       </template>
     </div>
 
@@ -140,10 +140,10 @@ function expenseRatio(): string {
             Gastos do mês
           </p>
         </div>
-        <p class="text-2xl font-semibold text-foreground leading-none mb-1.5 tabular-nums truncate">
+        <p class="text-[22px] font-semibold text-foreground leading-none mb-1.5 tabular-nums truncate">
           {{ formatCurrency(monthExpenses) }}
         </p>
-        <p class="text-xs text-muted-foreground/70">{{ expenseRatio() }}</p>
+        <p class="text-[11px] text-muted-foreground/70">{{ expenseRatio() }}</p>
       </template>
     </div>
   </div>

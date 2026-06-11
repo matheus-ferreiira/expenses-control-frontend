@@ -161,13 +161,13 @@ onBeforeUnmount(() => {
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
       <div class="flex items-center gap-3">
-        <span class="text-sm font-medium text-foreground">Cashflow</span>
+        <span class="text-[14px] font-medium text-foreground">Cashflow</span>
         <!-- Totals -->
         <div v-if="!loading" class="flex items-center gap-3">
-          <span class="text-[11px] text-emerald-400/80 tabular-nums">
+          <span class="text-[11px] text-success/80 tabular-nums">
             +{{ formatCurrency(totalIncome) }}
           </span>
-          <span class="text-[11px] text-red-400/80 tabular-nums">
+          <span class="text-[11px] text-destructive/80 tabular-nums">
             -{{ formatCurrency(totalExpense) }}
           </span>
           <span
@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Chart -->
-    <div class="px-4 pt-3 pb-4 h-[160px] relative">
+    <div class="px-4 pt-3 pb-4 h-48 md:h-64 relative">
       <div v-if="loading" class="absolute inset-4">
         <Skeleton class="h-full w-full rounded" />
       </div>
