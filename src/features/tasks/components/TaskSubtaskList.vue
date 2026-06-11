@@ -48,12 +48,12 @@ function cancelNew() {
       class="group flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-accent/40 transition-base"
     >
       <Checkbox
-        :checked="sub.completed"
+        :checked="sub.is_completed"
         class="shrink-0"
         @update:checked="emit('toggle', sub.id)"
       />
       <span
-        :class="['flex-1 text-[13px]', sub.completed && 'line-through text-muted-foreground']"
+        :class="['flex-1 text-[13px]', sub.is_completed && 'line-through text-muted-foreground']"
       >
         {{ sub.title }}
       </span>

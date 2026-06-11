@@ -163,15 +163,15 @@ export const useTaskStore = defineStore('tasks', () => {
     const sub = task.subtasks.find((s) => s.id === subtaskId)
     if (!sub) return
 
-    const prevCompleted = sub.completed
-    sub.completed = !sub.completed
-    task.completed_subtasks_count += sub.completed ? 1 : -1
+    const prevCompleted = sub.is_completed
+    sub.is_completed = !sub.is_completed
+    task.completed_subtasks_count += sub.is_completed ? 1 : -1
 
     try {
-      await tasksApi.subtasks.update(taskId, subtaskId, { completed: sub.completed })
+      await tasksApi.subtasks.update(taskId, subtaskId, { is_completed: sub.is_completed })
     } catch (e: unknown) {
-      sub.completed = prevCompleted
-      task.completed_subtasks_count += sub.completed ? 1 : -1
+      sub.is_completed = prevCompleted
+      task.completed_subtasks_count += sub.is_completed ? 1 : -1
       error.value = 'Erro ao atualizar subtarefa'
       throw e
     }
@@ -183,7 +183,7 @@ export const useTaskStore = defineStore('tasks', () => {
 
     const sub = task.subtasks.find((s) => s.id === subtaskId)
     const prevSubtasks = [...task.subtasks]
-    const wasCompleted = sub?.completed ?? false
+    const wasCompleted = sub?.is_completed ?? false
 
     task.subtasks = task.subtasks.filter((s) => s.id !== subtaskId)
     task.subtasks_count--

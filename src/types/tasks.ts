@@ -21,10 +21,27 @@ export interface TaskLabel {
   color: string
 }
 
+export interface TaskList {
+  id: string
+  name: string
+  color: string | null
+  icon: string | null
+  position: number
+  is_default: boolean
+  tasks_count?: number
+}
+
+export interface TaskTag {
+  id: string
+  name: string
+  color: string | null
+}
+
 export interface Subtask {
   id: string
   title: string
-  completed: boolean
+  is_completed: boolean
+  completed_at: string | null
   position: number
   created_at: string
 }
@@ -39,11 +56,13 @@ export interface Task {
   due_date: string | null
   due_time: string | null
   completed_at: string | null
-  is_recurring: boolean
-  recurrence_pattern: string | null
   order: number
   is_archived: boolean
+  task_list_id: string | null
+  task_list?: TaskList | null
+  estimated_minutes: number | null
   labels: TaskLabel[]
+  tags: TaskTag[]
   subtasks: Subtask[]
   subtasks_count: number
   completed_subtasks_count: number
@@ -66,7 +85,7 @@ export type UpdateTaskPayload = Partial<CreateTaskPayload>
 
 export interface UpdateSubtaskPayload {
   title?: string
-  completed?: boolean
+  is_completed?: boolean
   position?: number
 }
 
