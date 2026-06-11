@@ -7,9 +7,9 @@ import { ROUTES } from '@/constants/routes'
 import { ScrollArea } from '@ui/scroll-area'
 import { Avatar, AvatarFallback } from '@ui/avatar'
 import {
-  LayoutDashboard, CheckSquare, Flame, Target, CalendarDays,
-  Wallet, FileText, BookOpen, Bookmark, ShoppingCart,
-  Lock, Settings, Search, Plus, Moon, Sun,
+  LayoutDashboard, CheckSquare, Flame, CalendarDays,
+  Wallet, FileText, Bookmark, ShoppingCart,
+  Settings, Search, Plus, Moon, Sun,
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
   ArrowUpDown, Landmark, CreditCard, PieChart, Tag, Flag,
 } from 'lucide-vue-next'
@@ -26,34 +26,89 @@ const route = useRoute()
 const auth = useAuthStore()
 const ui = useUiStore()
 
-// ── Finance group ─────────────────────────────────────────────────────────────
-const financeGroupOpen = ref(false)
-const isOnFinance = computed(() => String(route.name).startsWith('finance'))
-watch(isOnFinance, (val) => { if (val) financeGroupOpen.value = true }, { immediate: true })
+// ── Group open states ─────────────────────────────────────────────────────────
+const openGroups = ref<Record<string, boolean>>({})
 
-const FINANCE_CHILDREN = [
-  { label: 'Visão Geral', icon: LayoutDashboard, route: ROUTES.FINANCE },
-  { label: 'Transações', icon: ArrowUpDown, route: ROUTES.FINANCE_TRANSACTIONS },
-  { label: 'Contas', icon: Landmark, route: ROUTES.FINANCE_ACCOUNTS },
-  { label: 'Cartões', icon: CreditCard, route: ROUTES.FINANCE_CARDS },
-  { label: 'Orçamento', icon: PieChart, route: ROUTES.FINANCE_BUDGET },
-  { label: 'Metas', icon: Flag, route: ROUTES.FINANCE_GOALS },
-  { label: 'Relatórios', icon: PieChart, route: ROUTES.FINANCE_REPORTS },
-  { label: 'Categorias', icon: Tag, route: ROUTES.FINANCE_CATEGORIES },
+const isOnFinance = computed(() => String(route.name).startsWith('finance'))
+const isOnTasks = computed(() => String(route.name).startsWith('task'))
+
+watch(isOnFinance, (val) => { if (val) openGroups.value[ROUTES.FINANCE] = true }, { immediate: true })
+watch(isOnTasks, (val) => { if (val) openGroups.value[ROUTES.TASKS] = true }, { immediate: true })
+
+function isGroupOpen(routeKey: string): boolean {
+  return openGroups.value[routeKey] ?? false
+}
+function toggleGroup(routeKey: string) {
+  openGroups.value[routeKey] = !openGroups.value[routeKey]
+}
+function isGroupActive(routeKey: string): boolean {
+  if (routeKey === ROUTES.FINANCE) return isOnFinance.value
+  if (routeKey === ROUTES.TASKS) return isOnTasks.value
+  return false
+}
+
+// ── Child item types ──────────────────────────────────────────────────────────
+interface NavChildItem {
+  label: string
+  icon?: typeof LayoutDashboard
+  route: string
+  viewKey?: string   // tasks: navigate to parent route + ?view=viewKey
+  danger?: boolean
+}
+
+const FINANCE_CHILDREN: NavChildItem[] = [
+  { label: 'Visão Geral',  icon: LayoutDashboard, route: ROUTES.FINANCE },
+  { label: 'Transações',   icon: ArrowUpDown,      route: ROUTES.FINANCE_TRANSACTIONS },
+  { label: 'Contas',       icon: Landmark,          route: ROUTES.FINANCE_ACCOUNTS },
+  { label: 'Cartões',      icon: CreditCard,        route: ROUTES.FINANCE_CARDS },
+  { label: 'Orçamento',    icon: PieChart,          route: ROUTES.FINANCE_BUDGET },
+  { label: 'Metas',        icon: Flag,              route: ROUTES.FINANCE_GOALS },
+  { label: 'Relatórios',   icon: PieChart,          route: ROUTES.FINANCE_REPORTS },
+  { label: 'Categorias',   icon: Tag,               route: ROUTES.FINANCE_CATEGORIES },
 ]
 
+const TASKS_CHILDREN: NavChildItem[] = [
+  { label: 'Todas',      route: ROUTES.TASKS, viewKey: 'all' },
+  { label: 'Hoje',       route: ROUTES.TASKS, viewKey: 'today' },
+  { label: 'Próximas',   route: ROUTES.TASKS, viewKey: 'upcoming' },
+  { label: 'Atrasadas',  route: ROUTES.TASKS, viewKey: 'overdue', danger: true },
+  { label: 'Concluídas', route: ROUTES.TASKS, viewKey: 'completed' },
+]
+
+function isChildActive(child: NavChildItem): boolean {
+  const name = String(route.name)
+  if (child.viewKey) {
+    if (!isOnTasks.value) return false
+    const queryView = String(route.query.view ?? 'all')
+    return queryView === child.viewKey
+  }
+  if (child.route === ROUTES.FINANCE) return name === child.route
+  return name === child.route || name.startsWith(child.route + '-')
+}
+
+function childTo(child: NavChildItem, parentRoute: string) {
+  if (child.viewKey) {
+    return { name: parentRoute, query: { view: child.viewKey } }
+  }
+  return { name: child.route }
+}
+
 // ── Nav sections ──────────────────────────────────────────────────────────────
-const ALL_NAV_SECTIONS: Array<{
+interface NavItem {
+  label: string
+  icon: typeof LayoutDashboard
+  route: string
+  shortcut: string
+  module: string | null
+  children?: NavChildItem[]
+}
+
+interface NavSection {
   label: string | null
-  items: Array<{
-    label: string
-    icon: typeof LayoutDashboard
-    route: string
-    shortcut: string
-    module: string | null
-    children?: typeof FINANCE_CHILDREN
-  }>
-}> = [
+  items: NavItem[]
+}
+
+const ALL_NAV_SECTIONS: NavSection[] = [
   {
     label: null,
     items: [
@@ -69,26 +124,26 @@ const ALL_NAV_SECTIONS: Array<{
   {
     label: 'PRODUTIVIDADE',
     items: [
-      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T', module: 'tasks' },
-      { label: 'Hábitos', icon: Flame, route: ROUTES.HABITS, shortcut: 'G H', module: 'habits' },
-      { label: 'Metas', icon: Target, route: ROUTES.GOALS, shortcut: 'G M', module: 'goals' },
-      { label: 'Agenda', icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A', module: 'calendar' },
+      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T', module: 'tasks', children: TASKS_CHILDREN },
+      { label: 'Hábitos', icon: Flame,       route: ROUTES.HABITS,   shortcut: 'G H', module: 'habits' },
+      // Metas (produtividade) removidas — Metas Financeiras estão em Finanças
+      { label: 'Agenda',  icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A', module: 'calendar' },
     ],
   },
   {
     label: 'CONTEÚDO',
     items: [
-      { label: 'Notas', icon: FileText, route: ROUTES.NOTES, shortcut: 'G N', module: 'notes' },
-      { label: 'Daily Log', icon: BookOpen, route: ROUTES.DAILY_LOG, shortcut: 'G L', module: 'daily_log' },
-      { label: 'Bookmarks', icon: Bookmark, route: ROUTES.BOOKMARKS, shortcut: 'G B', module: 'bookmarks' },
+      { label: 'Notas',      icon: FileText, route: ROUTES.NOTES,      shortcut: 'G N', module: 'notes' },
+      // Daily Log removido da sidebar (rota mantida)
+      { label: 'Bookmarks',  icon: Bookmark, route: ROUTES.BOOKMARKS,  shortcut: 'G B', module: 'bookmarks' },
     ],
   },
   {
     label: 'SISTEMA',
     items: [
-      { label: 'Compras', icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
-      { label: 'Cofre', icon: Lock, route: ROUTES.VAULT, shortcut: 'G V', module: 'vault' },
-      { label: 'Configurações', icon: Settings, route: ROUTES.SETTINGS, shortcut: '', module: null },
+      { label: 'Compras',        icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
+      // Cofre removido da sidebar (rota mantida)
+      { label: 'Configurações',  icon: Settings,     route: ROUTES.SETTINGS,  shortcut: '',    module: null },
     ],
   },
 ]
@@ -107,12 +162,6 @@ function isActive(routeName: string): boolean {
   return name === routeName || name.startsWith(routeName + '-')
 }
 
-function isChildActive(routeName: string): boolean {
-  const name = String(route.name)
-  if (routeName === ROUTES.FINANCE) return name === routeName
-  return name === routeName || name.startsWith(routeName + '-')
-}
-
 function initials(name?: string | null): string {
   if (!name) return '?'
   return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
@@ -124,11 +173,10 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
 
 const MOBILE_ICON_COLORS: Record<string, string> = {
   [ROUTES.DASHBOARD]: 'text-blue-400',
-  [ROUTES.TASKS]: 'text-blue-400',
-  [ROUTES.HABITS]: 'text-orange-400',
-  [ROUTES.GOALS]: 'text-yellow-400',
-  [ROUTES.CALENDAR]: 'text-violet-400',
-  [ROUTES.SETTINGS]: 'text-muted-foreground',
+  [ROUTES.TASKS]:     'text-blue-400',
+  [ROUTES.HABITS]:    'text-orange-400',
+  [ROUTES.CALENDAR]:  'text-violet-400',
+  [ROUTES.SETTINGS]:  'text-muted-foreground',
 }
 </script>
 
@@ -138,11 +186,11 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     :class="props.mobile ? 'w-full' : (props.open ? 'w-56 border-r border-border' : 'w-[52px] border-r border-border')"
   >
 
-    <!-- ─── Mobile header (avatar + name + email + close) ─────── -->
+    <!-- ─── Mobile header ─────────────────────────────────────── -->
     <div v-if="props.mobile" class="flex items-center justify-between px-5 pt-5 pb-4 shrink-0">
       <div class="flex items-center gap-2.5">
         <Avatar class="h-10 w-10 shrink-0">
-          <AvatarFallback class="text-sm font-semibold bg-primary/20 text-primary">
+          <AvatarFallback class="text-[13px] font-semibold bg-primary/20 text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
@@ -262,48 +310,50 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
 
           <template v-for="item in section.items" :key="item.route">
 
-            <!-- ── Finance group (expandable) ──────────────────── -->
-            <template v-if="'children' in item && item.children">
+            <!-- ── Expandable group ─────────────────────────────── -->
+            <template v-if="item.children">
 
               <!-- Expanded: group header button -->
               <button
                 v-if="props.open"
                 type="button"
                 class="group flex items-center w-full transition-colors duration-150 mb-0.5"
-                :class="isOnFinance
+                :class="isGroupActive(item.route)
                   ? (props.mobile
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
                       : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
                       ? 'px-4 py-3 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-xl gap-3.5'
                       : 'px-3 py-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-lg gap-3')"
-                @click="financeGroupOpen = !financeGroupOpen"
+                @click="toggleGroup(item.route)"
               >
                 <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
                 <span class="flex-1 truncate text-left" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
                 <ChevronDown
                   :size="12"
                   class="shrink-0 transition-transform duration-200 text-muted-foreground"
-                  :class="financeGroupOpen ? 'rotate-180' : ''"
+                  :class="isGroupOpen(item.route) ? 'rotate-180' : ''"
                 />
               </button>
 
               <!-- Expanded: subitems -->
-              <template v-if="props.open && financeGroupOpen">
+              <template v-if="props.open && isGroupOpen(item.route)">
                 <RouterLink
                   v-for="child in item.children"
-                  :key="child.route"
-                  :to="{ name: child.route }"
+                  :key="child.viewKey ?? child.route + child.label"
+                  :to="childTo(child, item.route)"
                   class="flex items-center rounded-lg transition-colors duration-150 mb-0.5"
                   :class="[
                     props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2 pl-9 pr-3 py-1.5 text-[12px]',
-                    isChildActive(child.route)
+                    isChildActive(child)
                       ? 'text-primary font-medium'
-                      : 'text-muted-foreground/70 hover:bg-muted/40 hover:text-foreground',
+                      : child.danger && !isChildActive(child)
+                        ? 'text-destructive/70 hover:bg-muted/40 hover:text-destructive'
+                        : 'text-muted-foreground/70 hover:bg-muted/40 hover:text-foreground',
                   ]"
                   @click="emit('navigate')"
                 >
-                  <component :is="child.icon" :size="props.mobile ? 15 : 14" class="shrink-0" />
+                  <component v-if="child.icon" :is="child.icon" :size="props.mobile ? 15 : 14" class="shrink-0" />
                   <span class="truncate">{{ child.label }}</span>
                 </RouterLink>
               </template>
@@ -313,7 +363,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 v-if="!props.open"
                 :to="{ name: item.route }"
                 class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
-                :class="isOnFinance
+                :class="isGroupActive(item.route)
                   ? 'bg-sidebar-accent text-foreground'
                   : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'"
                 @click="emit('navigate')"
@@ -374,7 +424,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       </nav>
     </ScrollArea>
 
-    <!-- ─── Mobile footer (theme toggle only) ───────────────── -->
+    <!-- ─── Mobile footer ───────────────────────────────────── -->
     <div v-if="props.mobile" class="px-4 pb-8 pt-3 border-t border-border/40 mt-auto shrink-0">
       <button
         class="flex items-center gap-2.5 w-full py-2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
@@ -438,7 +488,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- Avatar only (collapsed) -->
       <div v-else class="flex justify-center px-2 py-3">
         <Avatar class="h-8 w-8">
-          <AvatarFallback class="text-xs font-medium bg-primary/20 text-primary">
+          <AvatarFallback class="text-[11px] font-medium bg-primary/20 text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
