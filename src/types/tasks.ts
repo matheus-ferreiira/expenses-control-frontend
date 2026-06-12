@@ -50,6 +50,7 @@ export interface Subtask {
 export interface Task {
   id: string
   user_id: string
+  parent_task_id: string | null
   title: string
   description: string | null
   status: TaskStatus
@@ -73,6 +74,20 @@ export interface Task {
   created_at: string
   updated_at: string
   deleted_at: string | null
+}
+
+export interface RecurrenceHistoryEntry {
+  id: string
+  completed_at: string | null
+  due_date: string | null
+}
+
+export interface RecurrenceHistory {
+  total_count: number
+  completed_count: number
+  completion_rate: number
+  current_streak: number
+  recent_completions: RecurrenceHistoryEntry[]
 }
 
 export interface CreateTaskPayload {

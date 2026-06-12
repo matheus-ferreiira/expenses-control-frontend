@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `${API_BASE}/tasks/${id}`,
     ARCHIVE: (id: string) => `${API_BASE}/tasks/${id}/archive`,
     REORDER: `${API_BASE}/tasks/reorder`,
+    RECURRENCE_HISTORY: (id: string) => `${API_BASE}/tasks/${id}/recurrence-history`,
     SUBTASKS: (taskId: string) => `${API_BASE}/tasks/${taskId}/subtasks`,
     SUBTASK_DETAIL: (taskId: string, id: string) =>
       `${API_BASE}/tasks/${taskId}/subtasks/${id}`,

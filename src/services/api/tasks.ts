@@ -5,6 +5,7 @@ import type {
   Task,
   Subtask,
   TaskLabel,
+  RecurrenceHistory,
   CreateTaskPayload,
   UpdateTaskPayload,
   UpdateSubtaskPayload,
@@ -34,6 +35,9 @@ export const tasksApi = {
 
   reorder: (ids: string[]) =>
     client.post<ApiResponse<null>>(API_ENDPOINTS.TASKS.REORDER, { ids }).then(unwrap),
+
+  recurrenceHistory: (id: string) =>
+    client.get<ApiResponse<RecurrenceHistory>>(API_ENDPOINTS.TASKS.RECURRENCE_HISTORY(id)).then(unwrap),
 
   subtasks: {
     list: (taskId: string) =>

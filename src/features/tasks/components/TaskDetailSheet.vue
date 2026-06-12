@@ -13,6 +13,7 @@ import {
   Trash2,
 } from 'lucide-vue-next'
 import TaskSubtaskList from './TaskSubtaskList.vue'
+import TaskRecurrenceHistory from './TaskRecurrenceHistory.vue'
 import { ConfirmDialog } from '@/components/shared'
 import type { Task, TaskPriority, RecurrenceType } from '@/types/tasks'
 import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from '@/types/tasks'
@@ -407,6 +408,12 @@ watch(() => props.open, (open) => {
               class="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground/80"
             >{{ tag.name }}</span>
           </div>
+
+          <!-- Recurrence history (shown only for recurring tasks with history) -->
+          <TaskRecurrenceHistory
+            v-if="task.recurrence_type && task.recurrence_type !== 'none'"
+            :task-id="task.id"
+          />
 
           <!-- Subtasks -->
           <div class="pt-3 border-t border-border/30 mt-3">
