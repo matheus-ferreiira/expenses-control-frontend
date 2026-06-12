@@ -65,22 +65,22 @@ const groups = computed<TaskGroup[]>(() => {
   }
 
   return [
-    { id: 'overdue',   label: 'Atrasadas',  tasks: overdue   },
-    { id: 'today',     label: 'Hoje',       tasks: today     },
-    { id: 'tomorrow',  label: 'Amanhã',     tasks: tomorrow  },
-    { id: 'week',      label: 'Esta semana', tasks: week     },
-    { id: 'upcoming',  label: 'Próximas',   tasks: upcoming  },
-    { id: 'no-date',   label: 'Sem data',   tasks: noDate    },
-    { id: 'completed', label: 'Concluídas', tasks: completed },
+    { id: 'overdue',   label: 'Atrasadas',   tasks: overdue   },
+    { id: 'today',     label: 'Hoje',        tasks: today     },
+    { id: 'tomorrow',  label: 'Amanhã',      tasks: tomorrow  },
+    { id: 'week',      label: 'Esta semana', tasks: week      },
+    { id: 'upcoming',  label: 'Próximas',    tasks: upcoming  },
+    { id: 'no-date',   label: 'Sem data',    tasks: noDate    },
+    { id: 'completed', label: 'Concluídas',  tasks: completed },
   ].filter((g) => g.tasks.length > 0)
 })
 </script>
 
 <template>
   <!-- Loading skeletons -->
-  <div v-if="loading" class="rounded-lg border border-border overflow-hidden divide-y divide-border/30">
-    <div v-for="i in 6" :key="i" class="flex items-center gap-3 px-4 py-2.5">
-      <Skeleton class="h-3.5 w-3.5 rounded shrink-0" />
+  <div v-if="loading" class="space-y-0.5">
+    <div v-for="i in 6" :key="i" class="flex items-center gap-3 py-3">
+      <Skeleton class="size-5 rounded-full shrink-0" />
       <Skeleton class="h-3.5 rounded" :style="{ width: `${45 + (i % 3) * 15}%` }" />
       <Skeleton class="ml-auto h-3.5 w-14" />
     </div>
@@ -97,16 +97,10 @@ const groups = computed<TaskGroup[]>(() => {
     @cta="emit('create')"
   />
 
-  <!-- Grouped task list -->
-  <div v-else class="rounded-lg border border-border overflow-hidden">
-    <template v-for="(group, gi) in groups" :key="group.id">
-      <!-- Group separator (between groups) -->
-      <div v-if="gi > 0" class="h-px bg-border/20" />
-
-      <!-- Group header -->
-      <TaskGroupHeader :label="group.label" :count="group.tasks.length" />
-
-      <!-- Task rows -->
+  <!-- Grouped task list — no outer border -->
+  <div v-else>
+    <template v-for="group in groups" :key="group.id">
+      <TaskGroupHeader :label="group.label" :count="group.tasks.length" :group-id="group.id" />
       <TaskItem
         v-for="task in group.tasks"
         :key="task.id"

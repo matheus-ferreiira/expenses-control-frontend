@@ -78,9 +78,20 @@ const pendingCount = computed(() =>
   store.tasks.filter((t) => t.status !== 'completed' && t.status !== 'cancelled').length,
 )
 
+const overdueCount = computed(() => store.overdueTasks.length)
+
 // ── Daily progress ───────────────────────────────────────────────────────────
 const progress = computed(() => store.todayProgress)
 const showProgressBar = computed(() => progress.value.total > 0)
+
+const todayProgressLabel = computed(() => {
+  const d = new Date()
+  const rawWeekday = d.toLocaleDateString('pt-BR', { weekday: 'long' })
+  const weekdayName = (rawWeekday.split('-')[0] ?? rawWeekday).toUpperCase()
+  const day = d.getDate()
+  const month = d.toLocaleDateString('pt-BR', { month: 'long' }).toUpperCase()
+  return `HOJE · ${weekdayName}, ${day} DE ${month}`
+})
 
 // ── Sheets ───────────────────────────────────────────────────────────────────
 const createOpen = ref(false)
@@ -131,14 +142,20 @@ onUnmounted(() => {
   <div class="w-full px-4 py-6">
 
     <!-- Header -->
-    <div class="flex items-start justify-between mb-4">
+    <div class="flex items-start justify-between mb-5">
       <div>
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1.5">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-1.5">
           PRODUTIVIDADE
         </p>
-        <h1 class="text-[22px] font-bold text-foreground leading-none mb-1.5">Tarefas</h1>
+        <h1 class="text-[28px] font-bold text-foreground leading-none mb-1.5">Tarefas</h1>
         <p class="text-[13px] text-muted-foreground/60 tabular-nums">
           {{ pendingCount }} pendente{{ pendingCount !== 1 ? 's' : '' }}
+          <template v-if="overdueCount > 0">
+            ·
+            <span class="text-destructive font-semibold">
+              {{ overdueCount }} atrasada{{ overdueCount !== 1 ? 's' : '' }}
+            </span>
+          </template>
         </p>
       </div>
       <button
@@ -150,21 +167,32 @@ onUnmounted(() => {
       </button>
     </div>
 
-    <!-- Daily progress bar (shown when tasks exist for today) -->
-    <div v-if="showProgressBar" class="mb-4">
-      <div class="flex items-center justify-between mb-1.5">
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">HOJE</p>
-        <p class="text-[11px] tabular-nums text-muted-foreground/60">
-          {{ progress.completed }}/{{ progress.total }}
-          <span v-if="progress.percent >= 100" class="text-success font-semibold ml-1">✓ Tudo feito!</span>
-        </p>
-      </div>
-      <div class="h-1.5 rounded-full bg-muted/30 overflow-hidden">
-        <div
-          class="h-full rounded-full transition-all duration-500"
-          :class="progress.percent >= 100 ? 'bg-success' : 'bg-primary'"
-          :style="{ width: `${progress.percent}%` }"
-        />
+    <!-- Daily progress card -->
+    <div v-if="showProgressBar" class="flex overflow-hidden bg-card border border-border/60 rounded-xl mb-5">
+      <!-- Left accent bar -->
+      <div class="w-0.5 bg-primary shrink-0" />
+      <!-- Content -->
+      <div class="flex-1 p-4">
+        <div class="flex items-center justify-between mb-2.5">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70">
+            {{ todayProgressLabel }}
+          </p>
+          <p class="text-[12px] font-medium tabular-nums">
+            <span v-if="progress.percent >= 100" class="text-success font-semibold">
+              ✓ Tudo concluído hoje!
+            </span>
+            <span v-else class="text-muted-foreground">
+              {{ progress.completed }}/{{ progress.total }} concluídas
+            </span>
+          </p>
+        </div>
+        <div class="h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            :class="progress.percent >= 100 ? 'bg-success' : 'bg-primary'"
+            :style="{ width: `${Math.min(progress.percent, 100)}%` }"
+          />
+        </div>
       </div>
     </div>
 

@@ -37,17 +37,30 @@ const counts = computed(() => {
 })
 
 const tabs = computed(() => [
-  { id: 'all' as TaskViewId,       label: 'Todas',      count: counts.value.all },
-  { id: 'today' as TaskViewId,     label: 'Hoje',       count: counts.value.today },
-  { id: 'upcoming' as TaskViewId,  label: 'Próximas',   count: counts.value.upcoming },
-  { id: 'overdue' as TaskViewId,   label: 'Atrasadas',  count: counts.value.overdue, danger: true },
-  { id: 'completed' as TaskViewId, label: 'Concluídas', count: counts.value.completed },
+  { id: 'all' as TaskViewId,       label: 'Todas',      count: counts.value.all,       danger: false },
+  { id: 'today' as TaskViewId,     label: 'Hoje',       count: counts.value.today,     danger: false },
+  { id: 'upcoming' as TaskViewId,  label: 'Próximas',   count: counts.value.upcoming,  danger: false },
+  { id: 'overdue' as TaskViewId,   label: 'Atrasadas',  count: counts.value.overdue,   danger: true  },
+  { id: 'completed' as TaskViewId, label: 'Concluídas', count: counts.value.completed, danger: false },
 ])
 
 function isActive(id: TaskViewId): boolean {
   if (props.selectedView === id) return true
   if (id === 'all' && !['today', 'upcoming', 'overdue', 'completed', 'no-date'].includes(props.selectedView)) return true
   return false
+}
+
+function tabClass(tab: { id: TaskViewId; danger: boolean; count: number }): string {
+  if (isActive(tab.id) && tab.danger) return 'bg-destructive/15 text-destructive font-medium'
+  if (isActive(tab.id)) return 'bg-primary/15 text-primary font-medium'
+  if (tab.danger && tab.count > 0) return 'text-destructive/70 hover:text-destructive'
+  return 'text-muted-foreground hover:text-foreground'
+}
+
+function countClass(tab: { danger: boolean }, active: boolean): string {
+  if (tab.danger && active) return 'text-destructive/70'
+  if (tab.danger) return 'text-destructive'
+  return 'opacity-60'
 }
 </script>
 
@@ -58,16 +71,14 @@ function isActive(id: TaskViewId): boolean {
         v-for="tab in tabs"
         :key="tab.id"
         class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] whitespace-nowrap transition-colors shrink-0"
-        :class="isActive(tab.id)
-          ? 'bg-primary/15 text-primary font-medium'
-          : 'text-muted-foreground hover:text-foreground'"
+        :class="tabClass(tab)"
         @click="emit('update:selectedView', tab.id)"
       >
         {{ tab.label }}
         <span
           v-if="tab.count > 0"
           class="text-[11px] tabular-nums font-semibold"
-          :class="tab.danger && !isActive(tab.id) ? 'text-destructive' : 'opacity-60'"
+          :class="countClass(tab, isActive(tab.id))"
         >{{ tab.count }}</span>
       </button>
     </div>

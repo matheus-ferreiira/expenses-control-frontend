@@ -74,10 +74,28 @@ watch(
 const timePeriod = computed(() => {
   if (!dueTime.value) return null
   const hour = parseInt(dueTime.value.split(':')[0] ?? '0', 10)
-  if (hour < 12) return { label: 'MANHÃ', cls: 'bg-warning/15 text-warning' }
-  if (hour < 18) return { label: 'TARDE', cls: 'bg-primary/15 text-primary' }
-  return { label: 'NOITE', cls: 'bg-muted/50 text-muted-foreground' }
+  if (hour < 12) return { label: 'MANHÃ', cls: 'bg-warning/20 text-warning' }
+  if (hour < 18) return { label: 'TARDE', style: 'background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)' }
+  return { label: 'NOITE', cls: 'bg-primary/15 text-primary' }
 })
+
+// ── Estimated display badge ───────────────────────────────────────────────────
+const estimatedDisplay = computed(() => {
+  const val = parseInt(estimatedMinutes.value, 10)
+  if (!val || val <= 0) return null
+  if (val >= 60) {
+    const h = Math.floor(val / 60)
+    const m = val % 60
+    return m ? `${h}h ${m}min` : `${h}h`
+  }
+  return `${val}min`
+})
+
+// ── Tag color helper (data-driven: acceptable to use dynamic color) ───────────
+function tagActiveStyle(color: string | null): string {
+  if (!color) return ''
+  return `background: ${color}26; color: ${color}`
+}
 
 // ── Recurrence label for collapsed state ─────────────────────────────────────
 const recurrenceSummary = computed(() => {
@@ -113,12 +131,12 @@ function isQuickActive(id: string): boolean {
 }
 
 // ── Priorities ───────────────────────────────────────────────────────────────
-interface PriorityDef { value: TaskPriority; label: string; activeClass: string }
+interface PriorityDef { value: TaskPriority; label: string; activeClass: string; activeStyle?: string }
 const PRIORITIES: PriorityDef[] = [
   { value: 'urgent', label: 'P1 Urgente', activeClass: 'bg-destructive/15 text-destructive' },
-  { value: 'high',   label: 'P2 Alta',    activeClass: 'bg-warning/15 text-warning' },
-  { value: 'normal', label: 'P3 Média',   activeClass: 'bg-muted/60 text-foreground' },
-  { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted/30 text-muted-foreground' },
+  { value: 'high',   label: 'P2 Alta',    activeClass: '', activeStyle: 'background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)' },
+  { value: 'normal', label: 'P3 Média',   activeClass: 'bg-warning/15 text-warning' },
+  { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted/30 text-muted-foreground/70' },
 ]
 
 // ── Recurrence ───────────────────────────────────────────────────────────────
@@ -295,15 +313,19 @@ function handleKeydown(e: KeyboardEvent) {
               v-model="dueTime"
               type="time"
               style="color-scheme: dark"
-              class="flex-1 h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60"
+              class="flex-1 h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 [&::-webkit-calendar-picker-indicator]:opacity-40 [&::-webkit-calendar-picker-indicator]:invert"
             />
             <span
               v-if="timePeriod"
               class="h-7 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center shrink-0"
-              :class="timePeriod.cls"
+              :class="timePeriod.cls ?? ''"
+              :style="timePeriod.style ?? ''"
             >{{ timePeriod.label }}</span>
           </div>
         </div>
+
+        <!-- separator -->
+        <div class="h-px bg-border/30 -mx-4" />
 
         <!-- PRIORIDADE -->
         <div>
@@ -319,6 +341,7 @@ function handleKeydown(e: KeyboardEvent) {
               :class="priority === p.value
                 ? p.activeClass
                 : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+              :style="priority === p.value && p.activeStyle ? p.activeStyle : ''"
               @click="priority = p.value"
             >{{ p.label }}</button>
           </div>
@@ -391,6 +414,9 @@ function handleKeydown(e: KeyboardEvent) {
           </div>
         </div>
 
+        <!-- separator -->
+        <div class="h-px bg-border/30 -mx-4" />
+
         <!-- TAGS -->
         <div v-if="tagStore.tags.length">
           <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
@@ -401,10 +427,11 @@ function handleKeydown(e: KeyboardEvent) {
               v-for="tag in tagStore.tags"
               :key="tag.id"
               type="button"
-              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
+              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors font-medium"
               :class="selectedTagIds.includes(tag.id)
-                ? 'bg-primary/15 text-primary font-medium'
+                ? (tag.color ? '' : 'bg-primary/15 text-primary')
                 : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+              :style="selectedTagIds.includes(tag.id) ? tagActiveStyle(tag.color) : ''"
               @click="toggleTag(tag.id)"
             >{{ tag.name }}</button>
           </div>
@@ -491,14 +518,20 @@ function handleKeydown(e: KeyboardEvent) {
 
         <!-- ESTIMATIVA -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
-            ESTIMATIVA (MIN)
-          </p>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70">
+              ESTIMATIVA DE TEMPO
+            </p>
+            <span
+              v-if="estimatedDisplay"
+              class="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full"
+            >{{ estimatedDisplay }}</span>
+          </div>
           <input
             v-model="estimatedMinutes"
             type="text"
             inputmode="numeric"
-            placeholder="Ex: 30"
+            placeholder="Ex: 30 (em minutos)"
             class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[14px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
           />
         </div>

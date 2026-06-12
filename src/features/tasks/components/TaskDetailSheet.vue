@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   RotateCcw,
   Trash2,
+  Pencil,
 } from 'lucide-vue-next'
 import TaskSubtaskList from './TaskSubtaskList.vue'
 import TaskRecurrenceHistory from './TaskRecurrenceHistory.vue'
@@ -224,6 +225,17 @@ async function handleSubtaskDelete(subtaskId: string) {
   catch { toast.error('Erro ao excluir subtarefa') }
 }
 
+// ── Tag removal ───────────────────────────────────────────────────────────────
+async function removeTag(tagId: string) {
+  if (!props.task) return
+  const newTagIds = props.task.tags.filter((t) => t.id !== tagId).map((t) => t.id)
+  try {
+    await store.optimisticUpdate(props.task.id, { tag_ids: newTagIds })
+  } catch {
+    toast.error('Erro ao remover tag')
+  }
+}
+
 // ── Reset pickers on close ────────────────────────────────────────────────────
 watch(() => props.open, (open) => {
   if (!open) {
@@ -273,7 +285,7 @@ watch(() => props.open, (open) => {
               ref="titleRef"
               v-model="titleDraft"
               type="text"
-              class="w-full text-[17px] font-semibold text-foreground bg-transparent border-b border-primary/60 outline-none pb-0.5"
+              class="w-full text-[20px] font-bold text-foreground bg-transparent border-b border-primary/60 outline-none pb-0.5"
               @blur="saveTitle"
               @keydown.enter="saveTitle"
               @keydown.escape="editingTitle = false"
@@ -281,7 +293,7 @@ watch(() => props.open, (open) => {
             <button
               v-else
               type="button"
-              class="text-left w-full text-[17px] font-semibold leading-snug"
+              class="text-left w-full text-[20px] font-bold leading-snug"
               :class="task.status === 'completed' || task.status === 'cancelled'
                 ? 'line-through text-muted-foreground/50'
                 : 'text-foreground'"
@@ -321,59 +333,59 @@ watch(() => props.open, (open) => {
             <!-- Date chip (tappable) -->
             <button
               type="button"
-              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium transition-colors"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium transition-colors"
               :class="datechipClass"
               @click="showDatePicker = !showDatePicker; showPriorityPicker = false"
             >
-              <Calendar :size="11" />
+              <Calendar :size="12" />
               {{ dueDateLabel || 'Sem data' }}
             </button>
 
             <!-- Priority chip (tappable) -->
             <button
               type="button"
-              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium transition-colors"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium transition-colors"
               :class="showPriorityPicker ? 'bg-primary/15 text-primary' : PRIORITY_CHIP[task.priority]"
               @click="showPriorityPicker = !showPriorityPicker; showDatePicker = false"
             >
-              <Flag :size="11" />
+              <Flag :size="12" />
               {{ TASK_PRIORITY_LABELS[task.priority] }}
             </button>
 
             <!-- Time chip -->
             <span
               v-if="task.due_time"
-              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted/40 text-muted-foreground"
             >
-              <Clock :size="11" />
+              <Clock :size="12" />
               {{ task.due_time.slice(0, 5) }}
-              <span class="text-muted-foreground/50">· {{ formatTimePeriod(task.due_time) }}</span>
+              <span class="text-muted-foreground/50 text-[11px]">{{ formatTimePeriod(task.due_time) }}</span>
             </span>
 
             <!-- List chip -->
             <span
               v-if="task.task_list"
-              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted/40 text-muted-foreground"
             >
-              <FolderOpen :size="11" />
+              <FolderOpen :size="12" />
               {{ task.task_list.name }}
             </span>
 
             <!-- Estimated chip -->
             <span
               v-if="task.estimated_minutes"
-              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/30 text-muted-foreground/70"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted/30 text-muted-foreground/70"
             >
-              <Clock :size="11" />
+              <Clock :size="12" />
               {{ formatEstimated(task.estimated_minutes) }}
             </span>
 
             <!-- Recurrence chip -->
             <span
               v-if="task.recurrence_type && task.recurrence_type !== 'none'"
-              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-primary/10 text-primary"
             >
-              <RotateCcw :size="11" />
+              <RotateCcw :size="12" />
               {{ RECURRENCE_LABELS[task.recurrence_type] }}
             </span>
           </div>
@@ -405,8 +417,17 @@ watch(() => props.open, (open) => {
             <span
               v-for="tag in task.tags"
               :key="tag.id"
-              class="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground/80"
-            >{{ tag.name }}</span>
+              class="inline-flex items-center gap-1 h-7 pl-2.5 pr-1.5 rounded-full text-[12px] font-medium bg-muted/40 text-muted-foreground/80"
+            >
+              {{ tag.name }}
+              <button
+                type="button"
+                class="size-4 rounded-full flex items-center justify-center hover:bg-muted-foreground/20 transition-colors shrink-0"
+                @click="removeTag(tag.id)"
+              >
+                <X :size="10" />
+              </button>
+            </span>
           </div>
 
           <!-- Recurrence history (shown only for recurring tasks with history) -->
@@ -430,7 +451,7 @@ watch(() => props.open, (open) => {
             <!-- Progress bar -->
             <div
               v-if="task.subtasks_count > 0"
-              class="h-1 rounded-full bg-muted/30 mb-3 overflow-hidden"
+              class="h-1.5 rounded-full bg-muted/30 mb-3 overflow-hidden"
             >
               <div
                 class="h-full rounded-full transition-all duration-300"
@@ -453,6 +474,7 @@ watch(() => props.open, (open) => {
         <!-- Footer actions -->
         <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 space-y-2">
 
+          <!-- Primary CTA -->
           <button
             v-if="!isCompleted"
             type="button"
@@ -472,12 +494,32 @@ watch(() => props.open, (open) => {
             Reabrir tarefa
           </button>
 
+          <!-- Secondary row: pending has Editar + Excluir; completed has just Excluir -->
+          <div v-if="!isCompleted" class="flex gap-2">
+            <button
+              type="button"
+              class="flex-1 h-10 rounded-xl border border-border/60 text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/30 flex items-center justify-center gap-1.5 transition-colors"
+              @click="startEditTitle"
+            >
+              <Pencil :size="13" />
+              Editar
+            </button>
+            <button
+              type="button"
+              class="flex-1 h-10 rounded-xl text-[13px] text-destructive hover:bg-destructive/8 flex items-center justify-center gap-1.5 transition-colors"
+              @click="showDeleteConfirm = true"
+            >
+              <Trash2 :size="13" />
+              Excluir
+            </button>
+          </div>
           <button
+            v-else
             type="button"
-            class="w-full flex items-center justify-center gap-2 h-11 rounded-lg text-[13px] font-medium text-destructive hover:bg-destructive/8 transition-colors"
+            class="w-full h-10 rounded-xl text-[13px] text-destructive hover:bg-destructive/8 flex items-center justify-center gap-1.5 transition-colors"
             @click="showDeleteConfirm = true"
           >
-            <Trash2 :size="15" />
+            <Trash2 :size="13" />
             Excluir tarefa
           </button>
 
