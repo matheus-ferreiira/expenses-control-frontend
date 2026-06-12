@@ -7,7 +7,6 @@ import {
   Clock,
   Flag,
   FolderOpen,
-  Tag,
   X,
   CheckCircle2,
   RotateCcw,
@@ -15,7 +14,7 @@ import {
 } from 'lucide-vue-next'
 import TaskSubtaskList from './TaskSubtaskList.vue'
 import { ConfirmDialog } from '@/components/shared'
-import type { Task, TaskPriority } from '@/types/tasks'
+import type { Task, TaskPriority, RecurrenceType } from '@/types/tasks'
 import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from '@/types/tasks'
 import { formatDueDate, getSubtaskProgress } from '../utils/taskHelpers'
 import { useTaskStore } from '@/stores/tasks'
@@ -82,7 +81,7 @@ async function saveDesc() {
   }
 }
 
-// ── Date picker row ──────────────────────────────────────────────────────────
+// ── Date picker ──────────────────────────────────────────────────────────────
 const showDatePicker = ref(false)
 
 async function saveDate(value: string | null) {
@@ -97,20 +96,23 @@ async function saveDate(value: string | null) {
   }
 }
 
-// ── Priority picker row ──────────────────────────────────────────────────────
+// ── Priority picker ──────────────────────────────────────────────────────────
 const showPriorityPicker = ref(false)
 
-interface PriorityDef {
-  value: TaskPriority
-  activeClass: string
-}
-
+interface PriorityDef { value: TaskPriority; activeClass: string }
 const PRIORITIES: PriorityDef[] = [
   { value: 'urgent', activeClass: 'bg-destructive/15 text-destructive' },
   { value: 'high',   activeClass: 'bg-warning/15 text-warning' },
   { value: 'normal', activeClass: 'bg-muted/60 text-foreground' },
   { value: 'low',    activeClass: 'bg-muted/30 text-muted-foreground' },
 ]
+
+const PRIORITY_CHIP: Record<TaskPriority, string> = {
+  urgent: 'bg-destructive/15 text-destructive',
+  high:   'bg-warning/15 text-warning',
+  normal: 'bg-muted/40 text-muted-foreground',
+  low:    'bg-muted/30 text-muted-foreground/60',
+}
 
 async function selectPriority(p: TaskPriority) {
   if (!props.task || p === props.task.priority) { showPriorityPicker.value = false; return }
@@ -119,15 +121,6 @@ async function selectPriority(p: TaskPriority) {
     await store.optimisticUpdate(props.task.id, { priority: p })
   } catch {
     toast.error('Erro ao salvar')
-  }
-}
-
-// ── Priority colour helper (using CSS vars) ───────────────────────────────────
-function priorityDotStyle(p: TaskPriority): string {
-  switch (p) {
-    case 'urgent': return 'color: hsl(var(--destructive))'
-    case 'high':   return 'color: hsl(var(--warning))'
-    default:       return 'color: hsl(var(--muted-foreground) / 0.5)'
   }
 }
 
@@ -141,13 +134,48 @@ function statusBadgeClass(task: Task): string {
   }
 }
 
-// ── Actions ──────────────────────────────────────────────────────────────────
+// ── Date chip class ───────────────────────────────────────────────────────────
+const datechipClass = computed(() => {
+  if (showDatePicker.value) return 'bg-primary/15 text-primary'
+  if (!props.task?.due_date) return 'bg-muted/30 text-muted-foreground/50'
+  const today = new Date().toLocaleDateString('en-CA')
+  if (props.task.due_date < today && props.task.status !== 'completed' && props.task.status !== 'cancelled') {
+    return 'bg-destructive/15 text-destructive'
+  }
+  if (props.task.due_date === today) return 'bg-warning/15 text-warning'
+  return 'bg-muted/40 text-muted-foreground'
+})
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatTimePeriod(time: string): string {
+  const hour = parseInt(time.split(':')[0] ?? '0', 10)
+  if (hour < 12) return 'MANHÃ'
+  if (hour < 18) return 'TARDE'
+  return 'NOITE'
+}
+
+function formatEstimated(min: number): string {
+  if (min >= 60) {
+    const h = Math.floor(min / 60)
+    const m = min % 60
+    return m ? `${h}h ${m}min` : `${h}h`
+  }
+  return `${min}min`
+}
+
+const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
+  none: '', daily: 'Diária', weekly: 'Semanal',
+  monthly: 'Mensal', yearly: 'Anual', weekday: 'Dias úteis', custom: 'Personalizado',
+}
+
+// ── Computed ──────────────────────────────────────────────────────────────────
 const isCompleted = computed(() => props.task?.status === 'completed')
 const progress = computed(() => props.task ? getSubtaskProgress(props.task) : 0)
 const dueDateLabel = computed(() =>
   props.task?.due_date ? formatDueDate(props.task.due_date) : null,
 )
 
+// ── Actions ───────────────────────────────────────────────────────────────────
 async function handleToggleComplete() {
   if (!props.task) return
   try {
@@ -176,7 +204,7 @@ async function handleDelete() {
   }
 }
 
-// ── Subtasks ─────────────────────────────────────────────────────────────────
+// ── Subtasks ──────────────────────────────────────────────────────────────────
 async function handleSubtaskCreate(title: string) {
   if (!props.task) return
   try { await store.createSubtask(props.task.id, title) }
@@ -195,7 +223,7 @@ async function handleSubtaskDelete(subtaskId: string) {
   catch { toast.error('Erro ao excluir subtarefa') }
 }
 
-// Reset inline pickers when task changes or sheet closes
+// ── Reset pickers on close ────────────────────────────────────────────────────
 watch(() => props.open, (open) => {
   if (!open) {
     editingTitle.value = false
@@ -217,7 +245,7 @@ watch(() => props.open, (open) => {
 
       <template v-if="task">
         <!-- Header: status badge + close -->
-        <div class="flex items-center justify-between px-5 pt-2 pb-3 shrink-0">
+        <div class="flex items-center justify-between px-5 pt-2 pb-2 shrink-0">
           <span
             class="inline-flex items-center h-6 px-2.5 rounded text-[11px] font-semibold border"
             :class="statusBadgeClass(task)"
@@ -235,10 +263,10 @@ watch(() => props.open, (open) => {
         </div>
 
         <!-- Body -->
-        <div class="flex-1 overflow-y-auto px-5 pb-4 space-y-4">
+        <div class="flex-1 overflow-y-auto px-5 pb-4">
 
           <!-- Title (inline edit) -->
-          <div>
+          <div class="mb-2">
             <input
               v-if="editingTitle"
               ref="titleRef"
@@ -261,7 +289,7 @@ watch(() => props.open, (open) => {
           </div>
 
           <!-- Description (inline edit) -->
-          <div>
+          <div class="mb-4">
             <textarea
               v-if="editingDesc"
               ref="descRef"
@@ -278,104 +306,110 @@ watch(() => props.open, (open) => {
               class="text-left w-full"
               @click="startEditDesc"
             >
-              <p
-                v-if="task.description"
-                class="text-[13px] text-muted-foreground leading-relaxed"
-              >{{ task.description }}</p>
-              <p
-                v-else
-                class="text-[13px] text-muted-foreground/35 italic"
-              >Adicionar descrição...</p>
+              <p v-if="task.description" class="text-[13px] text-muted-foreground leading-relaxed">
+                {{ task.description }}
+              </p>
+              <p v-else class="text-[13px] text-muted-foreground/30 italic">
+                Adicionar descrição...
+              </p>
             </button>
           </div>
 
-          <!-- Date row -->
-          <div>
+          <!-- Metadata chips row -->
+          <div class="flex flex-wrap gap-1.5 mb-1">
+            <!-- Date chip (tappable) -->
             <button
               type="button"
-              class="flex items-center gap-2 w-full py-2 rounded-lg hover:bg-muted/20 transition-colors -mx-1 px-1"
+              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium transition-colors"
+              :class="datechipClass"
               @click="showDatePicker = !showDatePicker; showPriorityPicker = false"
             >
-              <Calendar :size="15" class="text-muted-foreground/60 shrink-0" />
-              <span
-                v-if="dueDateLabel"
-                class="text-[13px] font-medium"
-                :class="task.due_date && task.due_date < new Date().toLocaleDateString('en-CA') && task.status !== 'completed'
-                  ? 'text-destructive'
-                  : 'text-foreground'"
-              >{{ dueDateLabel }}</span>
-              <span v-else class="text-[13px] text-muted-foreground/40">Sem data de entrega</span>
+              <Calendar :size="11" />
+              {{ dueDateLabel || 'Sem data' }}
             </button>
-            <div v-if="showDatePicker" class="mt-2 ml-1">
-              <DatePicker
-                :model-value="task.due_date ?? ''"
-                @update:model-value="saveDate($event)"
-              />
-            </div>
-          </div>
 
-          <!-- Priority row -->
-          <div>
+            <!-- Priority chip (tappable) -->
             <button
               type="button"
-              class="flex items-center gap-2 w-full py-2 rounded-lg hover:bg-muted/20 transition-colors -mx-1 px-1"
+              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium transition-colors"
+              :class="showPriorityPicker ? 'bg-primary/15 text-primary' : PRIORITY_CHIP[task.priority]"
               @click="showPriorityPicker = !showPriorityPicker; showDatePicker = false"
             >
-              <Flag :size="15" class="shrink-0" :style="priorityDotStyle(task.priority)" />
-              <span class="text-[13px] font-medium text-foreground">
-                {{ TASK_PRIORITY_LABELS[task.priority] }}
-              </span>
+              <Flag :size="11" />
+              {{ TASK_PRIORITY_LABELS[task.priority] }}
             </button>
-            <div v-if="showPriorityPicker" class="mt-2 ml-1 grid grid-cols-4 gap-1.5">
-              <button
-                v-for="p in PRIORITIES"
-                :key="p.value"
-                type="button"
-                class="h-9 rounded-lg text-[11px] font-medium transition-all"
-                :class="task.priority === p.value
-                  ? p.activeClass
-                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
-                @click="selectPriority(p.value)"
-              >{{ TASK_PRIORITY_LABELS[p.value] }}</button>
-            </div>
+
+            <!-- Time chip -->
+            <span
+              v-if="task.due_time"
+              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground"
+            >
+              <Clock :size="11" />
+              {{ task.due_time.slice(0, 5) }}
+              <span class="text-muted-foreground/50">· {{ formatTimePeriod(task.due_time) }}</span>
+            </span>
+
+            <!-- List chip -->
+            <span
+              v-if="task.task_list"
+              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground"
+            >
+              <FolderOpen :size="11" />
+              {{ task.task_list.name }}
+            </span>
+
+            <!-- Estimated chip -->
+            <span
+              v-if="task.estimated_minutes"
+              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/30 text-muted-foreground/70"
+            >
+              <Clock :size="11" />
+              {{ formatEstimated(task.estimated_minutes) }}
+            </span>
+
+            <!-- Recurrence chip -->
+            <span
+              v-if="task.recurrence_type && task.recurrence_type !== 'none'"
+              class="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary"
+            >
+              <RotateCcw :size="11" />
+              {{ RECURRENCE_LABELS[task.recurrence_type] }}
+            </span>
           </div>
 
-          <!-- List row -->
-          <div v-if="task.task_list">
-            <div class="flex items-center gap-2 w-full py-2 -mx-1 px-1">
-              <FolderOpen :size="15" class="text-muted-foreground/60 shrink-0" />
-              <span class="text-[13px] text-muted-foreground">{{ task.task_list.name }}</span>
-            </div>
+          <!-- Date picker (inline expansion) -->
+          <div v-if="showDatePicker" class="mt-2 mb-3">
+            <DatePicker
+              :model-value="task.due_date ?? ''"
+              @update:model-value="saveDate($event)"
+            />
+          </div>
+
+          <!-- Priority picker (inline expansion) -->
+          <div v-if="showPriorityPicker" class="mt-2 mb-3 grid grid-cols-4 gap-1.5">
+            <button
+              v-for="p in PRIORITIES"
+              :key="p.value"
+              type="button"
+              class="h-9 rounded-lg text-[11px] font-medium transition-all"
+              :class="task.priority === p.value
+                ? p.activeClass
+                : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+              @click="selectPriority(p.value)"
+            >{{ TASK_PRIORITY_LABELS[p.value] }}</button>
           </div>
 
           <!-- Tags row -->
-          <div v-if="task.tags && task.tags.length">
-            <div class="flex items-start gap-2 w-full py-2 -mx-1 px-1">
-              <Tag :size="15" class="text-muted-foreground/60 shrink-0 mt-0.5" />
-              <div class="flex flex-wrap gap-1.5">
-                <span
-                  v-for="tag in task.tags"
-                  :key="tag.id"
-                  class="inline-flex items-center h-5 px-2 rounded text-[11px] font-medium bg-muted/40 text-muted-foreground"
-                >{{ tag.name }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Estimated time row -->
-          <div v-if="task.estimated_minutes">
-            <div class="flex items-center gap-2 w-full py-2 -mx-1 px-1">
-              <Clock :size="15" class="text-muted-foreground/60 shrink-0" />
-              <span class="text-[13px] text-muted-foreground tabular-nums">
-                {{ task.estimated_minutes >= 60
-                  ? `${Math.floor(task.estimated_minutes / 60)}h${task.estimated_minutes % 60 ? ` ${task.estimated_minutes % 60}min` : ''}`
-                  : `${task.estimated_minutes}min` }}
-              </span>
-            </div>
+          <div v-if="task.tags && task.tags.length" class="flex flex-wrap gap-1.5 mt-2 mb-3">
+            <span
+              v-for="tag in task.tags"
+              :key="tag.id"
+              class="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-medium bg-muted/40 text-muted-foreground/80"
+            >{{ tag.name }}</span>
           </div>
 
           <!-- Subtasks -->
-          <div class="pt-1">
+          <div class="pt-3 border-t border-border/30 mt-3">
             <div class="flex items-center justify-between mb-2">
               <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70">
                 SUBTAREFAS
@@ -385,16 +419,19 @@ watch(() => props.open, (open) => {
                 class="text-[11px] text-muted-foreground/50 tabular-nums"
               >{{ task.completed_subtasks_count }}/{{ task.subtasks_count }}</span>
             </div>
+
             <!-- Progress bar -->
             <div
               v-if="task.subtasks_count > 0"
               class="h-1 rounded-full bg-muted/30 mb-3 overflow-hidden"
             >
               <div
-                class="h-full rounded-full transition-all duration-300 bg-success/70"
+                class="h-full rounded-full transition-all duration-300"
+                :class="progress >= 100 ? 'bg-success' : 'bg-success/60'"
                 :style="{ width: `${progress}%` }"
               />
             </div>
+
             <TaskSubtaskList
               :task-id="task.id"
               :subtasks="task.subtasks"
@@ -409,7 +446,6 @@ watch(() => props.open, (open) => {
         <!-- Footer actions -->
         <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 space-y-2">
 
-          <!-- Primary action -->
           <button
             v-if="!isCompleted"
             type="button"
@@ -429,7 +465,6 @@ watch(() => props.open, (open) => {
             Reabrir tarefa
           </button>
 
-          <!-- Destructive action -->
           <button
             type="button"
             class="w-full flex items-center justify-center gap-2 h-11 rounded-lg text-[13px] font-medium text-destructive hover:bg-destructive/8 transition-colors"

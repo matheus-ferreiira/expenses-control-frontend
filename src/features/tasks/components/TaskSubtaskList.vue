@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Checkbox } from '@ui/checkbox'
-import { Button } from '@ui/button'
-import { Input } from '@ui/input'
-import { Trash2, Plus, Loader2 } from 'lucide-vue-next'
+import { ref, nextTick } from 'vue'
+import { Plus, Trash2, Check } from 'lucide-vue-next'
 import type { Subtask } from '@/types/tasks'
 
-defineProps<{
-  taskId: string
-  subtasks: Subtask[]
-}>()
+defineProps<{ taskId: string; subtasks: Subtask[] }>()
 
 const emit = defineEmits<{
   toggle: [subtaskId: string]
@@ -17,83 +11,107 @@ const emit = defineEmits<{
   create: [title: string]
 }>()
 
-const newTitle = ref('')
 const adding = ref(false)
-const creating = ref(false)
+const newTitle = ref('')
+const inputRef = ref<HTMLInputElement | null>(null)
 
-async function submitNew() {
-  if (!newTitle.value.trim()) return
-  creating.value = true
-  try {
-    emit('create', newTitle.value.trim())
-    newTitle.value = ''
-    adding.value = false
-  } finally {
-    creating.value = false
-  }
+async function startAdding() {
+  adding.value = true
+  await nextTick()
+  inputRef.value?.focus()
+}
+
+function submitNew() {
+  const title = newTitle.value.trim()
+  if (!title) { adding.value = false; return }
+  emit('create', title)
+  newTitle.value = ''
+  adding.value = false
 }
 
 function cancelNew() {
   newTitle.value = ''
   adding.value = false
 }
+
+function handleBlur() {
+  if (!newTitle.value.trim()) cancelNew()
+}
 </script>
 
 <template>
-  <div class="space-y-1">
+  <div>
     <!-- Existing subtasks -->
     <div
       v-for="sub in subtasks"
       :key="sub.id"
-      class="group flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-accent/40 transition-base"
+      class="group flex items-center border-b border-border/20 last:border-0"
     >
-      <Checkbox
-        :checked="sub.is_completed"
-        class="shrink-0"
-        @update:checked="emit('toggle', sub.id)"
-      />
-      <span
-        :class="['flex-1 text-[13px]', sub.is_completed && 'line-through text-muted-foreground']"
+      <!-- Circular checkbox — large touch area -->
+      <button
+        type="button"
+        class="size-11 flex items-center justify-center shrink-0 -ml-1 rounded-full transition-all active:scale-95"
+        :aria-label="sub.is_completed ? 'Desmarcar subtarefa' : 'Concluir subtarefa'"
+        @click="emit('toggle', sub.id)"
       >
-        {{ sub.title }}
-      </span>
-      <Button
-        variant="ghost"
-        size="icon"
-        class="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+        <span
+          class="size-5 rounded-full border-2 flex items-center justify-center transition-all duration-200"
+          :class="sub.is_completed
+            ? 'border-success/80 bg-success/80'
+            : 'border-muted-foreground/30'"
+        >
+          <Check
+            v-if="sub.is_completed"
+            :size="10"
+            :stroke-width="3"
+            style="color: hsl(var(--background))"
+          />
+        </span>
+      </button>
+
+      <!-- Title -->
+      <span
+        class="flex-1 min-w-0 py-3 pr-2 text-[13px] leading-snug"
+        :class="sub.is_completed
+          ? 'line-through text-muted-foreground/40'
+          : 'text-foreground'"
+      >{{ sub.title }}</span>
+
+      <!-- Delete — reveal on hover -->
+      <button
+        type="button"
+        class="size-9 flex items-center justify-center opacity-0 group-hover:opacity-100 text-muted-foreground/30 hover:text-destructive transition-all shrink-0"
         @click="emit('delete', sub.id)"
       >
-        <Trash2 :size="12" />
-      </Button>
+        <Trash2 :size="13" />
+      </button>
     </div>
 
-    <!-- Add new subtask -->
-    <div v-if="adding" class="flex items-center gap-2 px-2 py-1.5">
-      <div class="h-4 w-4 shrink-0 rounded border border-border" />
-      <Input
+    <!-- New subtask input -->
+    <div v-if="adding" class="flex items-center border-b border-border/20">
+      <div class="size-11 flex items-center justify-center shrink-0 -ml-1">
+        <span class="size-5 rounded-full border-2 border-muted-foreground/20" />
+      </div>
+      <input
+        ref="inputRef"
         v-model="newTitle"
-        autofocus
+        type="text"
         placeholder="Nome da subtarefa..."
-        class="h-7 text-[13px] flex-1"
+        class="flex-1 py-3 pr-2 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground/30"
         @keydown.enter="submitNew"
-        @keydown.esc="cancelNew"
+        @keydown.escape="cancelNew"
+        @blur="handleBlur"
       />
-      <Button size="sm" class="h-7 px-2 text-[11px]" :disabled="creating || !newTitle.trim()" @click="submitNew">
-        <Loader2 v-if="creating" :size="12" class="animate-spin" />
-        <span v-else>Adicionar</span>
-      </Button>
-      <Button variant="ghost" size="sm" class="h-7 px-2 text-[11px]" @click="cancelNew">
-        Cancelar
-      </Button>
     </div>
 
     <!-- Add trigger -->
     <button
       v-if="!adding"
-      class="flex items-center gap-2 px-2 py-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-base rounded-md hover:bg-accent/40 w-full"
-      @click="adding = true"
+      type="button"
+      class="flex items-center gap-1.5 w-full py-2.5 pl-2 text-[13px] text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+      @click="startAdding"
     >
-      <Plus :size="14" />
+      <Plus :size="13" />
       Adicionar subtarefa
     </button>
   </div>
