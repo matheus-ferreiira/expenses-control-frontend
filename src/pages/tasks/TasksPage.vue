@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { AlertTriangle } from 'lucide-vue-next'
 import TasksSubNav from '@/features/tasks/components/TasksSubNav.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
+import TaskPeriodView from '@/features/tasks/views/TaskPeriodView.vue'
 import TaskCreateSheet from '@/features/tasks/components/TaskCreateSheet.vue'
 import TaskDetailSheet from '@/features/tasks/components/TaskDetailSheet.vue'
 import { useTaskStore } from '@/stores/tasks'
@@ -42,7 +43,7 @@ const displayTasks = computed(() => {
   switch (selectedView.value) {
     case 'today':
       return tasks.filter(
-        (t) => t.due_date === today && t.status !== 'completed' && t.status !== 'cancelled',
+        (t) => t.due_date === today && t.status !== 'cancelled',
       )
     case 'upcoming':
       return tasks.filter(
@@ -76,6 +77,10 @@ const displayTasks = computed(() => {
 const pendingCount = computed(() =>
   store.tasks.filter((t) => t.status !== 'completed' && t.status !== 'cancelled').length,
 )
+
+// ── Daily progress ───────────────────────────────────────────────────────────
+const progress = computed(() => store.todayProgress)
+const showProgressBar = computed(() => progress.value.total > 0)
 
 // ── Sheets ───────────────────────────────────────────────────────────────────
 const createOpen = ref(false)
@@ -126,7 +131,7 @@ onUnmounted(() => {
   <div class="w-full px-4 py-6">
 
     <!-- Header -->
-    <div class="flex items-start justify-between mb-5">
+    <div class="flex items-start justify-between mb-4">
       <div>
         <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1.5">
           PRODUTIVIDADE
@@ -143,6 +148,24 @@ onUnmounted(() => {
       >
         + Nova tarefa
       </button>
+    </div>
+
+    <!-- Daily progress bar (shown when tasks exist for today) -->
+    <div v-if="showProgressBar" class="mb-4">
+      <div class="flex items-center justify-between mb-1.5">
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">HOJE</p>
+        <p class="text-[11px] tabular-nums text-muted-foreground/60">
+          {{ progress.completed }}/{{ progress.total }}
+          <span v-if="progress.percent >= 100" class="text-success font-semibold ml-1">✓ Tudo feito!</span>
+        </p>
+      </div>
+      <div class="h-1.5 rounded-full bg-muted/30 overflow-hidden">
+        <div
+          class="h-full rounded-full transition-all duration-500"
+          :class="progress.percent >= 100 ? 'bg-success' : 'bg-primary'"
+          :style="{ width: `${progress.percent}%` }"
+        />
+      </div>
     </div>
 
     <!-- Pill tabs -->
@@ -163,8 +186,17 @@ onUnmounted(() => {
       >Tentar novamente</button>
     </div>
 
-    <!-- Task list -->
+    <!-- Task list — period grouped for "today" view, regular otherwise -->
+    <TaskPeriodView
+      v-if="selectedView === 'today'"
+      :tasks="displayTasks"
+      :loading="store.loading"
+      @toggle="handleToggle"
+      @open="openDetail"
+      @create="createOpen = true"
+    />
     <TaskListView
+      v-else
       :tasks="displayTasks"
       :loading="store.loading"
       @toggle="handleToggle"

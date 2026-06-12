@@ -39,6 +39,16 @@ export const useTaskStore = defineStore('tasks', () => {
     return groups
   })
 
+  const todayProgress = computed(() => {
+    const today = new Date().toLocaleDateString('en-CA')
+    const todayTasks = tasks.value.filter(
+      (t) => t.due_date && t.due_date.slice(0, 10) === today && t.status !== 'cancelled',
+    )
+    const completed = todayTasks.filter((t) => t.status === 'completed').length
+    const total = todayTasks.length
+    return { total, completed, percent: total > 0 ? Math.round((completed / total) * 100) : 0 }
+  })
+
   const tasksByPeriod = computed(() => {
     const today = new Date().toLocaleDateString('en-CA')
     return {
@@ -233,6 +243,7 @@ export const useTaskStore = defineStore('tasks', () => {
     pendingTasks,
     overdueTasks,
     tasksByDate,
+    todayProgress,
     tasksByPeriod,
     fetchTasks,
     createTask,
