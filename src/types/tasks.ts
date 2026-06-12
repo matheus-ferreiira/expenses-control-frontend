@@ -1,5 +1,6 @@
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
 export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent'
+export type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'weekday' | 'custom'
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   pending: 'Pendente',
@@ -61,6 +62,9 @@ export interface Task {
   task_list_id: string | null
   task_list?: TaskList | null
   estimated_minutes: number | null
+  recurrence_type: RecurrenceType
+  recurrence_config: Record<string, unknown> | null
+  next_occurrence_date: string | null
   labels: TaskLabel[]
   tags: TaskTag[]
   subtasks: Subtask[]
@@ -82,6 +86,8 @@ export interface CreateTaskPayload {
   tag_ids?: string[]
   task_list_id?: string | null
   estimated_minutes?: number | null
+  recurrence_type?: RecurrenceType
+  recurrence_config?: Record<string, unknown>
 }
 
 export type UpdateTaskPayload = Partial<CreateTaskPayload>
