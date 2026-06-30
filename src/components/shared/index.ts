@@ -24,6 +24,7 @@ export type { TableColumn } from './AppTable.vue'
 
 // Forms
 export { default as AppFormField } from './AppFormField.vue'
+export { default as AppNumberStepper } from './AppNumberStepper.vue'
 
 // Pickers
 export { default as IconPicker } from './IconPicker.vue'

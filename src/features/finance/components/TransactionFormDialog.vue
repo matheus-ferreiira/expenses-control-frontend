@@ -10,6 +10,7 @@ import {
   Wallet, Check,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
+import { AppNumberStepper } from '@/components/shared'
 import CategoryQuickCreateSheet from './CategoryQuickCreateSheet.vue'
 import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
 import type { Transaction, TransactionType, RecurrenceUpdateScope } from '@/types/finance'
@@ -744,14 +745,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   </button>
                 </div>
                 <div v-if="form.recurrence_end_type === 'count'" class="flex items-center gap-2.5">
-                  <input
-                    v-model.number="form.recurrence_count"
-                    type="number"
-                    inputmode="numeric"
-                    min="2"
-                    max="260"
-                    class="w-20 h-10 px-3 rounded-lg bg-card border border-border text-[14px] text-center text-foreground outline-none tabular-nums"
-                  />
+                  <AppNumberStepper v-model="form.recurrence_count" :min="2" :max="260" />
                   <span class="text-[13px] text-muted-foreground">ocorrências</span>
                 </div>
                 <input
@@ -806,12 +800,12 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
 
             <!-- Installment count pills -->
             <div v-if="isInstallment" class="pt-3 pb-4">
-              <div class="flex gap-2 flex-wrap mb-2.5">
+              <div class="flex gap-2 flex-wrap mb-3">
                 <button
                   v-for="n in INSTALLMENT_OPTIONS"
                   :key="n"
                   type="button"
-                  class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors"
+                  class="h-9 px-3 rounded-full text-[12px] font-medium transition-colors"
                   :class="form.total_installments === n
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
@@ -819,6 +813,10 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 >
                   {{ n }}x
                 </button>
+              </div>
+              <div class="flex items-center gap-2.5 mb-2.5">
+                <AppNumberStepper v-model="form.total_installments" :min="2" :max="24" />
+                <span class="text-[13px] text-muted-foreground">parcelas (digite um número customizado)</span>
               </div>
               <p v-if="installmentAmount > 0" class="text-[12px] text-muted-foreground/50">
                 {{ form.total_installments }}x de
