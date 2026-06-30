@@ -154,7 +154,7 @@ export interface BillingPeriod {
   startDate: string
   /** YYYY-MM-DD — last day of this billing cycle (closing day) */
   endDate: string
-  /** YYYY-MM-DD — payment due date (dueDay of the following month) */
+  /** YYYY-MM-DD — payment due date (same month as closing if dueDay > closingDay, else the month after) */
   dueDate: string
   /** True while the cycle is still accumulating charges (not yet closed) */
   isOpen: boolean
@@ -200,6 +200,22 @@ export function getCardBillingPeriod(
     return `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
 
+  /**
+   * Due date for a bill that closed on (closeYear, closeMonthIdx).
+   * If dueDay falls after closingDay within the same month (e.g. closes 13, due 20),
+   * the due date is in that SAME month. Otherwise (e.g. closes 28, due 5) it's the month after.
+   */
+  function computeDueDate(closeYear: number, closeMonthIdx: number): string {
+    if (dueDay > closingDay) {
+      const dueDayEff = Math.min(dueDay, daysIn(closeYear, closeMonthIdx))
+      return iso(closeYear, closeMonthIdx, dueDayEff)
+    }
+    const dueMonthIdx = (closeMonthIdx + 1) % 12
+    const dueYear = closeMonthIdx === 11 ? closeYear + 1 : closeYear
+    const dueDayEff = Math.min(dueDay, daysIn(dueYear, dueMonthIdx))
+    return iso(dueYear, dueMonthIdx, dueDayEff)
+  }
+
   const MON_ABBR = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']
 
   function label(dateStr: string): string {
@@ -223,13 +239,9 @@ export function getCardBillingPeriod(
     const nextYear = todayMonthIdx === 11 ? todayYear + 1 : todayYear
     const endDay = effectiveClose(nextYear, nextMonthIdx)
 
-    const dueMonthIdx = (nextMonthIdx + 1) % 12
-    const dueYear = nextMonthIdx === 11 ? nextYear + 1 : nextYear
-    const dueDayEff = Math.min(dueDay, daysIn(dueYear, dueMonthIdx))
-
     startDate = iso(todayYear, todayMonthIdx, startDay)
     endDate   = iso(nextYear, nextMonthIdx, endDay)
-    dueDate   = iso(dueYear, dueMonthIdx, dueDayEff)
+    dueDate   = computeDueDate(nextYear, nextMonthIdx)
     isClosed  = true // closing day passed — previous cycle is closed, awaiting payment
   } else {
     // Today is on or before closing day → cycle closes this month on closingDay.
@@ -248,11 +260,7 @@ export function getCardBillingPeriod(
     }
 
     endDate = iso(todayYear, todayMonthIdx, todayClose)
-
-    const dueMonthIdx = (todayMonthIdx + 1) % 12
-    const dueYear = todayMonthIdx === 11 ? todayYear + 1 : todayYear
-    const dueDayEff = Math.min(dueDay, daysIn(dueYear, dueMonthIdx))
-    dueDate = iso(dueYear, dueMonthIdx, dueDayEff)
+    dueDate = computeDueDate(todayYear, todayMonthIdx)
 
     isClosed = false // today ≤ closingDay → cycle still open
   }
