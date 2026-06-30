@@ -106,7 +106,7 @@ async function unarchiveCard(card: CreditCardType) {
  */
 const billingPeriods = computed(() => {
   const map = new Map<string, ReturnType<typeof getCardBillingPeriod>>()
-  for (const card of store.activeCards) {
+  for (const card of store.cards) {
     map.set(card.id, getCardBillingPeriod(card.closing_day, card.due_day))
   }
   return map
@@ -247,6 +247,7 @@ onMounted(async () => {
             :key="card.id"
             :card="card"
             :used-amount="0"
+            :billing-period="billingPeriods.get(card.id)"
             @edit="openEdit"
             @delete="openDelete"
             @pay="openEdit"
