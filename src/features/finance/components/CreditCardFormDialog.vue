@@ -182,10 +182,22 @@ const previewDue = computed(() => {
 
         <div class="grid grid-cols-2 gap-3">
           <AppFormField label="Fecha dia" :error="errors.closing_day" required>
-            <Input v-model="form.closing_day" inputmode="numeric" placeholder="1" class="w-full h-10 rounded-lg text-[13px] text-center bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
+            <input
+              v-model="form.closing_day"
+              type="text"
+              inputmode="numeric"
+              placeholder="1"
+              class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-center text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            />
           </AppFormField>
           <AppFormField label="Vence dia" :error="errors.due_day" required>
-            <Input v-model="form.due_day" inputmode="numeric" placeholder="10" class="w-full h-10 rounded-lg text-[13px] text-center bg-card border-border/60 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary/60" />
+            <input
+              v-model="form.due_day"
+              type="text"
+              inputmode="numeric"
+              placeholder="10"
+              class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-center text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            />
           </AppFormField>
         </div>
 
