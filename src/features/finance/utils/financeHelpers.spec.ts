@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { getCardBillingPeriod } from './financeHelpers'
+import { getCardBillingPeriod, formatDayMonth } from './financeHelpers'
+
+describe('formatDayMonth', () => {
+  it('formats an ISO date as "day month-abbr"', () => {
+    expect(formatDayMonth('2026-07-13')).toBe('13 jul')
+  })
+})
 
 describe('getCardBillingPeriod', () => {
   it('keeps the due date in the same month as closing when dueDay > closingDay, after closing day has passed', () => {

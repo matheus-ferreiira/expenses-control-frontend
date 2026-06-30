@@ -156,12 +156,16 @@ export interface BillingPeriod {
   endDate: string
   /** YYYY-MM-DD — payment due date (same month as closing if dueDay > closingDay, else the month after) */
   dueDate: string
-  /** True while the cycle is still accumulating charges (not yet closed) */
-  isOpen: boolean
-  /** True when cycle has closed but due date has not yet passed */
-  isClosed: boolean
   /** Human-readable label, e.g. "16 abr – 15 mai" */
   label: string
+}
+
+const MON_ABBR = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+/** "YYYY-MM-DD" → "13 jul" */
+export function formatDayMonth(dateStr: string): string {
+  const [, m, d] = dateStr.split('-').map(Number)
+  return `${d} ${MON_ABBR[(m ?? 1) - 1]}`
 }
 
 /**
@@ -174,6 +178,12 @@ export interface BillingPeriod {
  *     NEXT billing cycle (starts today's month, ends next month).
  *   - Edge cases: closingDay > days-in-month → clamp to last day of that month.
  *   - Year rollover (Dec → Jan) handled via month arithmetic.
+ *
+ * By construction, `endDate` is always today or a future date — this always describes
+ * the currently accumulating cycle, never one that has already closed. There is
+ * intentionally no `isClosed`/`isOpen` flag: it was previously hardcoded `true` whenever
+ * this month's closing day had passed, which mislabeled the upcoming (still open) cycle
+ * as a closed invoice (e.g. "Fatura fechada" shown days before the actual closing date).
  */
 export function getCardBillingPeriod(
   closingDay: number,
@@ -216,17 +226,9 @@ export function getCardBillingPeriod(
     return iso(dueYear, dueMonthIdx, dueDayEff)
   }
 
-  const MON_ABBR = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']
-
-  function label(dateStr: string): string {
-    const [, m, d] = dateStr.split('-').map(Number)
-    return `${d} ${MON_ABBR[(m ?? 1) - 1]}`
-  }
-
   let startDate: string
   let endDate: string
   let dueDate: string
-  let isClosed: boolean
 
   const todayClose = effectiveClose(todayYear, todayMonthIdx)
 
@@ -242,7 +244,6 @@ export function getCardBillingPeriod(
     startDate = iso(todayYear, todayMonthIdx, startDay)
     endDate   = iso(nextYear, nextMonthIdx, endDay)
     dueDate   = computeDueDate(nextYear, nextMonthIdx)
-    isClosed  = true // closing day passed — previous cycle is closed, awaiting payment
   } else {
     // Today is on or before closing day → cycle closes this month on closingDay.
     // Cycle started on (prevMonthClose + 1) of last month.
@@ -261,17 +262,13 @@ export function getCardBillingPeriod(
 
     endDate = iso(todayYear, todayMonthIdx, todayClose)
     dueDate = computeDueDate(todayYear, todayMonthIdx)
-
-    isClosed = false // today ≤ closingDay → cycle still open
   }
 
   return {
     startDate,
     endDate,
     dueDate,
-    isOpen: !isClosed,
-    isClosed,
-    label: `${label(startDate)} – ${label(endDate)}`,
+    label: `${formatDayMonth(startDate)} – ${formatDayMonth(endDate)}`,
   }
 }
 

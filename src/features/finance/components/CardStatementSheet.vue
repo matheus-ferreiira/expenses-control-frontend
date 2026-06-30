@@ -158,8 +158,8 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
             <p class="text-[13px] font-semibold">
               {{ billingPeriod?.label ?? '—' }}
             </p>
-            <p v-if="billingPeriod?.isClosed" class="text-[10px] text-muted-foreground/50 mt-0.5">
-              Fatura fechada · Vence {{ new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) }}
+            <p v-if="referenceOffset < 0 && billingPeriod" class="text-[10px] text-muted-foreground/50 mt-0.5">
+              Fatura fechada · Venceu {{ new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) }}
             </p>
             <p v-else class="text-[10px] text-success/70 mt-0.5">
               Fatura aberta

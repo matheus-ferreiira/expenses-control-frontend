@@ -8,10 +8,10 @@ import {
 } from '@ui/dropdown-menu'
 import { Button } from '@ui/button'
 import { computed } from 'vue'
-import { MoreHorizontal, Pencil, Trash2, CreditCard, Lock, Archive, ArchiveRestore, FileText, AlertTriangle } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, CreditCard, Archive, ArchiveRestore, FileText, AlertTriangle } from 'lucide-vue-next'
 import type { CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
-import { utilizationPercent } from '../utils/financeHelpers'
+import { utilizationPercent, formatDayMonth } from '../utils/financeHelpers'
 import type { BillingPeriod } from '../utils/financeHelpers'
 
 const props = defineProps<{
@@ -72,6 +72,14 @@ const dueBadgeLabel = computed(() => {
   return `Vence em ${d} dias`
 })
 
+/** "Fecha dia 13 jul · Vence dia 20 jul" — explicit dates, not the ambiguous open-cycle range */
+const closingDueLabel = computed(() => {
+  if (props.billingPeriod) {
+    return `Fecha dia ${formatDayMonth(props.billingPeriod.endDate)} · Vence dia ${formatDayMonth(props.billingPeriod.dueDate)}`
+  }
+  return `Fecha dia ${props.card.closing_day} · Vence dia ${props.card.due_day}`
+})
+
 /** Limit bar color based on utilization percentage */
 const limitBarClass = computed(() => {
   if (utilPct.value >= 90) return 'bg-destructive'
@@ -97,14 +105,9 @@ const limitBarClass = computed(() => {
           </span>
           <div class="min-w-0">
             <p class="text-[13px] font-medium text-foreground truncate">{{ card.name }}</p>
-            <!-- Billing period label (or fallback to closing/due days) -->
+            <!-- Closing/due dates — explicit, not the billing-period range -->
             <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-0.5">
-              <template v-if="billingPeriod">
-                {{ billingPeriod.label }}
-              </template>
-              <template v-else>
-                Fecha dia {{ card.closing_day }} · Vence dia {{ card.due_day }}
-              </template>
+              {{ closingDueLabel }}
             </p>
           </div>
         </div>
@@ -156,16 +159,6 @@ const limitBarClass = computed(() => {
           <CreditCard v-else :size="9" />
           {{ dueBadgeLabel }}
         </span>
-
-        <!-- "Fatura fechada" badge -->
-        <span
-          v-if="billingPeriod?.isClosed"
-          :title="`Período encerrado. Pagamento até ${new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}.`"
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border cursor-help bg-muted/30 border-border/30 text-muted-foreground"
-        >
-          <Lock :size="9" />
-          Fatura fechada
-        </span>
       </div>
 
       <!-- Limit + usage bar -->
@@ -173,7 +166,7 @@ const limitBarClass = computed(() => {
         <div class="flex items-end justify-between mb-1.5">
           <div>
             <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 mb-0.5">
-              {{ billingPeriod?.isClosed ? 'Fatura fechada' : 'Fatura atual' }}
+              Fatura atual
             </p>
             <p class="text-[17px] font-semibold tabular-nums leading-none text-foreground">
               {{ formatCurrency(used) }}
