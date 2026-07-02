@@ -22,6 +22,12 @@ export const ROUTES = {
   FINANCE_BUDGET: 'finance-budget',
   FINANCE_GOALS: 'finance-goals',
 
+  PRICES: 'prices',
+  PRICES_RECORDS: 'prices-records',
+  PRICES_PRODUCTS: 'prices-products',
+  PRICES_PRODUCT_DETAIL: 'prices-products-detail',
+  PRICES_PURCHASES: 'prices-purchases',
+
   GOALS: 'goals',
   GOAL_DETAIL: 'goal-detail',
 

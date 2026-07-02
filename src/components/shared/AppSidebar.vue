@@ -12,6 +12,7 @@ import {
   Settings, Search, Plus, Moon, Sun,
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
   ArrowUpDown, Landmark, CreditCard, PieChart, Tag, Flag,
+  Package, ShoppingBag,
 } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{ open: boolean; mobile?: boolean }>(), { mobile: false })
@@ -31,9 +32,11 @@ const openGroups = ref<Record<string, boolean>>({})
 
 const isOnFinance = computed(() => String(route.name).startsWith('finance'))
 const isOnTasks = computed(() => String(route.name).startsWith('task'))
+const isOnPrices = computed(() => String(route.name).startsWith('prices'))
 
 watch(isOnFinance, (val) => { if (val) openGroups.value[ROUTES.FINANCE] = true }, { immediate: true })
 watch(isOnTasks, (val) => { if (val) openGroups.value[ROUTES.TASKS] = true }, { immediate: true })
+watch(isOnPrices, (val) => { if (val) openGroups.value[ROUTES.PRICES] = true }, { immediate: true })
 
 function isGroupOpen(routeKey: string): boolean {
   return openGroups.value[routeKey] ?? false
@@ -44,6 +47,7 @@ function toggleGroup(routeKey: string) {
 function isGroupActive(routeKey: string): boolean {
   if (routeKey === ROUTES.FINANCE) return isOnFinance.value
   if (routeKey === ROUTES.TASKS) return isOnTasks.value
+  if (routeKey === ROUTES.PRICES) return isOnPrices.value
   return false
 }
 
@@ -67,6 +71,13 @@ const FINANCE_CHILDREN: NavChildItem[] = [
   { label: 'Categorias',   icon: Tag,               route: ROUTES.FINANCE_CATEGORIES },
 ]
 
+const PRICES_CHILDREN: NavChildItem[] = [
+  { label: 'Visão Geral',   icon: LayoutDashboard, route: ROUTES.PRICES },
+  { label: 'Registros',     icon: Tag,             route: ROUTES.PRICES_RECORDS },
+  { label: 'Produtos',      icon: Package,         route: ROUTES.PRICES_PRODUCTS },
+  { label: 'Minhas Compras', icon: ShoppingBag,    route: ROUTES.PRICES_PURCHASES },
+]
+
 const TASKS_CHILDREN: NavChildItem[] = [
   { label: 'Todas',      route: ROUTES.TASKS, viewKey: 'all' },
   { label: 'Hoje',       route: ROUTES.TASKS, viewKey: 'today' },
@@ -82,7 +93,7 @@ function isChildActive(child: NavChildItem): boolean {
     const queryView = String(route.query.view ?? 'all')
     return queryView === child.viewKey
   }
-  if (child.route === ROUTES.FINANCE) return name === child.route
+  if (child.route === ROUTES.FINANCE || child.route === ROUTES.PRICES) return name === child.route
   return name === child.route || name.startsWith(child.route + '-')
 }
 
@@ -119,6 +130,12 @@ const ALL_NAV_SECTIONS: NavSection[] = [
     label: 'FINANÇAS',
     items: [
       { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F', module: null, children: FINANCE_CHILDREN },
+    ],
+  },
+  {
+    label: 'PREÇOS',
+    items: [
+      { label: 'Preços', icon: Tag, route: ROUTES.PRICES, shortcut: '', module: null, children: PRICES_CHILDREN },
     ],
   },
   {

@@ -101,6 +101,32 @@ export const appRoutes: RouteRecordRaw[] = [
         name: ROUTES.REPORTS,
         component: () => import('@/pages/ReportsPage.vue'),
       },
+      // Preços
+      {
+        path: 'prices',
+        name: ROUTES.PRICES,
+        component: () => import('@/pages/prices/PricesDashboardPage.vue'),
+      },
+      {
+        path: 'prices/records',
+        name: ROUTES.PRICES_RECORDS,
+        component: () => import('@/pages/prices/PriceRecordsPage.vue'),
+      },
+      {
+        path: 'prices/products',
+        name: ROUTES.PRICES_PRODUCTS,
+        component: () => import('@/pages/prices/PriceProductsPage.vue'),
+      },
+      {
+        path: 'prices/products/:id',
+        name: ROUTES.PRICES_PRODUCT_DETAIL,
+        component: () => import('@/pages/prices/PriceProductDetailPage.vue'),
+      },
+      {
+        path: 'prices/purchases',
+        name: ROUTES.PRICES_PURCHASES,
+        component: () => import('@/pages/prices/PricePurchasesPage.vue'),
+      },
       // Pessoal
       {
         path: 'purchases',
