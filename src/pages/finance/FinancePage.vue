@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, AlertTriangle } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer } from '@/components/shared'
-import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
+import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
@@ -509,106 +509,24 @@ onMounted(async () => {
     <div class="mb-4 space-y-3">
 
       <!-- Main card: month nav + stats + budget + status chip + vs mês anterior -->
-      <div class="bg-card rounded-lg p-4">
-        <div class="flex justify-center mb-3">
-          <MonthNavigator
-            :month="filterState.month.value"
-            :is-current-month="filterState.isCurrentMonth()"
-            @prev="filterState.prevMonth()"
-            @next="filterState.nextMonth()"
-            @reset="filterState.resetToCurrentMonth()"
-            @select-month="filterState.month.value = $event"
-          />
-        </div>
-
-        <!-- 3-column stats -->
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
-            <p class="block text-[17px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(income) }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
-            <p class="block text-[17px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(expenses) }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo do mês</p>
-            <p class="block text-[17px] font-semibold tabular-nums mt-1">{{ formatCurrency(income - expenses) }}</p>
-          </div>
-        </div>
-
-        <!-- Budget bar with amounts text -->
-        <div class="mt-4">
-          <div class="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-            <span>Orçamento do mês</span>
-            <div class="flex flex-col items-end">
-              <span class="tabular-nums font-medium text-foreground">{{ formatCurrency(expenses) }} de {{ formatCurrency(income) }}</span>
-              <span class="tabular-nums text-muted-foreground">{{ budgetPercent }}%</span>
-            </div>
-          </div>
-          <div class="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all duration-700"
-              :style="{ width: `${budgetPercent}%` }"
-              :class="mobileStatus.tone === 'danger' ? 'bg-destructive' : mobileStatus.tone === 'warn' ? 'bg-warning' : 'bg-primary'"
-            />
-          </div>
-        </div>
-
-        <!-- Status contextual chip -->
-        <div
-          class="mt-3 flex items-center gap-2 rounded-md px-2.5 py-2 text-[12px] font-medium"
-          :class="mobileStatus.tone === 'danger'
-            ? 'bg-muted text-destructive'
-            : mobileStatus.tone === 'warn'
-              ? 'bg-muted text-warning'
-              : 'bg-muted text-success'"
-        >
-          <CheckCircle2 v-if="mobileStatus.tone === 'ok'" :size="14" class="shrink-0" />
-          <AlertTriangle v-else :size="14" class="shrink-0" />
-          <span class="leading-snug">{{ mobileStatus.text }}</span>
-        </div>
-
-        <!-- vs mês anterior -->
-        <div
-          v-if="expenseDelta !== null && !store.loading"
-          class="mt-2 flex items-center gap-1.5 text-[11.5px] text-muted-foreground"
-        >
-          <span>vs mês anterior:</span>
-          <span
-            class="inline-flex items-center gap-0.5 font-semibold tabular-nums"
-            :class="expenseDelta <= 0 ? 'text-success' : 'text-destructive'"
-          >
-            {{ expenseDelta <= 0 ? '↓' : '↑' }}
-            {{ expenseDelta <= 0 ? '-' : '+' }}{{ formatCurrency(Math.abs(expenseDelta)) }} em despesas
-          </span>
-        </div>
-
-        <!-- Enrichment row: count + biggest expense + pending -->
-        <div
-          v-if="!store.loading"
-          class="mt-3 pt-3 border-t border-border grid gap-3"
-          :class="(pendingIncome > 0 || pendingExpenses > 0) ? 'grid-cols-3' : 'grid-cols-2'"
-        >
-          <div>
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Transações</p>
-            <p class="text-[14px] font-semibold tabular-nums text-foreground">{{ transactionCount }} no mês</p>
-          </div>
-          <div v-if="biggestExpense">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Maior despesa</p>
-            <p class="text-[14px] font-semibold tabular-nums text-destructive">{{ formatCurrency(biggestExpense.amount) }}</p>
-            <p class="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">{{ biggestExpense.category?.name ?? biggestExpense.description }}</p>
-          </div>
-          <div v-if="pendingIncome > 0 || pendingExpenses > 0">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Pendentes</p>
-            <p class="text-[13px] tabular-nums font-medium leading-snug">
-              <span v-if="pendingIncome > 0" class="text-success">+{{ formatCurrency(pendingIncome) }}</span>
-              <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground mx-0.5">·</span>
-              <span v-if="pendingExpenses > 0" class="text-destructive">-{{ formatCurrency(pendingExpenses) }}</span>
-            </p>
-          </div>
-        </div>
-      </div>
+      <MonthSummaryCard
+        :month="filterState.month.value"
+        :is-current-month="filterState.isCurrentMonth()"
+        :income="income"
+        :expenses="expenses"
+        :budget-percent="budgetPercent"
+        :status="mobileStatus"
+        :expense-delta="expenseDelta"
+        :loading="store.loading"
+        :transaction-count="transactionCount"
+        :biggest-expense="biggestExpense"
+        :pending-income="pendingIncome"
+        :pending-expenses="pendingExpenses"
+        @prev="filterState.prevMonth()"
+        @next="filterState.nextMonth()"
+        @reset="filterState.resetToCurrentMonth()"
+        @select-month="filterState.month.value = $event"
+      />
 
       <!-- Saldo previsto -->
       <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card rounded-lg p-4">
