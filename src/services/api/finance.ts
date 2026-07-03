@@ -68,6 +68,23 @@ export const financeApi = {
       client
         .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.CARD_DETAIL(id))
         .then(unwrap),
+
+    /** Paga a fatura do mês (transfer conta → cartão, marcada com statement_month) */
+    payStatement: (
+      id: string,
+      payload: { account_id: string; amount: number; statement_month: string; payment_date?: string },
+    ) =>
+      client
+        .post<ApiResponse<Transaction>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/pay-statement`, payload)
+        .then(unwrap),
+
+    /** Pagamento que quitou a fatura do mês, ou null se em aberto */
+    getStatementPayment: (id: string, statementMonth: string) =>
+      client
+        .get<ApiResponse<Transaction | null>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/statement-payment`, {
+          params: { statement_month: statementMonth },
+        })
+        .then(unwrap),
   },
 
   transactions: {

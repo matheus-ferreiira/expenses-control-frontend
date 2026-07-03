@@ -69,6 +69,8 @@ export interface Transaction {
   /** For type=transfer: the account being credited (destination) */
   destination_account_id: string | null
   card_id: string | null
+  /** "YYYY-MM" — fatura quitada por esta transação (só em pagamentos de fatura) */
+  statement_month: string | null
   category_id: string | null
   goal_id: string | null
   type: TransactionType

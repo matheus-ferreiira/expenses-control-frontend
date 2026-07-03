@@ -2,13 +2,14 @@
 import { computed, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
 import { Skeleton } from '@ui/skeleton'
-import { ChevronLeft, ChevronRight, X, Receipt } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, X, Receipt, CheckCircle2, Loader2 } from 'lucide-vue-next'
 import type { CreditCard, Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { groupTransactionsByDate, getCardBillingPeriod, utilizationPercent } from '../utils/financeHelpers'
 import { financeApi } from '@/services/api/finance'
 import TransactionCard from './TransactionCard.vue'
 import { useToast } from '@/composables/useToast'
+import { useFinanceStore } from '@/stores/finance'
 
 const props = defineProps<{
   open: boolean
@@ -18,9 +19,11 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:open': [value: boolean]
   selectTransaction: [transaction: Transaction]
+  paid: [payment: Transaction]
 }>()
 
 const toast = useToast()
+const store = useFinanceStore()
 
 // ── Billing cycle navigation ────────────────────────────────────────────────
 
@@ -66,6 +69,60 @@ async function loadTransactions() {
   } finally {
     loading.value = false
   }
+  loadPayment()
+}
+
+// ── Statement payment ─────────────────────────────────────────────────────────
+
+/** "YYYY-MM" do fechamento do ciclo em exibição — identifica a fatura */
+const statementMonth = computed(() => billingPeriod.value?.endDate.slice(0, 7) ?? '')
+
+const payment = ref<Transaction | null>(null)
+const payPanelOpen = ref(false)
+const payAccountId = ref('')
+const payAmount = ref('')
+const paying = ref(false)
+
+async function loadPayment() {
+  if (!props.card || !statementMonth.value) return
+  try {
+    payment.value = await financeApi.cards.getStatementPayment(props.card.id, statementMonth.value)
+  } catch {
+    payment.value = null
+  }
+}
+
+function openPayPanel() {
+  payAmount.value = totalUsed.value.toFixed(2).replace('.', ',')
+  if (!store.activeAccounts.length) store.fetchAccounts()
+  payAccountId.value = store.activeAccounts[0]?.id ?? ''
+  payPanelOpen.value = true
+}
+
+const payAmountParsed = computed(() => {
+  const v = parseFloat(payAmount.value.replace(/\./g, '').replace(',', '.'))
+  return isNaN(v) ? 0 : v
+})
+
+async function submitPayment() {
+  if (!props.card || !payAccountId.value || payAmountParsed.value <= 0 || paying.value) return
+  paying.value = true
+  try {
+    const paid = await financeApi.cards.payStatement(props.card.id, {
+      account_id: payAccountId.value,
+      amount: payAmountParsed.value,
+      statement_month: statementMonth.value,
+    })
+    payment.value = paid
+    payPanelOpen.value = false
+    toast.success('Fatura paga')
+    emit('paid', paid)
+    store.fetchAccounts()
+  } catch {
+    toast.error('Erro ao pagar fatura')
+  } finally {
+    paying.value = false
+  }
 }
 
 watch(
@@ -83,6 +140,8 @@ watch(
     if (!isOpen) {
       // Reset to current cycle when closing
       referenceOffset.value = 0
+      payPanelOpen.value = false
+      payment.value = null
     }
   },
 )
@@ -201,6 +260,89 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
               :style="{ width: `${utilPct}%` }"
             />
           </div>
+
+          <!-- Fatura paga -->
+          <div
+            v-if="payment"
+            class="mt-3 flex items-center gap-2 rounded-md px-2.5 py-2 text-[12px] font-medium bg-muted text-success"
+          >
+            <CheckCircle2 :size="14" class="shrink-0" />
+            <span class="leading-snug flex-1">
+              Fatura paga · {{ formatCurrency(payment.amount) }}
+              <template v-if="payment.account"> · {{ payment.account.name }}</template>
+            </span>
+          </div>
+
+          <!-- Pagar fatura -->
+          <template v-else-if="totalUsed > 0">
+            <button
+              v-if="!payPanelOpen"
+              type="button"
+              class="w-full mt-3 h-10 rounded-lg bg-primary text-primary-foreground text-[13px] font-semibold transition-all active:scale-[0.98]"
+              @click="openPayPanel"
+            >
+              Pagar fatura
+            </button>
+
+            <!-- Painel de pagamento -->
+            <div v-else class="mt-3 bg-muted rounded-lg p-3 space-y-3">
+              <div>
+                <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Pagar com
+                </p>
+                <div class="space-y-1">
+                  <button
+                    v-for="acc in store.activeAccounts"
+                    :key="acc.id"
+                    type="button"
+                    class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors"
+                    :class="payAccountId === acc.id
+                      ? 'bg-primary text-primary-foreground font-semibold'
+                      : 'bg-card text-muted-foreground hover:text-foreground'"
+                    @click="payAccountId = acc.id"
+                  >
+                    <span class="truncate">{{ acc.name }}</span>
+                    <span class="tabular-nums font-semibold shrink-0">{{ formatCurrency(acc.balance) }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Valor (R$)
+                </p>
+                <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card transition-colors">
+                  <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
+                  <input
+                    v-model="payAmount"
+                    type="text"
+                    inputmode="numeric"
+                    class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
+                  />
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="flex-1 h-10 rounded-lg text-[13px] bg-card text-muted-foreground transition-colors hover:text-foreground"
+                  :disabled="paying"
+                  @click="payPanelOpen = false"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 h-10 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                  :disabled="!payAccountId || payAmountParsed <= 0 || paying"
+                  @click="submitPayment"
+                >
+                  <Loader2 v-if="paying" :size="14" class="animate-spin" />
+                  Confirmar pagamento
+                </button>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- Transactions list -->

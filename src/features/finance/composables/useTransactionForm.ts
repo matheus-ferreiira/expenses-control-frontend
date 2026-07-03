@@ -110,8 +110,9 @@ export function useTransactionForm() {
       errors.transaction_date = 'Data é obrigatória'
       valid = false
     }
-    if (!form.account_id) {
-      errors.account_id = 'Selecione uma conta'
+    // Card purchases don't need an account; transfers and account transactions do.
+    if (!form.account_id && (form.type === 'transfer' || !form.card_id)) {
+      errors.account_id = form.card_id ? 'Selecione uma conta' : 'Selecione uma conta ou cartão'
       valid = false
     }
     if (form.type === 'transfer') {

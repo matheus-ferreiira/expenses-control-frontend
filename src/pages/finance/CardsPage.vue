@@ -173,7 +173,7 @@ onMounted(async () => {
           </span>
         </div>
         <p class="text-[12px] text-muted-foreground">
-          {{ store.activeCards.length }} cartã{{ store.activeCards.length !== 1 ? 'ões' : 'o' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
+          {{ store.activeCards.length }} cart{{ store.activeCards.length !== 1 ? 'ões' : 'ão' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
         </p>
       </div>
       <button
