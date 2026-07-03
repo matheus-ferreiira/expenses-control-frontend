@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat, CheckCircle2, Copy } from 'lucide-vue-next'
+import { X, Pencil, Trash2, ArrowUp, ArrowDown, ArrowLeftRight, Clock, Repeat, CheckCircle2, Copy, Flag } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { getContrastColor } from '@/utils/color'
@@ -182,6 +182,15 @@ const amountClass = computed(() => {
             <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
             <span class="text-[13px] font-medium text-foreground text-right">
               {{ transaction.account?.name ?? transaction.card?.name }}
+            </span>
+          </div>
+
+          <!-- Meta vinculada (aporte) -->
+          <div v-if="transaction.goal" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border">
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">Meta</span>
+            <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-foreground">
+              <Flag :size="12" :style="{ color: transaction.goal.color ?? undefined }" />
+              {{ transaction.goal.name }}
             </span>
           </div>
 

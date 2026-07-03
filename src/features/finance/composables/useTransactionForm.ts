@@ -11,6 +11,7 @@ export interface TransactionFormData {
   amount: string
   transaction_date: string
   category_id: string
+  goal_id: string
   account_id: string
   /** For type=transfer: the account being credited */
   destination_account_id: string
@@ -41,6 +42,7 @@ const DEFAULTS: TransactionFormData = {
   amount: '',
   transaction_date: '',
   category_id: '',
+  goal_id: '',
   account_id: '',
   destination_account_id: '',
   card_id: '',
@@ -69,6 +71,7 @@ export function useTransactionForm() {
     form.amount = t.amount.toString()
     form.transaction_date = t.transaction_date
     form.category_id = t.category_id ?? ''
+    form.goal_id = t.goal_id ?? ''
     form.account_id = t.account_id ?? ''
     form.destination_account_id = t.destination_account_id ?? ''
     form.card_id = t.card_id ?? ''
@@ -140,6 +143,7 @@ export function useTransactionForm() {
       transaction_date: form.transaction_date,
     }
     if (form.category_id) payload.category_id = form.category_id
+    payload.goal_id = form.goal_id || null
     if (form.account_id) payload.account_id = form.account_id
     if (form.type === 'transfer' && form.destination_account_id) {
       payload.destination_account_id = form.destination_account_id

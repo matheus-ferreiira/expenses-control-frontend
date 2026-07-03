@@ -54,18 +54,20 @@ async function confirmCreateRecurring() {
   const goal = pendingGoalForRecurring.value
   const today = new Date().toISOString().slice(0, 10)
   const firstAccount = store.activeAccounts[0]
+  // Aportes suficientes para atingir a meta — a série termina quando ela é alcançada
+  const monthsToGoal = Math.max(1, Math.ceil((goal.remaining ?? goal.target_amount) / goal.monthly_contribution))
   try {
     await store.createTransaction({
-      description: goal.name,
+      description: `Aporte: ${goal.name}`,
       amount: goal.monthly_contribution,
       type: 'expense',
       transaction_date: today,
       is_recurring: true,
-      recurrence_config: { frequency: 'monthly', end_type: 'never' },
+      recurrence_config: { frequency: 'monthly', end_type: 'count', count: monthsToGoal },
       account_id: goal.bank_account_id ?? firstAccount?.id,
       goal_id: goal.id,
     })
-    toast.success('Transação fixa criada')
+    toast.success(`Aporte mensal criado — ${monthsToGoal} ${monthsToGoal === 1 ? 'mês' : 'meses'} até a meta`)
   } catch {
     toast.error('Erro ao criar transação fixa')
   } finally {

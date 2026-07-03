@@ -70,6 +70,7 @@ export interface Transaction {
   destination_account_id: string | null
   card_id: string | null
   category_id: string | null
+  goal_id: string | null
   type: TransactionType
   amount: number
   description: string
@@ -88,6 +89,8 @@ export interface Transaction {
   destination_account?: BankAccount
   card?: CreditCard
   tags?: TransactionTag[]
+  /** Finance goal this transaction contributes to (aporte) */
+  goal?: Pick<FinanceGoal, 'id' | 'name' | 'color' | 'icon'>
   created_at: string
   updated_at: string
 }
@@ -211,7 +214,7 @@ export interface CreateTransactionPayload {
   /** Required when type=transfer — must differ from account_id */
   destination_account_id?: string
   card_id?: string
-  goal_id?: string
+  goal_id?: string | null
   type: TransactionType
   amount: number
   description: string

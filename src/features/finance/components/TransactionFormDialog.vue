@@ -7,7 +7,7 @@ import { Textarea } from '@ui/textarea'
 import {
   ArrowLeft, Loader2, Plus, Repeat, X, CreditCard,
   TrendingDown, TrendingUp, ArrowRightLeft,
-  Wallet, Check,
+  Wallet, Check, Flag,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { AppNumberStepper } from '@/components/shared'
@@ -207,6 +207,9 @@ const selectedCategory = computed(() =>
   store.categories.find((c) => c.id === form.category_id) ?? null,
 )
 
+// ── Metas — vínculo opcional (aporte) ────────────────────────────────────────
+const activeGoals = computed(() => store.goals.filter((g) => g.status === 'active'))
+
 const descriptionPlaceholder = computed(() => {
   if (!selectedCategory.value) return 'Onde/o quê? Ex: iFood, Salário'
   const cat = selectedCategory.value.name.toLowerCase()
@@ -288,6 +291,7 @@ watch(
       if (!store.categories.length) store.fetchCategories()
       if (!store.activeAccounts.length) store.fetchAccounts()
       if (!store.tags.length) store.fetchTags()
+      if (!store.goals.length) store.fetchGoals()
       if (props.transaction) fromTransaction(props.transaction)
       else {
         reset()
@@ -501,6 +505,31 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               :default-type="(form.type as 'income' | 'expense')"
               @created="(cat) => { form.category_id = cat.id }"
             />
+          </div>
+
+          <!-- ── META (aporte) — chips opcionais ─────────────── -->
+          <div v-if="activeGoals.length > 0">
+            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
+              Vincular à meta
+            </p>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button
+                v-for="goal in activeGoals"
+                :key="goal.id"
+                type="button"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-colors"
+                :class="form.goal_id === goal.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'"
+                @click="form.goal_id = form.goal_id === goal.id ? '' : goal.id"
+              >
+                <Flag :size="12" />
+                {{ goal.name }}
+              </button>
+            </div>
+            <p v-if="form.goal_id" class="text-[11px] text-primary mt-1.5">
+              Ao confirmar, o valor soma no progresso da meta
+            </p>
           </div>
 
           <!-- ── TÍTULO ────────────────────────────────────── -->
