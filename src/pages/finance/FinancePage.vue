@@ -10,6 +10,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer } from '@/components/shared'
 import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
+import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
@@ -123,6 +124,11 @@ async function handleQuickConfirm(t: Transaction) {
   } catch {
     toast.error('Erro ao confirmar transação')
   }
+}
+
+/** Card "Pendentes da semana" confirmou algo — recarrega saldos, resumo e lista */
+async function onWeeklyPendingConfirmed() {
+  await Promise.all([store.fetchAll(), loadTransactions(), loadCurrentMonthSummary()])
 }
 
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
@@ -527,6 +533,9 @@ onMounted(async () => {
         @reset="filterState.resetToCurrentMonth()"
         @select-month="filterState.month.value = $event"
       />
+
+      <!-- Pendentes da semana — confirmação 1-toque -->
+      <PendingThisWeekCard @confirmed="onWeeklyPendingConfirmed" />
 
       <!-- Saldo previsto -->
       <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card rounded-lg p-4">

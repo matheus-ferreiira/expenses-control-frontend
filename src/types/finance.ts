@@ -246,4 +246,6 @@ export interface TransactionFilters {
   per_page?: number
   is_recurring?: boolean
   status?: TransactionStatus
+  sort_by?: 'transaction_date' | 'amount' | 'description' | 'created_at'
+  sort_direction?: 'asc' | 'desc'
 }

@@ -118,6 +118,15 @@ export const financeApi = {
         )
         .then(unwrap),
 
+    /** Confirma várias pendentes de uma vez (revisão semanal 1-toque) */
+    confirmBatch: (ids: string[]) =>
+      client
+        .patch<ApiResponse<Transaction[]>>(
+          `${API_ENDPOINTS.FINANCE.TRANSACTIONS}/confirm-batch`,
+          { ids },
+        )
+        .then(unwrap),
+
     delete: (id: string) =>
       client
         .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id))
