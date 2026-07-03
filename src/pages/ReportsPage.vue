@@ -48,13 +48,13 @@ onMounted(() => load())
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1.5">
           Análise
         </p>
         <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Relatórios
         </h1>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-[13px] text-muted-foreground">
           Produtividade, hábitos e finanças em uma visão integrada.
         </p>
       </div>

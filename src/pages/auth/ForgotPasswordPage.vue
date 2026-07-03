@@ -41,17 +41,17 @@ async function handleSubmit() {
           <h1 class="text-xl font-semibold tracking-tight text-foreground">
             Verifique seu email
           </h1>
-          <p class="text-[13px] leading-relaxed text-muted-foreground/60">
+          <p class="text-[13px] leading-relaxed text-muted-foreground">
             Enviamos um link de acesso para<br />
-            <span class="font-medium text-foreground/70">{{ form.email }}</span>
+            <span class="font-medium text-foreground">{{ form.email }}</span>
           </p>
         </div>
-        <p class="text-[11px] text-muted-foreground/35 select-none">Verifique também a pasta de spam</p>
+        <p class="text-[11px] text-muted-foreground select-none">Verifique também a pasta de spam</p>
       </div>
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
+        class="block text-center text-[12px] text-muted-foreground hover:text-muted-foreground transition-base"
       >
         ← Voltar ao login
       </RouterLink>
@@ -64,7 +64,7 @@ async function handleSubmit() {
         <h1 class="text-xl font-semibold tracking-tight text-foreground">
           Esqueceu a senha?
         </h1>
-        <p class="text-[13px] text-muted-foreground/60">
+        <p class="text-[13px] text-muted-foreground">
           Informe seu email e enviamos um link de acesso
         </p>
       </div>
@@ -73,7 +73,7 @@ async function handleSubmit() {
       <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
 
         <div class="space-y-1.5">
-          <label for="email" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          <label for="email" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Email
           </label>
           <Input
@@ -83,10 +83,10 @@ async function handleSubmit() {
             placeholder="voce@exemplo.com"
             autocomplete="email"
             :disabled="loading"
-            :class="['h-10 transition-base', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+            :class="['h-10 transition-base', errors.email ? ' focus-visible:ring-primary' : '']"
             @input="errors.email = undefined"
           />
-          <p v-if="errors.email" class="text-[11px] text-destructive/80">{{ errors.email }}</p>
+          <p v-if="errors.email" class="text-[11px] text-destructive">{{ errors.email }}</p>
         </div>
 
         <Button type="submit" class="w-full h-10 font-medium transition-opacity" :disabled="loading">
@@ -97,7 +97,7 @@ async function handleSubmit() {
 
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
+        class="block text-center text-[12px] text-muted-foreground hover:text-muted-foreground transition-base"
       >
         ← Voltar ao login
       </RouterLink>

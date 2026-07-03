@@ -23,7 +23,7 @@ const highlightBg = computed(() => {
   if (!props.highlighted) return ''
   if (props.transaction.type === 'income') return 'bg-success/[0.08]'
   if (props.transaction.type === 'expense') return 'bg-destructive/[0.08]'
-  return 'bg-muted/50'
+  return 'bg-muted'
 })
 
 // ── Amount ─────────────────────────────────────────────────────────────────
@@ -128,7 +128,7 @@ onUnmounted(() => {
       <button
         v-if="isPending"
         type="button"
-        class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium bg-success/10 text-success border border-success/20"
+        class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium bg-muted text-success "
         @click.stop="handleQuickConfirm"
       >
         <Check :size="13" />
@@ -136,7 +136,7 @@ onUnmounted(() => {
       </button>
       <button
         type="button"
-        class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium bg-muted/40 text-muted-foreground border border-border/40"
+        class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium bg-muted text-muted-foreground "
         @click.stop="handleQuickDuplicate"
       >
         <Copy :size="13" />
@@ -144,7 +144,7 @@ onUnmounted(() => {
       </button>
       <button
         type="button"
-        class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium bg-destructive/10 text-destructive border border-destructive/20"
+        class="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-[12px] font-medium bg-muted text-destructive "
         @click.stop="handleQuickDelete"
       >
         <Trash2 :size="13" />
@@ -208,13 +208,13 @@ onUnmounted(() => {
           <!-- Installment badge -->
           <span
             v-if="transaction.installment_number && transaction.total_installments"
-            class="inline-flex items-center h-4 px-1.5 rounded text-[10px] font-semibold border border-border/30 text-muted-foreground/60 shrink-0 bg-muted/30"
+            class="inline-flex items-center h-4 px-1.5 rounded text-[10px] font-semibold text-muted-foreground shrink-0 bg-muted"
           >
             {{ transaction.installment_number }}/{{ transaction.total_installments }}
           </span>
         </div>
         <!-- Subtitle: ↻ Fixa · category · account (or → destination for transfers) -->
-        <p v-if="subtitle" class="text-[12px] text-muted-foreground/50 truncate mt-0.5">
+        <p v-if="subtitle" class="text-[12px] text-muted-foreground truncate mt-0.5">
           {{ subtitle }}
         </p>
       </div>

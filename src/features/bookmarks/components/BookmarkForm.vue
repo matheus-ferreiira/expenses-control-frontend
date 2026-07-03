@@ -70,9 +70,9 @@ async function submit() {
       side="bottom"
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -88,7 +88,7 @@ async function submit() {
       <div class="flex-1 overflow-y-auto px-4 py-5 space-y-5">
         <!-- URL -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             URL <span class="text-destructive ml-0.5">*</span>
           </p>
           <input
@@ -96,34 +96,34 @@ async function submit() {
             autofocus
             type="url"
             placeholder="https://..."
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] font-mono text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40 placeholder:font-sans"
+            class="w-full h-10 rounded-lg bg-card px-3 text-[13px] font-mono text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground placeholder:font-sans"
           />
         </div>
 
         <!-- Título -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             TÍTULO <span class="text-destructive ml-0.5">*</span>
           </p>
           <input
             v-model="title"
             type="text"
             placeholder="Nome do link"
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             @keydown.enter="submit"
           />
         </div>
 
         <!-- Descrição -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             DESCRIÇÃO (opcional)
           </p>
           <textarea
             v-model="description"
             rows="2"
             placeholder="Descrição opcional..."
-            class="w-full rounded-lg border border-border/60 bg-card px-3 py-2.5 text-[13px] text-foreground resize-none outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full rounded-lg bg-card px-3 py-2.5 text-[13px] text-foreground resize-none outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </div>
 
@@ -137,17 +137,17 @@ async function submit() {
             @click="isFavorite = !isFavorite"
           >
             <span
-              class="size-5 rounded-full bg-background shadow-sm transition-transform duration-200"
+              class="size-5 rounded-full bg-background  transition-transform duration-200"
               :class="isFavorite ? 'translate-x-5' : 'translate-x-0'"
             />
           </button>
         </div>
       </div>
 
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="open = false"
         >

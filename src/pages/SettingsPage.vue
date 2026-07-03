@@ -58,7 +58,7 @@ async function toggleModule(key: string) {
   <AppPageContainer>
     <!-- Header -->
     <div class="mb-6 pb-3 border-b border-border">
-      <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/60 mb-0.5">
+      <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-0.5">
         Sistema
       </p>
       <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight">
@@ -71,13 +71,13 @@ async function toggleModule(key: string) {
 
     <!-- Módulos -->
     <section>
-      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 mb-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
         Módulos
       </h2>
-      <p class="text-[12px] text-muted-foreground/70 mb-4">
+      <p class="text-[12px] text-muted-foreground mb-4">
         Finanças e Dashboard são sempre visíveis.
       </p>
-      <div class="bg-card border border-border rounded-xl overflow-hidden divide-y divide-border/60">
+      <div class="bg-card rounded-xl overflow-hidden divide-y divide-border">
         <div
           v-for="mod in MODULES"
           :key="mod.key"
@@ -85,13 +85,13 @@ async function toggleModule(key: string) {
         >
           <span
             class="flex items-center justify-center size-8 rounded-lg shrink-0"
-            :class="auth.moduleEnabled(mod.key) ? 'bg-primary/10 text-primary' : 'bg-muted/40 text-muted-foreground'"
+            :class="auth.moduleEnabled(mod.key) ? 'bg-muted text-primary' : 'bg-muted text-muted-foreground'"
           >
             <component :is="mod.icon" :size="15" :stroke-width="1.9" />
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[13px] font-medium text-foreground">{{ mod.label }}</p>
-            <p class="text-[11px] text-muted-foreground/60 truncate">{{ mod.description }}</p>
+            <p class="text-[11px] text-muted-foreground truncate">{{ mod.description }}</p>
           </div>
           <button
             type="button"
@@ -101,7 +101,7 @@ async function toggleModule(key: string) {
             @click="toggleModule(mod.key)"
           >
             <span
-              class="inline-block size-4 transform rounded-full bg-background shadow-sm transition-transform"
+              class="inline-block size-4 transform rounded-full bg-background  transition-transform"
               :class="auth.moduleEnabled(mod.key) ? 'translate-x-6' : 'translate-x-1'"
             />
             <Loader2 v-if="savingModule === mod.key" :size="10" class="absolute right-1 animate-spin text-background" />
@@ -112,18 +112,18 @@ async function toggleModule(key: string) {
 
     <!-- Zona de perigo -->
     <section class="mt-8">
-      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-destructive/70 mb-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-destructive mb-3">
         Zona de perigo
       </h2>
 
-      <div class="bg-card border border-destructive/20 rounded-xl overflow-hidden">
+      <div class="bg-card rounded-xl overflow-hidden">
         <div class="px-4 py-4 flex items-start gap-4">
-          <span class="flex items-center justify-center size-8 rounded-lg bg-destructive/10 text-destructive shrink-0 mt-0.5">
+          <span class="flex items-center justify-center size-8 rounded-lg bg-muted text-destructive shrink-0 mt-0.5">
             <TriangleAlert :size="15" :stroke-width="1.9" />
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[13px] font-medium text-foreground">Resetar todos os dados</p>
-            <p class="text-[11px] text-muted-foreground/60 mt-0.5 leading-snug">
+            <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">
               Apaga permanentemente todas as transações, contas, cartões, categorias, tarefas, hábitos, metas e demais dados. A conta fica como recém-criada. Esta ação não pode ser desfeita.
             </p>
 
@@ -131,7 +131,7 @@ async function toggleModule(key: string) {
             <button
               v-if="!resetConfirmOpen"
               type="button"
-              class="mt-3 inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
+              class="mt-3 inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium text-destructive hover:bg-muted transition-colors"
               @click="resetConfirmOpen = true"
             >
               Resetar dados
@@ -154,7 +154,7 @@ async function toggleModule(key: string) {
                 </button>
                 <button
                   type="button"
-                  class="h-9 px-4 rounded-lg text-[12px] font-medium border border-border text-muted-foreground hover:bg-muted transition-colors"
+                  class="h-9 px-4 rounded-lg text-[12px] font-medium text-muted-foreground hover:bg-muted transition-colors"
                   :disabled="resetting"
                   @click="resetConfirmOpen = false"
                 >

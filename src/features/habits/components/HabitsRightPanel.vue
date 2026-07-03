@@ -42,7 +42,7 @@ const topStreaks = computed(() =>
   <div class="w-[256px] shrink-0 flex flex-col gap-5 pt-1">
 
     <!-- Categorias panel -->
-    <section class="bg-card border border-border rounded-md overflow-hidden">
+    <section class="bg-card rounded-md overflow-hidden">
       <header class="flex items-center justify-between px-4 py-3 border-b border-border">
         <h2 class="text-sm font-semibold text-foreground">Categorias</h2>
       </header>
@@ -50,7 +50,7 @@ const topStreaks = computed(() =>
         <li
           v-for="item in categoryItems"
           :key="item.key"
-          class="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/40 cursor-pointer transition-colors"
+          class="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted cursor-pointer transition-colors"
         >
           <span
             class="size-7 rounded-md grid place-items-center shrink-0"
@@ -60,7 +60,7 @@ const topStreaks = computed(() =>
           </span>
           <span class="flex-1 text-sm text-foreground">{{ item.key }}</span>
           <span
-            class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border"
+            class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium "
             :style="{ background: item.bg, borderColor: item.border, color: item.color }"
           >
             {{ item.count }}
@@ -69,25 +69,25 @@ const topStreaks = computed(() =>
         <!-- Sem categoria fallback -->
         <li
           v-if="uncategorizedCount > 0"
-          class="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/40 cursor-pointer transition-colors"
+          class="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted cursor-pointer transition-colors"
         >
           <span class="size-7 rounded-md grid place-items-center shrink-0 bg-muted">
             <Target :size="14" class="text-muted-foreground" />
           </span>
           <span class="flex-1 text-sm text-foreground">Outros</span>
-          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-border bg-muted text-muted-foreground">
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground">
             {{ uncategorizedCount }}
           </span>
         </li>
         <!-- Empty state -->
-        <li v-if="categoryItems.length === 0 && uncategorizedCount === 0" class="px-4 py-4 text-[12px] text-muted-foreground/50">
+        <li v-if="categoryItems.length === 0 && uncategorizedCount === 0" class="px-4 py-4 text-[12px] text-muted-foreground">
           Nenhum hábito ativo.
         </li>
       </ul>
     </section>
 
     <!-- Top streaks panel -->
-    <section class="bg-card border border-border rounded-md overflow-hidden">
+    <section class="bg-card rounded-md overflow-hidden">
       <header class="flex items-center justify-between px-4 py-3 border-b border-border">
         <h2 class="text-sm font-semibold text-foreground">Top streaks</h2>
       </header>
@@ -105,7 +105,7 @@ const topStreaks = computed(() =>
             <Flame :size="12" />{{ Math.max(habit.longest_streak, habit.current_streak) }}
           </span>
         </li>
-        <li v-if="topStreaks.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground/50">
+        <li v-if="topStreaks.length === 0" class="px-4 py-4 text-[12px] text-muted-foreground">
           Nenhuma sequência ativa ainda.
         </li>
       </ul>

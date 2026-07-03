@@ -34,7 +34,7 @@ function togglePriority(priority: TaskPriority) {
   <Popover>
     <PopoverTrigger as-child>
       <button
-        class="relative flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-base"
+        class="relative flex items-center gap-1.5 h-8 px-2.5 rounded-md  text-[12px] transition-base"
         :style="
           activeFilters > 0
             ? 'border-color: hsl(var(--primary) / 0.4); color: hsl(var(--primary) / 0.8)'
@@ -63,10 +63,10 @@ function togglePriority(priority: TaskPriority) {
             v-for="s in statuses"
             :key="s"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
+              'text-[11px] font-medium px-2 py-0.5 rounded-full  transition-base',
               filterState.filters.value.status === s
-                ? [STATUS_STYLE[s].bg, STATUS_STYLE[s].text, 'border-transparent']
-                : 'border-border text-muted-foreground hover:border-foreground/30',
+                ? [STATUS_STYLE[s].bg, STATUS_STYLE[s].text, '']
+                : 'border-border text-muted-foreground ',
             ]"
             @click="toggleStatus(s)"
           >
@@ -85,10 +85,10 @@ function togglePriority(priority: TaskPriority) {
             v-for="p in priorities"
             :key="p"
             :class="[
-              'text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
+              'text-[11px] font-medium px-2 py-0.5 rounded-full  transition-base',
               filterState.filters.value.priority === p
-                ? [PRIORITY_STYLE[p].bg, PRIORITY_STYLE[p].text, 'border-transparent']
-                : 'border-border text-muted-foreground hover:border-foreground/30',
+                ? [PRIORITY_STYLE[p].bg, PRIORITY_STYLE[p].text, '']
+                : 'border-border text-muted-foreground ',
             ]"
             @click="togglePriority(p)"
           >
@@ -107,10 +107,10 @@ function togglePriority(priority: TaskPriority) {
               v-for="label in labels"
               :key="label.id"
               :class="[
-                'inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border transition-base',
+                'inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full  transition-base',
                 filterState.filters.value.label_id === label.id
-                  ? 'bg-primary/10 text-primary border-transparent'
-                  : 'border-border text-muted-foreground hover:border-foreground/30',
+                  ? 'bg-muted text-primary'
+                  : 'border-border text-muted-foreground ',
               ]"
               @click="filterState.setLabel(filterState.filters.value.label_id === label.id ? undefined : label.id)"
             >

@@ -65,7 +65,7 @@ function isPickerSelectedMonth(monthIdx: number): boolean {
           </span>
           <ChevronDown
             :size="12"
-            class="text-muted-foreground/50 group-hover:text-primary transition-colors shrink-0"
+            class="text-muted-foreground group-hover:text-primary transition-colors shrink-0"
           />
         </button>
       </PopoverTrigger>
@@ -100,17 +100,17 @@ function isPickerSelectedMonth(monthIdx: number): boolean {
             :class="isPickerCurrentRealMonth(idx)
               ? 'bg-primary text-primary-foreground'
               : isPickerSelectedMonth(idx)
-                ? 'bg-primary/20 text-primary'
-                : 'text-foreground hover:bg-muted/40'"
+                ? 'bg-muted text-primary'
+                : 'text-foreground hover:bg-muted'"
             @click="selectMonthFromPicker(idx)"
           >{{ abbr }}</button>
         </div>
 
         <!-- Footer -->
-        <div class="flex items-center justify-between mt-3 pt-2 border-t border-border/40">
+        <div class="flex items-center justify-between mt-3 pt-2 border-t border-border">
           <button
             type="button"
-            class="text-primary text-[13px] font-medium hover:text-primary/80 transition-colors"
+            class="text-primary text-[13px] font-medium hover:text-primary transition-colors"
             @click="emit('reset'); pickerOpen = false"
           >Mês atual</button>
           <button

@@ -47,9 +47,9 @@ const PRIORITY_BTN_STYLE: Record<TaskPriority, { base: string; active: string; i
     idle:   'text-muted-foreground hover:bg-amber-500/10 hover:text-amber-400',
   },
   low: {
-    base:   'border-border/50',
-    active: 'bg-muted/40 text-muted-foreground border-border',
-    idle:   'text-muted-foreground/60 hover:bg-muted/30 hover:text-muted-foreground',
+    base:   'border-border',
+    active: 'bg-muted text-muted-foreground border-border',
+    idle:   'text-muted-foreground hover:bg-muted hover:text-muted-foreground',
   },
 }
 import { useTaskForm } from '../composables/useTaskForm'
@@ -176,7 +176,7 @@ function toggleLabel(id: string) {
               :key="p"
               type="button"
               :class="[
-                'h-8 rounded-md text-[11px] font-semibold border transition-all',
+                'h-8 rounded-md text-[11px] font-semibold  transition-all',
                 PRIORITY_BTN_STYLE[p].base,
                 form.priority === p ? PRIORITY_BTN_STYLE[p].active : PRIORITY_BTN_STYLE[p].idle,
               ]"
@@ -207,10 +207,10 @@ function toggleLabel(id: string) {
               v-for="label in labels"
               :key="label.id"
               :class="[
-                'inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-base',
+                'inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full  transition-base',
                 form.label_ids.includes(label.id)
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-foreground/30',
+                  ? 'border-primary bg-muted text-primary'
+                  : 'border-border text-muted-foreground ',
               ]"
               type="button"
               @click="toggleLabel(label.id)"

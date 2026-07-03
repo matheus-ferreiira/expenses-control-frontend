@@ -137,10 +137,10 @@ async function save() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -158,13 +158,13 @@ async function save() {
 
         <!-- Nome -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Nome <span class="text-destructive">*</span>
           </p>
           <input
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
-            class="w-full h-10 px-3 rounded-lg bg-card border border-border/60 focus:border-primary/60 outline-none text-[13px] transition-colors"
+            class="w-full h-10 px-3 rounded-lg bg-card focus:border-primary outline-none text-[13px] transition-colors"
             :class="nameError ? 'border-destructive' : ''"
             @keydown.enter="save"
           />
@@ -173,26 +173,26 @@ async function save() {
 
         <!-- Tipo -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Tipo
           </p>
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium border transition-all"
+              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium  transition-all"
               :class="type === 'expense'
-                ? 'bg-primary/15 border-primary/30 text-primary'
-                : 'bg-muted/30 border-transparent text-muted-foreground/60 hover:bg-muted/50'"
+                ? 'bg-muted text-primary'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="type = 'expense'"
             >
               Despesa
             </button>
             <button
               type="button"
-              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium border transition-all"
+              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium  transition-all"
               :class="type === 'income'
-                ? 'bg-primary/15 border-primary/30 text-primary'
-                : 'bg-muted/30 border-transparent text-muted-foreground/60 hover:bg-muted/50'"
+                ? 'bg-muted text-primary'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="type = 'income'"
             >
               Receita
@@ -202,7 +202,7 @@ async function save() {
 
         <!-- Cor -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Cor
           </p>
           <CategoryColorPicker v-model="color" />
@@ -210,7 +210,7 @@ async function save() {
 
         <!-- Ícone -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Ícone
           </p>
           <CategoryIconPicker v-model="icon" :color="color" />
@@ -218,17 +218,17 @@ async function save() {
 
         <!-- Meta mensal -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
-            Meta mensal <span class="text-muted-foreground/30 normal-case font-normal">(opcional)</span>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
+            Meta mensal <span class="text-muted-foreground normal-case font-normal">(opcional)</span>
           </p>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+            <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input
               ref="limitInputRef"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onLimitInput"
               @focus="onLimitFocus"
             />
@@ -236,7 +236,7 @@ async function save() {
               v-if="monthlyLimit"
               type="button"
               aria-label="Remover meta"
-              class="text-muted-foreground/40 hover:text-foreground transition-colors"
+              class="text-muted-foreground hover:text-foreground transition-colors"
               @click="clearLimit"
             >
               <X :size="13" aria-hidden="true" />
@@ -247,10 +247,10 @@ async function save() {
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           @click="close"
         >
           Cancelar

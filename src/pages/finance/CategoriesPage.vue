@@ -84,7 +84,7 @@ async function confirmDelete() {
     <div class="mb-1">
       <div class="flex items-start justify-between mb-4">
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
             Finanças
           </p>
           <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
@@ -93,7 +93,7 @@ async function confirmDelete() {
         </div>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shrink-0"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors shrink-0"
           @click="openCreate()"
         >
           <Plus :size="14" :stroke-width="2.5" />
@@ -116,9 +116,9 @@ async function confirmDelete() {
         v-if="!expenseCategories.length && !incomeCategories.length"
         class="flex flex-col items-center justify-center py-16 text-center"
       >
-        <Tags :size="40" class="text-muted-foreground/20 mb-4" />
+        <Tags :size="40" class="text-muted-foreground mb-4" />
         <p class="text-[15px] font-semibold text-foreground">Nenhuma categoria ainda</p>
-        <p class="text-[13px] text-muted-foreground/60 mt-1 mb-5">
+        <p class="text-[13px] text-muted-foreground mt-1 mb-5">
           Crie categorias para organizar suas transações
         </p>
         <button
@@ -135,26 +135,26 @@ async function confirmDelete() {
 
         <!-- Despesas -->
         <section>
-          <div class="bg-card border border-border rounded-lg overflow-hidden">
+          <div class="bg-card rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-widest">
+              <p class="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
                 DESPESAS
               </p>
               <button
                 type="button"
-                class="text-[12px] text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-1"
+                class="text-[12px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                 @click="openCreate('expense')"
               >
                 + Adicionar
               </button>
             </div>
             <!-- Per-section empty state -->
-            <div v-if="!expenseCategories.length" class="border-t border-border/30 px-4 py-6 flex flex-col items-center gap-3">
-              <Tag :size="16" class="text-muted-foreground/50" />
-              <p class="text-[13px] text-muted-foreground/50">Nenhuma categoria de despesa criada.</p>
+            <div v-if="!expenseCategories.length" class="border-t border-border px-4 py-6 flex flex-col items-center gap-3">
+              <Tag :size="16" class="text-muted-foreground" />
+              <p class="text-[13px] text-muted-foreground">Nenhuma categoria de despesa criada.</p>
               <button
                 type="button"
-                class="h-8 px-3 rounded-lg text-[12px] border border-border/50 text-muted-foreground hover:bg-muted transition-colors"
+                class="h-8 px-3 rounded-lg text-[12px] text-muted-foreground hover:bg-muted transition-colors"
                 @click="openCreate('expense')"
               >
                 Adicionar
@@ -163,7 +163,7 @@ async function confirmDelete() {
             <div
               v-for="cat in expenseCategories"
               :key="cat.id"
-              class="border-t border-border/30 flex items-center gap-3 px-4 h-[52px]"
+              class="border-t border-border flex items-center gap-3 px-4 h-[52px]"
             >
               <span
                 class="size-8 rounded-lg flex items-center justify-center shrink-0"
@@ -209,26 +209,26 @@ async function confirmDelete() {
 
         <!-- Receitas -->
         <section>
-          <div class="bg-card border border-border rounded-lg overflow-hidden">
+          <div class="bg-card rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-widest">
+              <p class="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
                 RECEITAS
               </p>
               <button
                 type="button"
-                class="text-[12px] text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-1"
+                class="text-[12px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                 @click="openCreate('income')"
               >
                 + Adicionar
               </button>
             </div>
             <!-- Per-section empty state -->
-            <div v-if="!incomeCategories.length" class="border-t border-border/30 px-4 py-6 flex flex-col items-center gap-3">
-              <Tag :size="16" class="text-muted-foreground/50" />
-              <p class="text-[13px] text-muted-foreground/50">Nenhuma categoria de receita criada.</p>
+            <div v-if="!incomeCategories.length" class="border-t border-border px-4 py-6 flex flex-col items-center gap-3">
+              <Tag :size="16" class="text-muted-foreground" />
+              <p class="text-[13px] text-muted-foreground">Nenhuma categoria de receita criada.</p>
               <button
                 type="button"
-                class="h-8 px-3 rounded-lg text-[12px] border border-border/50 text-muted-foreground hover:bg-muted transition-colors"
+                class="h-8 px-3 rounded-lg text-[12px] text-muted-foreground hover:bg-muted transition-colors"
                 @click="openCreate('income')"
               >
                 Adicionar
@@ -237,7 +237,7 @@ async function confirmDelete() {
             <div
               v-for="cat in incomeCategories"
               :key="cat.id"
-              class="border-t border-border/30 flex items-center gap-3 px-4 h-[52px]"
+              class="border-t border-border flex items-center gap-3 px-4 h-[52px]"
             >
               <span
                 class="size-8 rounded-lg flex items-center justify-center shrink-0"
@@ -305,7 +305,7 @@ async function confirmDelete() {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            class="bg-destructive text-destructive-foreground hover:bg-muted"
             @click="confirmDelete"
           >
             Excluir

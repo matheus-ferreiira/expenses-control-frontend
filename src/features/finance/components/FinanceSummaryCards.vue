@@ -29,14 +29,14 @@ const budgetPctLabel = computed(() => {
   <div class="hidden lg:grid grid-cols-2 lg:grid-cols-4 gap-3">
 
     <!-- Saldo total -->
-    <div class="bg-card border border-border rounded-xl p-3.5">
+    <div class="bg-card rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
         <Skeleton class="h-2.5 w-20 mt-1.5" />
       </template>
       <template v-else>
-        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Saldo total</p>
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Saldo total</p>
         <p :class="['text-[22px] font-semibold mt-1 tabular-nums', totalBalance < 0 ? 'text-destructive' : '']">
           {{ formatCurrency(totalBalance) }}
         </p>
@@ -44,14 +44,14 @@ const budgetPctLabel = computed(() => {
           {{ accountCount != null ? `${accountCount} conta${accountCount !== 1 ? 's' : ''}` : 'contas ativas' }}
         </p>
         <template v-if="showProjected">
-          <div class="mt-2 pt-2 border-t border-border/40">
+          <div class="mt-2 pt-2 border-t border-border">
             <div class="flex items-center gap-1 mb-1">
-              <CalendarClock :size="10" class="text-muted-foreground/40 shrink-0" />
-              <p class="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+              <CalendarClock :size="10" class="text-muted-foreground shrink-0" />
+              <p class="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
                 Previsto fim do mês
               </p>
             </div>
-            <p :class="['text-[13px] font-semibold tabular-nums leading-none', projectedBalance! >= totalBalance ? 'text-success/80' : 'text-destructive/70']">
+            <p :class="['text-[13px] font-semibold tabular-nums leading-none', projectedBalance! >= totalBalance ? 'text-success' : 'text-destructive']">
               {{ formatCurrency(projectedBalance!) }}
             </p>
           </div>
@@ -60,13 +60,13 @@ const budgetPctLabel = computed(() => {
     </div>
 
     <!-- Receitas (mês) -->
-    <div class="bg-card border border-border rounded-xl p-3.5">
+    <div class="bg-card rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
       </template>
       <template v-else>
-        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Receitas (mês)</p>
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Receitas (mês)</p>
         <p class="text-[22px] font-semibold mt-1 tabular-nums text-success">
           {{ formatCurrency(income) }}
         </p>
@@ -75,13 +75,13 @@ const budgetPctLabel = computed(() => {
     </div>
 
     <!-- Despesas (mês) -->
-    <div class="bg-card border border-border rounded-xl p-3.5">
+    <div class="bg-card rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
       </template>
       <template v-else>
-        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Despesas (mês)</p>
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Despesas (mês)</p>
         <p class="text-[22px] font-semibold mt-1 tabular-nums text-destructive">
           {{ formatCurrency(expenses) }}
         </p>
@@ -90,13 +90,13 @@ const budgetPctLabel = computed(() => {
     </div>
 
     <!-- Fluxo do mês -->
-    <div class="bg-card border border-border rounded-xl p-3.5">
+    <div class="bg-card rounded-xl p-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-5 w-24" />
       </template>
       <template v-else>
-        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">Fluxo do mês</p>
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Fluxo do mês</p>
         <p :class="['text-[22px] font-semibold mt-1 tabular-nums', monthNet >= 0 ? 'text-success' : 'text-destructive']">
           {{ monthNet >= 0 ? '+' : '' }}{{ formatCurrency(monthNet) }}
         </p>

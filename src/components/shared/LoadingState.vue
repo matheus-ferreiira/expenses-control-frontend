@@ -24,7 +24,7 @@ withDefaults(
     <!-- Cards variant: skeleton cards in grid -->
     <template v-else-if="variant === 'cards'">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="i in rows" :key="i" class="rounded-lg border border-border p-4 space-y-3">
+        <div v-for="i in rows" :key="i" class="rounded-lg p-4 space-y-3">
           <Skeleton class="h-4 w-2/3" />
           <Skeleton class="h-3 w-full" />
           <Skeleton class="h-3 w-1/2" />

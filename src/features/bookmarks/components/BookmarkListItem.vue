@@ -72,8 +72,8 @@ async function handleDelete() {
 
 <template>
   <div
-    class="group flex items-start gap-3 py-3.5 border-b border-border/30 last:border-0 transition-colors hover:bg-muted/10 rounded-lg px-2"
-    :class="bookmark.is_favorite ? 'border-l-2 border-warning/60 pl-3 -ml-px' : ''"
+    class="group flex items-start gap-3 py-3.5 border-b border-border last:border-0 transition-colors hover:bg-muted rounded-lg px-2"
+    :class="bookmark.is_favorite ? 'border-l-2 border-primary pl-3 -ml-px' : ''"
   >
     <!-- Favicon -->
     <div class="size-5 rounded-sm shrink-0 mt-0.5 overflow-hidden">
@@ -103,7 +103,7 @@ async function handleDelete() {
       >
         {{ bookmark.title }}
       </button>
-      <p class="text-[11px] text-muted-foreground/60 truncate mt-0.5">
+      <p class="text-[11px] text-muted-foreground truncate mt-0.5">
         {{ getDomain(bookmark.url) }}
       </p>
       <p
@@ -122,7 +122,7 @@ async function handleDelete() {
         class="size-7 grid place-items-center rounded transition-all duration-150"
         :class="bookmark.is_favorite
           ? 'text-warning opacity-100'
-          : 'text-muted-foreground/30 opacity-0 group-hover:opacity-100 hover:text-warning'"
+          : 'text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-warning'"
         @click="handleToggleFavorite"
       >
         <Star :size="14" :class="bookmark.is_favorite ? 'fill-warning' : ''" />
@@ -131,7 +131,7 @@ async function handleDelete() {
       <!-- Open link -->
       <button
         type="button"
-        class="size-7 grid place-items-center rounded text-muted-foreground/30 hover:text-foreground opacity-0 group-hover:opacity-100 transition-all duration-150"
+        class="size-7 grid place-items-center rounded text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-all duration-150"
         @click="openLink"
       >
         <ExternalLink :size="13" />
@@ -142,7 +142,7 @@ async function handleDelete() {
         <DropdownMenuTrigger as-child>
           <button
             type="button"
-            class="size-7 grid place-items-center rounded text-muted-foreground/30 hover:text-foreground opacity-0 group-hover:opacity-100 transition-all duration-150"
+            class="size-7 grid place-items-center rounded text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-all duration-150"
           >
             <MoreHorizontal :size="14" />
           </button>
@@ -181,7 +181,7 @@ async function handleDelete() {
       <AlertDialogFooter>
         <AlertDialogCancel>Cancelar</AlertDialogCancel>
         <AlertDialogAction
-          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          class="bg-destructive text-destructive-foreground hover:bg-muted"
           @click="handleDelete"
         >
           Excluir

@@ -10,7 +10,7 @@ import TransactionCard from './TransactionCard.vue'
 const props = defineProps<{
   transactions: Transaction[]
   loading?: boolean
-  /** When true, the list renders without its own outer card border (already inside a parent container). */
+  /** When true, the list renders without its own outer card  (already inside a parent container). */
   nested?: boolean
   /** Show when there are no results due to search/filter (vs truly empty). */
   hasFilter?: boolean
@@ -75,11 +75,11 @@ const isTruncated = computed(() =>
 
   <!-- Error state -->
   <div v-else-if="error" class="flex flex-col items-center justify-center py-16 gap-3">
-    <div class="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center">
-      <AlertCircle :size="22" class="text-destructive/60" />
+    <div class="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
+      <AlertCircle :size="22" class="text-destructive" />
     </div>
     <p class="text-[14px] font-semibold text-foreground">Erro ao carregar transações</p>
-    <p class="text-[12px] text-muted-foreground/50">Verifique sua conexão e tente novamente</p>
+    <p class="text-[12px] text-muted-foreground">Verifique sua conexão e tente novamente</p>
     <button
       type="button"
       class="text-[13px] text-primary font-medium mt-1"
@@ -91,11 +91,11 @@ const isTruncated = computed(() =>
 
   <!-- Empty state -->
   <div v-else-if="transactions.length === 0" class="flex flex-col items-center justify-center py-16">
-    <div class="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center">
+    <div class="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
       <component
         :is="hasFilter ? Search : Inbox"
         :size="22"
-        class="text-muted-foreground/40"
+        class="text-muted-foreground"
       />
     </div>
     <p class="text-[15px] font-semibold text-foreground mt-4">
@@ -105,7 +105,7 @@ const isTruncated = computed(() =>
           ? 'Sem transações neste período'
           : 'Nenhum gasto ainda este mês' }}
     </p>
-    <p class="text-[13px] text-muted-foreground/50 mt-1 text-center max-w-[220px]">
+    <p class="text-[13px] text-muted-foreground mt-1 text-center max-w-[220px]">
       {{ hasFilter
         ? 'Ajuste os filtros ou registre uma nova.'
         : monthContext === 'past'
@@ -115,7 +115,7 @@ const isTruncated = computed(() =>
     <button
       v-if="!hasFilter && monthContext !== 'past'"
       type="button"
-      class="mt-4 inline-flex items-center gap-1.5 h-10 px-5 rounded-lg border border-border text-foreground text-[13px] font-medium hover:bg-muted/40 active:scale-95 transition-all"
+      class="mt-4 inline-flex items-center gap-1.5 h-10 px-5 rounded-lg text-foreground text-[13px] font-medium hover:bg-muted active:scale-95 transition-all"
       @click="emit('addNew')"
     >
       <Plus :size="14" /> Registrar agora
@@ -123,23 +123,23 @@ const isTruncated = computed(() =>
   </div>
 
   <!-- Grouped list -->
-  <div v-else :class="nested ? '' : 'rounded-md border border-border overflow-clip'">
+  <div v-else :class="nested ? '' : 'rounded-md overflow-clip'">
     <template v-for="(group, groupIndex) in groups" :key="group.date">
       <!-- Date header -->
       <div class="flex justify-between items-center mb-1 px-1" :class="groupIndex === 0 ? 'mt-5' : 'mt-4'">
-        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {{ group.label }}
         </span>
         <span
           v-if="group.income !== 0 || group.expenses !== 0"
-          class="text-[12px] tabular-nums text-muted-foreground/40"
+          class="text-[12px] tabular-nums text-muted-foreground"
         >
           {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
         </span>
       </div>
 
       <!-- Transactions -->
-      <ul class="divide-y divide-border/30">
+      <ul class="divide-y divide-border">
         <TransactionCard
           v-for="t in group.transactions"
           :key="t.id"
@@ -156,16 +156,16 @@ const isTruncated = computed(() =>
     <!-- Truncation banner — shown when backend has more results than current page -->
     <div
       v-if="isTruncated"
-      class="border-t border-border/60 px-4 py-3 flex items-center justify-between gap-3"
+      class="border-t border-border px-4 py-3 flex items-center justify-between gap-3"
     >
-      <p class="text-[12px] text-muted-foreground/70">
+      <p class="text-[12px] text-muted-foreground">
         Exibindo <span class="font-semibold text-foreground">{{ transactions.length }}</span>
         de <span class="font-semibold text-foreground">{{ totalCount }}</span> transações neste período.
       </p>
       <button
         type="button"
         :disabled="loadingAll"
-        class="flex-shrink-0 inline-flex items-center gap-1.5 h-7 px-3 rounded-md text-[11px] font-semibold border border-border/60 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        class="flex-shrink-0 inline-flex items-center gap-1.5 h-7 px-3 rounded-md text-[11px] font-semibold bg-muted text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         @click="emit('loadAll')"
       >
         <Loader2 v-if="loadingAll" :size="11" class="animate-spin" />

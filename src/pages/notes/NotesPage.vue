@@ -187,7 +187,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
             type="text"
             placeholder="Buscar notas…"
             autofocus
-            class="w-full bg-transparent outline-none text-[12.5px] text-foreground placeholder:text-muted-foreground/30"
+            class="w-full bg-transparent outline-none text-[12.5px] text-foreground placeholder:text-muted-foreground"
           />
         </div>
 

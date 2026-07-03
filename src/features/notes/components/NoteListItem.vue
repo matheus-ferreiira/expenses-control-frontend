@@ -49,7 +49,7 @@ const timeLabel = computed(() => {
     <div class="flex items-start justify-between gap-2 mb-0.5">
       <span
         class="text-[13px] leading-snug truncate"
-        :class="active ? 'font-semibold text-foreground' : 'font-medium text-foreground/80'"
+        :class="active ? 'font-semibold text-foreground' : 'font-medium text-foreground'"
       >
         {{ note.title || 'Sem título' }}
       </span>
@@ -57,26 +57,26 @@ const timeLabel = computed(() => {
         <Pin
           v-if="note.is_pinned"
           :size="10"
-          class="text-muted-foreground/40"
+          class="text-muted-foreground"
         />
         <Star
           v-if="note.is_favorite"
           :size="10"
-          class="text-warning/60"
+          class="text-warning"
           :fill="'currentColor'"
         />
-        <span class="text-[10px] text-muted-foreground/30 tabular-nums">{{ timeLabel }}</span>
+        <span class="text-[10px] text-muted-foreground tabular-nums">{{ timeLabel }}</span>
       </div>
     </div>
 
     <!-- Preview -->
     <p
       v-if="preview"
-      class="text-[11.5px] text-muted-foreground/40 leading-snug line-clamp-2 text-left"
+      class="text-[11.5px] text-muted-foreground leading-snug line-clamp-2 text-left"
     >
       {{ preview }}
     </p>
-    <p v-else class="text-[11.5px] text-muted-foreground/25 leading-snug italic text-left">
+    <p v-else class="text-[11.5px] text-muted-foreground leading-snug italic text-left">
       Sem conteúdo
     </p>
 

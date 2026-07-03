@@ -15,55 +15,55 @@ defineProps<{
   <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
 
     <!-- Ativas -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2">
-          <Target :size="12" class="text-info/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+          <Target :size="12" class="text-info shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
             Ativas
           </p>
         </div>
         <p class="text-xl font-semibold tabular-nums leading-none text-foreground">
           {{ activeCount }}
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">em andamento</p>
+        <p class="text-[11px] text-muted-foreground mt-1">em andamento</p>
       </template>
     </div>
 
     <!-- Concluídas -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2">
-          <Trophy :size="12" class="text-success/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+          <Trophy :size="12" class="text-success shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
             Concluídas
           </p>
         </div>
         <p :class="['text-xl font-semibold tabular-nums leading-none', completedCount > 0 ? 'text-success' : 'text-foreground']">
           {{ completedCount }}
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">metas alcançadas</p>
+        <p class="text-[11px] text-muted-foreground mt-1">metas alcançadas</p>
       </template>
     </div>
 
     <!-- Progresso médio -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-6 w-12" />
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2">
-          <BarChart3 :size="12" class="text-warning/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+          <BarChart3 :size="12" class="text-warning shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
             Progresso médio
           </p>
         </div>
@@ -73,27 +73,27 @@ defineProps<{
         ]">
           {{ averageProgress }}%
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">metas ativas</p>
+        <p class="text-[11px] text-muted-foreground mt-1">metas ativas</p>
       </template>
     </div>
 
     <!-- Atrasadas -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-6 w-10" />
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2">
-          <AlertCircle :size="12" class="text-warning/70 shrink-0" />
-          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+          <AlertCircle :size="12" class="text-warning shrink-0" />
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
             Atrasadas
           </p>
         </div>
         <p :class="['text-xl font-semibold tabular-nums leading-none', overdueCount > 0 ? 'text-warning' : 'text-foreground']">
           {{ overdueCount }}
         </p>
-        <p class="text-[11px] text-muted-foreground/40 mt-1">prazo vencido</p>
+        <p class="text-[11px] text-muted-foreground mt-1">prazo vencido</p>
       </template>
     </div>
 

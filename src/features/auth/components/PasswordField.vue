@@ -30,7 +30,7 @@ const visible = ref(false)
       :model-value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
-      :class="['h-10 pr-10 transition-base', error ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+      :class="['h-10 pr-10 transition-base', error ? ' focus-visible:ring-primary' : '']"
       :autocomplete="autocomplete"
       @update:model-value="emit('update:modelValue', String($event))"
     />
@@ -38,7 +38,7 @@ const visible = ref(false)
       type="button"
       tabindex="-1"
       :disabled="disabled"
-      class="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground/40 hover:text-muted-foreground transition-base duration-150 disabled:pointer-events-none"
+      class="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground hover:text-muted-foreground transition-base duration-150 disabled:pointer-events-none"
       @click="visible = !visible"
     >
       <EyeOff v-if="visible" :size="14" />

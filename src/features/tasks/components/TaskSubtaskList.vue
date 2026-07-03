@@ -45,7 +45,7 @@ function handleBlur() {
     <div
       v-for="sub in subtasks"
       :key="sub.id"
-      class="group flex items-center border-b border-border/20 last:border-0"
+      class="group flex items-center border-b border-border last:border-0"
     >
       <!-- Circular checkbox — large touch area -->
       <button
@@ -57,8 +57,8 @@ function handleBlur() {
         <span
           class="size-5 rounded-full border-2 flex items-center justify-center transition-all duration-200"
           :class="sub.is_completed
-            ? 'border-success/80 bg-success/80'
-            : 'border-muted-foreground/30'"
+            ? ' bg-muted'
+            : ''"
         >
           <Check
             v-if="sub.is_completed"
@@ -73,14 +73,14 @@ function handleBlur() {
       <span
         class="flex-1 min-w-0 py-3 pr-2 text-[13px] leading-snug"
         :class="sub.is_completed
-          ? 'line-through text-muted-foreground/40'
+          ? 'line-through text-muted-foreground'
           : 'text-foreground'"
       >{{ sub.title }}</span>
 
       <!-- Delete — reveal on hover -->
       <button
         type="button"
-        class="size-9 flex items-center justify-center opacity-0 group-hover:opacity-100 text-muted-foreground/30 hover:text-destructive transition-all shrink-0"
+        class="size-9 flex items-center justify-center opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
         @click="emit('delete', sub.id)"
       >
         <Trash2 :size="13" />
@@ -88,16 +88,16 @@ function handleBlur() {
     </div>
 
     <!-- New subtask input -->
-    <div v-if="adding" class="flex items-center border-b border-border/20">
+    <div v-if="adding" class="flex items-center border-b border-border">
       <div class="size-11 flex items-center justify-center shrink-0 -ml-1">
-        <span class="size-5 rounded-full border-2 border-muted-foreground/20" />
+        <span class="size-5 rounded-full border-2" />
       </div>
       <input
         ref="inputRef"
         v-model="newTitle"
         type="text"
         placeholder="Nome da subtarefa..."
-        class="flex-1 py-3 pr-2 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground/30"
+        class="flex-1 py-3 pr-2 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
         @keydown.enter="submitNew"
         @keydown.escape="cancelNew"
         @blur="handleBlur"
@@ -108,7 +108,7 @@ function handleBlur() {
     <button
       v-if="!adding"
       type="button"
-      class="flex items-center gap-1.5 w-full py-2.5 pl-2 text-[13px] text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+      class="flex items-center gap-1.5 w-full py-2.5 pl-2 text-[13px] text-muted-foreground hover:text-muted-foreground transition-colors"
       @click="startAdding"
     >
       <Plus :size="13" />

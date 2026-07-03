@@ -37,7 +37,7 @@ const strengthLabel = computed(() => {
 })
 
 const strengthColor = computed(() => {
-  const colors = ['', 'bg-destructive/70', 'bg-warning/80', 'bg-success/60', 'bg-success']
+  const colors = ['', 'bg-muted', 'bg-muted', 'bg-muted', 'bg-success']
   return colors[passwordStrength.value] ?? ''
 })
 
@@ -68,19 +68,19 @@ async function handleSubmit() {
     <template v-if="invalidLink">
       <div class="space-y-1">
         <h1 class="text-xl font-semibold tracking-tight text-foreground">Link inválido</h1>
-        <p class="text-[13px] text-muted-foreground/60">
+        <p class="text-[13px] text-muted-foreground">
           Este link de redefinição é inválido ou expirou.
         </p>
       </div>
       <RouterLink
         :to="{ name: ROUTES.FORGOT_PASSWORD }"
-        class="block text-center text-[13px] font-medium text-foreground/70 hover:text-foreground transition-base underline underline-offset-4 decoration-border/60"
+        class="block text-center text-[13px] font-medium text-foreground hover:text-foreground transition-base underline underline-offset-4 decoration-border/60"
       >
         Solicitar novo link
       </RouterLink>
       <RouterLink
         :to="{ name: ROUTES.LOGIN }"
-        class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
+        class="block text-center text-[12px] text-muted-foreground hover:text-muted-foreground transition-base"
       >
         ← Voltar ao login
       </RouterLink>
@@ -92,7 +92,7 @@ async function handleSubmit() {
 
       <!-- New password -->
       <div class="space-y-1.5">
-        <label for="password" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+        <label for="password" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Nova senha
         </label>
         <PasswordField
@@ -111,17 +111,17 @@ async function handleSubmit() {
               v-for="i in 4"
               :key="i"
               class="h-0.5 flex-1 rounded-full transition-all duration-300"
-              :class="i <= passwordStrength ? strengthColor : 'bg-muted-foreground/15'"
+              :class="i <= passwordStrength ? strengthColor : 'bg-border'"
             />
           </div>
-          <span class="text-[10px] text-muted-foreground/50 shrink-0">{{ strengthLabel }}</span>
+          <span class="text-[10px] text-muted-foreground shrink-0">{{ strengthLabel }}</span>
         </div>
-        <p v-if="errors.password" class="text-[11px] text-destructive/80">{{ errors.password }}</p>
+        <p v-if="errors.password" class="text-[11px] text-destructive">{{ errors.password }}</p>
       </div>
 
       <!-- Confirm password -->
       <div class="space-y-1.5">
-        <label for="password_confirmation" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+        <label for="password_confirmation" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Confirmar senha
         </label>
         <PasswordField
@@ -133,13 +133,13 @@ async function handleSubmit() {
           :error="!!errors.password_confirmation"
           @update:model-value="errors.password_confirmation = undefined"
         />
-        <p v-if="errors.password_confirmation" class="text-[11px] text-destructive/80">{{ errors.password_confirmation }}</p>
+        <p v-if="errors.password_confirmation" class="text-[11px] text-destructive">{{ errors.password_confirmation }}</p>
       </div>
 
       <!-- API error -->
       <div
         v-if="apiError"
-        class="rounded-md border border-destructive/20 bg-destructive/[0.07] px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
+        class="rounded-md bg-destructive/[0.07] px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
       >
         {{ apiError }}
       </div>
@@ -153,7 +153,7 @@ async function handleSubmit() {
 
     <RouterLink
       :to="{ name: ROUTES.LOGIN }"
-      class="block text-center text-[12px] text-muted-foreground/50 hover:text-muted-foreground transition-base"
+      class="block text-center text-[12px] text-muted-foreground hover:text-muted-foreground transition-base"
     >
       ← Voltar ao login
     </RouterLink>

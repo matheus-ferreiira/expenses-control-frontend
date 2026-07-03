@@ -69,7 +69,7 @@ function onKeydown(e: KeyboardEvent) {
   </div>
 
   <!-- Inline input -->
-  <div v-else class="flex items-center gap-2.5 px-4 py-2 border-t border-border/20">
+  <div v-else class="flex items-center gap-2.5 px-4 py-2 border-t border-border">
     <div class="h-3.5 w-3.5 shrink-0" />
     <input
       ref="inputRef"
@@ -77,7 +77,7 @@ function onKeydown(e: KeyboardEvent) {
       type="text"
       placeholder="Nome da tarefa…"
       :disabled="loading"
-      class="flex-1 min-w-0 bg-transparent text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 outline-none disabled:opacity-50"
+      class="flex-1 min-w-0 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
       @keydown="onKeydown"
       @blur="cancel"
     />

@@ -170,7 +170,7 @@ onBeforeUnmount(() => {
       v-else-if="!hasData"
       class="absolute inset-0 grid place-items-center"
     >
-      <p class="text-[12px] text-muted-foreground/50">Sem registros de preço no período</p>
+      <p class="text-[12px] text-muted-foreground">Sem registros de preço no período</p>
     </div>
     <canvas v-show="!loading && hasData" ref="canvasRef" role="img" aria-label="Gráfico de evolução de preços" />
   </div>

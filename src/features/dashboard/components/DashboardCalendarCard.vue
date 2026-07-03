@@ -36,8 +36,8 @@ function eventEndTime(event: CalendarEvent): string {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
+  <div class="rounded-lg bg-card">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
       <div class="flex items-center gap-2">
         <Calendar :size="13" class="text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">Agenda de hoje</span>
@@ -62,19 +62,19 @@ function eventEndTime(event: CalendarEvent): string {
 
     <!-- Empty -->
     <div v-else-if="events.length === 0" class="px-4 py-5 text-center">
-      <p class="text-xs text-muted-foreground/50">Nenhum evento hoje.</p>
+      <p class="text-xs text-muted-foreground">Nenhum evento hoje.</p>
     </div>
 
     <!-- Time-slot events -->
-    <div v-else class="divide-y divide-border/40">
+    <div v-else class="divide-y divide-border">
       <div
         v-for="event in events"
         :key="event.id"
-        class="flex items-start gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
+        class="flex items-start gap-3 px-4 py-2.5 hover:bg-muted transition-base"
       >
         <!-- Time column -->
         <div class="shrink-0 w-[72px] text-right">
-          <span class="text-[11px] tabular-nums font-mono text-muted-foreground/50">
+          <span class="text-[11px] tabular-nums font-mono text-muted-foreground">
             {{ eventTime(event) }}
             <template v-if="!event.is_all_day && eventEndTime(event)">
               – {{ eventEndTime(event) }}

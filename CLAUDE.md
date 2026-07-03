@@ -173,32 +173,32 @@ VITE_APP_NAME=Productivity Control
 
 ## Design System
 
-Dark mode por padrão. Fintech premium — verde esmeralda como primária. Sem azul ou roxo.
+Dark frio zinc **near-black premium** (jul/2026). **Paleta FECHADA — 4 cores sólidas, ZERO opacidade (`/N`):**
 
-**Arquivo de tokens:** `src/assets/styles/tokens.css` — fonte única de verdade para todas as variáveis CSS.
-**Referência visual completa:** `.tasks/vaultos_visual_reference.md`
+| Cor | Hex | Token / classe | Papel |
+|-----|-----|----------------|-------|
+| Preto | `#09090b` | `--background` / `bg-background` | fundo do sistema (+ sidebar) |
+| Cinza escuro | `#18181b` | `--card` `--sheet` / `bg-card` | card / box / sheet (nível 1) |
+| Cinza claro | `#27272a` | `--muted` `--popover` `--input` `--border` / `bg-muted` | box-em-box, controles, botões, hover, divisor (nível 2) |
+| Verde | `#34d399` | `--primary` `--success` / `bg-primary` | ação, seleção, foco, success |
 
-⚠️ Os valores abaixo são verificados diretamente de `tokens.css` — não editar sem verificar o arquivo real.
+Exceções funcionais SÓLIDAS (nunca `/N`, nunca decorativas): `--destructive` #FF6F5C (excluir/despesa), `--warning` #F5A623 (alerta).
+Texto: 2 níveis sólidos — `text-foreground` (#E4E4E7) e `text-muted-foreground` (#A1A1AA). Sem `/50`,`/60`,`/70`.
+**`--primary-foreground` é PRETO** — botões `bg-primary` usam `text-primary-foreground`, nunca `text-white`.
 
-| Token | Dark (padrão) | Light (.light) | Tailwind class |
-|-------|--------------|----------------|----------------|
-| `--background` | `0 0% 3%` (#080808) | `0 0% 98%` | `bg-background` |
-| `--surface` / `--card` | `0 0% 7%` (#111111) | `0 0% 100%` | `bg-card` |
-| `--sheet` | `0 0% 8.6%` (#161616) | `0 0% 99%` | — |
-| `--popover` | `0 0% 10%` (#1a1a1a) | `0 0% 100%` | `bg-popover` |
-| `--foreground` | `0 0% 94%` (#F0F0F0) | `222 47% 11%` | `text-foreground` |
-| `--muted-foreground` | `0 0% 53%` (#888888) | `240 5% 46%` | `text-muted-foreground` |
-| `--primary` | `162 100% 39%` (#00C896 — verde) | `162 80% 35%` | `bg-primary`, `text-primary` |
-| `--primary-foreground` | `0 0% 0%` (#000000 — preto!) | `0 0% 98%` | `text-primary-foreground` |
-| `--muted` | `0 0% 10%` (#1a1a1a) | `240 10% 96%` | `bg-muted` |
-| `--border` | `0 0% 9%` (~#171717) | `240 6% 88%` | `border-border` |
-| `--ring` | `162 100% 39%` (#00C896) | `162 80% 35%` | `outline-ring` |
-| `--destructive` | `0 100% 65%` (#FF4D4D) | `0 85% 55%` | `text-destructive` |
-| `--success` | `162 100% 39%` (#00C896 — = primary) | `162 80% 35%` | `text-success` |
-| `--warning` | `38 90% 55%` (#F5A623) | `38 80% 52%` | `text-warning` |
-| `--radius` | `0.5rem` (8px) | — | `rounded-lg` |
+**A fonte de verdade canônica das regras de design é o CLAUDE.md da RAIZ do monorepo** (paleta, filosofia de bordas, seleção, tipografia). `tokens.css` é a fonte de verdade dos valores. Este bloco é só um resumo.
 
-**Atenção:** `--primary-foreground` é PRETO em dark mode. Botões `bg-primary` usam `text-primary-foreground` (preto), não `text-white`.
+Regras inegociáveis:
+- **Zero opacidade `/N`** em cor — toda cor é sólida (escolher o token certo)
+- **Sem borda em volta de box/card** — separação vem da cor de fundo (escada de cinza). Borda só como divisor interno sólido (`border-b border-border`)
+- **Elevação por cor**, nunca por sombra/opacidade/borda
+- Cor de módulo (`accent-*`) só em ícone/dot/gráfico, sólida, nunca em botão/CTA/seleção
+- **Chip de ícone**: `size-9 rounded-lg grid place-items-center bg-muted text-accent-X` + lucide `:size="18"` — chip cinza sólido, cor do módulo só no ícone. Entidade com cor própria → cor dinâmica no ícone via `:style`
+
+### Cores de identidade de módulo
+Tarefas `accent-blue` #5CA8F5 · Hábitos `accent-orange` #FB923C · Agenda `accent-violet` #A78BFA ·
+Preços `accent-cyan` #3ECFDB · Notas `accent-amber` #F5A623 · Bookmarks `accent-rose` #F472B6 ·
+Compras `accent-lime` #A3D65C · Dashboard/Finanças/Metas = `primary`.
 
 Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve conter valores de cores.
 

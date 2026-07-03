@@ -89,7 +89,7 @@ function netCostClass(value: number): string {
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Preços
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
@@ -102,7 +102,7 @@ function netCostClass(value: number): string {
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mt-1"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
         @click="recordFormOpen = true"
       >
         <Plus :size="14" />
@@ -129,7 +129,7 @@ function netCostClass(value: number): string {
 
     <template v-else-if="dashboard">
       <!-- KPI card — patrimony snapshot + counts context -->
-      <div class="bg-card border border-border rounded-lg p-4 mb-4">
+      <div class="bg-card rounded-lg p-4 mb-4">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Investido</p>
@@ -153,9 +153,9 @@ function netCostClass(value: number): string {
             </p>
           </div>
         </div>
-        <div class="mt-3 pt-3 border-t border-border/40 flex items-center justify-between flex-wrap gap-2">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Catálogo</p>
-          <p class="text-[12px] text-muted-foreground/60 tabular-nums">
+        <div class="mt-3 pt-3 border-t border-border flex items-center justify-between flex-wrap gap-2">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Catálogo</p>
+          <p class="text-[12px] text-muted-foreground tabular-nums">
             {{ dashboard.counts.products_total }}
             {{ dashboard.counts.products_total === 1 ? 'produto' : 'produtos' }} ·
             {{ dashboard.counts.products_purchased }}
@@ -167,15 +167,15 @@ function netCostClass(value: number): string {
       </div>
 
       <!-- Evolution chart -->
-      <div class="rounded-xl border border-border/50 bg-card mb-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b border-border/50 gap-2 sm:gap-0">
-          <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+      <div class="rounded-xl bg-card mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b border-border gap-2 sm:gap-0">
+          <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Evolução de preços
           </span>
           <div class="relative self-start sm:self-auto">
             <select
               v-model="selectedProductId"
-              class="h-8 rounded-md border border-border/60 bg-background pl-2.5 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
+              class="h-8 rounded-md bg-background pl-2.5 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
             >
               <option value="" disabled>Selecione um produto</option>
               <option v-for="p in dashboard.tracked_products" :key="p.id" :value="p.id">
@@ -184,14 +184,14 @@ function netCostClass(value: number): string {
             </select>
             <ChevronDown
               :size="12"
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
           </div>
         </div>
         <div class="px-4 pt-3 pb-4">
           <p
             v-if="dashboard.tracked_products.length === 0"
-            class="text-[12px] text-muted-foreground/50 py-10 text-center"
+            class="text-[12px] text-muted-foreground py-10 text-center"
           >
             Nenhum produto em acompanhamento.
           </p>
@@ -207,13 +207,13 @@ function netCostClass(value: number): string {
 
       <!-- Tracked products -->
       <div class="mb-4">
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-2">
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">
           Produtos acompanhados
         </p>
-        <div class="rounded-xl border border-border/50 bg-card overflow-hidden">
+        <div class="rounded-xl bg-card overflow-hidden">
           <p
             v-if="dashboard.tracked_products.length === 0"
-            class="text-[12px] text-muted-foreground/50 px-4 py-8 text-center"
+            class="text-[12px] text-muted-foreground px-4 py-8 text-center"
           >
             Nenhum produto com status "Acompanhando".
           </p>
@@ -221,16 +221,16 @@ function netCostClass(value: number): string {
             v-for="p in dashboard.tracked_products"
             :key="p.id"
             type="button"
-            class="w-full flex items-center gap-3 px-4 py-3 text-left border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors"
+            class="w-full flex items-center gap-3 px-4 py-3 text-left border-b border-border last:border-0 hover:bg-muted transition-colors"
             @click="goToProduct(p.id)"
           >
             <div class="flex-1 min-w-0">
               <p class="text-[14px] font-medium text-foreground truncate">{{ p.name }}</p>
-              <p class="text-[12px] text-muted-foreground/60 tabular-nums mt-0.5">
+              <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
                 Mín {{ p.min_price !== null ? formatCurrency(p.min_price) : '—' }}
                 · Méd {{ p.avg_price !== null ? formatCurrency(p.avg_price) : '—' }}
                 <template v-if="p.savings_vs_launch !== null && p.savings_vs_launch > 0">
-                  · <span class="text-success/80">-{{ formatCurrency(p.savings_vs_launch) }} vs lançamento</span>
+                  · <span class="text-success">-{{ formatCurrency(p.savings_vs_launch) }} vs lançamento</span>
                 </template>
               </p>
             </div>
@@ -246,36 +246,36 @@ function netCostClass(value: number): string {
 
       <!-- Recent records -->
       <div>
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-2">
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">
           Últimos registros
         </p>
-        <div class="rounded-xl border border-border/50 bg-card overflow-hidden">
+        <div class="rounded-xl bg-card overflow-hidden">
           <p
             v-if="dashboard.recent_records.length === 0"
-            class="text-[12px] text-muted-foreground/50 px-4 py-8 text-center"
+            class="text-[12px] text-muted-foreground px-4 py-8 text-center"
           >
             Nenhum preço registrado ainda.
           </p>
           <div
             v-for="record in dashboard.recent_records"
             :key="record.id"
-            class="flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-0"
+            class="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
           >
-            <span class="text-[12px] text-muted-foreground/60 tabular-nums shrink-0 w-16">
+            <span class="text-[12px] text-muted-foreground tabular-nums shrink-0 w-16">
               {{ formatDay(record.recorded_at) }}
             </span>
             <div class="flex-1 min-w-0">
               <p class="text-[13px] font-medium text-foreground truncate">
                 {{ record.product?.name ?? '—' }}
               </p>
-              <p class="text-[11px] text-muted-foreground/60 truncate">{{ record.store?.name ?? '—' }}</p>
+              <p class="text-[11px] text-muted-foreground truncate">{{ record.store?.name ?? '—' }}</p>
             </div>
             <a
               v-if="record.url"
               :href="record.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="shrink-0 p-1.5 rounded-md text-muted-foreground/50 hover:text-primary hover:bg-muted/40 transition-colors"
+              class="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               @click.stop
             >
               <ExternalLink :size="13" />

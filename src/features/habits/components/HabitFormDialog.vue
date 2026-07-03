@@ -93,10 +93,10 @@ const selectedCategoryColor = computed(() => {
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogContent
       hide-close
-      class="fixed bottom-0 left-0 right-0 top-auto max-w-none w-full max-h-[92vh] rounded-t-2xl rounded-b-none border-0 border-t border-border/40 p-0 flex flex-col translate-x-0 translate-y-0 gap-0"
+      class="fixed bottom-0 left-0 right-0 top-auto max-w-none w-full max-h-[92vh] rounded-t-2xl rounded-b-none border-0 border-t border-border p-0 flex flex-col translate-x-0 translate-y-0 gap-0"
     >
       <!-- Header -->
-      <div class="flex items-center gap-3 px-4 h-14 border-b border-border/40 shrink-0">
+      <div class="flex items-center gap-3 px-4 h-14 border-b border-border shrink-0">
         <Button variant="ghost" size="icon" class="h-8 w-8 shrink-0" @click="close">
           <ArrowLeft :size="18" />
         </Button>
@@ -111,7 +111,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Live preview card -->
           <div
-            class="flex items-center gap-3 p-3 rounded-lg border border-border/60 bg-muted/40"
+            class="flex items-center gap-3 p-3 rounded-lg bg-muted"
             :style="{ borderColor: (selectedCategoryColor ?? form.color) + '40' }"
           >
             <span
@@ -121,7 +121,7 @@ const selectedCategoryColor = computed(() => {
               <component :is="previewIcon" :size="20" />
             </span>
             <div class="min-w-0">
-              <p class="text-sm font-medium truncate text-foreground/90">
+              <p class="text-sm font-medium truncate text-foreground">
                 {{ form.name || 'Nome do hábito' }}
               </p>
               <p class="text-xs text-muted-foreground mt-0.5">
@@ -132,7 +132,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Name -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Nome do hábito
             </label>
             <Input
@@ -141,7 +141,7 @@ const selectedCategoryColor = computed(() => {
               placeholder="Ex: Meditar 10 minutos"
               autofocus
               :class="[
-                'h-11 bg-muted/50 border-transparent focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0',
+                'h-11 bg-muted focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0',
                 errors.name && 'border-destructive',
               ]"
             />
@@ -150,7 +150,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Frequency buttons -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Frequência
             </label>
             <div class="grid grid-cols-3 gap-1.5">
@@ -159,9 +159,9 @@ const selectedCategoryColor = computed(() => {
                 :key="f"
                 type="button"
                 :class="[
-                  'h-9 rounded-md text-xs font-medium border transition-all',
+                  'h-9 rounded-md text-xs font-medium  transition-all',
                   form.frequency === f
-                    ? 'bg-foreground text-background border-transparent'
+                    ? 'bg-foreground text-background'
                     : 'border-border text-muted-foreground hover:bg-accent',
                 ]"
                 @click="form.frequency = f"
@@ -173,7 +173,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Category chips -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Categoria
             </label>
             <div class="flex flex-wrap gap-2">
@@ -181,7 +181,7 @@ const selectedCategoryColor = computed(() => {
                 v-for="cat in CATEGORIES"
                 :key="cat.label"
                 type="button"
-                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium  transition-all"
                 :style="form.category === cat.label
                   ? `background: color-mix(in oklab, ${cat.color} 18%, transparent); color: ${cat.color}; border-color: color-mix(in oklab, ${cat.color} 40%, transparent)`
                   : 'border-color: hsl(var(--border)); color: hsl(var(--muted-foreground))'"
@@ -195,7 +195,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Target days (weekly/monthly only) -->
           <div v-if="form.frequency !== 'daily'" class="space-y-1.5">
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Dias da semana
             </label>
             <div class="flex gap-1.5">
@@ -204,10 +204,10 @@ const selectedCategoryColor = computed(() => {
                 :key="day"
                 type="button"
                 :class="[
-                  'flex-1 h-8 text-xs font-medium rounded-md border transition-base',
+                  'flex-1 h-8 text-xs font-medium rounded-md  transition-base',
                   form.target_days.includes(day)
-                    ? 'bg-foreground text-background border-transparent'
-                    : 'border-border text-muted-foreground hover:border-foreground/30',
+                    ? 'bg-foreground text-background'
+                    : 'border-border text-muted-foreground ',
                 ]"
                 @click="toggleTargetDay(day)"
               >
@@ -219,7 +219,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Color -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Cor
             </label>
             <ColorPicker v-model="form.color" />
@@ -227,7 +227,7 @@ const selectedCategoryColor = computed(() => {
 
           <!-- Icon -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            <label class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Ícone
             </label>
             <IconPicker v-model="form.icon" :color="form.color" />
@@ -237,10 +237,10 @@ const selectedCategoryColor = computed(() => {
       </div>
 
       <!-- Footer — full-width green submit -->
-      <div class="shrink-0 px-5 py-4 border-t border-border/40">
+      <div class="shrink-0 px-5 py-4 border-t border-border">
         <div class="max-w-lg mx-auto">
           <Button
-            class="w-full h-12 text-sm font-medium rounded-lg bg-success text-background hover:bg-success/90"
+            class="w-full h-12 text-sm font-medium rounded-lg bg-success text-background hover:bg-muted"
             :disabled="submitting"
             @click="submit"
           >

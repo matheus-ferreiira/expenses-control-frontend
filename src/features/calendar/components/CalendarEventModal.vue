@@ -121,7 +121,7 @@ defineExpose({ openCreate: form.openCreate, openEdit: form.openEdit })
             v-model="form.description.value"
             placeholder="Descrição (opcional)"
             rows="2"
-            class="flex-1 bg-transparent outline-none text-[13px] leading-relaxed resize-none text-foreground/80 placeholder:text-muted-foreground/30"
+            class="flex-1 bg-transparent outline-none text-[13px] leading-relaxed resize-none text-foreground placeholder:text-muted-foreground"
           />
         </div>
 

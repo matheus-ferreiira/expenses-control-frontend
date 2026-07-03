@@ -66,7 +66,7 @@ onMounted(async () => {
           <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">
             {{ today }}
           </h1>
-          <p class="mt-0.5 text-[13px] text-muted-foreground/60">
+          <p class="mt-0.5 text-[13px] text-muted-foreground">
             <span class="capitalize">{{ greeting }}, {{ userName || 'Olá' }}.</span>
             {{ greetingContext }}
           </p>

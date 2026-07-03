@@ -26,7 +26,7 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="rounded-xl bg-card border border-border transition-opacity"
+    class="rounded-xl bg-card transition-opacity"
     :class="!account.is_active ? 'opacity-50' : ''"
   >
     <div class="p-4 flex items-start gap-3">

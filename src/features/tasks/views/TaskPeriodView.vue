@@ -82,7 +82,7 @@ const groups = computed<PeriodGroup[]>(() => {
     @cta="emit('create')"
   />
 
-  <!-- Period groups — no outer border -->
+  <!-- Period groups — no outer  -->
   <div v-else class="space-y-2">
     <div
       v-for="group in groups"
@@ -93,25 +93,25 @@ const groups = computed<PeriodGroup[]>(() => {
         <component
           :is="group.icon"
           :size="13"
-          class="text-muted-foreground/50 shrink-0"
+          class="text-muted-foreground shrink-0"
         />
-        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {{ group.label }}
-          <span v-if="group.sublabel" class="text-muted-foreground/35 font-normal lowercase tracking-normal ml-1">
+          <span v-if="group.sublabel" class="text-muted-foreground font-normal lowercase tracking-normal ml-1">
             · {{ group.sublabel }}
           </span>
         </span>
-        <span class="text-[11px] text-muted-foreground/35">{{ group.tasks.length }}</span>
+        <span class="text-[11px] text-muted-foreground">{{ group.tasks.length }}</span>
       </div>
 
       <!-- Task rows with time column -->
       <div
         v-for="task in group.tasks"
         :key="task.id"
-        class="flex items-center gap-1 border-b border-border/20 last:border-0"
+        class="flex items-center gap-1 border-b border-border last:border-0"
       >
         <!-- Time column (left) -->
-        <span class="text-[12px] tabular-nums text-muted-foreground/40 w-10 text-right shrink-0 pr-1">
+        <span class="text-[12px] tabular-nums text-muted-foreground w-10 text-right shrink-0 pr-1">
           {{ task.due_time ? task.due_time.slice(0, 5) : '' }}
         </span>
         <!-- Task item (no border, no time in right col) -->

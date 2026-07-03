@@ -14,7 +14,7 @@ const COLLECTION_ICONS = [
 ]
 
 const PRESET_COLORS = [
-  '#00C896', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899',
+  '#34d399', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899',
 ]
 
 const props = defineProps<{
@@ -28,14 +28,14 @@ const toast = useToast()
 
 const name = ref('')
 const selectedIcon = ref<string | null>(null)
-const selectedColor = ref<string | null>('#00C896')
+const selectedColor = ref<string | null>('#34d399')
 const submitting = ref(false)
 
 watch(open, (val) => {
   if (val) {
     name.value = props.collection?.name ?? ''
     selectedIcon.value = props.collection?.icon ?? null
-    selectedColor.value = props.collection?.color ?? '#00C896'
+    selectedColor.value = props.collection?.color ?? '#34d399'
   }
 })
 
@@ -70,9 +70,9 @@ async function submit() {
       side="bottom"
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -88,7 +88,7 @@ async function submit() {
       <div class="flex-1 overflow-y-auto px-4 py-5 space-y-5">
         <!-- Nome -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             NOME <span class="text-destructive ml-0.5">*</span>
           </p>
           <input
@@ -96,14 +96,14 @@ async function submit() {
             autofocus
             type="text"
             placeholder="Ex: Dev, Carro, Casa..."
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             @keydown.enter="submit"
           />
         </div>
 
         <!-- Ícone -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             ÍCONE (opcional)
           </p>
           <div class="grid grid-cols-6 gap-2">
@@ -112,8 +112,8 @@ async function submit() {
               type="button"
               class="size-11 rounded-xl flex items-center justify-center text-[11px] font-medium transition-all duration-150"
               :class="selectedIcon === null
-                ? 'bg-primary/15 text-primary'
-                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                ? 'bg-muted text-primary'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="selectedIcon = null"
             >
               —
@@ -124,8 +124,8 @@ async function submit() {
               type="button"
               class="size-11 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer"
               :class="selectedIcon === iconName
-                ? 'bg-primary/15 text-primary'
-                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                ? 'bg-muted text-primary'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="selectedIcon = iconName"
             >
               <component
@@ -140,7 +140,7 @@ async function submit() {
 
         <!-- Cor -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             COR
           </p>
           <div class="flex gap-3 flex-wrap">
@@ -157,10 +157,10 @@ async function submit() {
         </div>
       </div>
 
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="open = false"
         >

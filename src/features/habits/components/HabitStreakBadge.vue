@@ -17,7 +17,7 @@ const hasStreak = computed(() => props.streak > 0)
     :class="[
       'inline-flex items-center gap-1 font-medium',
       size === 'md' ? 'text-sm' : 'text-[11px]',
-      hasStreak ? 'text-orange-400' : 'text-muted-foreground/50',
+      hasStreak ? 'text-orange-400' : 'text-muted-foreground',
     ]"
   >
     <Flame :size="size === 'md' ? 14 : 11" :class="hasStreak && 'drop-shadow-[0_0_4px_rgb(251,146,60)]'" />

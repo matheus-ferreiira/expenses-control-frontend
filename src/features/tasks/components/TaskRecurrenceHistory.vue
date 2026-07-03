@@ -46,13 +46,13 @@ function formatTime(iso: string | null): string {
   <!-- Only render when non-loading, has history, and more than 1 occurrence -->
   <div
     v-if="!loading && history && history.total_count > 1"
-    class="pt-3 border-t border-border/30 mt-3"
+    class="pt-3 border-t border-border mt-3"
   >
     <!-- Section header -->
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-1.5">
         <RotateCcw :size="11" class="text-primary" />
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           HISTÓRICO
         </p>
       </div>
@@ -70,16 +70,16 @@ function formatTime(iso: string | null): string {
     <!-- Stats row -->
     <div class="flex items-center gap-4 mb-3">
       <div>
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/40 mb-0.5">Taxa</p>
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground mb-0.5">Taxa</p>
         <p
           class="text-[17px] font-semibold tabular-nums leading-none"
           :class="history.completion_rate >= 80 ? 'text-success' : history.completion_rate >= 50 ? 'text-warning' : 'text-muted-foreground'"
         >{{ history.completion_rate }}%</p>
       </div>
       <div>
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/40 mb-0.5">Concluídas</p>
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground mb-0.5">Concluídas</p>
         <p class="text-[17px] font-semibold tabular-nums text-foreground leading-none">
-          {{ history.completed_count }}<span class="text-[13px] text-muted-foreground/50">/{{ history.total_count }}</span>
+          {{ history.completed_count }}<span class="text-[13px] text-muted-foreground">/{{ history.total_count }}</span>
         </p>
       </div>
     </div>
@@ -90,23 +90,23 @@ function formatTime(iso: string | null): string {
         v-for="i in totalDots"
         :key="i"
         class="size-2 rounded-full"
-        :class="i <= filledDots ? 'bg-success' : 'bg-muted/50'"
+        :class="i <= filledDots ? 'bg-success' : 'bg-muted'"
       />
     </div>
 
     <!-- Recent completions list -->
     <div v-if="history.recent_completions.length" class="space-y-0">
-      <p class="text-[11px] uppercase tracking-widest text-muted-foreground/40 mb-1.5">Últimas</p>
+      <p class="text-[11px] uppercase tracking-widest text-muted-foreground mb-1.5">Últimas</p>
       <div
         v-for="entry in history.recent_completions.slice(0, 5)"
         :key="entry.id"
-        class="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0"
+        class="flex items-center gap-2 py-1.5 border-b border-border last:border-0"
       >
         <span class="text-[11px] text-success shrink-0">✓</span>
         <span class="text-[12px] text-foreground tabular-nums">
           {{ formatDate(entry.completed_at ?? entry.due_date) }}
         </span>
-        <span v-if="entry.completed_at" class="text-[11px] text-muted-foreground/50 tabular-nums ml-auto">
+        <span v-if="entry.completed_at" class="text-[11px] text-muted-foreground tabular-nums ml-auto">
           {{ formatTime(entry.completed_at) }}
         </span>
       </div>

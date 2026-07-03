@@ -103,17 +103,17 @@ const showPriorityPicker = ref(false)
 
 interface PriorityDef { value: TaskPriority; activeClass: string }
 const PRIORITIES: PriorityDef[] = [
-  { value: 'urgent', activeClass: 'bg-destructive/15 text-destructive' },
-  { value: 'high',   activeClass: 'bg-warning/15 text-warning' },
-  { value: 'normal', activeClass: 'bg-muted/60 text-foreground' },
-  { value: 'low',    activeClass: 'bg-muted/30 text-muted-foreground' },
+  { value: 'urgent', activeClass: 'bg-muted text-destructive' },
+  { value: 'high',   activeClass: 'bg-muted text-warning' },
+  { value: 'normal', activeClass: 'bg-muted text-foreground' },
+  { value: 'low',    activeClass: 'bg-muted text-muted-foreground' },
 ]
 
 const PRIORITY_CHIP: Record<TaskPriority, string> = {
-  urgent: 'bg-destructive/15 text-destructive',
-  high:   'bg-warning/15 text-warning',
-  normal: 'bg-muted/40 text-muted-foreground',
-  low:    'bg-muted/30 text-muted-foreground/60',
+  urgent: 'bg-muted text-destructive',
+  high:   'bg-muted text-warning',
+  normal: 'bg-muted text-muted-foreground',
+  low:    'bg-muted text-muted-foreground',
 }
 
 async function selectPriority(p: TaskPriority) {
@@ -129,23 +129,23 @@ async function selectPriority(p: TaskPriority) {
 // ── Status badge ─────────────────────────────────────────────────────────────
 function statusBadgeClass(task: Task): string {
   switch (task.status) {
-    case 'completed':   return 'bg-success/15 border-success/30 text-success'
-    case 'in_progress': return 'bg-warning/15 border-warning/30 text-warning'
-    case 'cancelled':   return 'bg-muted/30 border-border/30 text-muted-foreground'
-    default:            return 'bg-muted/20 border-border/30 text-muted-foreground'
+    case 'completed':   return 'bg-muted text-success'
+    case 'in_progress': return 'bg-muted text-warning'
+    case 'cancelled':   return 'bg-muted border-border text-muted-foreground'
+    default:            return 'bg-muted border-border text-muted-foreground'
   }
 }
 
 // ── Date chip class ───────────────────────────────────────────────────────────
 const datechipClass = computed(() => {
-  if (showDatePicker.value) return 'bg-primary/15 text-primary'
-  if (!props.task?.due_date) return 'bg-muted/30 text-muted-foreground/50'
+  if (showDatePicker.value) return 'bg-muted text-primary'
+  if (!props.task?.due_date) return 'bg-muted text-muted-foreground'
   const today = new Date().toLocaleDateString('en-CA')
   if (props.task.due_date < today && props.task.status !== 'completed' && props.task.status !== 'cancelled') {
-    return 'bg-destructive/15 text-destructive'
+    return 'bg-muted text-destructive'
   }
-  if (props.task.due_date === today) return 'bg-warning/15 text-warning'
-  return 'bg-muted/40 text-muted-foreground'
+  if (props.task.due_date === today) return 'bg-muted text-warning'
+  return 'bg-muted text-muted-foreground'
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -254,13 +254,13 @@ watch(() => props.open, (open) => {
       class="rounded-t-2xl border-t-2 border-primary bg-background max-h-[88vh] overflow-hidden p-0 focus:outline-none [&>button]:hidden flex flex-col"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <template v-if="task">
         <!-- Header: status badge + close -->
         <div class="flex items-center justify-between px-5 pt-2 pb-2 shrink-0">
           <span
-            class="inline-flex items-center h-6 px-2.5 rounded text-[11px] font-semibold border"
+            class="inline-flex items-center h-6 px-2.5 rounded text-[11px] font-semibold "
             :class="statusBadgeClass(task)"
           >
             {{ TASK_STATUS_LABELS[task.status] }}
@@ -285,7 +285,7 @@ watch(() => props.open, (open) => {
               ref="titleRef"
               v-model="titleDraft"
               type="text"
-              class="w-full text-[20px] font-bold text-foreground bg-transparent border-b border-primary/60 outline-none pb-0.5"
+              class="w-full text-[20px] font-bold text-foreground bg-transparent border-b outline-none pb-0.5"
               @blur="saveTitle"
               @keydown.enter="saveTitle"
               @keydown.escape="editingTitle = false"
@@ -295,7 +295,7 @@ watch(() => props.open, (open) => {
               type="button"
               class="text-left w-full text-[20px] font-bold leading-snug"
               :class="task.status === 'completed' || task.status === 'cancelled'
-                ? 'line-through text-muted-foreground/50'
+                ? 'line-through text-muted-foreground'
                 : 'text-foreground'"
               @click="startEditTitle"
             >{{ task.title }}</button>
@@ -308,7 +308,7 @@ watch(() => props.open, (open) => {
               ref="descRef"
               v-model="descDraft"
               rows="3"
-              class="w-full text-[13px] text-foreground bg-card border border-border/60 rounded-lg px-3 py-2 outline-none resize-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/40"
+              class="w-full text-[13px] text-foreground bg-card rounded-lg px-3 py-2 outline-none resize-none focus:border-primary transition-colors placeholder:text-muted-foreground"
               placeholder="Adicionar descrição..."
               @blur="saveDesc"
               @keydown.escape="editingDesc = false"
@@ -322,7 +322,7 @@ watch(() => props.open, (open) => {
               <p v-if="task.description" class="text-[13px] text-muted-foreground leading-relaxed">
                 {{ task.description }}
               </p>
-              <p v-else class="text-[13px] text-muted-foreground/30 italic">
+              <p v-else class="text-[13px] text-muted-foreground italic">
                 Adicionar descrição...
               </p>
             </button>
@@ -345,7 +345,7 @@ watch(() => props.open, (open) => {
             <button
               type="button"
               class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium transition-colors"
-              :class="showPriorityPicker ? 'bg-primary/15 text-primary' : PRIORITY_CHIP[task.priority]"
+              :class="showPriorityPicker ? 'bg-muted text-primary' : PRIORITY_CHIP[task.priority]"
               @click="showPriorityPicker = !showPriorityPicker; showDatePicker = false"
             >
               <Flag :size="12" />
@@ -355,17 +355,17 @@ watch(() => props.open, (open) => {
             <!-- Time chip -->
             <span
               v-if="task.due_time"
-              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted/40 text-muted-foreground"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted text-muted-foreground"
             >
               <Clock :size="12" />
               {{ task.due_time.slice(0, 5) }}
-              <span class="text-muted-foreground/50 text-[11px]">{{ formatTimePeriod(task.due_time) }}</span>
+              <span class="text-muted-foreground text-[11px]">{{ formatTimePeriod(task.due_time) }}</span>
             </span>
 
             <!-- List chip -->
             <span
               v-if="task.task_list"
-              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted/40 text-muted-foreground"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted text-muted-foreground"
             >
               <FolderOpen :size="12" />
               {{ task.task_list.name }}
@@ -374,7 +374,7 @@ watch(() => props.open, (open) => {
             <!-- Estimated chip -->
             <span
               v-if="task.estimated_minutes"
-              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted/30 text-muted-foreground/70"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted text-muted-foreground"
             >
               <Clock :size="12" />
               {{ formatEstimated(task.estimated_minutes) }}
@@ -383,7 +383,7 @@ watch(() => props.open, (open) => {
             <!-- Recurrence chip -->
             <span
               v-if="task.recurrence_type && task.recurrence_type !== 'none'"
-              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-primary/10 text-primary"
+              class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[13px] font-medium bg-muted text-primary"
             >
               <RotateCcw :size="12" />
               {{ RECURRENCE_LABELS[task.recurrence_type] }}
@@ -407,7 +407,7 @@ watch(() => props.open, (open) => {
               class="h-9 rounded-lg text-[11px] font-medium transition-all"
               :class="task.priority === p.value
                 ? p.activeClass
-                : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="selectPriority(p.value)"
             >{{ TASK_PRIORITY_LABELS[p.value] }}</button>
           </div>
@@ -417,12 +417,12 @@ watch(() => props.open, (open) => {
             <span
               v-for="tag in task.tags"
               :key="tag.id"
-              class="inline-flex items-center gap-1 h-7 pl-2.5 pr-1.5 rounded-full text-[12px] font-medium bg-muted/40 text-muted-foreground/80"
+              class="inline-flex items-center gap-1 h-7 pl-2.5 pr-1.5 rounded-full text-[12px] font-medium bg-muted text-muted-foreground"
             >
               {{ tag.name }}
               <button
                 type="button"
-                class="size-4 rounded-full flex items-center justify-center hover:bg-muted-foreground/20 transition-colors shrink-0"
+                class="size-4 rounded-full flex items-center justify-center hover:bg-border transition-colors shrink-0"
                 @click="removeTag(tag.id)"
               >
                 <X :size="10" />
@@ -437,25 +437,25 @@ watch(() => props.open, (open) => {
           />
 
           <!-- Subtasks -->
-          <div class="pt-3 border-t border-border/30 mt-3">
+          <div class="pt-3 border-t border-border mt-3">
             <div class="flex items-center justify-between mb-2">
-              <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70">
+              <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
                 SUBTAREFAS
               </p>
               <span
                 v-if="task.subtasks_count > 0"
-                class="text-[11px] text-muted-foreground/50 tabular-nums"
+                class="text-[11px] text-muted-foreground tabular-nums"
               >{{ task.completed_subtasks_count }}/{{ task.subtasks_count }}</span>
             </div>
 
             <!-- Progress bar -->
             <div
               v-if="task.subtasks_count > 0"
-              class="h-1.5 rounded-full bg-muted/30 mb-3 overflow-hidden"
+              class="h-1.5 rounded-full bg-muted mb-3 overflow-hidden"
             >
               <div
                 class="h-full rounded-full transition-all duration-300"
-                :class="progress >= 100 ? 'bg-success' : 'bg-success/60'"
+                :class="progress >= 100 ? 'bg-success' : 'bg-muted'"
                 :style="{ width: `${progress}%` }"
               />
             </div>
@@ -472,7 +472,7 @@ watch(() => props.open, (open) => {
         </div>
 
         <!-- Footer actions -->
-        <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 space-y-2">
+        <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 space-y-2">
 
           <!-- Primary CTA -->
           <button
@@ -487,7 +487,7 @@ watch(() => props.open, (open) => {
           <button
             v-else
             type="button"
-            class="w-full h-[52px] rounded-xl border border-border/60 text-foreground font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:bg-muted/30"
+            class="w-full h-[52px] rounded-xl text-foreground font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:bg-muted"
             @click="handleToggleComplete"
           >
             <RotateCcw :size="16" />
@@ -498,7 +498,7 @@ watch(() => props.open, (open) => {
           <div v-if="!isCompleted" class="flex gap-2">
             <button
               type="button"
-              class="flex-1 h-10 rounded-xl border border-border/60 text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/30 flex items-center justify-center gap-1.5 transition-colors"
+              class="flex-1 h-10 rounded-xl text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center gap-1.5 transition-colors"
               @click="startEditTitle"
             >
               <Pencil :size="13" />
@@ -506,7 +506,7 @@ watch(() => props.open, (open) => {
             </button>
             <button
               type="button"
-              class="flex-1 h-10 rounded-xl text-[13px] text-destructive hover:bg-destructive/8 flex items-center justify-center gap-1.5 transition-colors"
+              class="flex-1 h-10 rounded-xl text-[13px] text-destructive hover:bg-muted flex items-center justify-center gap-1.5 transition-colors"
               @click="showDeleteConfirm = true"
             >
               <Trash2 :size="13" />
@@ -516,7 +516,7 @@ watch(() => props.open, (open) => {
           <button
             v-else
             type="button"
-            class="w-full h-10 rounded-xl text-[13px] text-destructive hover:bg-destructive/8 flex items-center justify-center gap-1.5 transition-colors"
+            class="w-full h-10 rounded-xl text-[13px] text-destructive hover:bg-muted flex items-center justify-center gap-1.5 transition-colors"
             @click="showDeleteConfirm = true"
           >
             <Trash2 :size="13" />

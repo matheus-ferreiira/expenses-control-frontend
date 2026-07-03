@@ -152,7 +152,7 @@ function isOverdue(task: Task): boolean {
         <ChevronLeft :size="16" />
       </button>
 
-      <span class="text-[13px] font-medium text-foreground/80">
+      <span class="text-[13px] font-medium text-foreground">
         {{ monthLabel }}
       </span>
 
@@ -168,9 +168,9 @@ function isOverdue(task: Task): boolean {
     </div>
 
     <!-- Calendar grid -->
-    <div class="rounded-lg border border-border overflow-hidden">
+    <div class="rounded-lg overflow-hidden">
       <!-- Weekday headers -->
-      <div class="grid grid-cols-7 border-b border-border/40">
+      <div class="grid grid-cols-7 border-b border-border">
         <div
           v-for="wd in WEEKDAYS"
           :key="wd"
@@ -187,12 +187,12 @@ function isOverdue(task: Task): boolean {
           v-for="(day, idx) in calendarDays"
           :key="day.dateStr"
           :class="[
-            'min-h-[80px] p-1.5 border-border/25 cursor-pointer transition-base',
+            'min-h-[80px] p-1.5 border-border cursor-pointer transition-base',
             idx % 7 !== 6 ? 'border-r' : '',
             Math.floor(idx / 7) < Math.floor((calendarDays.length - 1) / 7) ? 'border-b' : '',
-            !day.isCurrentMonth ? 'opacity-30 cursor-default' : 'hover:bg-accent/10',
-            day.isToday ? 'border-primary/30' : '',
-            selectedDate === day.dateStr ? 'bg-accent/15' : '',
+            !day.isCurrentMonth ? 'opacity-30 cursor-default' : 'hover:bg-muted',
+            day.isToday ? '' : '',
+            selectedDate === day.dateStr ? 'bg-muted' : '',
           ]"
           @click="selectDay(day)"
         >
@@ -202,7 +202,7 @@ function isOverdue(task: Task): boolean {
               'text-[11px] font-medium w-5 h-5 flex items-center justify-center rounded-full mb-1',
               day.isToday
                 ? 'bg-primary text-primary-foreground text-[10px]'
-                : 'text-muted-foreground/60',
+                : 'text-muted-foreground',
             ]"
           >
             {{ day.day }}
@@ -218,8 +218,8 @@ function isOverdue(task: Task): boolean {
                 task.status === 'completed'
                   ? 'opacity-40 line-through'
                   : isOverdue(task)
-                    ? 'text-destructive/70'
-                    : 'text-foreground/70',
+                    ? 'text-destructive'
+                    : 'text-foreground',
               ]"
               :style="task.status !== 'completed' && !isOverdue(task) ? 'background: hsl(var(--accent) / 0.5)' : ''"
             >
@@ -239,8 +239,8 @@ function isOverdue(task: Task): boolean {
     </div>
 
     <!-- Selected day task list -->
-    <div v-if="selectedDate && selectedTasks.length > 0" class="rounded-lg border border-border overflow-hidden">
-      <div class="flex items-center gap-2 px-4 py-2 border-b border-border/30">
+    <div v-if="selectedDate && selectedTasks.length > 0" class="rounded-lg overflow-hidden">
+      <div class="flex items-center gap-2 px-4 py-2 border-b border-border">
         <span class="text-[10px] font-semibold uppercase tracking-[0.1em]" style="color: hsl(var(--muted-foreground) / 0.5)">
           {{ new Date(selectedDate + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
         </span>

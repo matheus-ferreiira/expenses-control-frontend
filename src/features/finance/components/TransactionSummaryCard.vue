@@ -107,7 +107,7 @@ function balanceColor(v: number): string {
 </script>
 
 <template>
-  <div class="bg-card border border-border rounded-lg p-4">
+  <div class="bg-card rounded-lg p-4">
     <!-- Month nav -->
     <div class="flex items-center justify-between mb-3">
       <button
@@ -123,7 +123,7 @@ function balanceColor(v: number): string {
           <PopoverTrigger as-child>
             <button type="button" class="flex items-center gap-1 hover:text-primary transition-colors group">
               <span class="text-[15px] font-semibold">{{ label }}</span>
-              <ChevronDown :size="14" class="text-muted-foreground/50 group-hover:text-primary transition-colors" />
+              <ChevronDown :size="14" class="text-muted-foreground group-hover:text-primary transition-colors" />
             </button>
           </PopoverTrigger>
           <PopoverContent class="w-60 p-4" align="center" :side-offset="8">
@@ -155,16 +155,16 @@ function balanceColor(v: number): string {
                 :class="isPickerCurrentRealMonth(idx)
                   ? 'bg-primary text-primary-foreground'
                   : isPickerSelectedMonth(idx)
-                    ? 'bg-primary/20 text-primary'
-                    : 'text-foreground hover:bg-muted/40'"
+                    ? 'bg-muted text-primary'
+                    : 'text-foreground hover:bg-muted'"
                 @click="selectMonthFromPicker(idx)"
               >{{ abbr }}</button>
             </div>
             <!-- Footer -->
-            <div class="flex items-center justify-between mt-3 pt-2 border-t border-border/40">
+            <div class="flex items-center justify-between mt-3 pt-2 border-t border-border">
               <button
                 type="button"
-                class="text-primary text-[13px] font-medium hover:text-primary/80 transition-colors"
+                class="text-primary text-[13px] font-medium hover:text-primary transition-colors"
                 @click="emit('reset'); pickerOpen = false"
               >Mês atual</button>
               <button
@@ -178,7 +178,7 @@ function balanceColor(v: number): string {
         <button
           v-if="!isCurrentMonth"
           type="button"
-          class="min-h-[44px] px-2 text-[11px] text-muted-foreground hover:bg-muted/50 rounded-md transition-colors flex items-center"
+          class="min-h-[44px] px-2 text-[11px] text-muted-foreground hover:bg-muted rounded-md transition-colors flex items-center"
           @click="emit('reset')"
         >
           <RotateCcw :size="11" class="mr-1" />
@@ -215,17 +215,17 @@ function balanceColor(v: number): string {
     <!-- Budget bar + vs mês anterior — shown when at least one has data -->
     <div
       v-if="income > 0 || (expenseDelta !== null && expenseDelta !== undefined)"
-      class="mt-3 pt-3 border-t border-border/40"
+      class="mt-3 pt-3 border-t border-border"
     >
       <!-- Budget bar (only when income > 0) -->
       <template v-if="income > 0">
         <div class="flex items-center justify-between mb-1.5">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Orçamento do mês</p>
-          <p class="text-[11px] text-muted-foreground/60 tabular-nums">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Orçamento do mês</p>
+          <p class="text-[11px] text-muted-foreground tabular-nums">
             {{ formatCurrency(expenses) }} de {{ formatCurrency(income) }} · {{ budgetPercent }}%
           </p>
         </div>
-        <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
+        <div class="h-1 rounded-full bg-muted overflow-hidden">
           <div
             class="h-full rounded-full transition-all duration-700"
             :class="budgetBarColor"
@@ -236,7 +236,7 @@ function balanceColor(v: number): string {
       <!-- vs mês anterior -->
       <div
         v-if="expenseDelta !== null && expenseDelta !== undefined"
-        class="flex items-center gap-1 text-[12px] text-muted-foreground/50"
+        class="flex items-center gap-1 text-[12px] text-muted-foreground"
         :class="income > 0 ? 'mt-1.5' : ''"
       >
         <span>vs mês anterior:</span>
@@ -251,10 +251,10 @@ function balanceColor(v: number): string {
     </div>
 
     <!-- Account balance row — value is clickable, opens BalanceDetailSheet -->
-    <div class="mt-3 pt-3 border-t border-border/40">
+    <div class="mt-3 pt-3 border-t border-border">
       <template v-if="monthContext === 'current'">
         <div class="flex items-center justify-between">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Saldo da conta</p>
           <button
             type="button"
             class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -263,7 +263,7 @@ function balanceColor(v: number): string {
             <span class="tabular-nums font-semibold text-[14px]" :class="balanceColor(totalBalance)">
               {{ formatCurrency(totalBalance) }}
             </span>
-            <ChevronDown :size="14" class="text-muted-foreground/40" />
+            <ChevronDown :size="14" class="text-muted-foreground" />
           </button>
         </div>
       </template>
@@ -271,7 +271,7 @@ function balanceColor(v: number): string {
       <template v-else-if="monthContext === 'future'">
         <Skeleton v-if="loadingPastBalance" class="h-5 w-24" />
         <div v-else class="flex items-center justify-between">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo previsto</p>
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Saldo previsto</p>
           <button
             type="button"
             class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -283,7 +283,7 @@ function balanceColor(v: number): string {
             >
               {{ formatCurrency(futureProjectedBalance !== null ? futureProjectedBalance : totalBalance + pendingIncome - pendingExpenses) }}
             </span>
-            <ChevronDown :size="14" class="text-muted-foreground/40" />
+            <ChevronDown :size="14" class="text-muted-foreground" />
           </button>
         </div>
       </template>
@@ -291,7 +291,7 @@ function balanceColor(v: number): string {
       <template v-else>
         <Skeleton v-if="loadingPastBalance" class="h-5 w-24" />
         <div v-else-if="pastEndBalance !== null" class="flex items-center justify-between">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Saldo da conta</p>
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Saldo da conta</p>
           <button
             type="button"
             class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -300,10 +300,10 @@ function balanceColor(v: number): string {
             <span class="tabular-nums font-semibold text-[14px]" :class="balanceColor(pastEndBalance)">
               {{ formatCurrency(pastEndBalance) }}
             </span>
-            <ChevronDown :size="14" class="text-muted-foreground/40" />
+            <ChevronDown :size="14" class="text-muted-foreground" />
           </button>
         </div>
-        <p v-else class="text-[11.5px] text-muted-foreground/40">
+        <p v-else class="text-[11.5px] text-muted-foreground">
           Saldo histórico não disponível
         </p>
       </template>

@@ -134,10 +134,10 @@ function submit() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -155,7 +155,7 @@ function submit() {
 
         <!-- Categoria -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Categoria <span class="text-destructive">*</span>
           </p>
           <div class="grid grid-cols-4 gap-3 max-h-[240px] overflow-y-auto pr-0.5">
@@ -187,24 +187,24 @@ function submit() {
               </span>
             </button>
           </div>
-          <p v-if="availableCategories.length === 0" class="text-[12px] text-muted-foreground/50 text-center py-4">
+          <p v-if="availableCategories.length === 0" class="text-[12px] text-muted-foreground text-center py-4">
             Todas as categorias de despesa já foram adicionadas
           </p>
         </div>
 
         <!-- Valor -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Valor (R$)
           </p>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+            <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input
               ref="amountInputRef"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onAmountInput"
               @focus="onAmountFocus"
             />
@@ -213,21 +213,21 @@ function submit() {
 
         <!-- Percentual -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Percentual do orçamento base (%)
           </p>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
             <input
               ref="percentInputRef"
               type="text"
               inputmode="decimal"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onPercentInput"
             />
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">%</span>
+            <span class="text-[12px] text-muted-foreground shrink-0">%</span>
           </div>
-          <p v-if="baseAmount > 0" class="text-[11px] text-muted-foreground/50 mt-1">
+          <p v-if="baseAmount > 0" class="text-[11px] text-muted-foreground mt-1">
             Base: R$ {{ baseAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
           </p>
         </div>
@@ -235,10 +235,10 @@ function submit() {
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           @click="close"
         >
           Cancelar

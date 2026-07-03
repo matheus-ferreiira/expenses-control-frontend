@@ -39,19 +39,19 @@ function expenseRatio(): string {
 <template>
   <!-- Mobile: inline chips (compact summary) -->
   <div class="flex items-center gap-2 flex-wrap sm:hidden">
-    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px] text-foreground/80">
-      <CheckSquare :size="12" class="text-muted-foreground/60 shrink-0" />
-      <template v-if="loading"><span class="w-12 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card text-[12px] text-foreground">
+      <CheckSquare :size="12" class="text-muted-foreground shrink-0" />
+      <template v-if="loading"><span class="w-12 h-3 rounded bg-muted animate-pulse inline-block" /></template>
       <template v-else>{{ completedToday }}/{{ pendingToday + completedToday }} tarefas</template>
     </div>
-    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px] text-foreground/80">
-      <Flame :size="12" class="text-warning/70 shrink-0" />
-      <template v-if="loading"><span class="w-10 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card text-[12px] text-foreground">
+      <Flame :size="12" class="text-warning shrink-0" />
+      <template v-if="loading"><span class="w-10 h-3 rounded bg-muted animate-pulse inline-block" /></template>
       <template v-else>{{ bestStreak }} dias</template>
     </div>
-    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card text-[12px]" :class="(monthIncome - monthExpenses) >= 0 ? 'text-success' : 'text-destructive/80'">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card text-[12px]" :class="(monthIncome - monthExpenses) >= 0 ? 'text-success' : 'text-destructive'">
       <Wallet :size="12" class="shrink-0" />
-      <template v-if="loading"><span class="w-16 h-3 rounded bg-muted/60 animate-pulse inline-block" /></template>
+      <template v-if="loading"><span class="w-16 h-3 rounded bg-muted animate-pulse inline-block" /></template>
       <template v-else>{{ formatCurrency(monthIncome - monthExpenses) }} líquido</template>
     </div>
   </div>
@@ -59,7 +59,7 @@ function expenseRatio(): string {
   <!-- Desktop: 4-card grid -->
   <div class="hidden sm:grid grid-cols-2 xl:grid-cols-4 gap-2">
     <!-- Tarefas hoje -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-12 mb-1.5" />
@@ -67,20 +67,20 @@ function expenseRatio(): string {
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2.5">
-          <CheckSquare :size="12" class="text-muted-foreground/50 shrink-0" />
-          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+          <CheckSquare :size="12" class="text-muted-foreground shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground select-none">
             Tarefas hoje
           </p>
         </div>
         <p class="text-[22px] font-semibold text-foreground leading-none mb-1.5 tabular-nums">
           {{ pendingToday }}
         </p>
-        <p class="text-[11px] text-muted-foreground/70">{{ taskSubtext() }}</p>
+        <p class="text-[11px] text-muted-foreground">{{ taskSubtext() }}</p>
       </template>
     </div>
 
     <!-- Streak -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-12 mb-1.5" />
@@ -88,22 +88,22 @@ function expenseRatio(): string {
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2.5">
-          <Flame :size="12" class="text-warning/70 shrink-0" />
-          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+          <Flame :size="12" class="text-warning shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground select-none">
             Maior streak
           </p>
         </div>
         <p class="text-[22px] font-semibold text-foreground leading-none mb-1.5 tabular-nums">
           {{ bestStreak }} <span class="text-[13px] font-normal text-muted-foreground">dias</span>
         </p>
-        <p class="text-[11px] text-muted-foreground/70 truncate">
+        <p class="text-[11px] text-muted-foreground truncate">
           {{ bestStreakHabitName ?? 'Sem hábitos ativos' }}
         </p>
       </template>
     </div>
 
     <!-- Saldo total -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-24 mb-1.5" />
@@ -111,8 +111,8 @@ function expenseRatio(): string {
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2.5">
-          <Wallet :size="12" class="text-success/70 shrink-0" />
-          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+          <Wallet :size="12" class="text-success shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground select-none">
             Saldo total
           </p>
         </div>
@@ -122,12 +122,12 @@ function expenseRatio(): string {
         >
           {{ formatCurrency(totalBalance) }}
         </p>
-        <p class="text-[11px] text-muted-foreground/70">{{ balanceChange() }}</p>
+        <p class="text-[11px] text-muted-foreground">{{ balanceChange() }}</p>
       </template>
     </div>
 
     <!-- Gastos do mês -->
-    <div class="rounded-lg border border-border/50 bg-card px-4 py-3.5">
+    <div class="rounded-lg bg-card px-4 py-3.5">
       <template v-if="loading">
         <Skeleton class="h-3 w-16 mb-3" />
         <Skeleton class="h-7 w-24 mb-1.5" />
@@ -135,15 +135,15 @@ function expenseRatio(): string {
       </template>
       <template v-else>
         <div class="flex items-center gap-1.5 mb-2.5">
-          <TrendingDown :size="12" class="text-destructive/70 shrink-0" />
-          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground/50 select-none">
+          <TrendingDown :size="12" class="text-destructive shrink-0" />
+          <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground select-none">
             Gastos do mês
           </p>
         </div>
         <p class="text-[22px] font-semibold text-foreground leading-none mb-1.5 tabular-nums truncate">
           {{ formatCurrency(monthExpenses) }}
         </p>
-        <p class="text-[11px] text-muted-foreground/70">{{ expenseRatio() }}</p>
+        <p class="text-[11px] text-muted-foreground">{{ expenseRatio() }}</p>
       </template>
     </div>
   </div>

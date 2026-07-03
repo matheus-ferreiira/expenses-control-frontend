@@ -29,9 +29,9 @@ const iconComponent = findIcon(props.collection.icon ?? '')?.component ?? null
 
 <template>
   <div
-    class="group relative bg-card border border-border/60 rounded-2xl cursor-pointer hover:border-primary/30 hover:bg-card/80 transition-all duration-200 active:scale-[0.98]"
+    class="group relative bg-card rounded-2xl cursor-pointer hover:bg-card transition-all duration-200 active:scale-[0.98]"
     :style="collection.color ? { borderTopColor: collection.color, borderTopWidth: '2px' } : {}"
-    :class="!collection.color ? 'border-t-2 border-t-primary/40' : ''"
+    :class="!collection.color ? 'border-t-2 border-primary' : ''"
     @click="emit('click', collection)"
   >
     <div class="p-4">
@@ -41,7 +41,7 @@ const iconComponent = findIcon(props.collection.icon ?? '')?.component ?? null
         :style="collection.color
           ? { background: collection.color + '22', color: collection.color }
           : {}"
-        :class="!collection.color ? 'bg-primary/15 text-primary' : ''"
+        :class="!collection.color ? 'bg-muted text-primary' : ''"
       >
         <component
           v-if="iconComponent"
@@ -57,7 +57,7 @@ const iconComponent = findIcon(props.collection.icon ?? '')?.component ?? null
       </p>
 
       <!-- Count -->
-      <p class="text-[12px] text-muted-foreground/60 mt-0.5">
+      <p class="text-[12px] text-muted-foreground mt-0.5">
         {{ collection.bookmarks_count }}
         {{ collection.bookmarks_count === 1 ? 'link' : 'links' }}
       </p>
@@ -69,7 +69,7 @@ const iconComponent = findIcon(props.collection.icon ?? '')?.component ?? null
         <DropdownMenuTrigger as-child>
           <button
             type="button"
-            class="size-7 rounded-lg grid place-items-center text-muted-foreground/40 hover:text-foreground hover:bg-muted/40 transition-all duration-150 opacity-0 group-hover:opacity-100"
+            class="size-7 rounded-lg grid place-items-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-150 opacity-0 group-hover:opacity-100"
           >
             <MoreHorizontal :size="14" />
           </button>
@@ -109,7 +109,7 @@ const iconComponent = findIcon(props.collection.icon ?? '')?.component ?? null
       <AlertDialogFooter>
         <AlertDialogCancel>Cancelar</AlertDialogCancel>
         <AlertDialogAction
-          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          class="bg-destructive text-destructive-foreground hover:bg-muted"
           @click="emit('delete', collection)"
         >
           Excluir

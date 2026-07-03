@@ -39,7 +39,7 @@ async function handleLog(id: string) {
     <div
       v-for="i in 6"
       :key="i"
-      class="rounded-lg border border-border bg-card overflow-hidden h-32 animate-pulse"
+      class="rounded-lg bg-card overflow-hidden h-32 animate-pulse"
     >
       <div class="absolute left-0 top-0 bottom-0 w-1 bg-muted" />
       <div class="p-3 pl-4 space-y-2">

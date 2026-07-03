@@ -17,7 +17,7 @@ withDefaults(
     <label
       v-if="label"
       :for="htmlFor"
-      class="block text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5"
+      class="block text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5"
     >
       {{ label }}
       <span v-if="required" class="text-destructive ml-0.5">*</span>

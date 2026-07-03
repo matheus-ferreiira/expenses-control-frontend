@@ -53,13 +53,13 @@ function clearDate() {
     <PopoverTrigger as-child>
       <button
         type="button"
-        class="h-10 w-full flex items-center gap-2.5 px-3.5 rounded-lg border border-border bg-card text-left transition-colors hover:border-border/80 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="h-10 w-full flex items-center gap-2.5 px-3.5 rounded-lg bg-card text-left transition-colors hover:border-border disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="disabled"
         :class="props.class"
       >
-        <CalendarIcon :size="14" class="shrink-0 text-muted-foreground/60" />
+        <CalendarIcon :size="14" class="shrink-0 text-muted-foreground" />
         <span class="flex-1 truncate text-[13px]"
-              :class="modelValue ? 'text-foreground' : 'text-muted-foreground/50'">
+              :class="modelValue ? 'text-foreground' : 'text-muted-foreground'">
           {{ displayLabel }}
         </span>
       </button>

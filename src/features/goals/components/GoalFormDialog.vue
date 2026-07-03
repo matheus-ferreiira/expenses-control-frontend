@@ -147,7 +147,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
 
         <!-- Title -->
         <div class="space-y-1.5">
-          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Título <span class="text-destructive">*</span>
           </Label>
           <Input
@@ -162,7 +162,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
 
         <!-- Description -->
         <div class="space-y-1.5">
-          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Descrição
           </Label>
           <Textarea
@@ -175,7 +175,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
         <!-- Type + Status row -->
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1.5">
-            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Tipo
             </Label>
             <Select v-model="form.type">
@@ -191,7 +191,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
           </div>
 
           <div class="space-y-1.5">
-            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Status
             </Label>
             <Select v-model="form.status">
@@ -210,7 +210,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
         <!-- Target amount + Current amount row -->
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1.5">
-            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Valor alvo
             </Label>
             <Input
@@ -224,7 +224,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
           </div>
 
           <div class="space-y-1.5">
-            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+            <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Valor atual
             </Label>
             <Input
@@ -240,7 +240,7 @@ const statuses: GoalStatus[] = ['active', 'paused', 'completed', 'cancelled']
 
         <!-- Target date -->
         <div class="space-y-1.5">
-          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Prazo
           </Label>
           <DatePicker v-model="form.target_date" placeholder="Sem prazo" />

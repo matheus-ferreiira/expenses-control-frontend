@@ -127,9 +127,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
-    <div class="px-4 py-3 border-b border-border/50">
-      <span class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
+  <div class="rounded-lg bg-card">
+    <div class="px-4 py-3 border-b border-border">
+      <span class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
         Consistência de hábitos — % diária
       </span>
     </div>
@@ -138,8 +138,8 @@ onBeforeUnmount(() => {
         <Skeleton class="h-full w-full rounded" />
       </div>
       <div v-else-if="isEmpty" class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-        <Activity :size="20" class="text-muted-foreground/20" />
-        <p class="text-[12px] text-muted-foreground/35">Nenhum registro de hábito no período</p>
+        <Activity :size="20" class="text-muted-foreground" />
+        <p class="text-[12px] text-muted-foreground">Nenhum registro de hábito no período</p>
       </div>
       <canvas v-show="!loading && !isEmpty" ref="canvasRef" />
     </div>

@@ -32,8 +32,8 @@ function accountLabel(tx: Transaction): string {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
+  <div class="rounded-lg bg-card">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
       <span class="text-[14px] font-medium text-foreground">Transações recentes</span>
       <button
         class="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-base"
@@ -44,7 +44,7 @@ function accountLabel(tx: Transaction): string {
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="divide-y divide-border/50">
+    <div v-if="loading" class="divide-y divide-border">
       <div v-for="i in 4" :key="i" class="flex items-center gap-3 px-4 py-3">
         <Skeleton class="h-6 w-6 rounded-full shrink-0" />
         <div class="flex-1 space-y-1">
@@ -60,15 +60,15 @@ function accountLabel(tx: Transaction): string {
       v-else-if="transactions.length === 0"
       class="flex flex-col items-center justify-center py-10 text-center"
     >
-      <p class="text-[13px] text-muted-foreground/50">Nenhuma transação recente.</p>
+      <p class="text-[13px] text-muted-foreground">Nenhuma transação recente.</p>
     </div>
 
     <!-- List -->
-    <div v-else class="divide-y divide-border/40">
+    <div v-else class="divide-y divide-border">
       <div
         v-for="tx in transactions"
         :key="tx.id"
-        class="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
+        class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-base"
       >
         <!-- Category color dot -->
         <div
@@ -83,7 +83,7 @@ function accountLabel(tx: Transaction): string {
           <p class="text-[13px] text-foreground truncate leading-none mb-0.5">
             {{ tx.description }}
           </p>
-          <p class="text-[11px] text-muted-foreground/60 leading-none">
+          <p class="text-[11px] text-muted-foreground leading-none">
             {{ tx.category?.name ?? '—' }} · {{ accountLabel(tx) }}
           </p>
         </div>
@@ -93,7 +93,7 @@ function accountLabel(tx: Transaction): string {
           <p :class="['text-[13px] font-medium tabular-nums leading-none mb-0.5', amountColor(tx.type)]">
             {{ amountPrefix(tx.type) }}{{ formatCurrency(tx.amount) }}
           </p>
-          <p class="text-[10px] text-muted-foreground/50 leading-none">
+          <p class="text-[10px] text-muted-foreground leading-none">
             {{ formatDate(tx.transaction_date, { day: '2-digit', month: 'short' }) }}
           </p>
         </div>

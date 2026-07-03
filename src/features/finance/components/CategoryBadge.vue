@@ -21,7 +21,7 @@ withDefaults(
     />
     <span
       :class="size === 'xs' ? 'text-[10px]' : 'text-[11px]'"
-      class="text-muted-foreground/60"
+      class="text-muted-foreground"
     >
       {{ category.name }}
     </span>

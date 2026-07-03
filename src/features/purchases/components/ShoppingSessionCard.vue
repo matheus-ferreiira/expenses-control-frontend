@@ -39,17 +39,17 @@ const finishedDate = computed(() => {
 
 <template>
   <div
-    class="group bg-card border border-border/60 rounded-xl overflow-hidden flex cursor-pointer hover:border-border transition-colors"
+    class="group bg-card rounded-xl overflow-hidden flex cursor-pointer hover:border-border transition-colors"
     @click="emit('open')"
   >
     <!-- Left accent bar -->
-    <div class="w-[2px] bg-primary/40 shrink-0" />
+    <div class="w-[2px] bg-muted shrink-0" />
 
     <!-- Content -->
     <div class="flex-1 p-4 min-w-0">
       <!-- Top row: icon + info + ⋮ menu -->
       <div class="flex items-center gap-3">
-        <span class="size-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+        <span class="size-9 rounded-xl bg-muted text-primary grid place-items-center shrink-0">
           <ShoppingCart :size="16" />
         </span>
         <div class="flex-1 min-w-0">
@@ -57,7 +57,7 @@ const finishedDate = computed(() => {
             <p class="text-[14px] font-semibold text-foreground truncate">{{ session.title }}</p>
             <span
               v-if="session.transaction_id"
-              class="shrink-0 flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 rounded-full px-2 py-0.5"
+              class="shrink-0 flex items-center gap-1 text-[10px] font-medium text-primary bg-muted rounded-full px-2 py-0.5"
             >
               <Link :size="10" />
               vinculada
@@ -71,7 +71,7 @@ const finishedDate = computed(() => {
           <DropdownMenuTrigger as-child>
             <button
               type="button"
-              class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/30 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+              class="size-8 grid place-items-center rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted transition-all opacity-0 group-hover:opacity-100 shrink-0"
               @click.stop
             >
               <MoreVertical :size="15" />
@@ -105,7 +105,7 @@ const finishedDate = computed(() => {
         >
           {{ formatCurrency(session.total) }}
         </span>
-        <span v-else class="text-[15px] font-bold text-muted-foreground/40">—</span>
+        <span v-else class="text-[15px] font-bold text-muted-foreground">—</span>
         <span class="text-[12px] text-muted-foreground">
           {{ session.items_count }} item{{ session.items_count !== 1 ? 's' : '' }}
         </span>

@@ -169,9 +169,9 @@ const narrative = computed(() => {
 
 const narrativeCls = computed(() => {
   if (!narrative.value) return ''
-  if (narrative.value.tone === 'danger') return 'bg-destructive/[0.08] text-destructive/90'
-  if (narrative.value.tone === 'ok') return 'bg-success/[0.08] text-success/90'
-  return 'bg-muted/50 text-foreground/80'
+  if (narrative.value.tone === 'danger') return 'bg-destructive/[0.08] text-destructive'
+  if (narrative.value.tone === 'ok') return 'bg-success/[0.08] text-success'
+  return 'bg-muted text-foreground'
 })
 
 function categoryIcon(categoryName: string): object {
@@ -204,7 +204,7 @@ onMounted(() => {
     <!-- Page header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Finanças
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
@@ -235,7 +235,7 @@ onMounted(() => {
     </div>
 
     <!-- Month navigator -->
-    <div class="flex items-center justify-between bg-card border border-border rounded-lg px-2 py-1.5 mb-5">
+    <div class="flex items-center justify-between bg-card rounded-lg px-2 py-1.5 mb-5">
       <button
         type="button"
         class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
@@ -247,7 +247,7 @@ onMounted(() => {
         <span class="text-[15px] font-semibold text-foreground">{{ monthLabel }}</span>
         <span
           v-if="isCurrentMonth"
-          class="text-[11px] bg-primary/10 text-primary border border-primary/20 rounded px-2 py-0.5"
+          class="text-[11px] bg-muted text-primary rounded px-2 py-0.5"
         >Mês atual</span>
       </div>
       <button
@@ -275,7 +275,7 @@ onMounted(() => {
       </div>
       <Skeleton class="h-48 w-full rounded-lg mt-4" />
       <Skeleton class="h-4 w-32 mt-4" />
-      <div v-for="i in 5" :key="i" class="rounded-lg border border-border bg-card p-3.5 space-y-2">
+      <div v-for="i in 5" :key="i" class="rounded-lg bg-card p-3.5 space-y-2">
         <div class="flex justify-between">
           <Skeleton class="h-3 w-24" />
           <Skeleton class="h-3 w-16" />
@@ -287,18 +287,18 @@ onMounted(() => {
     <!-- Content -->
     <template v-else-if="report">
       <!-- Period summary card -->
-      <div class="rounded-lg border border-border bg-card p-4 mb-4">
+      <div class="rounded-lg bg-card p-4 mb-4">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p class="text-[10px] text-muted-foreground/70 uppercase tracking-widest">Receitas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
             <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(report.income) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground/70 uppercase tracking-widest">Despesas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
             <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(report.expenses) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground/70 uppercase tracking-widest">Saldo</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo</p>
             <p
               class="text-[18px] font-semibold tabular-nums mt-1"
               :class="report.balance >= 0 ? 'text-success' : 'text-destructive'"
@@ -307,7 +307,7 @@ onMounted(() => {
             </p>
           </div>
         </div>
-        <div class="mt-3 pt-3 border-t border-border/40">
+        <div class="mt-3 pt-3 border-t border-border">
           <p class="text-[11.5px] text-muted-foreground">
             {{ report.transactions_count }} transaç{{ report.transactions_count !== 1 ? 'ões' : 'ão' }} no período
           </p>
@@ -317,11 +317,11 @@ onMounted(() => {
       <!-- Donut chart — distribuição por categoria -->
       <div
         v-if="report.expenses_by_category.length > 0"
-        class="rounded-lg border border-border bg-card p-4 mb-4"
+        class="rounded-lg bg-card p-4 mb-4"
       >
         <div class="flex items-center gap-2 mb-3">
-          <PieChart :size="13" class="text-muted-foreground/50" />
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          <PieChart :size="13" class="text-muted-foreground" />
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Distribuição por categoria
           </p>
         </div>
@@ -330,7 +330,7 @@ onMounted(() => {
         <div class="relative h-[240px] w-full">
           <canvas ref="canvasRef" />
           <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <p class="text-[11px] text-muted-foreground/50">Despesas</p>
+            <p class="text-[11px] text-muted-foreground">Despesas</p>
             <p class="text-[17px] font-semibold text-foreground tabular-nums">
               {{ formatCurrency(report.expenses) }}
             </p>
@@ -354,15 +354,15 @@ onMounted(() => {
       <!-- Category breakdown with mini-bars -->
       <div v-if="report.expenses_by_category.length > 0">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Por categoria
           </p>
-          <span class="text-[11px] text-muted-foreground/40">
+          <span class="text-[11px] text-muted-foreground">
             {{ report.expenses_by_category.length }} categorias
           </span>
         </div>
 
-        <ul class="divide-y divide-border bg-card border border-border rounded-md overflow-hidden">
+        <ul class="divide-y divide-border bg-card rounded-md overflow-hidden">
           <li
             v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total)"
             :key="cat.category"
@@ -404,7 +404,7 @@ onMounted(() => {
         v-else
         class="flex flex-col items-center justify-center py-12 text-center"
       >
-        <PieChart :size="32" class="text-muted-foreground/20 mb-3" />
+        <PieChart :size="32" class="text-muted-foreground mb-3" />
         <p class="text-[13px] font-medium text-foreground">Nenhuma despesa registrada</p>
         <p class="text-[11px] text-muted-foreground mt-0.5">
           Nenhuma transação de despesa em {{ monthLabel }}.

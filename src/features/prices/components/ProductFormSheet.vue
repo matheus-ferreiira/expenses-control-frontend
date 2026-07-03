@@ -117,10 +117,10 @@ async function submit() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -141,13 +141,13 @@ async function submit() {
             v-model="form.name"
             type="text"
             placeholder="Ex: RX 9070 XT"
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </AppFormField>
 
-        <!-- Status pills — selection via bg, never border -->
+        <!-- Status pills — selection via bg, never  -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">Status</p>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5">Status</p>
           <div class="grid grid-cols-3 gap-2">
             <button
               v-for="s in STATUSES"
@@ -155,8 +155,8 @@ async function submit() {
               type="button"
               class="h-10 rounded-lg text-[12px] font-medium transition-colors"
               :class="form.status === s
-                ? 'bg-primary/15 text-primary'
-                : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                ? 'bg-muted text-primary'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="form.status = s"
             >
               {{ PRICE_PRODUCT_STATUS_LABELS[s] }}
@@ -168,8 +168,8 @@ async function submit() {
           <div class="relative">
             <select
               v-model="form.category_id"
-              class="w-full h-10 rounded-lg border border-border/60 bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-              :class="!form.category_id ? 'text-muted-foreground/50' : ''"
+              class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+              :class="!form.category_id ? 'text-muted-foreground' : ''"
             >
               <option value="">Sem categoria</option>
               <option v-for="c in store.categories" :key="c.id" :value="c.id">
@@ -178,7 +178,7 @@ async function submit() {
             </select>
             <ChevronDown
               :size="14"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
           </div>
         </AppFormField>
@@ -189,7 +189,7 @@ async function submit() {
               v-model="form.brand"
               type="text"
               placeholder="Ex: Sapphire"
-              class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+              class="w-full h-10 rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             />
           </AppFormField>
           <AppFormField label="Modelo">
@@ -197,34 +197,34 @@ async function submit() {
               v-model="form.model"
               type="text"
               placeholder="Ex: Pulse"
-              class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+              class="w-full h-10 rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             />
           </AppFormField>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <AppFormField label="Preço alvo (R$)" hint="Meta para o indicador">
-            <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-              <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+            <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+              <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
               <input
                 :value="targetPrice.display.value"
                 type="text"
                 inputmode="numeric"
                 placeholder="0,00"
-                class="flex-1 min-w-0 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+                class="flex-1 min-w-0 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
                 @input="targetPrice.onInput"
               />
             </div>
           </AppFormField>
           <AppFormField label="Preço lançamento (R$)" hint="Base da economia">
-            <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-              <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+            <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+              <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
               <input
                 :value="launchPrice.display.value"
                 type="text"
                 inputmode="numeric"
                 placeholder="0,00"
-                class="flex-1 min-w-0 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+                class="flex-1 min-w-0 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
                 @input="launchPrice.onInput"
               />
             </div>
@@ -236,7 +236,7 @@ async function submit() {
             v-model="form.specs"
             rows="2"
             placeholder="16GB GDDR6, PCIe 5.0..."
-            class="w-full rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40 resize-none"
+            class="w-full rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground resize-none"
           />
         </AppFormField>
 
@@ -245,17 +245,17 @@ async function submit() {
             v-model="form.notes"
             rows="2"
             placeholder="Notas livres sobre o produto"
-            class="w-full rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40 resize-none"
+            class="w-full rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground resize-none"
           />
         </AppFormField>
 
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="close"
         >

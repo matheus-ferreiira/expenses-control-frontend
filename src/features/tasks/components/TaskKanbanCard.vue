@@ -48,7 +48,7 @@ const dueDateStyle = computed(() => {
 <template>
   <div
     :class="[
-      'group border border-border/40 rounded-lg p-2.5 cursor-pointer hover:border-border/70 hover:bg-accent/15 transition-all',
+      'group rounded-lg p-2.5 cursor-pointer hover:border-border hover:bg-muted transition-all',
       isCompleted && 'opacity-50',
     ]"
     @click="emit('open', task)"
@@ -68,7 +68,7 @@ const dueDateStyle = computed(() => {
         <p
           :class="[
             'text-[13px] font-medium leading-snug',
-            isCompleted ? 'line-through text-muted-foreground/50' : 'text-foreground/90',
+            isCompleted ? 'line-through text-muted-foreground' : 'text-foreground',
           ]"
         >
           {{ task.title }}

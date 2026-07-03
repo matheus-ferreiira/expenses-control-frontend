@@ -94,13 +94,13 @@ async function submit() {
       <div v-if="goal" class="space-y-5 py-2">
 
         <!-- Goal title -->
-        <p class="text-[12px] text-muted-foreground/60 truncate -mt-1">{{ goal.title }}</p>
+        <p class="text-[12px] text-muted-foreground truncate -mt-1">{{ goal.title }}</p>
 
         <!-- Progress preview -->
         <div class="space-y-2">
           <GoalProgressBar :percentage="goal.target_amount ? previewPct : 0" />
           <div class="flex items-center justify-between">
-            <span class="text-[11px] text-muted-foreground/50 tabular-nums">
+            <span class="text-[11px] text-muted-foreground tabular-nums">
               <template v-if="goal.target_amount">
                 {{ formatCurrency(currentValue) }} / {{ formatCurrency(goal.target_amount) }}
               </template>
@@ -111,7 +111,7 @@ async function submit() {
             <span
               :class="[
                 'text-[12px] font-semibold tabular-nums',
-                previewPct >= 100 ? 'text-success' : 'text-muted-foreground/70',
+                previewPct >= 100 ? 'text-success' : 'text-muted-foreground',
               ]"
             >
               {{ goal.target_amount ? previewPct : '' }}{{ goal.target_amount ? '%' : '' }}
@@ -121,7 +121,7 @@ async function submit() {
 
         <!-- Input + step buttons -->
         <div class="space-y-1.5">
-          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          <Label class="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Valor atual
           </Label>
           <div class="flex items-center gap-2">
@@ -140,7 +140,7 @@ async function submit() {
               min="0"
               :max="goal?.target_amount ?? undefined"
               step="any"
-              :class="['h-8 text-[13px] text-center tabular-nums', exceedsTarget ? 'border-warning/60' : '']"
+              :class="['h-8 text-[13px] text-center tabular-nums', exceedsTarget ? '' : '']"
             />
             <Button
               variant="outline"
@@ -154,7 +154,7 @@ async function submit() {
           <p v-if="exceedsTarget" class="text-[11px]" style="color: hsl(var(--warning))">
             Valor ultrapassa a meta ({{ formatCurrency(goal!.target_amount!) }})
           </p>
-          <p v-else-if="goal.target_amount" class="text-[11px] text-muted-foreground/40">
+          <p v-else-if="goal.target_amount" class="text-[11px] text-muted-foreground">
             Incremento: {{ formatCurrency(step) }}
           </p>
         </div>

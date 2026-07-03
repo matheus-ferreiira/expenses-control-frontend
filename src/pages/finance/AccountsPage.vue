@@ -104,7 +104,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Finanças
         </p>
         <div class="flex items-center gap-2 mb-1.5">
@@ -114,7 +114,7 @@ onMounted(async () => {
           <!-- Archived badge — draws attention when there are archived accounts -->
           <span
             v-if="!loading && store.archivedAccounts.length > 0"
-            class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground/60 border border-border/50"
+            class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground "
           >
             {{ store.archivedAccounts.length }} arquivada{{ store.archivedAccounts.length !== 1 ? 's' : '' }}
           </span>
@@ -126,7 +126,7 @@ onMounted(async () => {
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mt-1"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
         @click="openCreate"
       >
         <Plus :size="14" />
@@ -136,7 +136,7 @@ onMounted(async () => {
 
     <!-- Loading -->
     <div v-if="loading" class="grid grid-cols-1 gap-3">
-      <div v-for="i in 3" :key="i" class="rounded-lg border border-border/50 bg-card p-3.5 space-y-2.5">
+      <div v-for="i in 3" :key="i" class="rounded-lg bg-card p-3.5 space-y-2.5">
         <div class="flex items-center gap-2.5">
           <Skeleton class="h-4 w-4 rounded shrink-0" />
           <div class="space-y-1.5 flex-1">
@@ -176,7 +176,7 @@ onMounted(async () => {
       <div v-if="store.archivedAccounts.length > 0" class="mt-6">
         <button
           type="button"
-          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground/60 hover:text-muted-foreground transition-colors mb-3"
+          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground hover:text-muted-foreground transition-colors mb-3"
           @click="showArchived = !showArchived"
         >
           <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />

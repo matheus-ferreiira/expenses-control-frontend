@@ -65,7 +65,7 @@ const monthLabels = computed(() => {
         >
           <span
             v-if="monthLabels.some(ml => ml.week === w - 1)"
-            class="text-[9px] text-muted-foreground/60"
+            class="text-[9px] text-muted-foreground"
           >
             {{ monthLabels.find(ml => ml.week === w - 1)?.label }}
           </span>
@@ -78,7 +78,7 @@ const monthLabels = computed(() => {
           <span
             v-for="(label, i) in WEEKDAY_LABELS"
             :key="i"
-            class="w-4 h-4 flex items-center justify-center text-[9px] text-muted-foreground/50 leading-none"
+            class="w-4 h-4 flex items-center justify-center text-[9px] text-muted-foreground leading-none"
           >
             {{ i % 2 === 1 ? label.charAt(0) : '' }}
           </span>
@@ -107,7 +107,7 @@ const monthLabels = computed(() => {
       <Teleport to="body">
         <div
           v-if="tooltip && tooltip.date"
-          class="fixed z-50 pointer-events-none px-2 py-1 rounded-md bg-popover border border-border text-xs text-popover-foreground shadow-md"
+          class="fixed z-50 pointer-events-none px-2 py-1 rounded-md bg-popover text-xs text-popover-foreground "
           :style="{ top: `${tooltip.y - 36}px`, left: `${tooltip.x - 20}px` }"
         >
           <span class="font-medium">{{ tooltip.date }}</span>

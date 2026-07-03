@@ -79,10 +79,10 @@ function formatTransactionDate(dateStr: string): string {
 const typeBadge = computed(() => {
   const t = props.transaction
   if (!t) return null
-  if (t.is_recurring) return { label: 'Fix', cls: 'bg-primary/12 border-primary/25 text-primary', icon: 'repeat' }
-  if (t.status === 'pending') return { label: 'Agendada', cls: 'bg-warning/10 border-warning/25 text-warning', icon: 'clock' }
-  if (t.type === 'income') return { label: 'Receita', cls: 'bg-primary/12 border-primary/25 text-primary', icon: null }
-  if (t.type === 'expense') return { label: 'Despesa', cls: 'bg-destructive/12 border-destructive/25 text-destructive', icon: null }
+  if (t.is_recurring) return { label: 'Fix', cls: 'bg-muted text-primary', icon: 'repeat' }
+  if (t.status === 'pending') return { label: 'Agendada', cls: 'bg-muted text-warning', icon: 'clock' }
+  if (t.type === 'income') return { label: 'Receita', cls: 'bg-muted text-primary', icon: null }
+  if (t.type === 'expense') return { label: 'Despesa', cls: 'bg-muted text-destructive', icon: null }
   return { label: 'Transferência', cls: 'bg-muted border-border text-muted-foreground', icon: null }
 })
 
@@ -112,13 +112,13 @@ const amountClass = computed(() => {
     >
       <template v-if="transaction">
         <!-- Drag handle -->
-        <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+        <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
         <!-- Header: type badge + close -->
         <div class="flex items-center justify-between px-5 pt-2 pb-3">
           <span
             v-if="typeBadge"
-            class="inline-flex items-center gap-1 h-6 px-2.5 rounded text-[11px] font-semibold border"
+            class="inline-flex items-center gap-1 h-6 px-2.5 rounded text-[11px] font-semibold "
             :class="typeBadge.cls"
           >
             <Repeat v-if="typeBadge.icon === 'repeat'" :size="10" />
@@ -164,30 +164,30 @@ const amountClass = computed(() => {
         <!-- Details rows -->
         <div class="mb-4">
           <!-- Date -->
-          <div class="px-5 py-3 flex items-start justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Data</span>
+          <div class="px-5 py-3 flex items-start justify-between gap-4 border-b border-border">
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">Data</span>
             <span class="text-[13px] font-medium text-foreground text-right capitalize">
               {{ formatTransactionDate(transaction.transaction_date) }}
             </span>
           </div>
 
           <!-- Category -->
-          <div v-if="transaction.category" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Categoria</span>
+          <div v-if="transaction.category" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border">
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">Categoria</span>
             <span class="text-[13px] font-medium text-foreground text-right">{{ transaction.category.name }}</span>
           </div>
 
           <!-- Account / Card -->
-          <div v-if="transaction.account || transaction.card" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
+          <div v-if="transaction.account || transaction.card" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border">
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">{{ transaction.card ? 'Cartão' : 'Conta' }}</span>
             <span class="text-[13px] font-medium text-foreground text-right">
               {{ transaction.account?.name ?? transaction.card?.name }}
             </span>
           </div>
 
           <!-- Status -->
-          <div class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Status</span>
+          <div class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border">
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">Status</span>
             <span
               class="inline-flex items-center gap-1 text-[13px] font-medium"
               :class="transaction.status === 'pending' ? 'text-warning' : 'text-success'"
@@ -198,8 +198,8 @@ const amountClass = computed(() => {
           </div>
 
           <!-- Fix indicator with frequency -->
-          <div v-if="transaction.is_recurring" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30">
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Tipo</span>
+          <div v-if="transaction.is_recurring" class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border">
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">Tipo</span>
             <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
               <Repeat :size="12" />
               Fixa
@@ -216,23 +216,23 @@ const amountClass = computed(() => {
           <!-- Installment indicator -->
           <div
             v-if="transaction.installment_number && transaction.total_installments"
-            class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border/30"
+            class="px-5 py-3 flex items-center justify-between gap-4 border-b border-border"
           >
-            <span class="text-[12px] text-muted-foreground/60 uppercase tracking-widest shrink-0">Parcela</span>
+            <span class="text-[12px] text-muted-foreground uppercase tracking-widest shrink-0">Parcela</span>
             <span class="text-[13px] font-semibold tabular-nums text-right text-foreground">
               {{ transaction.installment_number }} de {{ transaction.total_installments }}
             </span>
           </div>
 
           <!-- Notes -->
-          <div v-if="transaction.notes" class="px-5 py-3 border-b border-border/30">
-            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-widest mb-1.5">Observações</p>
+          <div v-if="transaction.notes" class="px-5 py-3 border-b border-border">
+            <p class="text-[12px] text-muted-foreground uppercase tracking-widest mb-1.5">Observações</p>
             <p class="text-[13px] text-foreground leading-relaxed">{{ transaction.notes }}</p>
           </div>
 
           <!-- Tags -->
           <div v-if="transaction.tags && transaction.tags.length > 0" class="px-5 py-3">
-            <p class="text-[12px] text-muted-foreground/60 uppercase tracking-widest mb-2">Tags</p>
+            <p class="text-[12px] text-muted-foreground uppercase tracking-widest mb-2">Tags</p>
             <div class="flex flex-wrap gap-1.5">
               <span
                 v-for="tag in transaction.tags"
@@ -263,25 +263,25 @@ const amountClass = computed(() => {
           <div class="mt-2">
             <button
               type="button"
-              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-destructive hover:bg-destructive/5 transition-colors active:scale-[0.99]"
+              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-destructive hover:bg-muted transition-colors active:scale-[0.99]"
               @click="onDelete"
             >
               <Trash2 :size="16" />
               Excluir transação
             </button>
-            <div class="h-px bg-border/30 mx-5" />
+            <div class="h-px bg-border mx-5" />
             <button
               type="button"
-              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors active:scale-[0.99]"
+              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors active:scale-[0.99]"
               @click="onDuplicate"
             >
               <Copy :size="16" />
               Duplicar transação
             </button>
-            <div class="h-px bg-border/30 mx-5" />
+            <div class="h-px bg-border mx-5" />
             <button
               type="button"
-              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-foreground hover:bg-muted/40 transition-colors active:scale-[0.99]"
+              class="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium text-foreground hover:bg-muted transition-colors active:scale-[0.99]"
               @click="onEdit"
             >
               <Pencil :size="16" />

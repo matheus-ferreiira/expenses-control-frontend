@@ -55,7 +55,7 @@ const toggleBtnStyle = computed(() => {
 <template>
   <div
     :class="[
-      'group flex items-center gap-2.5 px-4 py-2.5 hover:bg-accent/20 transition-base cursor-pointer border-b border-border/30 last:border-0',
+      'group flex items-center gap-2.5 px-4 py-2.5 hover:bg-muted transition-base cursor-pointer border-b border-border last:border-0',
       (isCompleted || isCancelled) && 'opacity-50',
     ]"
     @click="emit('open', task)"
@@ -91,7 +91,7 @@ const toggleBtnStyle = computed(() => {
       <span
         :class="[
           'text-[13px] font-medium truncate',
-          isCompleted || isCancelled ? 'line-through text-muted-foreground/50' : 'text-foreground/90',
+          isCompleted || isCancelled ? 'line-through text-muted-foreground' : 'text-foreground',
         ]"
       >
         {{ task.title }}
@@ -99,11 +99,11 @@ const toggleBtnStyle = computed(() => {
       <!-- Subtask progress bar -->
       <div
         v-if="task.subtasks_count > 0"
-        class="h-0.5 w-full rounded-full bg-muted/50 overflow-hidden"
+        class="h-0.5 w-full rounded-full bg-muted overflow-hidden"
       >
         <div
           class="h-full rounded-full transition-all"
-          :class="subtaskProgress === 100 ? 'bg-success/70' : 'bg-muted-foreground/30'"
+          :class="subtaskProgress === 100 ? 'bg-muted' : 'bg-border'"
           :style="{ width: `${subtaskProgress}%` }"
         />
       </div>
@@ -135,13 +135,13 @@ const toggleBtnStyle = computed(() => {
       <template v-if="task.due_date">
         <span
           v-if="overdue"
-          class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-destructive/15 text-destructive/80 select-none"
+          class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-destructive select-none"
         >
           Atrasada
         </span>
         <span
           v-else-if="dueToday"
-          class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-warning/15 text-warning/80 select-none"
+          class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-warning select-none"
         >
           Hoje
         </span>

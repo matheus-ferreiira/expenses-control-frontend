@@ -209,10 +209,10 @@ async function submit() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -230,29 +230,29 @@ async function submit() {
 
         <!-- Valor base -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Valor base (R$) <span class="text-destructive">*</span>
           </p>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+            <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input
               ref="baseAmountInputRef"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onBaseAmountInput"
               @focus="onBaseAmountFocus"
             />
           </div>
-          <p class="text-[11px] text-muted-foreground/50 mt-1">
+          <p class="text-[11px] text-muted-foreground mt-1">
             Ex: seu salário ou renda mensal
           </p>
         </div>
 
         <!-- Itens do orçamento -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-3">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-3">
             Categorias com limite
           </p>
 
@@ -261,7 +261,7 @@ async function submit() {
             <div
               v-for="(item, idx) in items"
               :key="item.category_id"
-              class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card "
             >
               <span
                 class="size-9 rounded-lg flex items-center justify-center shrink-0"
@@ -282,7 +282,7 @@ async function submit() {
                 <p class="text-[13px] font-medium text-foreground truncate">
                   {{ getCategoryById(item.category_id)?.name ?? item.category_id }}
                 </p>
-                <p class="text-[11px] text-muted-foreground/50 tabular-nums">
+                <p class="text-[11px] text-muted-foreground tabular-nums">
                   R$ {{ item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                   · {{ baseAmount > 0 ? ((item.amount / baseAmount) * 100).toFixed(1) : '0.0' }}%
                 </p>
@@ -290,7 +290,7 @@ async function submit() {
 
               <button
                 type="button"
-                class="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors shrink-0"
+                class="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
                 @click="openEditItem(idx)"
               >
                 <span class="text-[11px]">Editar</span>
@@ -298,7 +298,7 @@ async function submit() {
 
               <button
                 type="button"
-                class="size-7 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                class="size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-muted transition-colors shrink-0"
                 @click="removeItem(idx)"
               >
                 <X :size="14" aria-hidden="true" />
@@ -313,7 +313,7 @@ async function submit() {
 
           <button
             type="button"
-            class="w-full flex items-center justify-center gap-2 h-10 rounded-lg border border-dashed border-border/60 text-[13px] text-muted-foreground/60 hover:text-primary hover:border-primary/40 transition-colors"
+            class="w-full flex items-center justify-center gap-2 h-10 rounded-lg border border-dashed border-border text-[13px] text-muted-foreground hover:text-primary transition-colors"
             @click="openAddItem"
           >
             <Plus :size="16" />
@@ -323,12 +323,12 @@ async function submit() {
 
         <!-- Resumo de alocação -->
         <div v-if="baseAmount > 0 && (items.length > 0 || store.goals.some(g => g.status === 'active' && g.monthly_contribution > 0))">
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Resumo da alocação
           </p>
-          <div class="bg-card border border-border/30 rounded-lg px-3 py-2.5 space-y-1.5">
+          <div class="bg-card rounded-lg px-3 py-2.5 space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[12px] text-muted-foreground/60">Categorias</span>
+              <span class="text-[12px] text-muted-foreground">Categorias</span>
               <span class="text-[12px] tabular-nums text-foreground">
                 {{ itemsPercentageTotal.toFixed(1) }}%
               </span>
@@ -337,12 +337,12 @@ async function submit() {
               v-if="store.goals.some(g => g.status === 'active' && g.monthly_contribution > 0)"
               class="flex items-center justify-between"
             >
-              <span class="text-[12px] text-muted-foreground/60">Metas</span>
+              <span class="text-[12px] text-muted-foreground">Metas</span>
               <span class="text-[12px] tabular-nums text-foreground">
                 {{ goalsPercentageTotal.toFixed(1) }}%
               </span>
             </div>
-            <div class="border-t border-border/30 pt-1.5 flex items-center justify-between">
+            <div class="border-t border-border pt-1.5 flex items-center justify-between">
               <span class="text-[12px] font-medium text-foreground">Total alocado</span>
               <span
                 class="text-[12px] font-semibold tabular-nums"
@@ -352,8 +352,8 @@ async function submit() {
               </span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-[12px] text-success/80">Livre</span>
-              <span class="text-[12px] tabular-nums text-success/80">
+              <span class="text-[12px] text-success">Livre</span>
+              <span class="text-[12px] tabular-nums text-success">
                 {{ Math.max(0, 100 - totalAllocatedPercentage).toFixed(1) }}%
               </span>
             </div>
@@ -363,10 +363,10 @@ async function submit() {
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="close"
         >

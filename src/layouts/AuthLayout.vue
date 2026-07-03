@@ -19,7 +19,7 @@ import { AuthBrandingPanel } from '@/features/auth/components'
         <div class="lg:hidden mb-10 flex items-center gap-2.5">
           <span class="text-[17px] font-semibold tracking-tight text-foreground">Vault</span>
           <span
-            class="rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/50"
+            class="rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"
             style="border: 1px solid hsl(var(--border)); background: hsl(var(--muted) / 0.5);"
           >
             Beta
@@ -34,7 +34,7 @@ import { AuthBrandingPanel } from '@/features/auth/components'
       </div>
 
       <!-- Footer -->
-      <p class="text-center py-6 text-[11px] text-muted-foreground/25 select-none">
+      <p class="text-center py-6 text-[11px] text-muted-foreground select-none">
         &copy; {{ new Date().getFullYear() }} Vault &mdash; uso pessoal
       </p>
     </div>

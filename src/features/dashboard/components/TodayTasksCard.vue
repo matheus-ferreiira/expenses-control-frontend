@@ -33,12 +33,12 @@ function handleToggle(id: string) {
 const PRIORITY_DOT: Record<string, string> = {
   urgent: 'bg-destructive',
   high: 'bg-warning',
-  normal: 'bg-muted-foreground/40',
-  low: 'bg-muted-foreground/30',
+  normal: 'bg-border',
+  low: 'bg-border',
 }
 
 function priorityDotClass(priority: Task['priority']): string {
-  return PRIORITY_DOT[priority] ?? 'bg-muted-foreground/30'
+  return PRIORITY_DOT[priority] ?? 'bg-border'
 }
 
 function timeLabel(task: Task): string {
@@ -54,15 +54,15 @@ function timeLabel(task: Task): string {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
+  <div class="rounded-lg bg-card">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
       <div class="flex items-center gap-2">
         <ClipboardList :size="13" class="text-muted-foreground" />
         <span class="text-[14px] font-medium text-foreground">Tarefas de hoje</span>
         <span
           v-if="!loading && tasks.length > 0"
-          class="text-[10px] text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded-full tabular-nums"
+          class="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full tabular-nums"
         >
           {{ tasks.filter(t => t.status === 'completed').length }}/{{ tasks.length }}
         </span>
@@ -76,7 +76,7 @@ function timeLabel(task: Task): string {
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="divide-y divide-border/40">
+    <div v-if="loading" class="divide-y divide-border">
       <div v-for="i in 4" :key="i" class="flex items-center gap-3 px-4 py-2.5">
         <Skeleton class="h-4 w-4 rounded-full shrink-0" />
         <div class="flex-1 space-y-1.5">
@@ -92,24 +92,24 @@ function timeLabel(task: Task): string {
       v-else-if="tasks.length === 0"
       class="flex flex-col items-center justify-center py-10 px-4 text-center gap-2"
     >
-      <ClipboardList :size="20" class="text-muted-foreground/30" />
-      <p class="text-[13px] text-muted-foreground/50">Nenhuma tarefa para hoje</p>
+      <ClipboardList :size="20" class="text-muted-foreground" />
+      <p class="text-[13px] text-muted-foreground">Nenhuma tarefa para hoje</p>
     </div>
 
     <!-- Task list -->
-    <div v-else class="divide-y divide-border/40">
+    <div v-else class="divide-y divide-border">
       <div
         v-for="task in shown"
         :key="task.id"
-        class="group flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
+        class="group flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-base"
       >
         <!-- Toggle circle -->
         <button
           :class="[
             'shrink-0 h-[18px] w-[18px] rounded-full border flex items-center justify-center transition-all',
             task.status === 'completed'
-              ? 'bg-success/80 border-success/80 text-primary-foreground'
-              : 'border-border/80 hover:border-success/50 hover:bg-success/5',
+              ? 'bg-muted text-primary-foreground'
+              : 'border-border hover:bg-muted',
           ]"
           :disabled="togglingIds.has(task.id)"
           @click="handleToggle(task.id)"
@@ -125,7 +125,7 @@ function timeLabel(task: Task): string {
               :class="[
                 'text-[13px] leading-none truncate',
                 task.status === 'completed'
-                  ? 'line-through text-muted-foreground/50'
+                  ? 'line-through text-muted-foreground'
                   : 'text-foreground',
               ]"
             >
@@ -137,7 +137,7 @@ function timeLabel(task: Task): string {
             v-if="task.labels.length > 0 || timeLabel(task)"
             class="flex items-center gap-1.5 mt-0.5"
           >
-            <span v-if="timeLabel(task)" class="text-[10px] text-muted-foreground/50 leading-none">
+            <span v-if="timeLabel(task)" class="text-[10px] text-muted-foreground leading-none">
               {{ timeLabel(task) }}
             </span>
             <span
@@ -161,7 +161,7 @@ function timeLabel(task: Task): string {
       <!-- More row -->
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-[11px] text-muted-foreground/60 hover:text-foreground transition-base"
+          class="text-[11px] text-muted-foreground hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.TASKS })"
         >
           + {{ tasks.length - MAX_SHOWN }} mais

@@ -73,7 +73,7 @@ const selectedEntry = computed(() => findIcon(props.modelValue))
     <!-- Categories -->
     <div v-else class="max-h-48 overflow-y-auto space-y-3 pr-1">
       <div v-for="cat in ICON_CATEGORIES" :key="cat.id">
-        <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-1">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
           {{ cat.label }}
         </p>
         <div class="grid grid-cols-8 gap-1">

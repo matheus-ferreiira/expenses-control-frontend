@@ -26,7 +26,7 @@ const consistencyColor = computed(() =>
   <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
 
     <!-- Hábitos ativos -->
-    <div class="rounded-md border border-border bg-card p-3.5">
+    <div class="rounded-md bg-card p-3.5">
       <template v-if="loading">
         <Skeleton class="h-2.5 w-20 mb-3" />
         <Skeleton class="h-5 w-8" />
@@ -43,7 +43,7 @@ const consistencyColor = computed(() =>
 
     <!-- Maior streak — amber tint -->
     <div
-      class="rounded-md border border-border p-3.5 relative overflow-hidden"
+      class="rounded-md p-3.5 relative overflow-hidden"
       style="background: linear-gradient(135deg, hsl(var(--card)) 60%, hsl(var(--warning) / 0.1) 100%)"
     >
       <template v-if="loading">
@@ -63,7 +63,7 @@ const consistencyColor = computed(() =>
     </div>
 
     <!-- Consistência semanal — with progress bar -->
-    <div class="rounded-md border border-border bg-card p-3.5">
+    <div class="rounded-md bg-card p-3.5">
       <template v-if="loading">
         <Skeleton class="h-2.5 w-24 mb-3" />
         <Skeleton class="h-5 w-12" />
@@ -87,7 +87,7 @@ const consistencyColor = computed(() =>
     </div>
 
     <!-- Concluídos hoje -->
-    <div class="rounded-md border border-border bg-card p-3.5">
+    <div class="rounded-md bg-card p-3.5">
       <template v-if="loading">
         <Skeleton class="h-2.5 w-24 mb-3" />
         <Skeleton class="h-5 w-12" />

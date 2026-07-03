@@ -18,13 +18,13 @@ function dueLabel(days: number): string {
 function dueLabelClass(days: number): string {
   if (days <= 2) return 'text-destructive'
   if (days <= 5) return 'text-warning'
-  return 'text-muted-foreground/60'
+  return 'text-muted-foreground'
 }
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
-    <div class="flex items-center gap-2 px-4 py-3 border-b border-border/40">
+  <div class="rounded-lg bg-card">
+    <div class="flex items-center gap-2 px-4 py-3 border-b border-border">
       <CreditCard :size="13" class="text-muted-foreground" />
       <span class="text-sm font-medium text-foreground">Contas a vencer</span>
     </div>
@@ -39,15 +39,15 @@ function dueLabelClass(days: number): string {
 
     <!-- Empty -->
     <div v-else-if="bills.length === 0" class="px-4 py-4 text-center">
-      <p class="text-xs text-muted-foreground/50">Nenhuma conta nos próximos 10 dias.</p>
+      <p class="text-xs text-muted-foreground">Nenhuma conta nos próximos 10 dias.</p>
     </div>
 
     <!-- List -->
-    <div v-else class="divide-y divide-border/40">
+    <div v-else class="divide-y divide-border">
       <div
         v-for="bill in bills"
         :key="bill.id"
-        class="flex items-center justify-between px-4 py-2.5 hover:bg-accent/20 transition-base"
+        class="flex items-center justify-between px-4 py-2.5 hover:bg-muted transition-base"
       >
         <div>
           <p class="text-[13px] text-foreground leading-none mb-0.5 truncate">{{ bill.name }}</p>

@@ -449,7 +449,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 mb-4 pb-3 border-b border-border">
       <div>
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/80 mb-0.5">
+        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-0.5">
           Finanças
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
@@ -464,7 +464,7 @@ onMounted(async () => {
         <button
           type="button"
           :aria-label="`Streak de ${streak} dias`"
-          class="inline-flex items-center gap-1 h-9 px-2.5 rounded-full border border-border bg-card text-[12px] font-semibold tabular-nums hover:bg-muted active:scale-95 transition-all"
+          class="inline-flex items-center gap-1 h-9 px-2.5 rounded-full bg-card text-[12px] font-semibold tabular-nums hover:bg-muted active:scale-95 transition-all"
           :class="streakActive ? 'text-warning' : 'text-muted-foreground'"
           @click="streakSheetOpen = true"
         >
@@ -475,7 +475,7 @@ onMounted(async () => {
         <!-- Nova transação (hidden on mobile) -->
         <button
           type="button"
-          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
           @click="editingTransaction = null; transactionPrefill = null; formOpen = true"
         >
           <Plus class="size-3.5" />
@@ -488,7 +488,7 @@ onMounted(async () => {
             <button
               type="button"
               aria-label="Mais opções"
-              class="min-w-9 h-9 grid place-items-center rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all"
+              class="min-w-9 h-9 grid place-items-center rounded-md bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all"
             >
               <MoreHorizontal class="size-4" />
             </button>
@@ -509,7 +509,7 @@ onMounted(async () => {
     <div class="mb-4 space-y-3">
 
       <!-- Main card: month nav + stats + budget + status chip + vs mês anterior -->
-      <div class="bg-card border border-border rounded-lg p-4">
+      <div class="bg-card rounded-lg p-4">
         <div class="flex justify-center mb-3">
           <MonthNavigator
             :month="filterState.month.value"
@@ -543,7 +543,7 @@ onMounted(async () => {
             <span>Orçamento do mês</span>
             <div class="flex flex-col items-end">
               <span class="tabular-nums font-medium text-foreground">{{ formatCurrency(expenses) }} de {{ formatCurrency(income) }}</span>
-              <span class="tabular-nums text-muted-foreground/60">{{ budgetPercent }}%</span>
+              <span class="tabular-nums text-muted-foreground">{{ budgetPercent }}%</span>
             </div>
           </div>
           <div class="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -557,12 +557,12 @@ onMounted(async () => {
 
         <!-- Status contextual chip -->
         <div
-          class="mt-3 flex items-center gap-2 rounded-md border px-2.5 py-2 text-[12px] font-medium"
+          class="mt-3 flex items-center gap-2 rounded-md px-2.5 py-2 text-[12px] font-medium"
           :class="mobileStatus.tone === 'danger'
-            ? 'bg-destructive/10 text-destructive border-destructive/30'
+            ? 'bg-muted text-destructive'
             : mobileStatus.tone === 'warn'
-              ? 'bg-warning/10 text-warning border-warning/30'
-              : 'bg-success/10 text-success border-success/30'"
+              ? 'bg-muted text-warning'
+              : 'bg-muted text-success'"
         >
           <CheckCircle2 v-if="mobileStatus.tone === 'ok'" :size="14" class="shrink-0" />
           <AlertTriangle v-else :size="14" class="shrink-0" />
@@ -587,37 +587,37 @@ onMounted(async () => {
         <!-- Enrichment row: count + biggest expense + pending -->
         <div
           v-if="!store.loading"
-          class="mt-3 pt-3 border-t border-border/40 grid gap-3"
+          class="mt-3 pt-3 border-t border-border grid gap-3"
           :class="(pendingIncome > 0 || pendingExpenses > 0) ? 'grid-cols-3' : 'grid-cols-2'"
         >
           <div>
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">Transações</p>
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Transações</p>
             <p class="text-[14px] font-semibold tabular-nums text-foreground">{{ transactionCount }} no mês</p>
           </div>
           <div v-if="biggestExpense">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">Maior despesa</p>
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Maior despesa</p>
             <p class="text-[14px] font-semibold tabular-nums text-destructive">{{ formatCurrency(biggestExpense.amount) }}</p>
-            <p class="text-[11px] text-muted-foreground/50 truncate leading-tight mt-0.5">{{ biggestExpense.category?.name ?? biggestExpense.description }}</p>
+            <p class="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">{{ biggestExpense.category?.name ?? biggestExpense.description }}</p>
           </div>
           <div v-if="pendingIncome > 0 || pendingExpenses > 0">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">Pendentes</p>
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Pendentes</p>
             <p class="text-[13px] tabular-nums font-medium leading-snug">
-              <span v-if="pendingIncome > 0" class="text-success/70">+{{ formatCurrency(pendingIncome) }}</span>
-              <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground/30 mx-0.5">·</span>
-              <span v-if="pendingExpenses > 0" class="text-destructive/70">-{{ formatCurrency(pendingExpenses) }}</span>
+              <span v-if="pendingIncome > 0" class="text-success">+{{ formatCurrency(pendingIncome) }}</span>
+              <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground mx-0.5">·</span>
+              <span v-if="pendingExpenses > 0" class="text-destructive">-{{ formatCurrency(pendingExpenses) }}</span>
             </p>
           </div>
         </div>
       </div>
 
       <!-- Saldo previsto -->
-      <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card border border-border rounded-lg p-4">
+      <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card rounded-lg p-4">
         <!-- Header -->
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
             <Calendar :size="16" class="text-primary" />
           </div>
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Saldo Previsto
           </p>
         </div>
@@ -625,7 +625,7 @@ onMounted(async () => {
         <!-- Values — 2 columns, both clickable -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo atual</p>
+            <p class="text-[12px] text-muted-foreground mb-1">Saldo atual</p>
             <button
               type="button"
               class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -635,11 +635,11 @@ onMounted(async () => {
                 class="text-[20px] font-semibold tabular-nums leading-none"
                 :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
               >{{ formatCurrency(totalBalance) }}</span>
-              <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+              <ChevronRight :size="14" class="text-muted-foreground mt-0.5" />
             </button>
           </div>
           <div>
-            <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo previsto</p>
+            <p class="text-[12px] text-muted-foreground mb-1">Saldo previsto</p>
             <button
               type="button"
               class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -649,29 +649,29 @@ onMounted(async () => {
                 class="text-[20px] font-semibold tabular-nums leading-none"
                 :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
               >{{ formatCurrency(projectedBalance) }}</span>
-              <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+              <ChevronRight :size="14" class="text-muted-foreground mt-0.5" />
             </button>
           </div>
         </div>
 
         <!-- Footer note -->
-        <div class="border-t border-border/40 mt-3 pt-3">
-          <p class="text-[11px] text-muted-foreground/70 leading-snug">
+        <div class="border-t border-border mt-3 pt-3">
+          <p class="text-[11px] text-muted-foreground leading-snug">
             considera transações agendadas e recorrentes pendentes
           </p>
         </div>
       </div>
 
       <!-- Cashflow summary -->
-      <div v-if="!store.loading" class="bg-card border border-border rounded-lg p-4">
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">Fluxo de caixa</p>
+      <div v-if="!store.loading" class="bg-card rounded-lg p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Fluxo de caixa</p>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/70">Entrada</p>
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground">Entrada</p>
             <p class="text-[17px] font-semibold tabular-nums text-success mt-1">{{ formatCurrency(income) }}</p>
           </div>
           <div>
-            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/70">Saída</p>
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground">Saída</p>
             <p class="text-[17px] font-semibold tabular-nums text-destructive mt-1">{{ formatCurrency(expenses) }}</p>
           </div>
         </div>
@@ -681,17 +681,17 @@ onMounted(async () => {
     <!-- Alert banner — category budget exceeded -->
     <div
       v-if="exceededCategory && !store.loading"
-      class="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-destructive/10 border border-destructive/20"
+      class="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 mb-4 bg-muted "
     >
       <AlertTriangle :size="14" class="text-destructive shrink-0" aria-hidden="true" />
-      <p class="text-[12px] text-destructive/90 font-medium leading-snug">
+      <p class="text-[12px] text-destructive font-medium leading-snug">
         <span class="font-semibold">{{ exceededCategory.name }}</span>
         ultrapassou a meta em {{ formatCurrency(exceededCategory.total - (exceededCategory.monthlyLimit ?? 0)) }}
       </p>
     </div>
 
     <!-- Transactions — Lovable-style self-contained container -->
-        <div class="bg-card border border-border rounded-lg overflow-hidden">
+        <div class="bg-card rounded-lg overflow-hidden">
 
           <!-- Header row: title + month nav + search -->
           <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
@@ -701,7 +701,7 @@ onMounted(async () => {
                 <!-- "X de Y" counter when paginated -->
                 <span
                   v-if="hasMoreTransactions"
-                  class="text-[11px] font-normal text-muted-foreground/60 tabular-nums"
+                  class="text-[11px] font-normal text-muted-foreground tabular-nums"
                 >
                   {{ store.transactions.length }} de {{ store.transactionsMeta?.total }}
                 </span>
@@ -747,7 +747,7 @@ onMounted(async () => {
                 class="h-7 px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors duration-150 shrink-0"
                 :class="filterState.quickFilter.value === f.id
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                  : 'bg-muted text-muted-foreground hover:text-foreground'"
                 @click="filterState.setQuickFilter(f.id)"
               >
                 {{ f.label }}
@@ -755,7 +755,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Transaction list — nested inside bg-card, no outer border -->
+          <!-- Transaction list — nested inside bg-card, no outer  -->
           <TransactionList
             :transactions="store.transactions"
             :loading="store.loading"
@@ -815,7 +815,7 @@ onMounted(async () => {
   <!-- Streak info sheet -->
   <Sheet v-model:open="streakSheetOpen">
     <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
-      <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
+      <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-border" />
       <SheetHeader class="text-left">
         <SheetTitle class="text-[15px] flex items-center gap-2">
           <Flame class="size-4 text-warning" />
@@ -830,7 +830,7 @@ onMounted(async () => {
       <button
         v-if="!streakActive"
         type="button"
-        class="w-full mt-4 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-md text-[14.5px] lg:h-8 lg:px-2.5 lg:text-[12.5px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        class="w-full mt-4 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-md text-[14.5px] lg:h-8 lg:px-2.5 lg:text-[12.5px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
         @click="streakSheetOpen = false; editingTransaction = null; transactionPrefill = null; formOpen = true"
       >
         <Plus class="size-4" /> Registrar agora

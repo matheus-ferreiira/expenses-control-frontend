@@ -118,7 +118,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <template v-if="card">
         <!-- Header -->
@@ -132,7 +132,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[14px] font-semibold leading-none truncate">{{ card.name }}</p>
-            <p v-if="billingPeriod" class="text-[11px] text-muted-foreground/60 mt-0.5">
+            <p v-if="billingPeriod" class="text-[11px] text-muted-foreground mt-0.5">
               {{ billingPeriod.label }}
             </p>
           </div>
@@ -146,7 +146,7 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
         </div>
 
         <!-- Cycle navigator -->
-        <div class="flex items-center justify-between px-4 py-2.5 border-b border-border/50 shrink-0">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
           <button
             type="button"
             class="min-h-[44px] min-w-[44px] grid place-items-center rounded-lg hover:bg-muted text-muted-foreground transition-colors"
@@ -158,10 +158,10 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
             <p class="text-[13px] font-semibold">
               {{ billingPeriod?.label ?? '—' }}
             </p>
-            <p v-if="referenceOffset < 0 && billingPeriod" class="text-[10px] text-muted-foreground/50 mt-0.5">
+            <p v-if="referenceOffset < 0 && billingPeriod" class="text-[10px] text-muted-foreground mt-0.5">
               Fatura fechada · Venceu {{ new Date(billingPeriod.dueDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) }}
             </p>
-            <p v-else class="text-[10px] text-success/70 mt-0.5">
+            <p v-else class="text-[10px] text-success mt-0.5">
               Fatura aberta
             </p>
           </div>
@@ -176,10 +176,10 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
         </div>
 
         <!-- Invoice summary -->
-        <div class="px-4 py-3 border-b border-border/50 shrink-0">
+        <div class="px-4 py-3 border-b border-border shrink-0">
           <div class="flex items-end justify-between mb-2">
             <div>
-              <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-0.5">
+              <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-0.5">
                 Total da fatura
               </p>
               <p class="text-2xl font-bold tabular-nums text-destructive">
@@ -187,8 +187,8 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
               </p>
             </div>
             <div class="text-right">
-              <p class="text-[10px] text-muted-foreground/50">{{ utilPct }}% do limite</p>
-              <p class="text-[12px] tabular-nums text-muted-foreground/60 mt-0.5">
+              <p class="text-[10px] text-muted-foreground">{{ utilPct }}% do limite</p>
+              <p class="text-[12px] tabular-nums text-muted-foreground mt-0.5">
                 de {{ formatCurrency(card.limit_amount) }}
               </p>
             </div>
@@ -222,9 +222,9 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
             v-else-if="transactions.length === 0"
             class="flex flex-col items-center justify-center py-12 text-center px-4"
           >
-            <Receipt :size="32" class="text-muted-foreground/30 mb-3" />
+            <Receipt :size="32" class="text-muted-foreground mb-3" />
             <p class="text-[14px] font-semibold">Nenhuma transação</p>
-            <p class="text-[12px] text-muted-foreground/50 mt-1">
+            <p class="text-[12px] text-muted-foreground mt-1">
               Nenhuma despesa neste período de fatura.
             </p>
           </div>
@@ -233,18 +233,18 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
           <div v-else>
             <template v-for="group in groups" :key="group.date">
               <!-- Date header -->
-              <div class="sticky top-0 z-10 bg-background/95 backdrop-blur px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+              <div class="sticky top-0 z-10 bg-background backdrop-blur px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
+                <span class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                   {{ group.label }}
                 </span>
                 <span
                   v-if="group.expenses > 0"
-                  class="text-[10px] tabular-nums text-destructive/70"
+                  class="text-[10px] tabular-nums text-destructive"
                 >
                   -{{ formatCurrency(group.expenses) }}
                 </span>
               </div>
-              <ul class="divide-y divide-border/60">
+              <ul class="divide-y divide-border">
                 <TransactionCard
                   v-for="t in group.transactions"
                   :key="t.id"

@@ -50,20 +50,20 @@ function cancel() {
       >
         <!-- Overlay -->
         <div
-          class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          class="absolute inset-0 bg-background backdrop-blur-sm"
           @click="cancel"
         />
 
         <!-- Panel -->
-        <div class="relative w-full sm:max-w-sm bg-card border border-border rounded-t-lg sm:rounded-lg shadow-xl p-5 pb-safe">
+        <div class="relative w-full sm:max-w-sm bg-card rounded-t-lg sm:rounded-lg  p-5 pb-safe">
           <!-- Icon + title -->
           <div class="flex items-center gap-3 mb-4">
-            <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary shrink-0">
+            <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-muted text-primary shrink-0">
               <RefreshCw :size="16" />
             </div>
             <div>
               <h3 class="text-[14px] font-semibold text-foreground">Editar transação fix</h3>
-              <p class="text-[11px] text-muted-foreground/60 mt-0.5">Qual o escopo da alteração?</p>
+              <p class="text-[11px] text-muted-foreground mt-0.5">Qual o escopo da alteração?</p>
             </div>
           </div>
 
@@ -73,10 +73,10 @@ function cancel() {
               v-for="opt in options"
               :key="opt.value"
               type="button"
-              class="w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all"
+              class="w-full text-left flex items-start gap-3 p-3 rounded-xl  transition-all"
               :class="selected === opt.value
-                ? 'border-primary bg-primary/5'
-                : 'border-border/50 hover:border-border hover:bg-muted/40'"
+                ? 'border-primary bg-muted'
+                : 'border-border hover:border-border hover:bg-muted'"
               @click="selected = opt.value"
             >
               <!-- Radio dot -->
@@ -91,7 +91,7 @@ function cancel() {
               </span>
               <div class="flex-1 min-w-0">
                 <p class="text-[13px] font-medium text-foreground leading-none">{{ opt.label }}</p>
-                <p class="text-[11px] text-muted-foreground/60 mt-1 leading-snug">{{ opt.description }}</p>
+                <p class="text-[11px] text-muted-foreground mt-1 leading-snug">{{ opt.description }}</p>
               </div>
             </button>
           </div>
@@ -100,14 +100,14 @@ function cancel() {
           <div class="flex gap-2">
             <button
               type="button"
-              class="flex-1 h-10 rounded-lg border border-border text-[13px] font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+              class="flex-1 h-10 rounded-lg text-[13px] font-medium text-muted-foreground hover:bg-muted transition-colors"
               @click="cancel"
             >
               Cancelar
             </button>
             <button
               type="button"
-              class="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold hover:bg-primary/90 transition-colors"
+              class="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold hover:brightness-110 transition-colors"
               @click="confirm"
             >
               Confirmar

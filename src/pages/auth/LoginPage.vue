@@ -38,7 +38,7 @@ async function handleLogin() {
       <h1 class="text-xl font-semibold tracking-tight text-foreground">
         Bem-vindo de volta
       </h1>
-      <p class="text-[13px] text-muted-foreground/60">
+      <p class="text-[13px] text-muted-foreground">
         Entre na sua conta para continuar
       </p>
     </div>
@@ -46,7 +46,7 @@ async function handleLogin() {
     <!-- OAuth buttons -->
     <a
       :href="`${apiUrl}/api/v1/auth/google/redirect`"
-      class="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-card text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
+      class="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg bg-card text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
     >
       <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" class="shrink-0">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -59,9 +59,9 @@ async function handleLogin() {
 
     <!-- Divider -->
     <div class="flex items-center gap-3">
-      <div class="h-px flex-1 bg-border/60" />
-      <span class="text-[11px] text-muted-foreground/40 select-none">ou continue com email</span>
-      <div class="h-px flex-1 bg-border/60" />
+      <div class="h-px flex-1 bg-border" />
+      <span class="text-[11px] text-muted-foreground select-none">ou continue com email</span>
+      <div class="h-px flex-1 bg-border" />
     </div>
 
     <!-- Form -->
@@ -69,7 +69,7 @@ async function handleLogin() {
 
       <!-- Email -->
       <div class="space-y-1.5">
-        <label for="email" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+        <label for="email" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Email
         </label>
         <Input
@@ -79,16 +79,16 @@ async function handleLogin() {
           placeholder="voce@exemplo.com"
           autocomplete="email"
           :disabled="auth.loading"
-          :class="['h-10 transition-base', errors.email ? 'border-destructive/60 focus-visible:ring-destructive/30' : '']"
+          :class="['h-10 transition-base', errors.email ? ' focus-visible:ring-primary' : '']"
           @input="errors.email = undefined"
         />
-        <p v-if="errors.email" class="text-[11px] text-destructive/80">{{ errors.email }}</p>
+        <p v-if="errors.email" class="text-[11px] text-destructive">{{ errors.email }}</p>
       </div>
 
       <!-- Password -->
       <div class="space-y-1.5">
         <div class="flex items-center justify-between">
-          <label for="password" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+          <label for="password" class="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Senha
           </label>
           <RouterLink
@@ -106,13 +106,13 @@ async function handleLogin() {
           :error="!!errors.password"
           @input="errors.password = undefined"
         />
-        <p v-if="errors.password" class="text-[11px] text-destructive/80">{{ errors.password }}</p>
+        <p v-if="errors.password" class="text-[11px] text-destructive">{{ errors.password }}</p>
       </div>
 
       <!-- Backend error -->
       <div
         v-if="auth.error"
-        class="rounded-md border border-destructive/20 bg-destructive/[0.07] px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
+        class="rounded-md bg-destructive/[0.07] px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
       >
         {{ auth.error }}
       </div>
@@ -129,11 +129,11 @@ async function handleLogin() {
     </form>
 
     <!-- Sign up link -->
-    <p class="text-center text-[12px] text-muted-foreground/50">
+    <p class="text-center text-[12px] text-muted-foreground">
       Não tem conta?
       <RouterLink
         :to="{ name: ROUTES.REGISTER }"
-        class="font-semibold text-primary hover:text-primary/80 transition-colors"
+        class="font-semibold text-primary hover:text-primary transition-colors"
       >
         Criar conta
       </RouterLink>

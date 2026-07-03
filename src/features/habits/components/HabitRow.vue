@@ -69,7 +69,7 @@ async function handleLog() {
 <template>
   <!-- ─── Mobile card layout ─────────────────────────────────── -->
   <div
-    class="sm:hidden bg-card border border-border rounded-lg p-3 flex items-center gap-3 cursor-pointer"
+    class="sm:hidden bg-card rounded-lg p-3 flex items-center gap-3 cursor-pointer"
     @click="emit('open', habit)"
   >
     <!-- Category icon -->
@@ -93,7 +93,7 @@ async function handleLog() {
           v-for="dot in weeklyDots"
           :key="dot.date"
           class="h-2 w-2 rounded-full"
-          :class="dot.isLogged && !dot.isFuture ? 'bg-success' : 'bg-muted border border-border'"
+          :class="dot.isLogged && !dot.isFuture ? 'bg-success' : 'bg-muted '"
         />
       </div>
     </div>
@@ -101,7 +101,7 @@ async function handleLog() {
     <!-- Check button -->
     <button
       class="h-12 w-12 rounded-full grid place-items-center shrink-0 border-2 transition-colors"
-      :class="doneToday ? 'bg-success border-success' : 'bg-transparent border-border hover:border-foreground/40'"
+      :class="doneToday ? 'bg-success border-success' : 'bg-transparent border-border '"
       :disabled="logging"
       @click.stop="handleLog"
     >
@@ -117,7 +117,7 @@ async function handleLog() {
 
   <!-- ─── Desktop table row ───────────────────────────────────── -->
   <div
-    class="hidden sm:flex group items-center gap-3 px-4 py-2.5 hover:bg-muted/40 transition-base cursor-pointer relative overflow-hidden"
+    class="hidden sm:flex group items-center gap-3 px-4 py-2.5 hover:bg-muted transition-base cursor-pointer relative overflow-hidden"
     @click="emit('open', habit)"
   >
     <!-- Left border accent -->
@@ -128,7 +128,7 @@ async function handleLog() {
 
     <!-- Name + frequency as subtitle -->
     <div class="flex-1 min-w-0 pl-1">
-      <p class="text-[14px] font-medium truncate text-foreground/90">
+      <p class="text-[14px] font-medium truncate text-foreground">
         {{ habit.name }}
       </p>
       <p class="text-[11px] mt-0.5 truncate text-muted-foreground">
@@ -153,7 +153,7 @@ async function handleLog() {
         :key="dot.date"
         :class="[
           'h-4 w-4 rounded-sm transition-base',
-          dot.isFuture ? 'bg-border/10' : dot.isLogged ? 'opacity-80' : 'bg-muted border border-border',
+          dot.isFuture ? 'bg-border' : dot.isLogged ? 'opacity-80' : 'bg-muted ',
         ]"
         :style="dot.isLogged && !dot.isFuture && habit.color ? `background: ${habit.color}` : undefined"
       />

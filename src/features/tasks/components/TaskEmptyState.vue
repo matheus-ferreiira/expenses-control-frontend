@@ -11,13 +11,13 @@ defineEmits<{ create: [] }>()
 
 <template>
   <div class="flex flex-col items-center justify-center py-16 text-center px-4">
-    <span class="size-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-      <CheckSquare :size="28" class="text-primary/60" />
+    <span class="size-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+      <CheckSquare :size="28" class="text-primary" />
     </span>
     <p class="text-[15px] font-semibold text-foreground mb-1">
       {{ title ?? 'Nenhuma tarefa' }}
     </p>
-    <p class="text-[13px] text-muted-foreground/60 mb-5">
+    <p class="text-[13px] text-muted-foreground mb-5">
       {{ description ?? 'Toque em "+ Nova tarefa" para começar.' }}
     </p>
     <button

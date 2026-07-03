@@ -49,7 +49,7 @@ function select(name: string) {
 <template>
   <!-- Card único — estado fechado parece input, estado aberto expande -->
   <div
-    class="rounded-lg border border-border/60 bg-card overflow-hidden transition-all duration-200"
+    class="rounded-lg bg-card overflow-hidden transition-all duration-200"
     :class="!open ? 'cursor-pointer hover:border-border' : ''"
     @click="!open && toggle()"
   >
@@ -66,7 +66,7 @@ function select(name: string) {
           :is="findIcon(modelValue)!.component"
           :size="14"
         />
-        <span v-else class="text-muted-foreground/40 text-[10px]">—</span>
+        <span v-else class="text-muted-foreground text-[10px]">—</span>
       </span>
 
       <!-- Fechado: label do ícone ou placeholder -->
@@ -84,14 +84,14 @@ function select(name: string) {
         ref="searchInputRef"
         v-model="search"
         placeholder="Buscar ícone..."
-        class="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50"
+        class="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
         @click.stop
       />
 
       <!-- Chevron — rotaciona quando aberto -->
       <ChevronDown
         :size="14"
-        class="text-muted-foreground/50 transition-transform duration-200 shrink-0 cursor-pointer"
+        class="text-muted-foreground transition-transform duration-200 shrink-0 cursor-pointer"
         :class="open ? 'rotate-180' : ''"
         @click.stop="toggle"
       />
@@ -99,11 +99,11 @@ function select(name: string) {
 
     <!-- Seção expandida -->
     <template v-if="open">
-      <div class="border-t border-border/40" />
+      <div class="border-t border-border" />
 
       <div class="max-h-[280px] overflow-y-auto p-2 space-y-3">
         <div v-for="cat in filteredCategories" :key="cat.id">
-          <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 font-medium px-1 mb-1 mt-2">
+          <p class="text-[10px] uppercase tracking-widest text-muted-foreground font-medium px-1 mb-1 mt-2">
             {{ cat.label }}
           </p>
           <div class="grid grid-cols-5 gap-1.5">
@@ -115,7 +115,7 @@ function select(name: string) {
               class="size-11 rounded-xl flex items-center justify-center transition-all active:scale-95"
               :class="modelValue === icon.name
                 ? 'text-white'
-                : 'bg-muted text-muted-foreground hover:bg-muted/70'"
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               :style="modelValue === icon.name ? { background: color } : {}"
               @click.stop="select(icon.name)"
             >
@@ -126,7 +126,7 @@ function select(name: string) {
 
         <div
           v-if="filteredCategories.length === 0"
-          class="py-4 text-center text-[12px] text-muted-foreground/50"
+          class="py-4 text-center text-[12px] text-muted-foreground"
         >
           Nenhum ícone encontrado
         </div>

@@ -76,7 +76,7 @@ async function create() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[90vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
       <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
@@ -89,7 +89,7 @@ async function create() {
         </button>
         <div>
           <h3 class="text-[15px] font-semibold leading-none">Nova categoria</h3>
-          <p class="text-[11px] text-muted-foreground/60 mt-0.5">Disponível nos formulários de transação</p>
+          <p class="text-[11px] text-muted-foreground mt-0.5">Disponível nos formulários de transação</p>
         </div>
       </div>
 
@@ -98,20 +98,20 @@ async function create() {
 
         <!-- Name -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Nome <span class="text-destructive">*</span>
           </p>
           <input
             v-model="name"
             placeholder="Ex: Alimentação, Salário..."
-            class="w-full h-11 px-4 rounded-lg bg-card border border-border/60 focus:border-primary outline-none text-sm transition-colors"
+            class="w-full h-11 px-4 rounded-lg bg-card focus:border-primary outline-none text-sm transition-colors"
             @keydown.enter="create"
           />
         </div>
 
         <!-- Type pills -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Tipo
           </p>
           <div class="grid grid-cols-2 gap-1 p-1 bg-card rounded-xl">
@@ -119,8 +119,8 @@ async function create() {
               type="button"
               class="flex items-center justify-center gap-1.5 h-11 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'expense'
-                ? 'bg-destructive/15 text-destructive shadow-sm'
-                : 'text-muted-foreground/60'"
+                ? 'bg-muted text-destructive '
+                : 'text-muted-foreground'"
               @click="type = 'expense'"
             >
               <TrendingDown :size="13" />
@@ -130,8 +130,8 @@ async function create() {
               type="button"
               class="flex items-center justify-center gap-1.5 h-11 rounded-lg text-[12px] font-semibold transition-all"
               :class="type === 'income'
-                ? 'bg-success/15 text-success shadow-sm'
-                : 'text-muted-foreground/60'"
+                ? 'bg-muted text-success '
+                : 'text-muted-foreground'"
               @click="type = 'income'"
             >
               <TrendingUp :size="13" />
@@ -142,7 +142,7 @@ async function create() {
 
         <!-- Color -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Cor
           </p>
           <CategoryColorPicker v-model="color" />
@@ -150,7 +150,7 @@ async function create() {
 
         <!-- Icon -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Ícone
           </p>
           <CategoryIconPicker v-model="icon" :color="color" />

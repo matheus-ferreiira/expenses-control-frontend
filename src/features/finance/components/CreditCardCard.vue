@@ -91,7 +91,7 @@ const limitBarClass = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border bg-card flex flex-col" :class="!card.is_active ? 'opacity-50' : ''">
+  <div class="rounded-lg bg-card flex flex-col" :class="!card.is_active ? 'opacity-50' : ''">
     <div class="p-3.5 flex flex-col gap-2.5 flex-1">
       <!-- Header: avatar + name + menu -->
       <div class="flex items-start justify-between">
@@ -106,7 +106,7 @@ const limitBarClass = computed(() => {
           <div class="min-w-0">
             <p class="text-[13px] font-medium text-foreground truncate">{{ card.name }}</p>
             <!-- Closing/due dates — explicit, not the billing-period range -->
-            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-0.5">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
               {{ closingDueLabel }}
             </p>
           </div>
@@ -148,12 +148,12 @@ const limitBarClass = computed(() => {
       <div class="flex items-center gap-1.5 flex-wrap">
         <!-- Due date badge — semantic colors, rounded (4px) -->
         <span
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium "
           :class="isOverdue
-            ? 'bg-destructive/10 border-destructive/25 text-destructive'
+            ? 'bg-muted text-destructive'
             : daysUntilDue <= 5
-              ? 'bg-warning/10 border-warning/20 text-warning'
-              : 'bg-primary/10 border-primary/25 text-primary'"
+              ? 'bg-muted text-warning'
+              : 'bg-muted text-primary'"
         >
           <AlertTriangle v-if="isOverdue" :size="9" />
           <CreditCard v-else :size="9" />
@@ -162,29 +162,29 @@ const limitBarClass = computed(() => {
       </div>
 
       <!-- Limit + usage bar -->
-      <div class="pt-1.5 border-t border-border/40">
+      <div class="pt-1.5 border-t border-border">
         <div class="flex items-end justify-between mb-1.5">
           <div>
-            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/40 mb-0.5">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground mb-0.5">
               Fatura atual
             </p>
             <p class="text-[17px] font-semibold tabular-nums leading-none text-foreground">
               {{ formatCurrency(used) }}
             </p>
           </div>
-          <span class="text-[11px] text-muted-foreground/50 tabular-nums">
+          <span class="text-[11px] text-muted-foreground tabular-nums">
             de {{ formatCurrency(card.limit_amount) }}
           </span>
         </div>
         <!-- Utilization bar -->
-        <div class="h-2 bg-muted/60 rounded-full overflow-hidden">
+        <div class="h-2 bg-muted rounded-full overflow-hidden">
           <div
             class="h-full rounded-full transition-all"
             :class="limitBarClass"
             :style="{ width: `${utilPct}%` }"
           />
         </div>
-        <p class="text-[10px] text-muted-foreground/50 mt-1 tabular-nums">
+        <p class="text-[10px] text-muted-foreground mt-1 tabular-nums">
           {{ utilPct }}% do limite
         </p>
       </div>
@@ -194,7 +194,7 @@ const limitBarClass = computed(() => {
         <!-- Ver extrato — always visible -->
         <button
           type="button"
-          class="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl text-[13px] font-medium border border-border/30 bg-card text-foreground hover:bg-popover transition-colors"
+          class="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl text-[13px] font-medium bg-card text-foreground hover:bg-popover transition-colors"
           @click="emit('statement', card)"
         >
           <FileText :size="14" />

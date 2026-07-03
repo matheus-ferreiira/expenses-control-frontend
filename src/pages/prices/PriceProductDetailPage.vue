@@ -203,8 +203,8 @@ function onProductSaved(updated: PriceProduct) {
             <span
               class="text-[11px] font-medium px-2 py-0.5 rounded-full"
               :class="product.status === 'tracking'
-                ? 'bg-primary/15 text-primary'
-                : 'bg-muted/60 text-muted-foreground'"
+                ? 'bg-muted text-primary'
+                : 'bg-muted text-muted-foreground'"
             >
               {{ PRICE_PRODUCT_STATUS_LABELS[product.status] }}
             </span>
@@ -217,7 +217,7 @@ function onProductSaved(updated: PriceProduct) {
           <button
             type="button"
             aria-label="Editar produto"
-            class="p-2 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/40 transition-colors"
+            class="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             @click="productFormOpen = true"
           >
             <Pencil :size="15" />
@@ -225,7 +225,7 @@ function onProductSaved(updated: PriceProduct) {
           <button
             type="button"
             aria-label="Excluir produto"
-            class="p-2 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+            class="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
             @click="deleteProductOpen = true"
           >
             <Trash2 :size="15" />
@@ -234,7 +234,7 @@ function onProductSaved(updated: PriceProduct) {
       </div>
 
       <!-- Hero card: last price + goal -->
-      <div class="bg-card border border-border rounded-lg p-4 mb-4">
+      <div class="bg-card rounded-lg p-4 mb-4">
         <div class="flex items-end justify-between gap-3">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Último preço</p>
@@ -244,16 +244,16 @@ function onProductSaved(updated: PriceProduct) {
             <PriceGoalBadge :status="goalStatus" :has-target="product.target_price !== null" class="mt-1" />
           </div>
           <div class="text-right">
-            <p v-if="product.target_price !== null" class="text-[12px] text-muted-foreground/60 tabular-nums">
+            <p v-if="product.target_price !== null" class="text-[12px] text-muted-foreground tabular-nums">
               Meta <span class="font-semibold text-foreground">{{ formatCurrency(product.target_price) }}</span>
             </p>
-            <p v-if="product.launch_price !== null" class="text-[12px] text-muted-foreground/60 tabular-nums mt-0.5">
+            <p v-if="product.launch_price !== null" class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
               Lançamento <span class="font-semibold text-foreground">{{ formatCurrency(product.launch_price) }}</span>
             </p>
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 text-center mt-3 pt-3 border-t border-border/40">
+        <div class="grid grid-cols-3 gap-2 text-center mt-3 pt-3 border-t border-border">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Mínimo</p>
             <p class="text-[14px] font-semibold tabular-nums mt-1 text-success">
@@ -276,9 +276,9 @@ function onProductSaved(updated: PriceProduct) {
 
         <div
           v-if="stats?.savings_vs_launch != null"
-          class="mt-3 pt-3 border-t border-border/40 flex items-center justify-between"
+          class="mt-3 pt-3 border-t border-border flex items-center justify-between"
         >
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Economia vs lançamento</p>
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Economia vs lançamento</p>
           <p
             class="text-[13px] font-semibold tabular-nums"
             :class="stats.savings_vs_launch > 0 ? 'text-success' : 'text-muted-foreground'"
@@ -289,12 +289,12 @@ function onProductSaved(updated: PriceProduct) {
       </div>
 
       <!-- Chart by store -->
-      <div class="rounded-xl border border-border/50 bg-card mb-4">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-border/50">
-          <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+      <div class="rounded-xl bg-card mb-4">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-border">
+          <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Evolução por loja
           </span>
-          <div class="flex items-center gap-0.5 bg-muted/40 rounded-md p-0.5">
+          <div class="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
             <button
               v-for="p in PERIODS"
               :key="p.key"
@@ -302,7 +302,7 @@ function onProductSaved(updated: PriceProduct) {
               class="px-2 py-0.5 rounded text-[11px] font-medium transition-all"
               :class="period === p.key
                 ? 'bg-card text-foreground'
-                : 'text-muted-foreground/60 hover:text-foreground'"
+                : 'text-muted-foreground hover:text-foreground'"
               @click="period = p.key"
             >
               {{ p.label }}
@@ -321,44 +321,44 @@ function onProductSaved(updated: PriceProduct) {
 
       <!-- Records history -->
       <div class="flex items-center justify-between mb-2">
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
           Histórico de registros
         </p>
         <button
           type="button"
-          class="inline-flex items-center gap-1 h-8 px-2.5 rounded-md text-[12px] font-medium text-primary hover:bg-primary/10 transition-colors"
+          class="inline-flex items-center gap-1 h-8 px-2.5 rounded-md text-[12px] font-medium text-primary hover:brightness-110 transition-colors"
           @click="openCreateRecord"
         >
           <Plus :size="13" />
           Registrar preço
         </button>
       </div>
-      <div class="rounded-xl border border-border/50 bg-card overflow-hidden">
+      <div class="rounded-xl bg-card overflow-hidden">
         <p
           v-if="records.length === 0"
-          class="text-[12px] text-muted-foreground/50 px-4 py-8 text-center"
+          class="text-[12px] text-muted-foreground px-4 py-8 text-center"
         >
           Nenhum preço registrado para este produto.
         </p>
         <div
           v-for="record in records"
           :key="record.id"
-          class="flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer"
+          class="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted transition-colors cursor-pointer"
           @click="openEditRecord(record)"
         >
-          <span class="text-[12px] text-muted-foreground/60 tabular-nums shrink-0 w-16">
+          <span class="text-[12px] text-muted-foreground tabular-nums shrink-0 w-16">
             {{ formatDay(record.recorded_at) }}
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[13px] font-medium text-foreground truncate">{{ record.store?.name ?? '—' }}</p>
-            <p v-if="record.notes" class="text-[11px] text-muted-foreground/60 truncate">{{ record.notes }}</p>
+            <p v-if="record.notes" class="text-[11px] text-muted-foreground truncate">{{ record.notes }}</p>
           </div>
           <a
             v-if="record.url"
             :href="record.url"
             target="_blank"
             rel="noopener noreferrer"
-            class="shrink-0 p-1.5 rounded-md text-muted-foreground/50 hover:text-primary hover:bg-muted/40 transition-colors"
+            class="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
             @click.stop
           >
             <ExternalLink :size="13" />
@@ -372,7 +372,7 @@ function onProductSaved(updated: PriceProduct) {
           <button
             type="button"
             aria-label="Excluir registro"
-            class="shrink-0 p-1.5 rounded-md text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
+            class="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
             @click.stop="requestDeleteRecord(record.id)"
           >
             <Trash2 :size="13" />

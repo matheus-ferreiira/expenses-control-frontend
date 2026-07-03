@@ -89,7 +89,7 @@ function navigate(routeName: string) {
           >
             <component :is="item.icon" :size="14" class="mr-2 text-muted-foreground shrink-0" />
             <span>{{ item.label }}</span>
-            <span v-if="item.shortcut" class="ml-auto text-[10px] font-mono text-muted-foreground/40">
+            <span v-if="item.shortcut" class="ml-auto text-[10px] font-mono text-muted-foreground">
               {{ item.shortcut }}
             </span>
           </CommandItem>

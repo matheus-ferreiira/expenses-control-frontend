@@ -46,8 +46,8 @@ const weekDots = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
+  <div class="rounded-lg bg-card">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
       <div class="flex items-center gap-2">
         <Flame :size="13" class="text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">Consistência Semanal</span>
@@ -71,7 +71,7 @@ const weekDots = computed(() => {
 
     <!-- Empty -->
     <div v-else-if="habits.length === 0" class="px-4 py-5 text-center">
-      <p class="text-xs text-muted-foreground/50">Nenhum hábito ativo.</p>
+      <p class="text-xs text-muted-foreground">Nenhum hábito ativo.</p>
     </div>
 
     <!-- Content -->
@@ -104,12 +104,12 @@ const weekDots = computed(() => {
             :class="[
               'h-5 w-5 rounded-full flex items-center justify-center transition-base',
               dot.isFuture
-                ? 'bg-transparent border border-border/30'
+                ? 'bg-transparent '
                 : dot.logged
-                  ? 'bg-primary/70'
+                  ? 'bg-muted'
                   : dot.isCurrentDay
-                    ? 'border border-primary/40'
-                    : 'bg-muted/40',
+                    ? ''
+                    : 'bg-muted',
             ]"
           />
         </div>

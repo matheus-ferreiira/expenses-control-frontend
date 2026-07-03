@@ -74,9 +74,9 @@ watch(
 const timePeriod = computed(() => {
   if (!dueTime.value) return null
   const hour = parseInt(dueTime.value.split(':')[0] ?? '0', 10)
-  if (hour < 12) return { label: 'MANHÃ', cls: 'bg-warning/20 text-warning' }
+  if (hour < 12) return { label: 'MANHÃ', cls: 'bg-muted text-warning' }
   if (hour < 18) return { label: 'TARDE', style: 'background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)' }
-  return { label: 'NOITE', cls: 'bg-primary/15 text-primary' }
+  return { label: 'NOITE', cls: 'bg-muted text-primary' }
 })
 
 // ── Estimated display badge ───────────────────────────────────────────────────
@@ -133,10 +133,10 @@ function isQuickActive(id: string): boolean {
 // ── Priorities ───────────────────────────────────────────────────────────────
 interface PriorityDef { value: TaskPriority; label: string; activeClass: string; activeStyle?: string }
 const PRIORITIES: PriorityDef[] = [
-  { value: 'urgent', label: 'P1 Urgente', activeClass: 'bg-destructive/15 text-destructive' },
+  { value: 'urgent', label: 'P1 Urgente', activeClass: 'bg-muted text-destructive' },
   { value: 'high',   label: 'P2 Alta',    activeClass: '', activeStyle: 'background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)' },
-  { value: 'normal', label: 'P3 Média',   activeClass: 'bg-warning/15 text-warning' },
-  { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted/30 text-muted-foreground/70' },
+  { value: 'normal', label: 'P3 Média',   activeClass: 'bg-muted text-warning' },
+  { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted text-muted-foreground' },
 ]
 
 // ── Recurrence ───────────────────────────────────────────────────────────────
@@ -255,10 +255,10 @@ function handleKeydown(e: KeyboardEvent) {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[95vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <h3 class="text-[15px] font-semibold leading-none">Nova tarefa</h3>
       </div>
 
@@ -267,7 +267,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         <!-- TÍTULO -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             TÍTULO <span class="text-destructive ml-0.5">*</span>
           </p>
           <input
@@ -275,14 +275,14 @@ function handleKeydown(e: KeyboardEvent) {
             v-model="title"
             type="text"
             placeholder="O que precisa ser feito?"
-            class="w-full h-12 rounded-lg bg-card border border-border/60 px-3 text-[15px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-12 rounded-lg bg-card px-3 text-[15px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             @keydown="handleKeydown"
           />
         </div>
 
         <!-- DATA -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             DATA (OPCIONAL)
           </p>
           <div class="flex flex-wrap gap-2 mb-3">
@@ -292,8 +292,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
               :class="isQuickActive(qd.id)
-                ? 'bg-primary/15 text-primary font-medium'
-                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                ? 'bg-muted text-primary font-medium'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="dueDate = qd.date()"
             >{{ qd.label }}</button>
           </div>
@@ -305,7 +305,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         <!-- HORÁRIO -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             HORÁRIO (OPCIONAL)
           </p>
           <div class="flex items-center gap-2">
@@ -313,7 +313,7 @@ function handleKeydown(e: KeyboardEvent) {
               v-model="dueTime"
               type="time"
               style="color-scheme: dark"
-              class="flex-1 h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 [&::-webkit-calendar-picker-indicator]:opacity-40 [&::-webkit-calendar-picker-indicator]:invert"
+              class="flex-1 h-10 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary [&::-webkit-calendar-picker-indicator]:opacity-40 [&::-webkit-calendar-picker-indicator]:invert"
             />
             <span
               v-if="timePeriod"
@@ -325,11 +325,11 @@ function handleKeydown(e: KeyboardEvent) {
         </div>
 
         <!-- separator -->
-        <div class="h-px bg-border/30 -mx-4" />
+        <div class="h-px bg-border -mx-4" />
 
         <!-- PRIORIDADE -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             PRIORIDADE
           </p>
           <div class="grid grid-cols-4 gap-1.5">
@@ -340,7 +340,7 @@ function handleKeydown(e: KeyboardEvent) {
               class="h-9 rounded-lg text-[12px] font-medium transition-all"
               :class="priority === p.value
                 ? p.activeClass
-                : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               :style="priority === p.value && p.activeStyle ? p.activeStyle : ''"
               @click="priority = p.value"
             >{{ p.label }}</button>
@@ -349,7 +349,7 @@ function handleKeydown(e: KeyboardEvent) {
 
         <!-- LISTA -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             LISTA
           </p>
           <div class="flex flex-wrap gap-2">
@@ -357,8 +357,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
               :class="selectedListId === null
-                ? 'bg-primary/15 text-primary font-medium'
-                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                ? 'bg-muted text-primary font-medium'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="selectedListId = null"
             >Nenhuma</button>
 
@@ -368,8 +368,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
               :class="selectedListId === list.id
-                ? 'bg-primary/15 text-primary font-medium'
-                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                ? 'bg-muted text-primary font-medium'
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               @click="selectedListId = list.id"
             >{{ list.name }}</button>
 
@@ -380,13 +380,13 @@ function handleKeydown(e: KeyboardEvent) {
                 v-model="newListName"
                 type="text"
                 placeholder="Nome da lista"
-                class="h-8 w-36 rounded-lg bg-card border border-primary/60 px-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/40"
+                class="h-8 w-36 rounded-lg bg-card px-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
                 @keydown.enter="confirmNewList"
                 @keydown.escape="cancelNewList"
               />
               <button
                 type="button"
-                class="size-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center hover:bg-primary/25 transition-colors disabled:opacity-40"
+                class="size-8 rounded-lg bg-muted text-primary flex items-center justify-center hover:brightness-110 transition-colors disabled:opacity-40"
                 :disabled="savingList"
                 @click="confirmNewList"
               >
@@ -395,7 +395,7 @@ function handleKeydown(e: KeyboardEvent) {
               </button>
               <button
                 type="button"
-                class="size-8 rounded-lg bg-muted/40 text-muted-foreground flex items-center justify-center hover:bg-muted/60 transition-colors"
+                class="size-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center hover:bg-muted transition-colors"
                 @click="cancelNewList"
               >
                 <X :size="12" />
@@ -405,7 +405,7 @@ function handleKeydown(e: KeyboardEvent) {
             <button
               v-else
               type="button"
-              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors bg-muted/20 text-muted-foreground/50 hover:bg-muted/40 flex items-center gap-1"
+              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors bg-muted text-muted-foreground hover:bg-muted flex items-center gap-1"
               @click="startCreatingList"
             >
               <Plus :size="12" />
@@ -415,11 +415,11 @@ function handleKeydown(e: KeyboardEvent) {
         </div>
 
         <!-- separator -->
-        <div class="h-px bg-border/30 -mx-4" />
+        <div class="h-px bg-border -mx-4" />
 
         <!-- TAGS -->
         <div v-if="tagStore.tags.length">
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             TAGS
           </p>
           <div class="flex flex-wrap gap-2">
@@ -429,8 +429,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors font-medium"
               :class="selectedTagIds.includes(tag.id)
-                ? (tag.color ? '' : 'bg-primary/15 text-primary')
-                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                ? (tag.color ? '' : 'bg-muted text-primary')
+                : 'bg-muted text-muted-foreground hover:bg-muted'"
               :style="selectedTagIds.includes(tag.id) ? tagActiveStyle(tag.color) : ''"
               @click="toggleTag(tag.id)"
             >{{ tag.name }}</button>
@@ -444,7 +444,7 @@ function handleKeydown(e: KeyboardEvent) {
             class="flex items-center justify-between w-full"
             @click="recurrenceExpanded = !recurrenceExpanded"
           >
-            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70">
+            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               REPETIR
             </p>
             <div class="flex items-center gap-1.5">
@@ -453,7 +453,7 @@ function handleKeydown(e: KeyboardEvent) {
               </span>
               <ChevronDown
                 :size="14"
-                class="text-muted-foreground/50 transition-transform duration-200"
+                class="text-muted-foreground transition-transform duration-200"
                 :class="recurrenceExpanded ? 'rotate-180' : ''"
               />
             </div>
@@ -468,8 +468,8 @@ function handleKeydown(e: KeyboardEvent) {
                 type="button"
                 class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
                 :class="recurrenceType === rt.value
-                  ? 'bg-primary/15 text-primary font-medium'
-                  : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'"
+                  ? 'bg-muted text-primary font-medium'
+                  : 'bg-muted text-muted-foreground hover:bg-muted'"
                 @click="selectRecurrenceType(rt.value)"
               >{{ rt.label }}</button>
             </div>
@@ -482,8 +482,8 @@ function handleKeydown(e: KeyboardEvent) {
                 type="button"
                 class="h-9 rounded-lg text-[11px] font-semibold transition-all"
                 :class="weeklyDays.includes(idx)
-                  ? 'bg-primary/15 text-primary'
-                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                  ? 'bg-muted text-primary'
+                  : 'bg-muted text-muted-foreground hover:bg-muted'"
                 @click="toggleWeekday(idx)"
               >{{ day }}</button>
             </div>
@@ -496,12 +496,12 @@ function handleKeydown(e: KeyboardEvent) {
                 type="text"
                 inputmode="numeric"
                 placeholder="1"
-                class="w-16 h-9 rounded-lg bg-card border border-border/60 px-2 text-[13px] text-foreground text-center outline-none focus:border-primary/60 transition-colors"
+                class="w-16 h-9 rounded-lg bg-card px-2 text-[13px] text-foreground text-center outline-none focus:border-primary transition-colors"
               />
               <div class="relative flex-1">
                 <select
                   v-model="customUnit"
-                  class="w-full h-9 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer"
+                  class="w-full h-9 rounded-lg bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer"
                 >
                   <option v-for="u in CUSTOM_UNITS" :key="u.value" :value="u.value">
                     {{ u.label }}
@@ -509,7 +509,7 @@ function handleKeydown(e: KeyboardEvent) {
                 </select>
                 <ChevronDown
                   :size="12"
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
                 />
               </div>
             </div>
@@ -519,12 +519,12 @@ function handleKeydown(e: KeyboardEvent) {
         <!-- ESTIMATIVA -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70">
+            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
               ESTIMATIVA DE TEMPO
             </p>
             <span
               v-if="estimatedDisplay"
-              class="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full"
+              class="text-[11px] font-semibold text-primary bg-muted px-2 py-0.5 rounded-full"
             >{{ estimatedDisplay }}</span>
           </div>
           <input
@@ -532,14 +532,14 @@ function handleKeydown(e: KeyboardEvent) {
             type="text"
             inputmode="numeric"
             placeholder="Ex: 30 (em minutos)"
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[14px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 text-[14px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </div>
 
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0">
         <button
           type="button"
           class="w-full h-[52px] rounded-xl bg-primary text-primary-foreground font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-40"

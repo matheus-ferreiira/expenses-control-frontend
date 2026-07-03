@@ -84,7 +84,7 @@ const mobileHeaderTitle = computed(() => {
     <Sheet v-model:open="mobileMenuOpen">
       <SheetContent
         side="left"
-        class="p-0 border-r-0 w-full max-w-full [&>button]:hidden bg-background border-r border-primary/20"
+        class="p-0 border-r-0 w-full max-w-full [&>button]:hidden bg-background border-r"
       >
         <AppSidebar
           :open="true"
@@ -106,11 +106,11 @@ const mobileHeaderTitle = computed(() => {
       <div class="md:hidden flex items-center h-11 px-4 shrink-0">
         <div class="flex items-center gap-1.5 shrink-0">
           <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
-          <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none text-muted-foreground/40 border-border">Beta</span>
+          <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded  select-none text-muted-foreground border-border">Beta</span>
         </div>
         <span class="flex-1 text-center text-[14px] font-semibold text-foreground">{{ mobileHeaderTitle }}</span>
         <button
-          class="p-1 rounded-md transition-all shrink-0 text-muted-foreground/50"
+          class="p-1 rounded-md transition-all shrink-0 text-muted-foreground"
           @click="ui.commandOpen = true"
         >
           <Search :size="17" />
@@ -124,7 +124,7 @@ const mobileHeaderTitle = computed(() => {
     </div>
 
     <!-- ─── Mobile bottom navigation ───────────────────────── -->
-    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-white/8 bg-background/95 backdrop-blur-md">
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background backdrop-blur-md">
       <div class="relative grid grid-cols-5 h-16">
         <!-- Left 2 items -->
         <button
@@ -147,7 +147,7 @@ const mobileHeaderTitle = computed(() => {
         <!-- FAB center — protrudes 24px above the bar -->
         <div class="relative">
           <button
-            class="absolute left-1/2 -translate-x-1/2 -top-6 size-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg shadow-primary/30 ring-2 ring-background active:scale-95 transition-transform"
+            class="absolute left-1/2 -translate-x-1/2 -top-6 size-14 rounded-full bg-primary text-primary-foreground grid place-items-center   ring-2 ring-background active:scale-95 transition-transform"
             aria-label="Adicionar"
             @click="ui.quickAddOpen = true"
           >

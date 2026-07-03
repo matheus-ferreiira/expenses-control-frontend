@@ -116,10 +116,10 @@ async function submit() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -137,14 +137,14 @@ async function submit() {
 
         <!-- Price — hero input -->
         <AppFormField label="Preço (R$)" :error="errors.price" required>
-          <div class="w-full flex items-center gap-2 h-14 px-4 rounded-xl bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[13px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="w-full flex items-center gap-2 h-14 px-4 rounded-xl bg-card focus-within: transition-colors">
+            <span class="text-[13px] text-muted-foreground shrink-0">R$</span>
             <input
               :value="price.display.value"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[20px] font-semibold text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40 placeholder:font-normal"
+              class="flex-1 bg-transparent text-[20px] font-semibold text-foreground outline-none tabular-nums placeholder:text-muted-foreground placeholder:font-normal"
               @input="price.onInput"
             />
           </div>
@@ -155,8 +155,8 @@ async function submit() {
           <div class="relative">
             <select
               v-model="form.product_id"
-              class="w-full h-10 rounded-lg border border-border/60 bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-              :class="!form.product_id ? 'text-muted-foreground/50' : ''"
+              class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+              :class="!form.product_id ? 'text-muted-foreground' : ''"
             >
               <option value="" disabled>Selecione o produto</option>
               <option v-for="p in store.products" :key="p.id" :value="p.id">
@@ -165,12 +165,12 @@ async function submit() {
             </select>
             <ChevronDown
               :size="14"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
           </div>
-          <p v-if="!store.loadingProducts && store.products.length === 0" class="text-[12px] text-muted-foreground/60 mt-1.5">
+          <p v-if="!store.loadingProducts && store.products.length === 0" class="text-[12px] text-muted-foreground mt-1.5">
             Nenhum produto cadastrado.
-            <RouterLink :to="{ name: ROUTES.PRICES_PRODUCTS }" class="text-primary hover:text-primary/80 transition-colors" @click="close">
+            <RouterLink :to="{ name: ROUTES.PRICES_PRODUCTS }" class="text-primary hover:text-primary transition-colors" @click="close">
               Criar produto
             </RouterLink>
           </p>
@@ -181,8 +181,8 @@ async function submit() {
           <div class="relative">
             <select
               v-model="form.store_id"
-              class="w-full h-10 rounded-lg border border-border/60 bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-              :class="!form.store_id ? 'text-muted-foreground/50' : ''"
+              class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+              :class="!form.store_id ? 'text-muted-foreground' : ''"
             >
               <option value="" disabled>Selecione a loja</option>
               <option v-for="s in store.stores" :key="s.id" :value="s.id">
@@ -191,12 +191,12 @@ async function submit() {
             </select>
             <ChevronDown
               :size="14"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
           </div>
-          <p v-if="!store.loadingStores && store.stores.length === 0" class="text-[12px] text-muted-foreground/60 mt-1.5">
+          <p v-if="!store.loadingStores && store.stores.length === 0" class="text-[12px] text-muted-foreground mt-1.5">
             Nenhuma loja cadastrada.
-            <RouterLink :to="{ name: ROUTES.PRICES_PRODUCTS }" class="text-primary hover:text-primary/80 transition-colors" @click="close">
+            <RouterLink :to="{ name: ROUTES.PRICES_PRODUCTS }" class="text-primary hover:text-primary transition-colors" @click="close">
               Gerenciar lojas
             </RouterLink>
           </p>
@@ -214,7 +214,7 @@ async function submit() {
             type="url"
             inputmode="url"
             placeholder="https://..."
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </AppFormField>
 
@@ -224,17 +224,17 @@ async function submit() {
             v-model="form.notes"
             rows="2"
             placeholder="Cupom, condição de pagamento..."
-            class="w-full rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40 resize-none"
+            class="w-full rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground resize-none"
           />
         </AppFormField>
 
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="close"
         >

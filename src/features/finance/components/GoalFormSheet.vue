@@ -10,7 +10,7 @@ import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
 import type { FinanceGoal } from '@/types/finance'
 
 const PRESET_COLORS = [
-  '#00C896', '#FF4D4D', '#F5A623', '#4A90E2', '#9B59B6',
+  '#34d399', '#FF4D4D', '#F5A623', '#4A90E2', '#9B59B6',
   '#1ABC9C', '#E74C3C', '#F39C12', '#3498DB', '#8E44AD',
   '#2ECC71', '#E67E22', '#D35400', '#16A085', '#2980B9',
 ]
@@ -174,10 +174,10 @@ async function submit() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -195,30 +195,30 @@ async function submit() {
 
         <!-- Nome -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Nome da meta <span class="text-destructive">*</span>
           </p>
           <input
             v-model="form.name"
             type="text"
             placeholder="Ex: Viagem para Europa, Reserva de emergência..."
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </div>
 
         <!-- Valor alvo -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Valor alvo (R$) <span class="text-destructive">*</span>
           </p>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+            <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input
               ref="amountInputRef"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onAmountInput"
               @focus="onAmountFocus"
             />
@@ -227,29 +227,29 @@ async function submit() {
 
         <!-- Contribuição mensal -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Contribuição mensal (R$)
           </p>
-          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+            <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input
               ref="contributionInputRef"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onContributionInput"
               @focus="onAmountFocus"
             />
           </div>
-          <p v-if="monthsToGoal" class="text-[11px] text-primary/70 mt-1">
+          <p v-if="monthsToGoal" class="text-[11px] text-primary mt-1">
             Em {{ monthsToGoal }} {{ monthsToGoal === 1 ? 'mês' : 'meses' }} você atingirá a meta
           </p>
         </div>
 
         <!-- Prazo — DatePicker customizado -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Prazo (opcional)
           </p>
           <DatePicker
@@ -260,7 +260,7 @@ async function submit() {
 
         <!-- Conta vinculada — botões compactos -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Conta vinculada (opcional)
           </p>
           <div class="space-y-1.5">
@@ -268,15 +268,15 @@ async function submit() {
             <button
               type="button"
               class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-              :class="!form.bank_account_id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
+              :class="!form.bank_account_id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
               @click="form.bank_account_id = null"
             >
-              <div class="w-8 h-8 rounded-lg bg-muted/40 flex items-center justify-center shrink-0">
-                <Eye :size="14" class="text-muted-foreground/60" aria-hidden="true" />
+              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                <Eye :size="14" class="text-muted-foreground" aria-hidden="true" />
               </div>
               <div class="flex-1 text-left min-w-0">
                 <p class="text-[13px] font-medium text-foreground">Apenas controle visual</p>
-                <p class="text-[11px] text-muted-foreground/50">Sem conta vinculada</p>
+                <p class="text-[11px] text-muted-foreground">Sem conta vinculada</p>
               </div>
               <Check v-if="!form.bank_account_id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
             </button>
@@ -287,7 +287,7 @@ async function submit() {
               :key="acc.id"
               type="button"
               class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-              :class="form.bank_account_id === acc.id ? 'bg-primary/20' : 'bg-muted/20 hover:bg-muted/35'"
+              :class="form.bank_account_id === acc.id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
               @click="form.bank_account_id = acc.id"
             >
               <span
@@ -298,7 +298,7 @@ async function submit() {
               </span>
               <div class="flex-1 text-left min-w-0">
                 <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
-                <p class="text-[11px] text-muted-foreground/50 capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
+                <p class="text-[11px] text-muted-foreground capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
               </div>
               <span
                 class="text-[13px] font-semibold tabular-nums shrink-0"
@@ -309,14 +309,14 @@ async function submit() {
               <Check v-if="form.bank_account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
             </button>
           </div>
-          <p class="text-[11px] text-muted-foreground/50 mt-1.5">
+          <p class="text-[11px] text-muted-foreground mt-1.5">
             Se vinculada, o progresso reflete o saldo atual da conta
           </p>
         </div>
 
         <!-- Cor -->
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
             Cor
           </p>
           <div class="flex gap-2 flex-wrap">
@@ -335,10 +335,10 @@ async function submit() {
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="close"
         >

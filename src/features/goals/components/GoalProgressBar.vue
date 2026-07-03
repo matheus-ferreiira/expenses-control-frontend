@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="h-1 rounded-full overflow-hidden bg-border/30">
+  <div class="h-1 rounded-full overflow-hidden bg-border">
     <div
       class="h-full rounded-full transition-all duration-500"
       :style="{

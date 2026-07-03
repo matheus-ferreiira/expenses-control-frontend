@@ -25,10 +25,10 @@ const SHORT_LABELS: Record<PriceGoalStatus, string> = {
 }
 
 const textClass = computed(() =>
-  props.status ? PRICE_GOAL_STATUS_COLORS[props.status] : 'text-muted-foreground/50',
+  props.status ? PRICE_GOAL_STATUS_COLORS[props.status] : 'text-muted-foreground',
 )
 const dotClass = computed(() =>
-  props.status ? PRICE_GOAL_STATUS_DOT_COLORS[props.status] : 'bg-muted-foreground/30',
+  props.status ? PRICE_GOAL_STATUS_DOT_COLORS[props.status] : 'bg-border',
 )
 const label = computed(() => {
   if (props.status) return SHORT_LABELS[props.status]

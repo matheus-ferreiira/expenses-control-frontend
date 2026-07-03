@@ -41,6 +41,18 @@
   --color-tone-success:         hsl(var(--tone-success));
   --color-tone-info:            hsl(var(--tone-info));
 
+  /* Module identity colors — icon chips, dots, nav icons, chart series.
+     Never on buttons/CTAs (primary green only). */
+  --color-accent-blue:          hsl(var(--accent-blue));
+  --color-accent-orange:        hsl(var(--accent-orange));
+  --color-accent-violet:        hsl(var(--accent-violet));
+  --color-accent-cyan:          hsl(var(--accent-cyan));
+  --color-accent-amber:         hsl(var(--accent-amber));
+  --color-accent-rose:          hsl(var(--accent-rose));
+  --color-accent-lime:          hsl(var(--accent-lime));
+  --color-module-task:          hsl(var(--color-task));
+  --color-module-event:         hsl(var(--color-event));
+
   /* Chart colors */
   --color-chart-1:              hsl(var(--chart-1));
   --color-chart-2:              hsl(var(--chart-2));

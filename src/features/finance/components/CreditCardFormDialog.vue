@@ -106,10 +106,10 @@ const previewDue = computed(() => {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
-      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border/50 shrink-0">
+      <div class="flex items-center gap-2 px-4 pt-3 pb-4 border-b border-border shrink-0">
         <button
           type="button"
           class="p-1.5 rounded-lg hover:bg-card text-muted-foreground transition-colors"
@@ -126,7 +126,7 @@ const previewDue = computed(() => {
       <div class="flex-1 overflow-y-auto px-4 py-5 space-y-5">
 
         <!-- Card preview -->
-        <div class="relative w-full aspect-[1.586] rounded-xl p-5 overflow-hidden bg-card border border-border">
+        <div class="relative w-full aspect-[1.586] rounded-xl p-5 overflow-hidden bg-card ">
           <!-- Color accent strip -->
           <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" :style="{ background: form.color }" />
 
@@ -134,10 +134,10 @@ const previewDue = computed(() => {
             <p class="text-[13px] font-semibold truncate flex-1 text-foreground">
               {{ form.name || 'Nome do Cartão' }}
             </p>
-            <Wifi :size="18" class="text-muted-foreground/50 ml-2 shrink-0" />
+            <Wifi :size="18" class="text-muted-foreground ml-2 shrink-0" />
           </div>
 
-          <div class="mt-6 mb-4 flex gap-3 font-mono text-[13px] tracking-widest text-muted-foreground/40">
+          <div class="mt-6 mb-4 flex gap-3 font-mono text-[13px] tracking-widest text-muted-foreground">
             <span>••••</span>
             <span>••••</span>
             <span>••••</span>
@@ -146,11 +146,11 @@ const previewDue = computed(() => {
 
           <div class="flex items-end justify-between">
             <div>
-              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-widest">Limite</p>
+              <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Limite</p>
               <p class="text-[13px] font-bold tabular-nums text-foreground">{{ previewLimit }}</p>
             </div>
             <div class="text-right">
-              <p class="text-[10px] text-muted-foreground/50 uppercase tracking-widest">Vence dia</p>
+              <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Vence dia</p>
               <p class="text-[13px] font-bold text-foreground">{{ previewDue }}</p>
             </div>
           </div>
@@ -161,19 +161,19 @@ const previewDue = computed(() => {
             v-model="form.name"
             type="text"
             placeholder="Ex: Nubank Platinum"
-            class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-10 rounded-lg bg-card px-3 py-2 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </AppFormField>
 
         <AppFormField label="Limite (R$)" :error="errors.limit_amount" required>
-          <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card border border-border/60 focus-within:border-primary/60 transition-colors">
-            <span class="text-[12px] text-muted-foreground/60 shrink-0">R$</span>
+          <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
+            <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input
               ref="limitInputRef"
               type="text"
               inputmode="numeric"
               placeholder="0,00"
-              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground/40"
+              class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
               @input="onLimitInput"
               @focus="onLimitFocus"
             />
@@ -187,7 +187,7 @@ const previewDue = computed(() => {
               type="text"
               inputmode="numeric"
               placeholder="1"
-              class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-center text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+              class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-center text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             />
           </AppFormField>
           <AppFormField label="Vence dia" :error="errors.due_day" required>
@@ -196,7 +196,7 @@ const previewDue = computed(() => {
               type="text"
               inputmode="numeric"
               placeholder="10"
-              class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-center text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+              class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-center text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             />
           </AppFormField>
         </div>
@@ -205,8 +205,8 @@ const previewDue = computed(() => {
           <div class="relative">
             <select
               v-model="form.bank_account_id"
-              class="w-full h-10 rounded-lg border border-border/60 bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-              :class="!form.bank_account_id ? 'text-muted-foreground/50' : ''"
+              class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+              :class="!form.bank_account_id ? 'text-muted-foreground' : ''"
             >
               <option value="" disabled>Selecione a conta que paga este cartão</option>
               <option
@@ -219,23 +219,23 @@ const previewDue = computed(() => {
             </select>
             <ChevronDown
               :size="14"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
           </div>
         </AppFormField>
 
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-2">Cor do cartão</p>
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">Cor do cartão</p>
           <ColorPicker v-model="form.color" />
         </div>
 
       </div>
 
       <!-- Footer -->
-      <div class="px-4 pt-3 pb-8 border-t border-border/40 shrink-0 flex gap-2">
+      <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted/60 border border-border/50 text-muted-foreground"
+          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
           :disabled="submitting"
           @click="close"
         >

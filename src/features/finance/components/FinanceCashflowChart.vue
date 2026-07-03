@@ -252,22 +252,22 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
+  <div class="rounded-lg bg-card">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b border-border/50 gap-2 sm:gap-0">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b border-border gap-2 sm:gap-0">
       <div class="flex items-center gap-4 flex-wrap">
-        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           Fluxo de caixa
         </span>
         <div v-if="!loading" class="flex items-center gap-3">
-          <span class="text-[11px] text-success/80 tabular-nums">
+          <span class="text-[11px] text-success tabular-nums">
             +{{ formatCurrency(totalIncome) }}
           </span>
-          <span class="text-[11px] text-destructive/70 tabular-nums">
+          <span class="text-[11px] text-destructive tabular-nums">
             -{{ formatCurrency(totalExpense) }}
           </span>
           <span
-            :class="['text-[11px] tabular-nums font-medium', net >= 0 ? 'text-foreground/60' : 'text-destructive/80']"
+            :class="['text-[11px] tabular-nums font-medium', net >= 0 ? 'text-foreground' : 'text-destructive']"
           >
             {{ net >= 0 ? '+' : '' }}{{ formatCurrency(net) }}
           </span>
@@ -275,15 +275,15 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Period toggle -->
-      <div class="flex items-center gap-0.5 bg-muted/40 rounded-md p-0.5 self-start sm:self-auto">
+      <div class="flex items-center gap-0.5 bg-muted rounded-md p-0.5 self-start sm:self-auto">
         <button
           v-for="p in PERIODS"
           :key="p"
           :class="[
             'px-2 py-0.5 rounded text-[11px] font-medium transition-all',
             period === p
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground/60 hover:text-foreground',
+              ? 'bg-card text-foreground '
+              : 'text-muted-foreground hover:text-foreground',
           ]"
           @click="period = p"
         >

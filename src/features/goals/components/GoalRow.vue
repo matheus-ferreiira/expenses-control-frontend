@@ -41,7 +41,7 @@ const barColor = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card px-5 py-5 transition-base hover:border-border/80">
+  <div class="rounded-lg bg-card px-5 py-5 transition-base hover:border-border">
 
     <!-- Top row: title + % badge + actions -->
     <div class="flex items-start justify-between gap-3 mb-3">
@@ -49,13 +49,13 @@ const barColor = computed(() => {
         <p
           :class="[
             'text-[15px] font-semibold leading-snug',
-            goal.status === 'completed' ? 'text-foreground/40 line-through' : 'text-foreground',
+            goal.status === 'completed' ? 'text-foreground line-through' : 'text-foreground',
           ]"
         >
           {{ goal.title }}
         </p>
         <p v-if="goal.target_date" class="text-[12px] mt-0.5" style="color: hsl(var(--muted-foreground) / 0.45)">
-          <span v-if="goal.is_overdue && pct < 100" class="text-warning/80">Vencida · </span>
+          <span v-if="goal.is_overdue && pct < 100" class="text-warning">Vencida · </span>
           Prazo: {{ deadline }}
         </p>
       </div>

@@ -13,7 +13,7 @@ const delegatedProps = reactiveOmit(props, "toastOptions")
     class="toaster group"
     :toast-options="{
       classes: {
-        toast: 'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border/50 group-[.toaster]:shadow-md group-[.toaster]:text-[13px]',
+        toast: 'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]: group-[.toaster]:text-[13px]',
         description: 'group-[.toast]:text-muted-foreground group-[.toast]:text-[12px]',
         actionButton:
           'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',

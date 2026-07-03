@@ -50,14 +50,14 @@ function handleKeydown(e: KeyboardEvent) {
 
       <div class="space-y-4 pt-1">
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground/70 mb-1.5">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5">
             Nome da lista
           </p>
           <input
             v-model="title"
             autofocus
             :placeholder="`Mercado ${today}`"
-            class="w-full h-11 px-3 rounded-lg bg-card border border-border/60 focus:border-primary/60 outline-none text-[13px] transition-colors"
+            class="w-full h-11 px-3 rounded-lg bg-card focus:border-primary outline-none text-[13px] transition-colors"
             @keydown="handleKeydown"
           />
         </div>

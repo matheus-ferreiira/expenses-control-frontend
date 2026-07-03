@@ -58,13 +58,13 @@ const sortOptions: SortOption[] = [
     <!-- Search -->
     <div class="relative flex-1 min-w-[160px] max-w-[240px]">
       <Search
-        class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 pointer-events-none"
+        class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
         :size="13"
       />
       <Input
         :value="search"
         placeholder="Buscar tarefas..."
-        class="pl-8 h-8 text-[12.5px] border-border/50 bg-transparent placeholder:text-muted-foreground/35"
+        class="pl-8 h-8 text-[12.5px] border-border bg-transparent placeholder:text-muted-foreground"
         @input="emit('update:search', ($event.target as HTMLInputElement).value)"
       />
     </div>
@@ -76,7 +76,7 @@ const sortOptions: SortOption[] = [
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <button
-          class="flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-[12px] transition-base"
+          class="flex items-center gap-1.5 h-8 px-2.5 rounded-md  text-[12px] transition-base"
           style="border-color: hsl(var(--border) / 0.5); color: hsl(var(--muted-foreground) / 0.6)"
           @mouseenter="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
           @mouseleave="($event.currentTarget as HTMLElement).style.color = 'hsl(var(--muted-foreground) / 0.6)'"
@@ -92,7 +92,7 @@ const sortOptions: SortOption[] = [
           class="text-[12px]"
           @click="emit('sort', opt.field, opt.direction)"
         >
-          <component :is="opt.icon" :size="12" class="mr-2 text-muted-foreground/50" />
+          <component :is="opt.icon" :size="12" class="mr-2 text-muted-foreground" />
           {{ opt.label }}
         </DropdownMenuItem>
       </DropdownMenuContent>

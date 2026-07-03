@@ -16,7 +16,7 @@ const label = computed(() => HABIT_FREQUENCY_LABELS[props.frequency])
 <template>
   <Badge
     variant="outline"
-    :class="['border-transparent font-medium text-[11px] px-1.5 py-0.5', style.bg, style.text]"
+    :class="[' font-medium text-[11px] px-1.5 py-0.5', style.bg, style.text]"
   >
     {{ label }}
   </Badge>

@@ -15,10 +15,10 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 overflow-hidden">
+  <div class="rounded-lg overflow-hidden">
     <!-- Group header -->
-    <div class="flex items-center justify-between px-4 py-2.5 bg-card border-b border-border/40">
-      <span class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-card border-b border-border">
+      <span class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {{ label }}
       </span>
       <span
@@ -30,7 +30,7 @@ const emit = defineEmits<{
     </div>
 
     <!-- Goals list -->
-    <div class="divide-y divide-border/25">
+    <div class="divide-y divide-border">
       <GoalRow
         v-for="goal in goals"
         :key="goal.id"

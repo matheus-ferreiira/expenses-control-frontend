@@ -107,7 +107,7 @@ const canNext = computed(
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Preços
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
@@ -120,7 +120,7 @@ const canNext = computed(
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mt-1"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
         @click="openCreate"
       >
         <Plus :size="14" />
@@ -133,25 +133,25 @@ const canNext = computed(
       <div class="relative">
         <select
           v-model="filters.productId.value"
-          class="h-9 rounded-md border border-border/60 bg-card pl-3 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-          :class="!filters.productId.value ? 'text-muted-foreground/60' : ''"
+          class="h-9 rounded-md bg-card pl-3 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+          :class="!filters.productId.value ? 'text-muted-foreground' : ''"
         >
           <option :value="undefined">Todos os produtos</option>
           <option v-for="p in store.products" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
-        <ChevronDown :size="12" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none" />
+        <ChevronDown :size="12" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
       </div>
 
       <div class="relative">
         <select
           v-model="filters.storeId.value"
-          class="h-9 rounded-md border border-border/60 bg-card pl-3 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-          :class="!filters.storeId.value ? 'text-muted-foreground/60' : ''"
+          class="h-9 rounded-md bg-card pl-3 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+          :class="!filters.storeId.value ? 'text-muted-foreground' : ''"
         >
           <option :value="undefined">Todas as lojas</option>
           <option v-for="s in store.stores" :key="s.id" :value="s.id">{{ s.name }}</option>
         </select>
-        <ChevronDown :size="12" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none" />
+        <ChevronDown :size="12" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
       </div>
 
       <DatePicker v-model="filters.dateFrom.value" placeholder="De" class="!h-9 !w-auto text-[12px]" />
@@ -160,7 +160,7 @@ const canNext = computed(
       <button
         v-if="filters.hasActiveFilters.value"
         type="button"
-        class="inline-flex items-center gap-1 h-9 px-2.5 rounded-md text-[12px] text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
+        class="inline-flex items-center gap-1 h-9 px-2.5 rounded-md text-[12px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         @click="filters.reset()"
       >
         <X :size="12" />
@@ -186,35 +186,35 @@ const canNext = computed(
     <!-- Empty (filters active) -->
     <p
       v-else-if="records.length === 0"
-      class="text-[13px] text-muted-foreground/60 py-12 text-center"
+      class="text-[13px] text-muted-foreground py-12 text-center"
     >
       Nenhum registro encontrado com os filtros atuais.
     </p>
 
     <template v-else>
       <!-- Records list -->
-      <div class="rounded-xl border border-border/50 bg-card overflow-hidden">
+      <div class="rounded-xl bg-card overflow-hidden">
         <div
           v-for="record in records"
           :key="record.id"
-          class="flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer"
+          class="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted transition-colors cursor-pointer"
           @click="openEdit(record)"
         >
-          <span class="text-[12px] text-muted-foreground/60 tabular-nums shrink-0 w-16">
+          <span class="text-[12px] text-muted-foreground tabular-nums shrink-0 w-16">
             {{ formatDay(record.recorded_at) }}
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[14px] font-medium text-foreground truncate">
               {{ record.product?.name ?? '—' }}
             </p>
-            <p class="text-[11px] text-muted-foreground/60 truncate">{{ record.store?.name ?? '—' }}</p>
+            <p class="text-[11px] text-muted-foreground truncate">{{ record.store?.name ?? '—' }}</p>
           </div>
           <a
             v-if="record.url"
             :href="record.url"
             target="_blank"
             rel="noopener noreferrer"
-            class="shrink-0 p-1.5 rounded-md text-muted-foreground/50 hover:text-primary hover:bg-muted/40 transition-colors"
+            class="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
             @click.stop
           >
             <ExternalLink :size="13" />
@@ -228,7 +228,7 @@ const canNext = computed(
           <button
             type="button"
             aria-label="Excluir registro"
-            class="shrink-0 p-1.5 rounded-md text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
+            class="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
             @click.stop="requestDelete(record.id)"
           >
             <Trash2 :size="13" />
@@ -240,19 +240,19 @@ const canNext = computed(
       <div v-if="meta && meta.last_page > 1" class="flex items-center justify-between mt-4">
         <button
           type="button"
-          class="inline-flex items-center gap-1 h-9 px-3 rounded-md text-[12px] text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          class="inline-flex items-center gap-1 h-9 px-3 rounded-md text-[12px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           :disabled="!canPrev"
           @click="filters.page.value--"
         >
           <ChevronLeft :size="14" />
           Anterior
         </button>
-        <span class="text-[12px] text-muted-foreground/60 tabular-nums">
+        <span class="text-[12px] text-muted-foreground tabular-nums">
           Página {{ meta.current_page }} de {{ meta.last_page }}
         </span>
         <button
           type="button"
-          class="inline-flex items-center gap-1 h-9 px-3 rounded-md text-[12px] text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          class="inline-flex items-center gap-1 h-9 px-3 rounded-md text-[12px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           :disabled="!canNext"
           @click="filters.page.value++"
         >

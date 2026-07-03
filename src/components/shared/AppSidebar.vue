@@ -207,7 +207,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     <div v-if="props.mobile" class="flex items-center justify-between px-5 pt-5 pb-4 shrink-0">
       <div class="flex items-center gap-2.5">
         <Avatar class="h-10 w-10 shrink-0">
-          <AvatarFallback class="text-[13px] font-semibold bg-primary/20 text-primary">
+          <AvatarFallback class="text-[13px] font-semibold bg-muted text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
@@ -215,7 +215,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
           <p class="text-[15px] font-semibold text-foreground leading-tight">
             {{ auth.user?.name ?? 'Usuário' }}
           </p>
-          <p class="text-[12px] text-muted-foreground/60 leading-tight">
+          <p class="text-[12px] text-muted-foreground leading-tight">
             {{ auth.user?.email ?? '' }}
           </p>
         </div>
@@ -233,7 +233,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     <div v-else class="flex items-center h-[52px] px-3 border-b border-border shrink-0">
       <div v-if="props.open" class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
-        <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded border select-none text-muted-foreground/40 border-border">
+        <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded  select-none text-muted-foreground border-border">
           Beta
         </span>
       </div>
@@ -242,7 +242,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       </div>
       <button
         v-if="props.open"
-        class="shrink-0 p-1 rounded text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors duration-150 ml-1"
+        class="shrink-0 p-1 rounded text-muted-foreground hover:text-muted-foreground transition-colors duration-150 ml-1"
         @click="emit('toggle')"
       >
         <PanelLeftClose :size="14" />
@@ -252,7 +252,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     <!-- ─── Mobile search + quick add ─────────────────────────── -->
     <div v-if="props.mobile" class="px-4 pb-4 flex gap-2 shrink-0">
       <button
-        class="flex-1 flex items-center gap-2.5 h-11 px-4 rounded-xl bg-muted border border-border text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        class="flex-1 flex items-center gap-2.5 h-11 px-4 rounded-xl bg-muted text-[13px] text-muted-foreground hover:text-foreground transition-colors"
         @click="emit('search')"
       >
         <Search :size="15" class="shrink-0" />
@@ -270,31 +270,31 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     <div v-else class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
       <template v-if="props.open">
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-muted/30 hover:text-muted-foreground/80"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           @click="emit('search')"
         >
           <Search :size="13" class="shrink-0" />
           <span class="flex-1 text-[13px]">Buscar...</span>
-          <kbd class="text-[10px] font-mono text-muted-foreground/25">{{ searchShortcut }}</kbd>
+          <kbd class="text-[10px] font-mono text-muted-foreground">{{ searchShortcut }}</kbd>
         </button>
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground/50 hover:bg-muted/30 hover:text-muted-foreground/80"
+          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           @click="emit('quickAdd')"
         >
           <Plus :size="13" class="shrink-0" />
           <span class="flex-1 text-[13px]">Quick add</span>
-          <kbd class="text-[10px] font-mono text-muted-foreground/25">N</kbd>
+          <kbd class="text-[10px] font-mono text-muted-foreground">N</kbd>
         </button>
       </template>
       <template v-else>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-muted/40 hover:text-muted-foreground/70"
+          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           @click="emit('search')"
         >
           <Search :size="14" />
         </button>
         <button
-          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground/40 hover:bg-muted/40 hover:text-muted-foreground/70"
+          class="flex justify-center w-full p-2 rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           @click="emit('quickAdd')"
         >
           <Plus :size="14" />
@@ -316,8 +316,8 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
           >
             <span
               :class="props.mobile
-                ? 'text-[11px] font-medium text-muted-foreground/40 uppercase tracking-widest'
-                : 'text-[10px] font-medium text-muted-foreground/50 uppercase tracking-widest'"
+                ? 'text-[11px] font-medium text-muted-foreground uppercase tracking-widest'
+                : 'text-[10px] font-medium text-muted-foreground uppercase tracking-widest'"
             >
               {{ section.label }}
             </span>
@@ -340,8 +340,8 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
                       : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
-                      ? 'px-4 py-3 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-lg gap-3')"
+                      ? 'px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-xl gap-3.5'
+                      : 'px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
                 @click="toggleGroup(item.route)"
               >
                 <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
@@ -365,8 +365,8 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                     isChildActive(child)
                       ? 'text-primary font-medium'
                       : child.danger && !isChildActive(child)
-                        ? 'text-destructive/70 hover:bg-muted/40 hover:text-destructive'
-                        : 'text-muted-foreground/70 hover:bg-muted/40 hover:text-foreground',
+                        ? 'text-destructive hover:bg-muted hover:text-destructive'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   ]"
                   @click="emit('navigate')"
                 >
@@ -382,7 +382,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
                 :class="isGroupActive(item.route)
                   ? 'bg-sidebar-accent text-foreground'
-                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'"
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
                 @click="emit('navigate')"
               >
                 <component :is="item.icon" :size="18" />
@@ -402,8 +402,8 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
                       : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
-                      ? 'px-4 py-3 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground rounded-lg gap-3')"
+                      ? 'px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-xl gap-3.5'
+                      : 'px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
                 @click="emit('navigate')"
               >
                 <component
@@ -417,7 +417,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
                 <span
                   v-if="item.shortcut && !props.mobile"
-                  class="text-[10px] font-mono text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  class="text-[10px] font-mono text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                 >{{ item.shortcut }}</span>
               </RouterLink>
 
@@ -428,7 +428,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 class="flex justify-center w-full p-2 rounded-lg transition-colors duration-150 mb-0.5"
                 :class="isActive(item.route)
                   ? 'bg-sidebar-accent text-foreground'
-                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'"
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
                 @click="emit('navigate')"
               >
                 <component :is="item.icon" :size="18" />
@@ -442,9 +442,9 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
     </ScrollArea>
 
     <!-- ─── Mobile footer ───────────────────────────────────── -->
-    <div v-if="props.mobile" class="px-4 pb-8 pt-3 border-t border-border/40 mt-auto shrink-0">
+    <div v-if="props.mobile" class="px-4 pb-8 pt-3 border-t border-border mt-auto shrink-0">
       <button
-        class="flex items-center gap-2.5 w-full py-2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+        class="flex items-center gap-2.5 w-full py-2 text-muted-foreground hover:text-muted-foreground transition-colors"
         @click="ui.toggleTheme()"
       >
         <Moon v-if="ui.theme === 'dark'" :size="14" />
@@ -461,13 +461,13 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- Theme toggle (expanded) -->
       <button
         v-if="props.open"
-        class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground/50 hover:bg-muted/40 hover:text-muted-foreground transition-colors duration-150"
+        class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors duration-150"
         @click="ui.toggleTheme()"
       >
         <Moon v-if="ui.theme === 'dark'" :size="13" class="shrink-0" />
         <Sun v-else :size="13" class="shrink-0" />
         <span class="flex-1 text-[12px] text-left">Aparência</span>
-        <span class="text-[10px] text-muted-foreground/30">
+        <span class="text-[10px] text-muted-foreground">
           {{ ui.theme === 'dark' ? 'Escuro' : 'Claro' }}
         </span>
       </button>
@@ -475,7 +475,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- Expand toggle (collapsed) -->
       <button
         v-if="!props.open"
-        class="flex justify-center w-full p-2 text-muted-foreground/30 hover:bg-muted/40 hover:text-muted-foreground/60 transition-colors duration-150 mt-1 mb-1"
+        class="flex justify-center w-full p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors duration-150 mt-1 mb-1"
         @click="emit('toggle')"
       >
         <PanelLeftOpen :size="14" />
@@ -484,7 +484,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- User row (expanded) -->
       <div v-if="props.open" class="flex items-center gap-2.5 px-3 py-3">
         <Avatar class="h-8 w-8 shrink-0">
-          <AvatarFallback class="text-[12px] font-medium bg-primary/20 text-primary">
+          <AvatarFallback class="text-[12px] font-medium bg-muted text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>
@@ -495,7 +495,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
         </div>
         <RouterLink
           :to="{ name: ROUTES.SETTINGS }"
-          class="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors duration-150"
+          class="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
           @click="emit('navigate')"
         >
           <Settings :size="16" />
@@ -505,7 +505,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
       <!-- Avatar only (collapsed) -->
       <div v-else class="flex justify-center px-2 py-3">
         <Avatar class="h-8 w-8">
-          <AvatarFallback class="text-[11px] font-medium bg-primary/20 text-primary">
+          <AvatarFallback class="text-[11px] font-medium bg-muted text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>
         </Avatar>

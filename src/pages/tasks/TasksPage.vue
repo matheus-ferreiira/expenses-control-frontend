@@ -144,11 +144,11 @@ onUnmounted(() => {
     <!-- Header -->
     <div class="flex items-start justify-between mb-5">
       <div>
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-1.5">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           PRODUTIVIDADE
         </p>
         <h1 class="text-[28px] font-bold text-foreground leading-none mb-1.5">Tarefas</h1>
-        <p class="text-[13px] text-muted-foreground/60 tabular-nums">
+        <p class="text-[13px] text-muted-foreground tabular-nums">
           {{ pendingCount }} pendente{{ pendingCount !== 1 ? 's' : '' }}
           <template v-if="overdueCount > 0">
             ·
@@ -168,13 +168,13 @@ onUnmounted(() => {
     </div>
 
     <!-- Daily progress card -->
-    <div v-if="showProgressBar" class="flex overflow-hidden bg-card border border-border/60 rounded-xl mb-5">
+    <div v-if="showProgressBar" class="flex overflow-hidden bg-card rounded-xl mb-5">
       <!-- Left accent bar -->
       <div class="w-0.5 bg-primary shrink-0" />
       <!-- Content -->
       <div class="flex-1 p-4">
         <div class="flex items-center justify-between mb-2.5">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">
             {{ todayProgressLabel }}
           </p>
           <p class="text-[12px] font-medium tabular-nums">
@@ -202,7 +202,7 @@ onUnmounted(() => {
     <!-- Error banner -->
     <div
       v-if="store.error"
-      class="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 mb-4 bg-destructive/10 text-destructive text-[12px]"
+      class="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 mb-4 bg-muted text-destructive text-[12px]"
     >
       <div class="flex items-center gap-2">
         <AlertTriangle :size="14" class="shrink-0" />

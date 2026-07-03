@@ -23,7 +23,7 @@ const emit = defineEmits<{
   <!-- Loading skeleton -->
   <div
     v-if="loading"
-    class="rounded-lg border border-border overflow-hidden divide-y divide-border/40"
+    class="rounded-lg overflow-hidden divide-y divide-border"
   >
     <div v-for="i in 5" :key="i" class="flex items-center gap-3 px-4 py-2.5">
       <div class="h-2 w-2 rounded-full bg-muted animate-pulse shrink-0" />
@@ -43,11 +43,11 @@ const emit = defineEmits<{
     v-else-if="habits.length === 0"
     class="flex flex-col items-center justify-center py-16 gap-3"
   >
-    <div class="flex items-center justify-center h-10 w-10 rounded-full bg-muted/40">
+    <div class="flex items-center justify-center h-10 w-10 rounded-full bg-muted">
       <Flame :size="18" style="color: hsl(var(--muted-foreground) / 0.4)" />
     </div>
-    <p class="text-[13px] font-medium text-muted-foreground/60">Nenhum hábito encontrado</p>
-    <p class="text-[12px] text-muted-foreground/35">Crie seu primeiro hábito e construa consistência.</p>
+    <p class="text-[13px] font-medium text-muted-foreground">Nenhum hábito encontrado</p>
+    <p class="text-[12px] text-muted-foreground">Crie seu primeiro hábito e construa consistência.</p>
     <Button size="sm" class="mt-1 h-8 text-[12px]" @click="emit('create')">
       <Plus :size="12" class="mr-1.5" />
       Novo hábito
@@ -74,7 +74,7 @@ const emit = defineEmits<{
   </div>
 
   <!-- Desktop -->
-  <div class="hidden sm:block bg-card rounded-md border border-border overflow-hidden">
+  <div class="hidden sm:block bg-card rounded-md overflow-hidden">
     <!-- "Seus hábitos" heading -->
     <div class="flex items-center px-4 py-3 border-b border-border">
       <span class="text-sm font-semibold text-foreground">Seus hábitos</span>

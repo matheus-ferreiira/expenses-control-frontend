@@ -31,8 +31,8 @@ function pctColor(goal: Goal) {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
+  <div class="rounded-lg bg-card">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
       <div class="flex items-center gap-2">
         <Target :size="13" class="text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">Metas em Progresso</span>
@@ -58,18 +58,18 @@ function pctColor(goal: Goal) {
 
     <!-- Empty -->
     <div v-else-if="goals.length === 0" class="px-4 py-5 text-center">
-      <p class="text-xs text-muted-foreground/50">Nenhuma meta ativa.</p>
+      <p class="text-xs text-muted-foreground">Nenhuma meta ativa.</p>
     </div>
 
     <!-- Goals list -->
-    <div v-else class="divide-y divide-border/40">
+    <div v-else class="divide-y divide-border">
       <div
         v-for="goal in shown"
         :key="goal.id"
-        class="px-4 py-2.5 hover:bg-accent/20 transition-base"
+        class="px-4 py-2.5 hover:bg-muted transition-base"
       >
         <div class="flex items-center justify-between mb-1.5">
-          <p class="text-[13px] text-foreground/90 truncate flex-1 mr-2">{{ goal.title }}</p>
+          <p class="text-[13px] text-foreground truncate flex-1 mr-2">{{ goal.title }}</p>
           <span
             class="text-[11px] font-semibold tabular-nums shrink-0"
             :style="{ color: pctColor(goal) }"
@@ -87,7 +87,7 @@ function pctColor(goal: Goal) {
 
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-xs text-muted-foreground/60 hover:text-foreground transition-base"
+          class="text-xs text-muted-foreground hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.GOALS })"
         >
           + {{ goals.length - MAX_SHOWN }} mais

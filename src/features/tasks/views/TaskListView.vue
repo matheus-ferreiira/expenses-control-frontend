@@ -97,7 +97,7 @@ const groups = computed<TaskGroup[]>(() => {
     @cta="emit('create')"
   />
 
-  <!-- Grouped task list — no outer border -->
+  <!-- Grouped task list — no outer  -->
   <div v-else>
     <template v-for="group in groups" :key="group.id">
       <TaskGroupHeader :label="group.label" :count="group.tasks.length" :group-id="group.id" />

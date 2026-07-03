@@ -194,8 +194,8 @@ function handleFinish() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Header (sticky) -->
-      <div class="sticky top-0 bg-background z-20 border-b border-border/30">
-        <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="sticky top-0 bg-background z-20 border-b border-border">
+        <div class="mx-auto mt-3 mb-0 h-1 w-10 rounded-full bg-border shrink-0" />
 
         <div class="px-5 py-3 flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
@@ -206,7 +206,7 @@ function handleFinish() {
                 {{ session.bought_count }} de {{ session.items_count }} itens
               </span>
             </p>
-            <div class="h-1.5 rounded-full bg-muted/30 overflow-hidden mt-2">
+            <div class="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
               <div
                 class="h-full rounded-full bg-primary transition-all duration-500"
                 :style="{ width: `${progressPercent}%` }"
@@ -216,7 +216,7 @@ function handleFinish() {
 
           <button
             type="button"
-            class="size-8 grid place-items-center rounded-lg hover:bg-muted/40 text-muted-foreground transition-colors shrink-0 mt-0.5"
+            class="size-8 grid place-items-center rounded-lg hover:bg-muted text-muted-foreground transition-colors shrink-0 mt-0.5"
             @click="open = false"
           >
             <X :size="16" />
@@ -229,20 +229,20 @@ function handleFinish() {
             ref="nameInputRef"
             v-model="newName"
             placeholder="Nome do item..."
-            class="w-full h-12 px-4 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[15px] transition-colors placeholder:text-muted-foreground/50"
+            class="w-full h-12 px-4 rounded-xl bg-muted focus:border-primary outline-none text-[15px] transition-colors placeholder:text-muted-foreground"
             @keydown="handleNameKeydown"
           />
           <div class="flex gap-2">
             <input
               v-model="newCategory"
               placeholder="Categoria (opcional)"
-              class="flex-1 h-11 px-3 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[13px] transition-colors placeholder:text-muted-foreground/50"
+              class="flex-1 h-11 px-3 rounded-xl bg-muted focus:border-primary outline-none text-[13px] transition-colors placeholder:text-muted-foreground"
               @keydown="handleFieldKeydown"
             />
             <input
               inputmode="numeric"
               placeholder="R$ 0,00"
-              class="w-28 h-11 px-3 rounded-xl bg-muted/40 border border-border focus:border-primary/60 outline-none text-[13px] tabular-nums text-right transition-colors placeholder:text-muted-foreground/50"
+              class="w-28 h-11 px-3 rounded-xl bg-muted focus:border-primary outline-none text-[13px] tabular-nums text-right transition-colors placeholder:text-muted-foreground"
               :value="formatPriceCents(priceCents)"
               @input="handlePriceInput"
               @keydown="handleFieldKeydown"
@@ -267,17 +267,17 @@ function handleFinish() {
           v-if="session.items.length === 0"
           class="flex flex-col items-center justify-center py-12 text-center"
         >
-          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
-            <CheckCircle2 :size="22" class="text-muted-foreground/40" />
+          <span class="size-12 rounded-xl bg-muted grid place-items-center mb-3">
+            <CheckCircle2 :size="22" class="text-muted-foreground" />
           </span>
-          <p class="text-[14px] font-medium text-muted-foreground/60">Lista vazia</p>
-          <p class="text-[12px] text-muted-foreground/40 mt-1">Adicione o primeiro item acima ↑</p>
+          <p class="text-[14px] font-medium text-muted-foreground">Lista vazia</p>
+          <p class="text-[12px] text-muted-foreground mt-1">Adicione o primeiro item acima ↑</p>
         </div>
 
         <!-- Groups -->
         <template v-for="([category, group]) in grouped" :key="category">
           <div v-if="group.pending.length > 0 || group.bought.length > 0">
-            <p class="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold mb-2 mt-4 border-l-2 border-primary/40 pl-2">
+            <p class="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2 mt-4 border-l-2 pl-2">
               {{ category }}
             </p>
 
@@ -285,7 +285,7 @@ function handleFinish() {
             <div
               v-for="item in group.pending"
               :key="item.id"
-              class="group flex items-start gap-2 py-3 border-b border-border/30 last:border-0 transition-colors"
+              class="group flex items-start gap-2 py-3 border-b border-border last:border-0 transition-colors"
             >
               <!-- Custom circular checkbox touch area -->
               <button
@@ -303,20 +303,20 @@ function handleFinish() {
                     <input
                       :id="`edit-name-${item.id}`"
                       v-model="editName"
-                      class="w-full h-8 px-2 rounded-lg bg-background border border-primary/60 outline-none text-[13px] transition-colors"
+                      class="w-full h-8 px-2 rounded-lg bg-background outline-none text-[13px] transition-colors"
                       @keydown="handleEditNameKeydown($event, item)"
                     />
                     <div class="flex gap-1.5">
                       <input
                         v-model="editCategory"
                         placeholder="Categoria"
-                        class="flex-1 h-7 px-2 rounded-lg bg-muted/40 border border-border text-[12px] outline-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/40"
+                        class="flex-1 h-7 px-2 rounded-lg bg-muted text-[12px] outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
                         @keydown="handleEditFieldKeydown($event, item)"
                       />
                       <input
                         inputmode="numeric"
                         placeholder="R$ 0,00"
-                        class="w-24 h-7 px-2 rounded-lg bg-muted/40 border border-border text-[12px] tabular-nums text-right outline-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/40"
+                        class="w-24 h-7 px-2 rounded-lg bg-muted text-[12px] tabular-nums text-right outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
                         :value="formatPriceCents(editPriceCents)"
                         @input="handleEditPriceInput"
                         @keydown="handleEditFieldKeydown($event, item)"
@@ -342,14 +342,14 @@ function handleFinish() {
               >
                 <button
                   type="button"
-                  class="size-8 grid place-items-center text-muted-foreground/30 hover:text-primary transition-colors"
+                  class="size-8 grid place-items-center text-muted-foreground hover:text-primary transition-colors"
                   @click="startEdit(item)"
                 >
                   <Pencil :size="13" />
                 </button>
                 <button
                   type="button"
-                  class="size-8 grid place-items-center text-muted-foreground/30 hover:text-destructive transition-colors"
+                  class="size-8 grid place-items-center text-muted-foreground hover:text-destructive transition-colors"
                   @click="removeItem(item.id)"
                 >
                   <Trash2 :size="14" />
@@ -360,14 +360,14 @@ function handleFinish() {
               <div v-else class="flex items-center gap-0.5 shrink-0 mt-0.5">
                 <button
                   type="button"
-                  class="size-8 grid place-items-center text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                  class="size-8 grid place-items-center text-primary hover:brightness-110 rounded-lg transition-colors"
                   @click.stop="saveEdit(item)"
                 >
                   <Check :size="13" />
                 </button>
                 <button
                   type="button"
-                  class="size-8 grid place-items-center text-muted-foreground/40 hover:bg-muted/30 rounded-lg transition-colors"
+                  class="size-8 grid place-items-center text-muted-foreground hover:bg-muted rounded-lg transition-colors"
                   @click.stop="cancelEdit()"
                 >
                   <X :size="13" />
@@ -379,7 +379,7 @@ function handleFinish() {
             <div
               v-for="item in group.bought"
               :key="item.id"
-              class="flex items-center gap-3 py-3.5 border-b border-border/30 last:border-0 opacity-60 transition-all duration-300"
+              class="flex items-center gap-3 py-3.5 border-b border-border last:border-0 opacity-60 transition-all duration-300"
             >
               <button
                 type="button"
@@ -395,7 +395,7 @@ function handleFinish() {
               </span>
               <span
                 v-if="item.price !== null"
-                class="text-[13px] tabular-nums text-muted-foreground/50 shrink-0"
+                class="text-[13px] tabular-nums text-muted-foreground shrink-0"
               >
                 {{ formatCurrency(item.price) }}
               </span>
@@ -405,9 +405,9 @@ function handleFinish() {
       </div>
 
       <!-- Sticky footer -->
-      <div class="sticky bottom-0 z-20 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
+      <div class="sticky bottom-0 z-20 bg-background backdrop-blur-sm border-t border-border px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
         <div v-if="suggestedDisplay" class="mb-2 flex items-baseline justify-between">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/70">TOTAL PARCIAL</p>
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">TOTAL PARCIAL</p>
           <p class="text-[17px] font-bold tabular-nums text-foreground">{{ suggestedDisplay }}</p>
         </div>
         <button

@@ -103,7 +103,7 @@ async function confirmDelete() {
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] flex flex-col [&>button]:hidden"
     >
       <!-- Drag handle -->
-      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border shrink-0" />
 
       <!-- Header -->
       <div class="px-5 pt-2 pb-3 shrink-0">
@@ -118,7 +118,7 @@ async function confirmDelete() {
             v-model="newForm.name"
             type="text"
             placeholder="Nova loja (ex: Kabum)"
-            class="flex-1 h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="flex-1 h-10 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
             @keydown.enter="create"
           />
           <button
@@ -137,7 +137,7 @@ async function confirmDelete() {
           type="url"
           inputmode="url"
           placeholder="Site (opcional) — https://..."
-          class="w-full h-10 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+          class="w-full h-10 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           @keydown.enter="create"
         />
       </div>
@@ -145,18 +145,18 @@ async function confirmDelete() {
       <!-- List -->
       <div class="flex-1 overflow-y-auto pb-8">
         <div v-if="store.loadingStores" class="px-5 py-6 text-center">
-          <Loader2 :size="18" class="animate-spin inline text-muted-foreground/50" />
+          <Loader2 :size="18" class="animate-spin inline text-muted-foreground" />
         </div>
-        <p v-else-if="store.stores.length === 0" class="text-[13px] text-muted-foreground/60 px-5 py-8 text-center">
+        <p v-else-if="store.stores.length === 0" class="text-[13px] text-muted-foreground px-5 py-8 text-center">
           Nenhuma loja cadastrada ainda.
         </p>
         <ul v-else>
           <li
             v-for="item in store.stores"
             :key="item.id"
-            class="flex items-center gap-3 px-5 py-3 border-b border-border/30 last:border-0"
+            class="flex items-center gap-3 px-5 py-3 border-b border-border last:border-0"
           >
-            <span class="size-8 rounded-lg bg-muted/40 grid place-items-center shrink-0 text-muted-foreground">
+            <span class="size-8 rounded-lg bg-muted grid place-items-center shrink-0 text-muted-foreground">
               <StoreIcon :size="14" />
             </span>
 
@@ -166,20 +166,20 @@ async function confirmDelete() {
                 <input
                   v-model="editForm.name"
                   type="text"
-                  class="w-full h-9 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60"
+                  class="w-full h-9 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary"
                   @keydown.enter="saveEdit"
                 />
                 <input
                   v-model="editForm.website_url"
                   type="url"
                   placeholder="https://..."
-                  class="w-full h-9 rounded-lg bg-card border border-border/60 px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+                  class="w-full h-9 rounded-lg bg-card px-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
                   @keydown.enter="saveEdit"
                 />
               </div>
               <button
                 type="button"
-                class="size-8 rounded-lg grid place-items-center text-primary hover:bg-primary/10 transition-colors disabled:opacity-40"
+                class="size-8 rounded-lg grid place-items-center text-primary hover:brightness-110 transition-colors disabled:opacity-40"
                 :disabled="savingEdit"
                 @click="saveEdit"
               >
@@ -188,7 +188,7 @@ async function confirmDelete() {
               </button>
               <button
                 type="button"
-                class="size-8 rounded-lg grid place-items-center text-muted-foreground hover:bg-muted/40 transition-colors"
+                class="size-8 rounded-lg grid place-items-center text-muted-foreground hover:bg-muted transition-colors"
                 @click="editingId = null"
               >
                 <X :size="14" />
@@ -199,20 +199,20 @@ async function confirmDelete() {
             <template v-else>
               <div class="flex-1 min-w-0">
                 <p class="text-[13px] font-medium text-foreground truncate">{{ item.name }}</p>
-                <p v-if="item.website_url" class="text-[11px] text-muted-foreground/60 truncate">
+                <p v-if="item.website_url" class="text-[11px] text-muted-foreground truncate">
                   {{ item.website_url }}
                 </p>
               </div>
               <button
                 type="button"
-                class="size-8 rounded-lg grid place-items-center text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
+                class="size-8 rounded-lg grid place-items-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 @click="startEdit(item)"
               >
                 <Pencil :size="13" />
               </button>
               <button
                 type="button"
-                class="size-8 rounded-lg grid place-items-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                class="size-8 rounded-lg grid place-items-center text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
                 @click="requestDelete(item)"
               >
                 <Trash2 :size="13" />

@@ -7,7 +7,7 @@ import { isTaskOverdue, isTaskDueToday, isTaskDueTomorrow, formatDueDateShort } 
 const props = defineProps<{
   task: Task
   showTime?: boolean   // default true — pass false in period view (time shown externally)
-  noBorder?: boolean   // default false — pass true when wrapper provides the border
+  noBorder?: boolean   // default false — pass true when wrapper provides the 
 }>()
 
 const emit = defineEmits<{
@@ -36,9 +36,9 @@ const checkboxStyle = computed(() => {
 
 <template>
   <div
-    class="group flex items-center transition-colors hover:bg-muted/20"
+    class="group flex items-center transition-colors hover:bg-muted"
     :class="[
-      noBorder ? '' : 'border-b border-border/30 last:border-0',
+      noBorder ? '' : 'border-b border-border last:border-0',
       (isCompleted || isCancelled) ? 'opacity-60' : '',
     ]"
   >
@@ -70,7 +70,7 @@ const checkboxStyle = computed(() => {
         <p
           class="text-[14px] font-medium leading-snug truncate"
           :class="isCompleted || isCancelled
-            ? 'line-through text-muted-foreground/50'
+            ? 'line-through text-muted-foreground'
             : 'text-foreground'"
         >
           {{ task.title }}
@@ -84,11 +84,11 @@ const checkboxStyle = computed(() => {
         <div class="flex items-center gap-1.5 mt-0.5">
           <p
             v-if="task.description"
-            class="text-[12px] text-muted-foreground/60 truncate"
+            class="text-[12px] text-muted-foreground truncate"
           >{{ task.description }}</p>
           <span
             v-else-if="task.task_list"
-            class="text-[11px] text-muted-foreground/40"
+            class="text-[11px] text-muted-foreground"
           >{{ task.task_list.name }}</span>
         </div>
       </div>
@@ -99,7 +99,7 @@ const checkboxStyle = computed(() => {
         <div class="flex items-center gap-1">
           <span
             v-if="task.priority === 'urgent' && !isCompleted"
-            class="text-[10px] rounded-full px-1.5 py-0.5 bg-destructive/15 text-destructive font-medium"
+            class="text-[10px] rounded-full px-1.5 py-0.5 bg-muted text-destructive font-medium"
           >P1</span>
           <span
             v-else-if="task.priority === 'high' && !isCompleted"
@@ -108,7 +108,7 @@ const checkboxStyle = computed(() => {
           >P2</span>
           <span
             v-if="task.subtasks_count > 0"
-            class="text-[10px] tabular-nums text-muted-foreground/50"
+            class="text-[10px] tabular-nums text-muted-foreground"
           >{{ task.completed_subtasks_count }}/{{ task.subtasks_count }}</span>
         </div>
 
@@ -116,7 +116,7 @@ const checkboxStyle = computed(() => {
         <div class="flex items-center gap-1">
           <span
             v-if="task.due_time && displayTime"
-            class="text-[11px] tabular-nums text-muted-foreground/60"
+            class="text-[11px] tabular-nums text-muted-foreground"
           >{{ task.due_time.slice(0, 5) }}</span>
 
           <template v-if="task.due_date">
@@ -135,7 +135,7 @@ const checkboxStyle = computed(() => {
             >Amanhã</span>
             <span
               v-else
-              class="text-[11px] text-muted-foreground/50 tabular-nums"
+              class="text-[11px] text-muted-foreground tabular-nums"
             >{{ dueDateLabel }}</span>
           </template>
         </div>

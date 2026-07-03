@@ -139,7 +139,7 @@ const hasGoalsItems = computed(() =>
 
     <!-- Header -->
     <div class="flex flex-col gap-0.5 mb-4 pb-3 border-b border-border">
-      <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/80">
+      <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">
         Finanças
       </p>
       <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
@@ -151,7 +151,7 @@ const hasGoalsItems = computed(() =>
     </div>
 
     <!-- Month nav + summary card -->
-    <div class="bg-card border border-border rounded-lg p-4 mb-4">
+    <div class="bg-card rounded-lg p-4 mb-4">
       <!-- Month nav -->
       <div class="flex items-center justify-between mb-4">
         <button
@@ -200,43 +200,43 @@ const hasGoalsItems = computed(() =>
         <!-- Barra de uso total -->
         <div class="mt-1">
           <div class="flex items-center justify-between mb-1.5">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Uso do orçamento</p>
-            <p class="text-[11px] text-muted-foreground/60 tabular-nums">
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Uso do orçamento</p>
+            <p class="text-[11px] text-muted-foreground tabular-nums">
               {{ formatCurrency(budget.summary.total_spent) }} de {{ formatCurrency(budget.summary.total_budgeted) }}
               · {{ totalSpentPercent }}%
             </p>
           </div>
-          <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
+          <div class="h-1 rounded-full bg-muted overflow-hidden">
             <div
               class="h-full rounded-full transition-all duration-700"
               :class="totalBarColor"
               :style="{ width: `${Math.min(100, totalSpentPercent)}%` }"
             />
           </div>
-          <p class="text-[11px] text-muted-foreground/50 mt-1">
+          <p class="text-[11px] text-muted-foreground mt-1">
             {{ budget.summary.free_percentage.toFixed(1) }}% do total ainda disponível
           </p>
         </div>
 
         <!-- Resumo: categorias + metas + livre -->
-        <div class="mt-3 pt-3 border-t border-border/40 space-y-1">
+        <div class="mt-3 pt-3 border-t border-border space-y-1">
           <div class="flex items-center justify-between text-[11px]">
-            <span class="text-muted-foreground/50">Categorias</span>
-            <span class="text-muted-foreground/70 tabular-nums">
+            <span class="text-muted-foreground">Categorias</span>
+            <span class="text-muted-foreground tabular-nums">
               {{ formatCurrency(budget.summary.total_from_categories) }}
               · {{ budget.summary.categories_percentage.toFixed(1) }}%
             </span>
           </div>
           <div v-if="hasGoalsItems" class="flex items-center justify-between text-[11px]">
-            <span class="text-muted-foreground/50">Metas</span>
-            <span class="text-muted-foreground/70 tabular-nums">
+            <span class="text-muted-foreground">Metas</span>
+            <span class="text-muted-foreground tabular-nums">
               {{ formatCurrency(budget.summary.total_from_goals) }}
               · {{ budget.summary.goals_percentage.toFixed(1) }}%
             </span>
           </div>
           <div class="flex items-center justify-between text-[11px]">
-            <span class="text-success/80">Livre</span>
-            <span class="text-success/80 tabular-nums font-medium">
+            <span class="text-success">Livre</span>
+            <span class="text-success tabular-nums font-medium">
               {{ formatCurrency(budget.summary.free_amount) }}
               · {{ budget.summary.free_percentage.toFixed(1) }}%
             </span>
@@ -247,7 +247,7 @@ const hasGoalsItems = computed(() =>
       <!-- Sem orçamento -->
       <template v-else-if="!store.loadingBudget">
         <div class="text-center py-2">
-          <p class="text-[13px] text-muted-foreground/70 mb-1">
+          <p class="text-[13px] text-muted-foreground mb-1">
             Nenhum orçamento para {{ monthLabel }}
           </p>
         </div>
@@ -256,8 +256,8 @@ const hasGoalsItems = computed(() =>
       <!-- Loading -->
       <template v-else>
         <div class="space-y-2 py-2">
-          <div class="h-4 w-32 rounded bg-muted/60 animate-pulse mx-auto" />
-          <div class="h-3 w-24 rounded bg-muted/60 animate-pulse mx-auto" />
+          <div class="h-4 w-32 rounded bg-muted animate-pulse mx-auto" />
+          <div class="h-3 w-24 rounded bg-muted animate-pulse mx-auto" />
         </div>
       </template>
     </div>
@@ -269,21 +269,21 @@ const hasGoalsItems = computed(() =>
           v-if="previousBudget"
           type="button"
           :disabled="copyingPrevious"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card border border-border text-left transition-colors hover:bg-muted/20 active:scale-[0.99]"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card text-left transition-colors hover:bg-muted active:scale-[0.99]"
           @click="copyFromPrevious"
         >
-          <span class="size-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <span class="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
             <Copy :size="18" class="text-primary" />
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[14px] font-medium text-foreground">Copiar orçamento de {{ prevMonthLabel }}</p>
-            <p class="text-[12px] text-muted-foreground/60 mt-0.5">Usar o mesmo valor base e categorias</p>
+            <p class="text-[12px] text-muted-foreground mt-0.5">Usar o mesmo valor base e categorias</p>
           </div>
         </button>
 
         <button
           type="button"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card border border-border text-left transition-colors hover:bg-muted/20 active:scale-[0.99]"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card text-left transition-colors hover:bg-muted active:scale-[0.99]"
           @click="configSheetOpen = true"
         >
           <span class="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
@@ -291,7 +291,7 @@ const hasGoalsItems = computed(() =>
           </span>
           <div class="flex-1 min-w-0">
             <p class="text-[14px] font-medium text-foreground">Criar novo orçamento</p>
-            <p class="text-[12px] text-muted-foreground/60 mt-0.5">Definir valor base e limites por categoria</p>
+            <p class="text-[12px] text-muted-foreground mt-0.5">Definir valor base e limites por categoria</p>
           </div>
         </button>
       </div>
@@ -302,12 +302,12 @@ const hasGoalsItems = computed(() =>
 
       <!-- Seção: Categorias -->
       <div class="flex items-center justify-between mb-3">
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
           Categorias
         </p>
         <button
           type="button"
-          class="flex items-center gap-1 text-[12px] text-primary/70 hover:text-primary transition-colors"
+          class="flex items-center gap-1 text-[12px] text-primary hover:text-primary transition-colors"
           @click="configSheetOpen = true"
         >
           <Settings :size="13" />
@@ -319,7 +319,7 @@ const hasGoalsItems = computed(() =>
         <div
           v-for="item in budget.items"
           :key="item.category_id"
-          class="bg-card border border-border rounded-lg px-4 py-3"
+          class="bg-card rounded-lg px-4 py-3"
         >
           <div class="flex items-center gap-3 mb-2">
             <span
@@ -339,7 +339,7 @@ const hasGoalsItems = computed(() =>
 
             <div class="flex-1 min-w-0">
               <p class="text-[14px] font-medium text-foreground truncate">{{ item.category_name }}</p>
-              <p class="text-[12px] text-muted-foreground/50 tabular-nums mt-0.5">
+              <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
                 {{ formatCurrency(item.spent) }} / {{ formatCurrency(item.amount) }}
               </p>
             </div>
@@ -356,7 +356,7 @@ const hasGoalsItems = computed(() =>
             </div>
           </div>
 
-          <div class="h-1 rounded-full bg-muted/30 overflow-hidden">
+          <div class="h-1 rounded-full bg-muted overflow-hidden">
             <div
               class="h-full rounded-full transition-all duration-700"
               :class="barColor(item.status)"
@@ -368,7 +368,7 @@ const hasGoalsItems = computed(() =>
         <!-- Botão adicionar categoria -->
         <button
           type="button"
-          class="w-full flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-border/60 text-[13px] text-muted-foreground/60 hover:text-primary hover:border-primary/40 transition-colors"
+          class="w-full flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-border text-[13px] text-muted-foreground hover:text-primary transition-colors"
           @click="configSheetOpen = true"
         >
           <Plus :size="16" />
@@ -379,12 +379,12 @@ const hasGoalsItems = computed(() =>
       <!-- Seção: Metas (read-only) -->
       <template v-if="hasGoalsItems">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
             Metas
           </p>
           <button
             type="button"
-            class="text-[12px] text-primary/70 hover:text-primary transition-colors"
+            class="text-[12px] text-primary hover:text-primary transition-colors"
             @click="router.push({ name: ROUTES.FINANCE_GOALS })"
           >
             Ver metas →
@@ -395,18 +395,18 @@ const hasGoalsItems = computed(() =>
           <div
             v-for="goalItem in budget.goals_items"
             :key="goalItem.id"
-            class="bg-card border border-border rounded-lg px-4 py-3 flex items-center gap-3"
+            class="bg-card rounded-lg px-4 py-3 flex items-center gap-3"
           >
             <span
               class="size-10 rounded-xl flex items-center justify-center shrink-0"
-              :style="{ background: (goalItem.color ?? '#00C896') + '20' }"
+              :style="{ background: (goalItem.color ?? '#34d399') + '20' }"
             >
-              <Flag :size="20" :style="{ color: goalItem.color ?? '#00C896' }" />
+              <Flag :size="20" :style="{ color: goalItem.color ?? '#34d399' }" />
             </span>
 
             <div class="flex-1 min-w-0">
               <p class="text-[14px] font-medium text-foreground truncate">{{ goalItem.name }}</p>
-              <p class="text-[12px] text-muted-foreground/50 tabular-nums mt-0.5">
+              <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
                 {{ formatCurrency(goalItem.amount) }} / mês
               </p>
             </div>

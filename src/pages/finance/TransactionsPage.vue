@@ -362,7 +362,7 @@ async function loadPrevMonthReport() {
     <!-- ── Header ─────────────────────────────────────────────────────── -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 mb-4 pb-3 border-b border-border">
       <div>
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/80 mb-0.5">
+        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-0.5">
           Finanças
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
@@ -376,7 +376,7 @@ async function loadPrevMonthReport() {
         <!-- Search toggle -->
         <button
           type="button"
-          class="h-9 w-9 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          class="h-9 w-9 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           :class="searchOpen ? 'bg-muted text-foreground' : ''"
           @click="toggleSearch"
         >
@@ -385,7 +385,7 @@ async function loadPrevMonthReport() {
         <!-- + Transação — desktop only, FAB covers mobile -->
         <button
           type="button"
-          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
           @click="openCreate"
         >
           <Plus :size="14" />
@@ -407,25 +407,25 @@ async function loadPrevMonthReport() {
         <div class="relative">
           <Search
             :size="14"
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
           />
           <input
             ref="searchInputRef"
             v-model="searchQuery"
             type="text"
             placeholder="Buscar por nome, categoria, valor..."
-            class="w-full h-10 pl-9 pr-9 rounded-lg border border-border bg-card text-[13px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/60"
+            class="w-full h-10 pl-9 pr-9 rounded-lg bg-card text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
           />
           <button
             v-if="searchQuery"
             type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             @click="clearSearch"
           >
             <X :size="13" />
           </button>
         </div>
-        <p v-if="searchQuery" class="mt-1.5 text-[11px] text-muted-foreground/50">
+        <p v-if="searchQuery" class="mt-1.5 text-[11px] text-muted-foreground">
           {{ filteredTransactions.length }} resultado{{ filteredTransactions.length !== 1 ? 's' : '' }}
           para "{{ searchQuery }}"
         </p>
@@ -433,7 +433,7 @@ async function loadPrevMonthReport() {
     </Transition>
 
     <!-- ── Extended summary card ────────────────────────────────────────── -->
-    <div class="bg-card border border-border rounded-lg mb-4">
+    <div class="bg-card rounded-lg mb-4">
       <!-- TransactionSummaryCard: neutralise its own border+radius so the outer div controls them -->
       <TransactionSummaryCard
         :month="filterState.month.value"
@@ -453,11 +453,11 @@ async function loadPrevMonthReport() {
       <!-- Enrichment row: transaction count + biggest expense + pending -->
       <div
         v-if="!store.loading"
-        class="border-t border-border/40 px-4 pb-3 pt-2.5 grid gap-3"
+        class="border-t border-border px-4 pb-3 pt-2.5 grid gap-3"
         :class="(pendingIncome > 0 || pendingExpenses > 0) ? 'grid-cols-3' : 'grid-cols-2'"
       >
         <div>
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
             Transações
           </p>
           <p class="text-[14px] font-semibold tabular-nums text-foreground">
@@ -465,25 +465,25 @@ async function loadPrevMonthReport() {
           </p>
         </div>
         <div v-if="biggestExpense">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
             Maior despesa
           </p>
           <p class="text-[14px] font-semibold tabular-nums text-destructive">
             {{ formatCurrency(biggestExpense.amount) }}
           </p>
-          <p class="text-[11px] text-muted-foreground/50 truncate leading-tight mt-0.5">
+          <p class="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">
             {{ biggestExpense.category?.name ?? biggestExpense.description }}
           </p>
         </div>
         <!-- Pending amounts (M2) -->
         <div v-if="pendingIncome > 0 || pendingExpenses > 0">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50 font-semibold mb-1">
+          <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
             Pendentes
           </p>
           <p class="text-[13px] tabular-nums font-medium leading-snug">
-            <span v-if="pendingIncome > 0" class="text-success/70">+{{ formatCurrency(pendingIncome) }}</span>
-            <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground/30 mx-0.5">·</span>
-            <span v-if="pendingExpenses > 0" class="text-destructive/70">-{{ formatCurrency(pendingExpenses) }}</span>
+            <span v-if="pendingIncome > 0" class="text-success">+{{ formatCurrency(pendingIncome) }}</span>
+            <span v-if="pendingIncome > 0 && pendingExpenses > 0" class="text-muted-foreground mx-0.5">·</span>
+            <span v-if="pendingExpenses > 0" class="text-destructive">-{{ formatCurrency(pendingExpenses) }}</span>
           </p>
         </div>
       </div>
@@ -492,19 +492,19 @@ async function loadPrevMonthReport() {
     <!-- ── Saldo previsto card ───────────────────────────────────────────── -->
     <div
       v-if="filterState.month.value >= currentMonth() && !store.loading"
-      class="bg-card border border-border rounded-lg p-4 mb-4"
+      class="bg-card rounded-lg p-4 mb-4"
     >
       <div class="flex items-center gap-2 mb-3">
-        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
           <Calendar :size="16" class="text-primary" />
         </div>
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           Saldo Previsto
         </p>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo atual</p>
+          <p class="text-[12px] text-muted-foreground mb-1">Saldo atual</p>
           <button
             type="button"
             class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -514,11 +514,11 @@ async function loadPrevMonthReport() {
               class="text-[20px] font-semibold tabular-nums leading-none"
               :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
             >{{ formatCurrency(totalBalance) }}</span>
-            <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+            <ChevronRight :size="14" class="text-muted-foreground mt-0.5" />
           </button>
         </div>
         <div>
-          <p class="text-[12px] text-muted-foreground/50 mb-1">Saldo previsto</p>
+          <p class="text-[12px] text-muted-foreground mb-1">Saldo previsto</p>
           <button
             type="button"
             class="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -528,12 +528,12 @@ async function loadPrevMonthReport() {
               class="text-[20px] font-semibold tabular-nums leading-none"
               :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
             >{{ formatCurrency(projectedBalance) }}</span>
-            <ChevronRight :size="14" class="text-muted-foreground/30 mt-0.5" />
+            <ChevronRight :size="14" class="text-muted-foreground mt-0.5" />
           </button>
         </div>
       </div>
-      <div class="border-t border-border/40 mt-3 pt-3">
-        <p class="text-[11px] text-muted-foreground/70 leading-snug">
+      <div class="border-t border-border mt-3 pt-3">
+        <p class="text-[11px] text-muted-foreground leading-snug">
           considera transações agendadas e recorrentes pendentes
         </p>
       </div>
@@ -554,14 +554,14 @@ async function loadPrevMonthReport() {
             class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 whitespace-nowrap"
             :class="activeChip === chip.id
               ? 'bg-primary text-primary-foreground'
-              : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+              : 'bg-muted text-muted-foreground hover:bg-muted'"
             @click="setChip(chip.id)"
           >
             {{ chip.label }}
           </button>
 
           <!-- Divider -->
-          <div class="w-px h-5 bg-border/60 shrink-0 self-center" />
+          <div class="w-px h-5 bg-border shrink-0 self-center" />
 
           <!-- Account chip -->
           <DropdownMenu>
@@ -570,8 +570,8 @@ async function loadPrevMonthReport() {
                 type="button"
                 class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
                 :class="selectedAccountName
-                  ? 'bg-primary/15 text-primary border border-primary/30'
-                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                  ? 'bg-muted text-primary'
+                  : 'bg-muted text-muted-foreground hover:bg-muted'"
               >
                 <span class="max-w-[100px] truncate">{{ selectedAccountName ?? 'Conta' }}</span>
                 <ChevronDown :size="10" class="opacity-60 shrink-0" />
@@ -603,8 +603,8 @@ async function loadPrevMonthReport() {
                 type="button"
                 class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
                 :class="selectedCategoryName
-                  ? 'bg-primary/15 text-primary border border-primary/30'
-                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                  ? 'bg-muted text-primary'
+                  : 'bg-muted text-muted-foreground hover:bg-muted'"
               >
                 <span class="max-w-[100px] truncate">{{ selectedCategoryName ?? 'Categoria' }}</span>
                 <ChevronDown :size="10" class="opacity-60 shrink-0" />
@@ -636,8 +636,8 @@ async function loadPrevMonthReport() {
                 type="button"
                 class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
                 :class="selectedDay
-                  ? 'bg-primary/15 text-primary border border-primary/30'
-                  : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+                  ? 'bg-muted text-primary'
+                  : 'bg-muted text-muted-foreground hover:bg-muted'"
               >
                 {{ selectedDay ? formatDayLabel(selectedDay) : 'Data' }}
                 <ChevronDown :size="10" class="opacity-60 shrink-0" />
@@ -646,19 +646,19 @@ async function loadPrevMonthReport() {
             <DropdownMenuContent align="start" class="w-56 p-2">
               <button
                 type="button"
-                class="w-full text-left text-[12px] px-2 py-1.5 rounded-md transition-colors hover:bg-muted/50"
+                class="w-full text-left text-[12px] px-2 py-1.5 rounded-md transition-colors hover:bg-muted"
                 :class="!selectedDay ? 'text-primary font-medium' : 'text-muted-foreground'"
                 @click="selectDay(null)"
               >
                 Todos os dias
               </button>
-              <div class="mt-1.5 border-t border-border/40 pt-2">
+              <div class="mt-1.5 border-t border-border pt-2">
                 <!-- Days header -->
                 <div class="grid grid-cols-7 gap-0.5 mb-1">
                   <span
                     v-for="d in ['D','S','T','Q','Q','S','S']"
                     :key="d"
-                    class="h-6 flex items-center justify-center text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/40"
+                    class="h-6 flex items-center justify-center text-[9px] font-semibold uppercase tracking-widest text-muted-foreground"
                   >{{ d }}</span>
                 </div>
                 <!-- Day grid -->
@@ -672,8 +672,8 @@ async function loadPrevMonthReport() {
                       selectedDay === dateStr
                         ? 'bg-primary text-primary-foreground font-semibold'
                         : hasTx
-                          ? 'text-foreground font-medium hover:bg-muted/50 cursor-pointer'
-                          : 'text-muted-foreground/25 cursor-default',
+                          ? 'text-foreground font-medium hover:bg-muted cursor-pointer'
+                          : 'text-muted-foreground cursor-default',
                     ]"
                     @click="hasTx ? selectDay(dateStr) : undefined"
                   >
@@ -699,7 +699,7 @@ async function loadPrevMonthReport() {
         <button
           v-if="hasAnyFilter"
           type="button"
-          class="shrink-0 h-7 px-2.5 rounded-full text-[11px] font-medium flex items-center gap-1 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+          class="shrink-0 h-7 px-2.5 rounded-full text-[11px] font-medium flex items-center gap-1 text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
           @click="clearFilters"
         >
           <X :size="10" />

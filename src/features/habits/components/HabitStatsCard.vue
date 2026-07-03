@@ -13,7 +13,7 @@ defineProps<{
 <template>
   <div class="grid grid-cols-2 gap-3">
     <!-- Current streak -->
-    <div class="rounded-lg border border-border bg-card p-3 space-y-1">
+    <div class="rounded-lg bg-card p-3 space-y-1">
       <div class="flex items-center gap-1.5 text-muted-foreground">
         <Flame :size="13" class="text-orange-400" />
         <span class="text-[11px] font-medium uppercase tracking-wide">Sequência atual</span>
@@ -26,7 +26,7 @@ defineProps<{
     </div>
 
     <!-- Best streak -->
-    <div class="rounded-lg border border-border bg-card p-3 space-y-1">
+    <div class="rounded-lg bg-card p-3 space-y-1">
       <div class="flex items-center gap-1.5 text-muted-foreground">
         <TrendingUp :size="13" class="text-emerald-400" />
         <span class="text-[11px] font-medium uppercase tracking-wide">Recorde</span>
@@ -39,7 +39,7 @@ defineProps<{
     </div>
 
     <!-- Weekly consistency -->
-    <div class="rounded-lg border border-border bg-card p-3 space-y-1">
+    <div class="rounded-lg bg-card p-3 space-y-1">
       <div class="flex items-center gap-1.5 text-muted-foreground">
         <Calendar :size="13" class="text-blue-400" />
         <span class="text-[11px] font-medium uppercase tracking-wide">Esta semana</span>
@@ -52,7 +52,7 @@ defineProps<{
     </div>
 
     <!-- Completion rate -->
-    <div class="rounded-lg border border-border bg-card p-3 space-y-1">
+    <div class="rounded-lg bg-card p-3 space-y-1">
       <div class="flex items-center gap-1.5 text-muted-foreground">
         <Target :size="13" class="text-muted-foreground" />
         <span class="text-[11px] font-medium uppercase tracking-wide">Consistência</span>

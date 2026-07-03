@@ -133,7 +133,7 @@ async function focusContent() {
       <div class="flex items-center gap-0.5">
         <!-- Pin -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-muted"
           :style="note.is_pinned
             ? 'color: hsl(var(--primary)); background: hsl(var(--primary) / 0.1)'
             : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -147,7 +147,7 @@ async function focusContent() {
 
         <!-- Favorite -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-muted"
           :style="note.is_favorite
             ? 'color: hsl(var(--warning)); background: hsl(var(--warning) / 0.1)'
             : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -162,7 +162,7 @@ async function focusContent() {
         <!-- Tag picker -->
         <div class="relative">
           <button
-            class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
+            class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-muted"
             :style="tagPickerOpen
               ? 'color: hsl(var(--foreground)); background: hsl(var(--accent))'
               : 'color: hsl(var(--muted-foreground) / 0.4)'"
@@ -177,7 +177,7 @@ async function focusContent() {
           <!-- Tag picker dropdown -->
           <div
             v-if="tagPickerOpen"
-            class="absolute left-0 top-full mt-1 w-48 rounded-lg border shadow-lg z-10 py-1"
+            class="absolute left-0 top-full mt-1 w-48 rounded-lg   z-10 py-1"
             style="background: hsl(var(--popover)); border-color: hsl(var(--border))"
           >
             <div
@@ -210,7 +210,7 @@ async function focusContent() {
                   v-model="newTagName"
                   type="text"
                   placeholder="Nova tag…"
-                  class="flex-1 bg-transparent outline-none text-[11.5px] text-foreground placeholder:text-muted-foreground/30"
+                  class="flex-1 bg-transparent outline-none text-[11.5px] text-foreground placeholder:text-muted-foreground"
                   @keydown.enter.prevent="createAndApplyTag"
                   @keydown.stop
                 />
@@ -232,7 +232,7 @@ async function focusContent() {
         <!-- Archive / Unarchive -->
         <button
           v-if="!note.is_archived"
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-muted"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Arquivar"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
@@ -243,7 +243,7 @@ async function focusContent() {
         </button>
         <button
           v-else
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-muted"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Desarquivar"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
@@ -255,7 +255,7 @@ async function focusContent() {
 
         <!-- Delete -->
         <button
-          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-accent/40"
+          class="flex items-center justify-center w-7 h-7 rounded-md transition-base hover:bg-muted"
           style="color: hsl(var(--muted-foreground) / 0.4)"
           title="Excluir"
           @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--destructive))'"
@@ -276,7 +276,7 @@ async function focusContent() {
         v-model="title"
         type="text"
         placeholder="Sem título"
-        class="w-full bg-transparent outline-none text-[22px] font-semibold text-foreground placeholder:text-muted-foreground/15 leading-tight"
+        class="w-full bg-transparent outline-none text-[22px] font-semibold text-foreground placeholder:text-muted-foreground leading-tight"
       />
     </div>
 
@@ -299,7 +299,7 @@ async function focusContent() {
         id="note-content"
         v-model="content"
         placeholder="Escreva algo…"
-        class="w-full h-full resize-none bg-transparent outline-none text-[14px] leading-[1.75] text-foreground/75 placeholder:text-muted-foreground/20"
+        class="w-full h-full resize-none bg-transparent outline-none text-[14px] leading-[1.75] text-foreground placeholder:text-muted-foreground"
         style="font-family: inherit"
       />
     </div>

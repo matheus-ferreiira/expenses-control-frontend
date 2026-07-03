@@ -183,7 +183,7 @@ async function handleArchive() {
             <Button
               variant="outline"
               size="sm"
-              class="gap-1.5 text-destructive hover:text-destructive border-destructive/30 hover:border-destructive/60 ml-auto"
+              class="gap-1.5 text-destructive hover:text-destructive ml-auto"
               @click="showDeleteConfirm = true"
             >
               <Trash2 :size="13" />
@@ -192,7 +192,7 @@ async function handleArchive() {
           </div>
 
           <!-- Metadata -->
-          <div class="text-xs text-muted-foreground/60 space-y-0.5 pt-2">
+          <div class="text-xs text-muted-foreground space-y-0.5 pt-2">
             <p>Criado em {{ new Date(habit.created_at).toLocaleDateString('pt-BR') }}</p>
           </div>
         </div>

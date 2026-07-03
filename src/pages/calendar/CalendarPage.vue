@@ -107,7 +107,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
       <div class="min-w-0">
         <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-0.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">ROTINA</p>
         <h1 class="text-[18px] font-semibold text-foreground tracking-tight leading-tight">Agenda</h1>
-        <p class="hidden sm:block text-[11px] text-muted-foreground/40 mt-0.5 select-none">Eventos, compromissos e tarefas em um só lugar. Sincronização com Google Calendar em breve.</p>
+        <p class="hidden sm:block text-[11px] text-muted-foreground mt-0.5 select-none">Eventos, compromissos e tarefas em um só lugar. Sincronização com Google Calendar em breve.</p>
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <button

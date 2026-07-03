@@ -70,13 +70,13 @@ onMounted(() => store.fetchGoals())
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1.5">
           Objetivos
         </p>
         <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Metas
         </h1>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-[13px] text-muted-foreground">
           Suas metas financeiras, pessoais e de saúde unificadas.
         </p>
       </div>
@@ -97,8 +97,8 @@ onMounted(() => store.fetchGoals())
               <Skeleton class="h-3 w-20" />
               <Skeleton class="h-3 w-4" />
             </div>
-            <div class="rounded-lg border border-border/50 overflow-hidden">
-              <div v-for="j in 3" :key="j" class="flex items-center gap-4 px-4 py-3 border-b border-border/25 last:border-b-0">
+            <div class="rounded-lg overflow-hidden">
+              <div v-for="j in 3" :key="j" class="flex items-center gap-4 px-4 py-3 border-b border-border last:border-b-0">
                 <div class="flex-1 space-y-1.5">
                   <Skeleton class="h-3.5 w-2/3" />
                   <Skeleton class="h-3 w-1/3" />

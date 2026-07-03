@@ -13,7 +13,7 @@ withDefaults(
 </script>
 
 <template>
-  <Card :class="ghost ? 'border-transparent bg-transparent shadow-none' : undefined">
+  <Card :class="ghost ? ' bg-transparent shadow-none' : undefined">
     <CardHeader v-if="$slots.header" :class="noPadding ? 'p-0' : undefined">
       <slot name="header" />
     </CardHeader>

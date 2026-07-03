@@ -41,10 +41,10 @@ function onBlur(e: Event) {
 </script>
 
 <template>
-  <div class="inline-flex items-center h-11 rounded-lg border border-border bg-card overflow-hidden shrink-0">
+  <div class="inline-flex items-center h-11 rounded-lg bg-card overflow-hidden shrink-0">
     <button
       type="button"
-      class="h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-muted/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      class="h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       :disabled="modelValue <= min"
       aria-label="Diminuir"
       @click="decrement"
@@ -61,7 +61,7 @@ function onBlur(e: Event) {
     />
     <button
       type="button"
-      class="h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-muted/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      class="h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       :disabled="modelValue >= max"
       aria-label="Aumentar"
       @click="increment"

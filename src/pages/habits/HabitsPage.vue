@@ -277,7 +277,7 @@ onUnmounted(() => {
 
     <!-- Heatmap (desktop only, only when there are habits) -->
     <div v-if="activeHabits.length > 0" class="hidden lg:block px-5 lg:px-8 mt-0 pb-8 shrink-0">
-      <section class="bg-card border border-border rounded-md overflow-hidden">
+      <section class="bg-card rounded-md overflow-hidden">
         <header class="flex items-center justify-between px-4 py-3 border-b border-border">
           <h2 class="text-sm font-semibold text-foreground">Heatmap de consistência — últimas 12 semanas</h2>
         </header>
@@ -289,7 +289,7 @@ onUnmounted(() => {
 
   <!-- Mobile FAB -->
   <button
-    class="lg:hidden fixed right-4 bottom-24 h-14 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg z-40"
+    class="lg:hidden fixed right-4 bottom-24 h-14 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2  z-40"
     @click="openCreate"
   >
     <Plus :size="18" />

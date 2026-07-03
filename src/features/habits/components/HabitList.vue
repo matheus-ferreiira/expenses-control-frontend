@@ -43,7 +43,7 @@ function handleLog(id: string) {
 
 <template>
   <!-- Loading -->
-  <div v-if="loading" class="rounded-lg border border-border overflow-hidden divide-y divide-border/50">
+  <div v-if="loading" class="rounded-lg overflow-hidden divide-y divide-border">
     <div v-for="i in 5" :key="i" class="flex items-center gap-3 px-4 py-3">
       <Skeleton class="w-1.5 h-8 rounded-full" />
       <div class="flex-1 space-y-1.5">
@@ -70,11 +70,11 @@ function handleLog(id: string) {
   </EmptyState>
 
   <!-- List -->
-  <div v-else class="rounded-lg border border-border overflow-hidden">
+  <div v-else class="rounded-lg overflow-hidden">
     <div
       v-for="habit in habits"
       :key="habit.id"
-      class="group flex items-center gap-3 px-4 py-3 border-b border-border/50 last:border-0 hover:bg-accent/40 transition-base cursor-pointer"
+      class="group flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted transition-base cursor-pointer"
       @click="emit('open', habit)"
     >
       <!-- Color dot -->

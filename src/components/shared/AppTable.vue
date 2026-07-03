@@ -42,7 +42,7 @@ const alignClass: Record<string, string> = {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border overflow-hidden">
+  <div class="rounded-lg overflow-hidden">
     <Table>
       <TableHeader>
         <TableRow class="hover:bg-transparent">

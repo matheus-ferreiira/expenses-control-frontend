@@ -143,7 +143,7 @@ function statusLabel(filter: StatusFilter): string {
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Preços
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
@@ -155,7 +155,7 @@ function statusLabel(filter: StatusFilter): string {
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mt-1"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
         @click="openCreate"
       >
         <Plus :size="14" />
@@ -167,7 +167,7 @@ function statusLabel(filter: StatusFilter): string {
     <div class="flex flex-wrap items-center gap-2 mb-4">
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[12px] font-medium bg-muted/40 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[12px] font-medium bg-muted text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         @click="categoriesOpen = true"
       >
         <Tag :size="13" />
@@ -175,7 +175,7 @@ function statusLabel(filter: StatusFilter): string {
       </button>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[12px] font-medium bg-muted/40 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[12px] font-medium bg-muted text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         @click="storesOpen = true"
       >
         <StoreIcon :size="13" />
@@ -186,7 +186,7 @@ function statusLabel(filter: StatusFilter): string {
         class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[12px] font-medium transition-colors"
         :class="compareMode
           ? 'bg-primary text-primary-foreground'
-          : 'bg-muted/40 text-muted-foreground hover:bg-muted/60 hover:text-foreground'"
+          : 'bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'"
         @click="toggleCompareMode"
       >
         <GitCompareArrows :size="13" />
@@ -205,7 +205,7 @@ function statusLabel(filter: StatusFilter): string {
           class="h-8 px-3 rounded-full text-[12px] font-medium transition-colors"
           :class="statusFilter === f
             ? 'bg-primary text-primary-foreground'
-            : 'bg-muted/30 text-muted-foreground/60 hover:bg-muted/50'"
+            : 'bg-muted text-muted-foreground hover:bg-muted'"
           @click="statusFilter = f"
         >
           {{ statusLabel(f) }}
@@ -215,24 +215,24 @@ function statusLabel(filter: StatusFilter): string {
       <!-- Search + category -->
       <div class="flex flex-wrap items-center gap-2">
         <div class="relative flex-1 min-w-[180px]">
-          <Search :size="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none" />
+          <Search :size="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
             v-model="search"
             type="text"
             placeholder="Buscar produto..."
-            class="w-full h-9 rounded-md bg-card border border-border/60 pl-9 pr-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+            class="w-full h-9 rounded-md bg-card pl-9 pr-3 text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
           />
         </div>
         <div class="relative">
           <select
             v-model="categoryFilter"
-            class="h-9 rounded-md border border-border/60 bg-card pl-3 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary/60 appearance-none cursor-pointer transition-colors"
-            :class="!categoryFilter ? 'text-muted-foreground/60' : ''"
+            class="h-9 rounded-md bg-card pl-3 pr-8 text-[12px] text-foreground focus:outline-none focus:border-primary appearance-none cursor-pointer transition-colors"
+            :class="!categoryFilter ? 'text-muted-foreground' : ''"
           >
             <option value="">Todas as categorias</option>
             <option v-for="c in store.categories" :key="c.id" :value="c.id">{{ c.name }}</option>
           </select>
-          <ChevronDown :size="12" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none" />
+          <ChevronDown :size="12" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         </div>
       </div>
     </div>
@@ -254,7 +254,7 @@ function statusLabel(filter: StatusFilter): string {
 
     <p
       v-else-if="store.products.length === 0"
-      class="text-[13px] text-muted-foreground/60 py-12 text-center"
+      class="text-[13px] text-muted-foreground py-12 text-center"
     >
       Nenhum produto encontrado com os filtros atuais.
     </p>
@@ -266,10 +266,10 @@ function statusLabel(filter: StatusFilter): string {
         :key="product.id"
         role="button"
         tabindex="0"
-        class="rounded-lg border border-border p-4 text-left transition-colors cursor-pointer"
+        class="rounded-lg p-4 text-left transition-colors cursor-pointer"
         :class="compareMode && selectedIds.has(product.id)
-          ? 'bg-primary/20'
-          : 'bg-card hover:bg-muted/20'"
+          ? 'bg-muted'
+          : 'bg-card hover:bg-muted'"
         @click="onCardClick(product)"
         @keydown.enter="onCardClick(product)"
       >
@@ -279,13 +279,13 @@ function statusLabel(filter: StatusFilter): string {
               <span
                 v-if="compareMode"
                 class="size-4 rounded grid place-items-center shrink-0 transition-colors"
-                :class="selectedIds.has(product.id) ? 'bg-primary text-primary-foreground' : 'bg-muted/60'"
+                :class="selectedIds.has(product.id) ? 'bg-primary text-primary-foreground' : 'bg-muted'"
               >
                 <Check v-if="selectedIds.has(product.id)" :size="11" />
               </span>
               <p class="text-[15px] font-semibold text-foreground truncate">{{ product.name }}</p>
             </div>
-            <p class="text-[12px] text-muted-foreground/60 truncate mt-0.5">
+            <p class="text-[12px] text-muted-foreground truncate mt-0.5">
               <template v-if="product.brand || product.model">
                 {{ [product.brand, product.model].filter(Boolean).join(' · ') }}
               </template>
@@ -296,10 +296,10 @@ function statusLabel(filter: StatusFilter): string {
             <span
               class="text-[11px] font-medium px-2 py-0.5 rounded-full"
               :class="product.status === 'tracking'
-                ? 'bg-primary/15 text-primary'
+                ? 'bg-muted text-primary'
                 : product.status === 'purchased'
-                  ? 'bg-muted/60 text-muted-foreground'
-                  : 'bg-muted/40 text-muted-foreground/50'"
+                  ? 'bg-muted text-muted-foreground'
+                  : 'bg-muted text-muted-foreground'"
             >
               {{ PRICE_PRODUCT_STATUS_LABELS[product.status] }}
             </span>
@@ -312,7 +312,7 @@ function statusLabel(filter: StatusFilter): string {
             <p class="text-[17px] font-semibold tabular-nums mt-0.5 text-foreground">
               {{ product.stats?.last_price != null ? formatCurrency(product.stats.last_price) : '—' }}
             </p>
-            <p class="text-[11px] text-muted-foreground/60 tabular-nums mt-0.5">
+            <p class="text-[11px] text-muted-foreground tabular-nums mt-0.5">
               Mín {{ product.stats?.min_price != null ? formatCurrency(product.stats.min_price) : '—' }}
               · Méd {{ product.stats?.avg_price != null ? formatCurrency(product.stats.avg_price) : '—' }}
             </p>
@@ -322,18 +322,18 @@ function statusLabel(filter: StatusFilter): string {
               :status="product.stats?.goal_status ?? null"
               :has-target="product.target_price !== null"
             />
-            <p v-if="product.target_price !== null" class="text-[11px] text-muted-foreground/60 tabular-nums mt-1">
+            <p v-if="product.target_price !== null" class="text-[11px] text-muted-foreground tabular-nums mt-1">
               Meta <span class="font-semibold">{{ formatCurrency(product.target_price) }}</span>
             </p>
           </div>
         </div>
 
         <!-- Row actions -->
-        <div v-if="!compareMode" class="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-border/30">
+        <div v-if="!compareMode" class="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-border">
           <button
             type="button"
             aria-label="Editar produto"
-            class="p-1.5 rounded-md text-muted-foreground/50 hover:text-foreground hover:bg-muted/40 transition-colors"
+            class="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             @click.stop="openEdit(product)"
           >
             <Pencil :size="13" />
@@ -341,7 +341,7 @@ function statusLabel(filter: StatusFilter): string {
           <button
             type="button"
             aria-label="Excluir produto"
-            class="p-1.5 rounded-md text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
+            class="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
             @click.stop="requestDelete(product)"
           >
             <Trash2 :size="13" />
@@ -353,7 +353,7 @@ function statusLabel(filter: StatusFilter): string {
     <!-- Compare action bar -->
     <div
       v-if="compareMode"
-      class="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border/40 px-4 py-3 flex items-center justify-between gap-3"
+      class="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border px-4 py-3 flex items-center justify-between gap-3"
     >
       <p class="text-[12px] text-muted-foreground tabular-nums">
         {{ selectedIds.size }} de 4 selecionados
@@ -361,7 +361,7 @@ function statusLabel(filter: StatusFilter): string {
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="inline-flex items-center gap-1 h-10 px-3 rounded-lg text-[13px] text-muted-foreground hover:bg-muted/40 transition-colors"
+          class="inline-flex items-center gap-1 h-10 px-3 rounded-lg text-[13px] text-muted-foreground hover:bg-muted transition-colors"
           @click="toggleCompareMode"
         >
           <X :size="14" />

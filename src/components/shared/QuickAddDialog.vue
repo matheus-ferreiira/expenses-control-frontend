@@ -162,10 +162,10 @@ async function submitEvent() {
 
 const QUICK_ACTIONS = [
   { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, bgClass: 'bg-[hsl(var(--color-task)/0.15)]', iconClass: 'text-[hsl(var(--color-task))]' },
-  { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, bgClass: 'bg-destructive/15', iconClass: 'text-destructive' },
-  { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, bgClass: 'bg-success/15', iconClass: 'text-success' },
-  { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, bgClass: 'bg-muted/60', iconClass: 'text-muted-foreground' },
-  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-warning/15', iconClass: 'text-warning' },
+  { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, bgClass: 'bg-muted', iconClass: 'text-destructive' },
+  { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, bgClass: 'bg-muted', iconClass: 'text-success' },
+  { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, bgClass: 'bg-muted', iconClass: 'text-muted-foreground' },
+  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-muted', iconClass: 'text-warning' },
   { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, bgClass: 'bg-[hsl(var(--color-event)/0.15)]', iconClass: 'text-[hsl(var(--color-event))]' },
 ]
 </script>
@@ -175,7 +175,7 @@ const QUICK_ACTIONS = [
     <SheetContent side="bottom"
       class="rounded-t-2xl border-t-2 border-primary bg-background p-0 max-h-[92vh] overflow-y-auto [&>button]:hidden">
       <!-- Drag handle -->
-      <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-muted-foreground/20" />
+      <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-border" />
 
       <!-- ── Action menu ── -->
       <template v-if="!action">
@@ -183,10 +183,10 @@ const QUICK_ACTIONS = [
           <p class="text-[15px] font-semibold">Adicionar rápido</p>
           <p class="text-[12px] text-muted-foreground mt-0.5">O que você quer registrar agora?</p>
         </div>
-        <ul class="px-2 pb-6 divide-y divide-border/10">
+        <ul class="px-2 pb-6 divide-y divide-border">
           <li v-for="a in QUICK_ACTIONS" :key="a.id">
             <button
-              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-muted/40"
+              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left min-h-[56px] transition-colors hover:bg-muted"
               @click="selectAction(a.id)">
               <span class="size-10 rounded-lg grid place-items-center shrink-0" :class="a.bgClass">
                 <component :is="a.icon" :size="20" :class="a.iconClass" />
@@ -212,12 +212,12 @@ const QUICK_ACTIONS = [
           </header>
           <div class="px-5 py-4 space-y-4">
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Título</p>
               <input v-model="taskForm.title" autofocus placeholder="O que precisa ser feito?"
-                class="w-full h-11 px-3 rounded-lg bg-card border border-border/60 focus:border-border outline-none text-[13px]" />
+                class="w-full h-11 px-3 rounded-lg bg-card focus:border-border outline-none text-[13px]" />
             </div>
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Data
                 (opcional)</p>
               <DatePicker v-model="taskForm.due_date" />
             </div>
@@ -265,7 +265,7 @@ const QUICK_ACTIONS = [
                       v-if="habit.icon && findIcon(habit.icon)" :size="14" />
                   </span>
                   <span class="text-[13px] flex-1">{{ habit.name }}</span>
-                  <span v-if="isCompletedToday(habit)" class="text-[10px] text-success/70">✓ hoje</span>
+                  <span v-if="isCompletedToday(habit)" class="text-[10px] text-success">✓ hoje</span>
                 </label>
               </li>
             </ul>
@@ -293,12 +293,12 @@ const QUICK_ACTIONS = [
           </header>
           <div class="px-5 py-4 space-y-4">
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Título</p>
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Título</p>
               <input v-model="eventForm.title" autofocus placeholder="Reunião, almoço, dentista..."
-                class="w-full h-11 px-3 rounded-lg bg-card border border-border/60 focus:border-border outline-none text-[13px]" />
+                class="w-full h-11 px-3 rounded-lg bg-card focus:border-border outline-none text-[13px]" />
             </div>
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Data</p>
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Data</p>
               <DatePicker v-model="eventForm.start_date" />
             </div>
           </div>

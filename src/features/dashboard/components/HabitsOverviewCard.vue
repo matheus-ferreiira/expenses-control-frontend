@@ -39,15 +39,15 @@ function handleLog(id: string) {
 </script>
 
 <template>
-  <div class="rounded-lg border border-border/50 bg-card">
+  <div class="rounded-lg bg-card">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border/40">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
       <div class="flex items-center gap-2">
         <Flame :size="13" class="text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">Hábitos</span>
         <span
           v-if="!loading && habits.length > 0"
-          class="text-[10px] text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded-full tabular-nums"
+          class="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full tabular-nums"
         >
           {{ completedCount }}/{{ habits.length }}
         </span>
@@ -63,12 +63,12 @@ function handleLog(id: string) {
     <!-- Progress bar -->
     <div v-if="!loading && habits.length > 0" class="px-4 pt-3 pb-1">
       <div class="flex items-center justify-between mb-1">
-        <span class="text-[10px] text-muted-foreground/50">Hoje</span>
-        <span class="text-[10px] text-muted-foreground/70 tabular-nums">{{ completionPct }}%</span>
+        <span class="text-[10px] text-muted-foreground">Hoje</span>
+        <span class="text-[10px] text-muted-foreground tabular-nums">{{ completionPct }}%</span>
       </div>
-      <div class="h-1 w-full bg-muted/50 rounded-full overflow-hidden">
+      <div class="h-1 w-full bg-muted rounded-full overflow-hidden">
         <div
-          class="h-full bg-primary/60 rounded-full transition-all duration-500"
+          class="h-full bg-muted rounded-full transition-all duration-500"
           :style="{ width: `${completionPct}%` }"
         />
       </div>
@@ -91,16 +91,16 @@ function handleLog(id: string) {
       v-else-if="habits.length === 0"
       class="flex flex-col items-center justify-center py-8 px-4 text-center"
     >
-      <Flame :size="18" class="text-muted-foreground/30 mb-2" />
-      <p class="text-sm text-muted-foreground/50">Nenhum hábito ativo.</p>
+      <Flame :size="18" class="text-muted-foreground mb-2" />
+      <p class="text-sm text-muted-foreground">Nenhum hábito ativo.</p>
     </div>
 
     <!-- Habit list -->
-    <div v-else class="divide-y divide-border/40">
+    <div v-else class="divide-y divide-border">
       <div
         v-for="habit in shown"
         :key="habit.id"
-        class="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/20 transition-base"
+        class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-base"
       >
         <!-- Color dot -->
         <div
@@ -121,11 +121,11 @@ function handleLog(id: string) {
               :class="[
                 'h-1.5 w-1.5 rounded-full transition-base',
                 dot.isFuture
-                  ? 'bg-muted/30'
+                  ? 'bg-muted'
                   : dot.isLogged
-                    ? 'bg-primary/70'
+                    ? 'bg-muted'
                     : dot.isTarget
-                      ? 'bg-muted-foreground/20'
+                      ? 'bg-border'
                       : 'bg-transparent',
               ]"
             />
@@ -147,7 +147,7 @@ function handleLog(id: string) {
             'shrink-0 h-[18px] w-[18px] rounded-full border flex items-center justify-center transition-all',
             isCompletedToday(habit)
               ? 'bg-emerald-500/80 border-emerald-500/80 text-white'
-              : 'border-border/80 hover:border-emerald-500/50 hover:bg-emerald-500/5',
+              : 'border-border hover:border-emerald-500/50 hover:bg-emerald-500/5',
           ]"
           :disabled="loggingIds.has(habit.id)"
           @click="handleLog(habit.id)"
@@ -160,7 +160,7 @@ function handleLog(id: string) {
       <!-- More row -->
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
-          class="text-xs text-muted-foreground/60 hover:text-foreground transition-base"
+          class="text-xs text-muted-foreground hover:text-foreground transition-base"
           @click="router.push({ name: ROUTES.HABITS })"
         >
           + {{ habits.length - MAX_SHOWN }} mais

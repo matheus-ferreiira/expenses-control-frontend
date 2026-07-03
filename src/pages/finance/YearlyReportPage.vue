@@ -195,13 +195,13 @@ function hsl(token: string, alpha = 1): string {
     <!-- Page header -->
     <div class="flex items-start justify-between mb-6">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Finanças
         </p>
         <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Relatório anual
         </h1>
-        <p class="text-[13px] text-muted-foreground/50">
+        <p class="text-[13px] text-muted-foreground">
           Resumo de receitas e despesas do ano.
         </p>
       </div>
@@ -226,7 +226,7 @@ function hsl(token: string, alpha = 1): string {
     </div>
 
     <!-- Year navigator -->
-    <div class="flex items-center justify-between bg-card border border-border rounded-lg px-2 py-1.5 mb-5">
+    <div class="flex items-center justify-between bg-card rounded-lg px-2 py-1.5 mb-5">
       <button
         type="button"
         class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
@@ -254,14 +254,14 @@ function hsl(token: string, alpha = 1): string {
 
     <!-- Empty state -->
     <div v-else-if="!report" class="flex flex-col items-center justify-center py-16 text-center">
-      <Calendar :size="40" class="text-muted-foreground/30 mb-3" />
+      <Calendar :size="40" class="text-muted-foreground mb-3" />
       <p class="text-[15px] font-semibold">Sem dados para {{ year }}</p>
-      <p class="text-[13px] text-muted-foreground/50 mt-1">Nenhuma transação encontrada neste ano.</p>
+      <p class="text-[13px] text-muted-foreground mt-1">Nenhuma transação encontrada neste ano.</p>
     </div>
 
     <template v-else>
       <!-- Period summary card -->
-      <div class="bg-card border border-border rounded-lg p-4 mb-5">
+      <div class="bg-card rounded-lg p-4 mb-5">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
@@ -281,7 +281,7 @@ function hsl(token: string, alpha = 1): string {
             </p>
           </div>
         </div>
-        <div class="mt-3 pt-3 border-t border-border/40 grid grid-cols-2 gap-3 text-center">
+        <div class="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-3 text-center">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Taxa de poupança</p>
             <p class="text-[15px] font-semibold tabular-nums mt-0.5" :class="savingsRate >= 0 ? 'text-success' : 'text-destructive'">
@@ -305,7 +305,7 @@ function hsl(token: string, alpha = 1): string {
       <div class="grid grid-cols-1 gap-5 mb-5">
 
         <!-- Bar chart -->
-        <div class="bg-card border border-border rounded-xl p-4">
+        <div class="bg-card rounded-xl p-4">
           <p class="text-[12px] font-semibold text-foreground mb-3">Receitas × Despesas por mês</p>
           <div class="relative h-64">
             <canvas ref="chartRef" />
@@ -313,7 +313,7 @@ function hsl(token: string, alpha = 1): string {
         </div>
 
         <!-- Monthly table -->
-        <div class="bg-card border border-border rounded-xl overflow-hidden">
+        <div class="bg-card rounded-xl overflow-hidden">
           <div class="px-4 py-3 border-b border-border">
             <p class="text-[12px] font-semibold text-foreground">Detalhamento mensal</p>
           </div>
@@ -322,7 +322,7 @@ function hsl(token: string, alpha = 1): string {
               v-for="m in monthsWithDelta"
               :key="m.month"
               type="button"
-              class="w-full px-4 py-3 text-left hover:bg-muted/30 transition-colors border-b border-border"
+              class="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b border-border"
               @click="goToMonth(m.month)"
             >
               <!-- Row 1: month name + balance -->
@@ -344,12 +344,12 @@ function hsl(token: string, alpha = 1): string {
               <div class="flex items-center justify-between">
                 <span class="text-[12px] tabular-nums text-success">
                   +{{ formatCurrency(m.income) }}
-                  <span class="text-muted-foreground/40 ml-0.5">receitas</span>
+                  <span class="text-muted-foreground ml-0.5">receitas</span>
                 </span>
                 <span
                   v-if="m.delta !== null"
                   class="text-[11px] tabular-nums"
-                  :class="m.delta > 0 ? 'text-destructive/70' : m.delta < 0 ? 'text-success/70' : 'text-muted-foreground/40'"
+                  :class="m.delta > 0 ? 'text-destructive' : m.delta < 0 ? 'text-success' : 'text-muted-foreground'"
                 >
                   {{ m.delta > 0 ? '↑' : m.delta < 0 ? '↓' : '→' }}{{ formatCurrency(Math.abs(m.delta)) }} vs anterior
                 </span>
@@ -358,7 +358,7 @@ function hsl(token: string, alpha = 1): string {
               <div>
                 <span class="text-[12px] tabular-nums text-destructive">
                   -{{ formatCurrency(m.expenses) }}
-                  <span class="text-muted-foreground/40 ml-0.5">despesas</span>
+                  <span class="text-muted-foreground ml-0.5">despesas</span>
                 </span>
               </div>
             </button>

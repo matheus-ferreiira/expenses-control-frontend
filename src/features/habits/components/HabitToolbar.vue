@@ -38,7 +38,7 @@ const emit = defineEmits<{
     <HabitFilters :filter-state="filterState" />
 
     <!-- View toggle -->
-    <div class="flex items-center rounded-md border border-border overflow-hidden">
+    <div class="flex items-center rounded-md overflow-hidden">
       <Button
         variant="ghost"
         size="icon"

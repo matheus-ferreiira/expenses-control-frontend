@@ -51,14 +51,14 @@ function isActive(id: TaskViewId): boolean {
 }
 
 function tabClass(tab: { id: TaskViewId; danger: boolean; count: number }): string {
-  if (isActive(tab.id) && tab.danger) return 'bg-destructive/15 text-destructive font-medium'
-  if (isActive(tab.id)) return 'bg-primary/15 text-primary font-medium'
-  if (tab.danger && tab.count > 0) return 'text-destructive/70 hover:text-destructive'
+  if (isActive(tab.id) && tab.danger) return 'bg-muted text-destructive font-medium'
+  if (isActive(tab.id)) return 'bg-muted text-primary font-medium'
+  if (tab.danger && tab.count > 0) return 'text-destructive hover:text-destructive'
   return 'text-muted-foreground hover:text-foreground'
 }
 
 function countClass(tab: { danger: boolean }, active: boolean): string {
-  if (tab.danger && active) return 'text-destructive/70'
+  if (tab.danger && active) return 'text-destructive'
   if (tab.danger) return 'text-destructive'
   return 'opacity-60'
 }

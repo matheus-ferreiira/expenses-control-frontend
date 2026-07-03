@@ -108,7 +108,7 @@ async function confirmDelete() {
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/80 mb-1.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
           Preços
         </p>
         <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
@@ -120,7 +120,7 @@ async function confirmDelete() {
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mt-1"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
         @click="openCreatePurchase"
       >
         <Plus :size="14" />
@@ -146,7 +146,7 @@ async function confirmDelete() {
 
     <template v-else-if="patrimony">
       <!-- Patrimony KPI card -->
-      <div class="bg-card border border-border rounded-lg p-4 mb-6">
+      <div class="bg-card rounded-lg p-4 mb-6">
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Investido</p>
@@ -167,15 +167,15 @@ async function confirmDelete() {
             </p>
           </div>
         </div>
-        <div class="mt-3 pt-3 border-t border-border/40 space-y-1.5">
+        <div class="mt-3 pt-3 border-t border-border space-y-1.5">
           <div class="flex items-center justify-between">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Recuperado em vendas</p>
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Recuperado em vendas</p>
             <p class="text-[13px] font-semibold tabular-nums text-success">
               {{ formatCurrency(patrimony.totals.recovered) }}
             </p>
           </div>
           <div class="flex items-center justify-between">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground/50">Depreciação</p>
+            <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Depreciação</p>
             <p class="text-[13px] font-semibold tabular-nums text-destructive">
               {{ formatCurrency(patrimony.totals.depreciation) }}
             </p>
@@ -187,15 +187,15 @@ async function confirmDelete() {
       <div v-for="yearGroup in patrimony.by_year" :key="yearGroup.year" class="mb-6">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[16px] font-semibold text-foreground tabular-nums">{{ yearGroup.year }}</p>
-          <p class="text-[12px] text-muted-foreground/60 tabular-nums">
+          <p class="text-[12px] text-muted-foreground tabular-nums">
             Investido: <span class="font-semibold">{{ formatCurrency(yearGroup.invested) }}</span>
           </p>
         </div>
-        <div class="rounded-xl border border-border/50 bg-card overflow-hidden">
+        <div class="rounded-xl bg-card overflow-hidden">
           <div
             v-for="item in yearGroup.items"
             :key="item.purchase_id"
-            class="px-4 py-3 border-b border-border/30 last:border-0"
+            class="px-4 py-3 border-b border-border last:border-0"
           >
             <div class="flex items-start gap-3">
               <div class="flex-1 min-w-0">
@@ -203,12 +203,12 @@ async function confirmDelete() {
                   <p class="text-[14px] font-medium text-foreground truncate">{{ item.product_name }}</p>
                   <span
                     v-if="item.is_sold"
-                    class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-warning/15 text-warning tabular-nums"
+                    class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-warning tabular-nums"
                   >
                     Vendido{{ item.sale_price !== null ? ` · ${formatCurrency(item.sale_price)}` : '' }}
                   </span>
                 </div>
-                <p class="text-[12px] text-muted-foreground/60 tabular-nums mt-0.5">
+                <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
                   {{ formatDay(item.purchased_at) }}
                   <template v-if="item.warranty_months !== null">
                     · <ShieldCheck :size="11" class="inline -mt-0.5" /> {{ item.warranty_months }} meses
@@ -227,7 +227,7 @@ async function confirmDelete() {
               <button
                 v-if="!item.is_sold"
                 type="button"
-                class="inline-flex items-center gap-1 h-8 px-2.5 rounded-md text-[12px] font-medium text-primary hover:bg-primary/10 transition-colors"
+                class="inline-flex items-center gap-1 h-8 px-2.5 rounded-md text-[12px] font-medium text-primary hover:brightness-110 transition-colors"
                 @click="openSale(item)"
               >
                 <Banknote :size="13" />
@@ -236,7 +236,7 @@ async function confirmDelete() {
               <button
                 type="button"
                 aria-label="Editar compra"
-                class="p-1.5 rounded-md text-muted-foreground/50 hover:text-foreground hover:bg-muted/40 transition-colors"
+                class="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 @click="openEditPurchase(item)"
               >
                 <Pencil :size="13" />
@@ -244,7 +244,7 @@ async function confirmDelete() {
               <button
                 type="button"
                 aria-label="Excluir compra"
-                class="p-1.5 rounded-md text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                class="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
                 @click="requestDelete(item)"
               >
                 <Trash2 :size="13" />

@@ -35,7 +35,7 @@ const isArchived = computed(() => !props.habit.is_active)
 <template>
   <div
     :class="[
-      'group relative rounded-lg border border-border bg-card overflow-hidden cursor-pointer hover:border-border/70 hover:bg-accent/10 transition-all duration-200',
+      'group relative rounded-lg bg-card overflow-hidden cursor-pointer hover:border-border hover:bg-muted transition-all duration-200',
       isArchived && 'opacity-60',
     ]"
     @click="emit('open', habit)"
@@ -93,13 +93,13 @@ const isArchived = computed(() => !props.habit.is_active)
           :class="[
             'flex-1 h-1.5 rounded-full transition-all',
             dot.isFuture
-              ? 'bg-muted/30'
+              ? 'bg-muted'
               : dot.isLogged
                 ? 'bg-emerald-500'
                 : dot.isTarget
-                  ? 'bg-muted-foreground/20'
-                  : 'bg-muted/20',
-            dot.isToday && !dot.isLogged && dot.isTarget && 'ring-1 ring-primary/50',
+                  ? 'bg-border'
+                  : 'bg-muted',
+            dot.isToday && !dot.isLogged && dot.isTarget && 'ring-1 ring-primary',
           ]"
         />
       </div>
@@ -111,7 +111,7 @@ const isArchived = computed(() => !props.habit.is_active)
           :key="dot.date"
           :class="[
             'flex-1 text-center text-[9px] font-medium',
-            dot.isToday ? 'text-primary' : 'text-muted-foreground/40',
+            dot.isToday ? 'text-primary' : 'text-muted-foreground',
           ]"
         >
           {{ dot.dayLabel.charAt(0) }}

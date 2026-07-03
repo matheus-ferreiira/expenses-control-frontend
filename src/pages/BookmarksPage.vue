@@ -101,11 +101,11 @@ onMounted(async () => {
       <div class="px-5 pt-6 pb-4 shrink-0">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
               PESSOAL
             </p>
             <h1 class="text-[28px] font-bold text-foreground leading-none">Bookmarks</h1>
-            <p class="text-[13px] text-muted-foreground/60 mt-1.5">
+            <p class="text-[13px] text-muted-foreground mt-1.5">
               Seus links organizados por coleção
             </p>
           </div>
@@ -134,11 +134,11 @@ onMounted(async () => {
           v-else-if="collectionStore.collections.length === 0"
           class="flex flex-col items-center justify-center py-20 text-center"
         >
-          <span class="size-14 rounded-xl bg-muted/30 grid place-items-center mb-4">
-            <Bookmark :size="26" class="text-muted-foreground/30" />
+          <span class="size-14 rounded-xl bg-muted grid place-items-center mb-4">
+            <Bookmark :size="26" class="text-muted-foreground" />
           </span>
           <p class="text-[15px] font-semibold text-muted-foreground">Crie sua primeira coleção</p>
-          <p class="text-[13px] text-muted-foreground/50 mt-1 mb-5">Organize seus links em pastas</p>
+          <p class="text-[13px] text-muted-foreground mt-1 mb-5">Organize seus links em pastas</p>
           <button
             type="button"
             class="flex items-center gap-1.5 h-9 px-5 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
@@ -166,11 +166,11 @@ onMounted(async () => {
     <!-- ── VIEW B — Lista de links ──────────────────────────────────────── -->
     <template v-else>
       <!-- Header da coleção -->
-      <div class="px-4 pt-4 pb-3 border-b border-border/30 shrink-0">
+      <div class="px-4 pt-4 pb-3 border-b border-border shrink-0">
         <div class="flex items-center gap-3 mb-3">
           <button
             type="button"
-            class="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-1 px-1 py-1 rounded-lg hover:bg-muted/40"
+            class="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-1 px-1 py-1 rounded-lg hover:bg-muted"
             @click="leaveCollection"
           >
             <ArrowLeft :size="16" />
@@ -180,7 +180,7 @@ onMounted(async () => {
             <h2 class="text-[20px] font-bold text-foreground truncate leading-snug">
               {{ activeCollection?.name ?? 'Bookmarks' }}
             </h2>
-            <p class="text-[12px] text-muted-foreground/60">
+            <p class="text-[12px] text-muted-foreground">
               {{ activeCollection?.bookmarks_count ?? 0 }}
               {{ activeCollection?.bookmarks_count === 1 ? 'link' : 'links' }}
             </p>
@@ -198,12 +198,12 @@ onMounted(async () => {
         <!-- Search + favorites -->
         <div class="flex items-center gap-2">
           <div class="flex-1 relative">
-            <Search :size="13" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 pointer-events-none" />
+            <Search :size="13" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input
               :value="searchInput"
               type="search"
               placeholder="Buscar links..."
-              class="w-full h-9 pl-8 pr-3 rounded-xl bg-muted/40 border border-border/60 text-[13px] text-foreground outline-none transition-colors focus:border-primary/60 placeholder:text-muted-foreground/40"
+              class="w-full h-9 pl-8 pr-3 rounded-xl bg-muted text-[13px] text-foreground outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
               @input="handleSearch"
             />
           </div>
@@ -211,8 +211,8 @@ onMounted(async () => {
             type="button"
             class="size-9 rounded-xl flex items-center justify-center transition-colors"
             :class="bookmarkStore.showFavoritesOnly
-              ? 'bg-warning/15 text-warning'
-              : 'bg-muted/40 text-muted-foreground/40 hover:text-muted-foreground border border-border/60'"
+              ? 'bg-muted text-warning'
+              : 'bg-muted text-muted-foreground hover:text-muted-foreground '"
             @click="bookmarkStore.toggleFavoritesFilter()"
           >
             <Star :size="14" :class="bookmarkStore.showFavoritesOnly ? 'fill-warning' : ''" />
@@ -233,11 +233,11 @@ onMounted(async () => {
           v-else-if="!bookmarkStore.isLoading && bookmarkStore.filteredBookmarks.length === 0 && !searchInput && !bookmarkStore.showFavoritesOnly"
           class="flex flex-col items-center justify-center py-16 text-center"
         >
-          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
-            <Bookmark :size="22" class="text-muted-foreground/30" />
+          <span class="size-12 rounded-xl bg-muted grid place-items-center mb-3">
+            <Bookmark :size="22" class="text-muted-foreground" />
           </span>
           <p class="text-[14px] font-medium text-muted-foreground">Nenhum link ainda</p>
-          <p class="text-[12px] text-muted-foreground/50 mt-1 mb-4">Adicione o primeiro link desta coleção</p>
+          <p class="text-[12px] text-muted-foreground mt-1 mb-4">Adicione o primeiro link desta coleção</p>
           <button
             type="button"
             class="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity"
@@ -253,11 +253,11 @@ onMounted(async () => {
           v-else-if="!bookmarkStore.isLoading && bookmarkStore.filteredBookmarks.length === 0"
           class="flex flex-col items-center justify-center py-16 text-center"
         >
-          <span class="size-12 rounded-xl bg-muted/30 grid place-items-center mb-3">
-            <Search :size="22" class="text-muted-foreground/30" />
+          <span class="size-12 rounded-xl bg-muted grid place-items-center mb-3">
+            <Search :size="22" class="text-muted-foreground" />
           </span>
           <p class="text-[14px] font-medium text-muted-foreground">Nenhum resultado</p>
-          <p class="text-[12px] text-muted-foreground/50 mt-1">Tente outros termos ou limpe o filtro</p>
+          <p class="text-[12px] text-muted-foreground mt-1">Tente outros termos ou limpe o filtro</p>
         </div>
 
         <!-- Bookmark list -->

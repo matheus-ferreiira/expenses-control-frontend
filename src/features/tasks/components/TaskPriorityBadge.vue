@@ -17,7 +17,7 @@ const label = computed(() => TASK_PRIORITY_LABELS[props.priority] ?? TASK_PRIORI
 <template>
   <Badge
     variant="outline"
-    :class="['gap-1 border-transparent font-medium text-[11px] px-1.5 py-0.5', style.bg, style.text]"
+    :class="['gap-1 font-medium text-[11px] px-1.5 py-0.5', style.bg, style.text]"
   >
     <span v-if="dot" :class="['inline-block w-1.5 h-1.5 rounded-full', style.dot]" />
     {{ label }}

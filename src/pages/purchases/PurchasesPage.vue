@@ -93,11 +93,11 @@ function onFinishSessionSheet() {
   <div class="p-5 space-y-6">
     <!-- Header -->
     <div>
-      <p class="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground/40 mb-1.5 select-none">
+      <p class="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1.5 select-none">
         PESSOAL
       </p>
       <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">Compras</h1>
-      <p class="mt-1 text-[13px] text-muted-foreground/60">Gerencie suas idas ao mercado.</p>
+      <p class="mt-1 text-[13px] text-muted-foreground">Gerencie suas idas ao mercado.</p>
     </div>
 
     <!-- Loading -->
@@ -109,14 +109,14 @@ function onFinishSessionSheet() {
     <template v-else>
       <!-- ── Sessão ativa ──────────────────────────────────────────── -->
       <div>
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
           LISTA ATUAL
         </p>
 
         <!-- Active session card -->
         <div
           v-if="store.activeSession"
-          class="bg-card border border-border rounded-xl overflow-hidden"
+          class="bg-card rounded-xl overflow-hidden"
         >
           <div class="h-0.5 bg-primary" />
 
@@ -124,7 +124,7 @@ function onFinishSessionSheet() {
             <!-- Top row -->
             <div class="flex items-start justify-between gap-2 mb-3">
               <div class="flex items-center gap-2">
-                <span class="size-8 rounded-lg bg-primary/20 grid place-items-center shrink-0">
+                <span class="size-8 rounded-lg bg-muted grid place-items-center shrink-0">
                   <ShoppingCart :size="15" class="text-primary" />
                 </span>
                 <span class="text-[10px] font-semibold uppercase tracking-widest text-primary">
@@ -133,7 +133,7 @@ function onFinishSessionSheet() {
               </div>
               <button
                 type="button"
-                class="size-8 grid place-items-center rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                class="size-8 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
                 @click="requestDeleteSession(store.activeSession!)"
               >
                 <Trash2 :size="14" />
@@ -145,7 +145,7 @@ function onFinishSessionSheet() {
               <p class="text-[16px] font-semibold text-foreground flex-1">{{ store.activeSession.title }}</p>
               <button
                 type="button"
-                class="size-7 grid place-items-center rounded-lg text-muted-foreground/30 hover:text-primary hover:bg-primary/10 transition-colors opacity-0 group-hover/title:opacity-100"
+                class="size-7 grid place-items-center rounded-lg text-muted-foreground hover:text-primary hover:brightness-110 transition-colors opacity-0 group-hover/title:opacity-100"
                 @click="startTitleEdit"
               >
                 <Pencil :size="13" />
@@ -155,7 +155,7 @@ function onFinishSessionSheet() {
               v-else
               id="session-title-input"
               v-model="editTitleValue"
-              class="w-full text-[16px] font-semibold bg-transparent border-b border-primary/60 outline-none pb-0.5 text-foreground"
+              class="w-full text-[16px] font-semibold bg-transparent border-b outline-none pb-0.5 text-foreground"
               @keydown.enter="saveTitleEdit"
               @keydown.escape="cancelTitleEdit"
               @blur="saveTitleEdit"
@@ -167,7 +167,7 @@ function onFinishSessionSheet() {
                   v-if="store.activeSession.items_count > 0 && store.activeSession.bought_count === store.activeSession.items_count"
                   class="text-primary font-semibold"
                 >✓ Tudo comprado!</span>
-                <span v-else class="text-muted-foreground/70">
+                <span v-else class="text-muted-foreground">
                   {{ store.activeSession.bought_count }} / {{ store.activeSession.items_count }} itens
                 </span>
               </span>
@@ -179,7 +179,7 @@ function onFinishSessionSheet() {
               </span>
             </div>
 
-            <div class="h-1.5 rounded-full bg-muted/30 overflow-hidden mt-2">
+            <div class="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
               <div
                 class="h-full rounded-full bg-primary transition-all duration-500"
                 :style="{
@@ -200,7 +200,7 @@ function onFinishSessionSheet() {
               </button>
               <button
                 type="button"
-                class="flex-1 h-10 rounded-lg bg-card border border-border text-foreground text-[13px] font-semibold hover:bg-muted/30 transition-colors"
+                class="flex-1 h-10 rounded-lg bg-card text-foreground text-[13px] font-semibold hover:bg-muted transition-colors"
                 @click="openFinishSheet"
               >
                 Finalizar
@@ -213,12 +213,12 @@ function onFinishSessionSheet() {
         <button
           v-else
           type="button"
-          class="w-full bg-card border border-border rounded-xl overflow-hidden flex hover:bg-card/80 transition-colors cursor-pointer"
+          class="w-full bg-card rounded-xl overflow-hidden flex hover:bg-card transition-colors cursor-pointer"
           @click="openNewSessionDialog"
         >
           <div class="w-[2px] bg-primary shrink-0" />
           <div class="flex-1 p-5 flex flex-col items-center gap-3">
-            <span class="size-12 rounded-xl bg-primary/20 grid place-items-center text-primary">
+            <span class="size-12 rounded-xl bg-muted grid place-items-center text-primary">
               <Plus :size="22" />
             </span>
             <div class="text-center">
@@ -232,17 +232,17 @@ function onFinishSessionSheet() {
       <!-- ── Histórico ─────────────────────────────────────────────── -->
       <div>
         <div class="flex items-center justify-between mb-3">
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             HISTÓRICO
           </p>
-          <span class="flex items-center gap-1 text-[11px] text-muted-foreground/40">
+          <span class="flex items-center gap-1 text-[11px] text-muted-foreground">
             <History :size="11" />
             {{ store.finishedSessions.length }} registros
           </span>
         </div>
 
         <div v-if="store.finishedSessions.length === 0" class="py-10 text-center">
-          <p class="text-[13px] text-muted-foreground/40">Nenhuma compra finalizada ainda.</p>
+          <p class="text-[13px] text-muted-foreground">Nenhuma compra finalizada ainda.</p>
         </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -298,7 +298,7 @@ function onFinishSessionSheet() {
       <AlertDialogFooter>
         <AlertDialogCancel @click="cancelDeleteSession">Cancelar</AlertDialogCancel>
         <AlertDialogAction
-          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          class="bg-destructive text-destructive-foreground hover:bg-muted"
           @click="confirmDeleteSession"
         >
           Excluir
