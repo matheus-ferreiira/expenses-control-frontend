@@ -119,19 +119,12 @@ const mobileHeaderTitle = computed(() => {
 
       <!-- Page content — extra bottom padding on mobile for bottom nav -->
       <main class="flex-1 overflow-auto pb-[64px] md:pb-0">
-        <!-- Transição de rota: fade + leve subida, só transform/opacity (GPU) -->
+        <!-- Transição de rota via animation + :key — <Transition> exigiria raiz única,
+             e várias páginas têm sheets como irmãos no root do template -->
         <RouterView v-slot="{ Component }">
-          <Transition
-            mode="out-in"
-            enter-active-class="motion-safe:transition-all motion-safe:duration-150 ease-out"
-            enter-from-class="opacity-0 translate-y-1"
-            enter-to-class="opacity-100 translate-y-0"
-            leave-active-class="motion-safe:transition-all motion-safe:duration-100 ease-in"
-            leave-from-class="opacity-100 translate-y-0"
-            leave-to-class="opacity-0 translate-y-1"
-          >
+          <div :key="String(route.name)" class="page-enter">
             <component :is="Component" />
-          </Transition>
+          </div>
         </RouterView>
       </main>
     </div>
@@ -207,3 +200,22 @@ const mobileHeaderTitle = computed(() => {
     />
   </div>
 </template>
+
+<style scoped>
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.page-enter {
+  animation: page-in 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+}
+</style>
