@@ -147,7 +147,7 @@ const hasGoalsItems = computed(() =>
       <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
         Orçamento
       </h1>
-      <p class="text-[12px] text-muted-foreground leading-relaxed">
+      <p class="hidden md:block text-[12px] text-muted-foreground leading-relaxed">
         Controle de gastos por categoria
       </p>
     </div>

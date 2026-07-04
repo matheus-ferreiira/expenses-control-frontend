@@ -210,7 +210,7 @@ function hsl(token: string, alpha = 1): string {
         <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Relatório anual
         </h1>
-        <p class="text-[13px] text-muted-foreground">
+        <p class="hidden md:block text-[13px] text-muted-foreground">
           Resumo de receitas e despesas do ano.
         </p>
       </div>

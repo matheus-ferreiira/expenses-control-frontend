@@ -42,7 +42,8 @@ const amountPrefix = computed(() => {
 // ── Subtitle ───────────────────────────────────────────────────────────────
 const subtitle = computed(() => {
   const t = props.transaction
-  if (t.type === 'transfer') return `→ ${t.destination_account?.name ?? '?'}`
+  // Transferência para conta OU para cartão (pagamento de fatura)
+  if (t.type === 'transfer') return `→ ${t.destination_account?.name ?? t.card?.name ?? '?'}`
   const parts: string[] = []
   if (t.is_recurring) parts.push('↻ Fixa')
   if (t.category) parts.push(t.category.name)

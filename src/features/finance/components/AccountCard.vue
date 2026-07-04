@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Trash2, Archive, ArchiveRestore } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, Archive, ArchiveRestore, Scale } from 'lucide-vue-next'
 import type { BankAccount } from '@/types/finance'
 import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
 import { ACCOUNT_TYPE_ICONS } from '@/features/finance/utils/financeHelpers'
@@ -23,6 +23,8 @@ const emit = defineEmits<{
   unarchive: [account: BankAccount]
   /** Toque no corpo do card — abre a Visão Geral filtrada por esta conta */
   view: [account: BankAccount]
+  /** Corrigir saldo divergente via transação de ajuste */
+  adjust: [account: BankAccount]
 }>()
 </script>
 
@@ -84,6 +86,10 @@ const emit = defineEmits<{
               <DropdownMenuItem v-if="account.is_active" @click="emit('edit', account)">
                 <Pencil :size="12" class="mr-2" />
                 Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem v-if="account.is_active" @click="emit('adjust', account)">
+                <Scale :size="12" class="mr-2" />
+                Ajustar saldo
               </DropdownMenuItem>
               <DropdownMenuSeparator v-if="account.is_active" />
               <DropdownMenuItem v-if="account.is_active" @click="emit('archive', account)">

@@ -12,6 +12,16 @@ import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import type { BankAccount } from '@/types/finance'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 const store = useFinanceStore()
 const toast = useToast()
@@ -20,6 +30,62 @@ const router = useRouter()
 /** Toque na conta → Visão Geral filtrada pelas transações dela */
 function viewStatement(account: BankAccount) {
   router.push({ name: ROUTES.FINANCE, query: { account_id: account.id } })
+}
+
+// ── Ajustar saldo — cria transação de ajuste com a diferença ─────────────────
+const adjustOpen = ref(false)
+const adjustTarget = ref<BankAccount | null>(null)
+const adjustDisplay = ref('')
+const adjusting = ref(false)
+
+function openAdjust(account: BankAccount) {
+  adjustTarget.value = account
+  adjustDisplay.value = account.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  adjustOpen.value = true
+}
+
+function onAdjustInput(e: Event) {
+  const digits = (e.target as HTMLInputElement).value.replace(/\D/g, '')
+  adjustDisplay.value = digits
+    ? (parseInt(digits, 10) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : ''
+  ;(e.target as HTMLInputElement).value = adjustDisplay.value
+}
+
+const adjustParsed = computed(() => {
+  const v = parseFloat(adjustDisplay.value.replace(/\./g, '').replace(',', '.'))
+  return isNaN(v) ? null : v
+})
+
+const adjustDiff = computed(() => {
+  if (adjustTarget.value === null || adjustParsed.value === null) return 0
+  return Math.round((adjustParsed.value - adjustTarget.value.balance) * 100) / 100
+})
+
+async function confirmAdjust() {
+  if (!adjustTarget.value || adjustParsed.value === null || adjusting.value) return
+  if (adjustDiff.value === 0) {
+    adjustOpen.value = false
+    return
+  }
+  adjusting.value = true
+  try {
+    await store.createTransaction({
+      type: adjustDiff.value > 0 ? 'income' : 'expense',
+      amount: Math.abs(adjustDiff.value),
+      description: 'Ajuste de saldo',
+      transaction_date: new Date().toISOString().slice(0, 10),
+      account_id: adjustTarget.value.id,
+    })
+    await store.fetchAccounts()
+    toast.success('Saldo ajustado')
+    adjustOpen.value = false
+    adjustTarget.value = null
+  } catch {
+    toast.error('Erro ao ajustar saldo')
+  } finally {
+    adjusting.value = false
+  }
 }
 
 const formOpen = ref(false)
@@ -177,6 +243,7 @@ onMounted(async () => {
           :account="account"
           @view="viewStatement"
           @edit="openEdit"
+          @adjust="openAdjust"
           @delete="openDelete"
           @archive="requestArchive"
           @unarchive="unarchiveAccount"
@@ -233,4 +300,49 @@ onMounted(async () => {
     :loading="deleting"
     @confirm="confirmDelete"
   />
+
+  <!-- Ajustar saldo -->
+  <AlertDialog v-model:open="adjustOpen">
+    <AlertDialogContent class="max-w-sm">
+      <AlertDialogHeader>
+        <AlertDialogTitle class="text-[15px]">Ajustar saldo — {{ adjustTarget?.name }}</AlertDialogTitle>
+        <AlertDialogDescription class="text-[13px]">
+          Informe o saldo real da conta. A diferença vira uma transação "Ajuste de saldo".
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+
+      <div class="mt-1">
+        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
+          Saldo real (R$)
+        </p>
+        <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card transition-colors">
+          <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
+          <input
+            :value="adjustDisplay"
+            type="text"
+            inputmode="numeric"
+            placeholder="0,00"
+            class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
+            @input="onAdjustInput"
+          />
+        </div>
+        <p v-if="adjustDiff !== 0" class="text-[11px] mt-1.5" :class="adjustDiff > 0 ? 'text-success' : 'text-destructive'">
+          Ajuste de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }}
+        </p>
+      </div>
+
+      <AlertDialogFooter class="gap-2">
+        <AlertDialogCancel class="flex-1 h-[52px] rounded-xl text-[15px] bg-muted text-muted-foreground">
+          Cancelar
+        </AlertDialogCancel>
+        <AlertDialogAction
+          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] bg-primary text-primary-foreground"
+          :disabled="adjustParsed === null || adjusting"
+          @click="confirmAdjust"
+        >
+          Ajustar
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>

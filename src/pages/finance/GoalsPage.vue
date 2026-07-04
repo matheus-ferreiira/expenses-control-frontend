@@ -102,7 +102,7 @@ function barColor(pct: number): string {
         <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
           Metas
         </h1>
-        <p class="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+        <p class="hidden md:block text-[12px] text-muted-foreground mt-1 leading-relaxed">
           Seus objetivos financeiros
         </p>
       </div>

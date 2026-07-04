@@ -569,7 +569,7 @@ onMounted(async () => {
         <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
           Visão geral
         </h1>
-        <p class="text-[12px] text-muted-foreground mt-1 max-w-prose leading-relaxed">
+        <p class="hidden md:block text-[12px] text-muted-foreground mt-1 max-w-prose leading-relaxed">
           Contas, cartões, despesas e receitas em uma única tela funcional.
         </p>
       </div>
@@ -619,6 +619,9 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- Desktop: resumo à esquerda (fixo), transações à direita. Mobile: empilhado -->
+    <div class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-5 lg:items-start max-w-[1200px]">
+    <div>
     <!-- Month Summary -->
     <div class="mb-4 space-y-3">
 
@@ -725,6 +728,7 @@ onMounted(async () => {
         <span class="font-semibold">{{ exceededCategory.name }}</span>
         ultrapassou a meta em {{ formatCurrency(exceededCategory.total - (exceededCategory.monthlyLimit ?? 0)) }}
       </p>
+    </div>
     </div>
 
     <!-- Transactions — Lovable-style self-contained container -->
@@ -923,7 +927,7 @@ onMounted(async () => {
             @quick-duplicate="onDetailDuplicate"
           />
         </div>
-
+    </div>
 
   </AppPageContainer>
 

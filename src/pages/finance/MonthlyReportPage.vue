@@ -214,7 +214,7 @@ onMounted(() => {
         <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
           Relatório mensal
         </h1>
-        <p class="text-[12px] text-muted-foreground">
+        <p class="hidden md:block text-[12px] text-muted-foreground">
           Resumo de receitas, despesas e categorias do mês.
         </p>
       </div>
