@@ -19,15 +19,17 @@ export const useTaskStore = defineStore('tasks', () => {
   const total = ref(0)
 
   const pendingTasks = computed(() => tasks.value.filter((t) => t.status === 'pending'))
-  const overdueTasks = computed(() =>
-    tasks.value.filter(
+  // Atrasada = o DIA passou (comparação por string local, nunca via new Date(date-only) — UTC shift)
+  const overdueTasks = computed(() => {
+    const today = new Date().toLocaleDateString('en-CA')
+    return tasks.value.filter(
       (t) =>
         t.due_date &&
-        new Date(t.due_date) < new Date() &&
+        t.due_date < today &&
         t.status !== 'completed' &&
         t.status !== 'cancelled',
-    ),
-  )
+    )
+  })
 
   const tasksByDate = computed(() => {
     const groups: Record<string, Task[]> = {}

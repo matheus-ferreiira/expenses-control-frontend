@@ -1,13 +1,21 @@
 const LOCALE = 'pt-BR'
 
+/**
+ * Parse seguro: string date-only ("2026-07-04") é interpretada como data LOCAL.
+ * `new Date('YYYY-MM-DD')` é UTC-midnight — em UTC-3 vira o dia anterior.
+ */
+function parseDate(date: string | Date): Date {
+  if (date instanceof Date) return date
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return new Date(date + 'T12:00:00')
+  return new Date(date)
+}
+
 export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return d.toLocaleDateString(LOCALE, options ?? { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return parseDate(date).toLocaleDateString(LOCALE, options ?? { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 export function formatDateTime(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return d.toLocaleString(LOCALE, {
+  return parseDate(date).toLocaleString(LOCALE, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -17,7 +25,7 @@ export function formatDateTime(date: string | Date): string {
 }
 
 export function formatRelative(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = parseDate(date)
   const now = new Date()
   const diffMs = d.getTime() - now.getTime()
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
@@ -31,8 +39,9 @@ export function formatRelative(date: string | Date): string {
   return formatDate(d)
 }
 
+/** Data LOCAL em YYYY-MM-DD (nunca toISOString — o dia UTC vira às 21h de Brasília) */
 export function toISODate(date: Date): string {
-  return date.toISOString().split('T')[0] ?? ''
+  return date.toLocaleDateString('en-CA')
 }
 
 export function today(): string {
@@ -40,22 +49,21 @@ export function today(): string {
 }
 
 export function isOverdue(dueDate: string): boolean {
-  return new Date(dueDate) < new Date() && toISODate(new Date(dueDate)) !== today()
+  return dueDate.slice(0, 10) < today()
 }
 
 export function isToday(date: string): boolean {
-  return toISODate(new Date(date)) === today()
+  return date.slice(0, 10) === today()
 }
 
 export function isTomorrow(date: string): boolean {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
-  return toISODate(new Date(date)) === toISODate(tomorrow)
+  return date.slice(0, 10) === toISODate(tomorrow)
 }
 
 export function weekdayName(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return d.toLocaleDateString(LOCALE, { weekday: 'long' })
+  return parseDate(date).toLocaleDateString(LOCALE, { weekday: 'long' })
 }
 
 export function monthName(date: string | Date): string {
