@@ -4,11 +4,20 @@ import { CheckCircle2, Repeat } from 'lucide-vue-next'
 import type { Task } from '@/types/tasks'
 import { isTaskOverdue, isTaskDueToday, isTaskDueTomorrow, formatDueDateShort } from '../utils/taskHelpers'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   task: Task
-  showTime?: boolean   // default true — pass false in period view (time shown externally)
-  noBorder?: boolean   // default false — pass true when wrapper provides the 
-}>()
+  /** false na period view (hora exibida na coluna externa) */
+  showTime?: boolean
+  /** false na period view (toda linha é de hoje — label redundante) */
+  showDate?: boolean
+  /** true quando o wrapper fornece o divisor */
+  noBorder?: boolean
+}>(), {
+  // prop booleana ausente vira false no Vue — o default precisa ser explícito
+  showTime: true,
+  showDate: true,
+  noBorder: false,
+})
 
 const emit = defineEmits<{
   toggle: [id: string]
@@ -23,13 +32,13 @@ const dueTomorrow = computed(() => isTaskDueTomorrow(props.task))
 const dueDateLabel = computed(() => formatDueDateShort(props.task.due_date))
 const displayTime = computed(() => props.showTime !== false)
 
-const checkboxStyle = computed(() => {
+// Anel do checkbox comunica prioridade — cores sólidas do sistema
+const checkboxClass = computed(() => {
   switch (props.task.priority) {
-    case 'urgent': return 'border-color: hsl(var(--destructive))'
-    case 'high':   return 'border-color: hsl(38 90% 60%)'
-    case 'normal': return 'border-color: hsl(var(--warning))'
-    case 'low':    return 'border-color: hsl(var(--muted-foreground) / 0.4)'
-    default:       return 'border-color: hsl(var(--border))'
+    case 'urgent': return 'border-destructive'
+    case 'high':   return 'border-warning'
+    case 'normal': return 'border-muted-foreground'
+    default:       return 'border-border'
   }
 })
 </script>
@@ -37,10 +46,7 @@ const checkboxStyle = computed(() => {
 <template>
   <div
     class="group flex items-center transition-colors hover:bg-muted"
-    :class="[
-      noBorder ? '' : 'border-b border-border last:border-0',
-      (isCompleted || isCancelled) ? 'opacity-60' : '',
-    ]"
+    :class="noBorder ? '' : 'border-b border-border last:border-0'"
   >
     <!-- Checkbox — large touch target -->
     <button
@@ -56,7 +62,7 @@ const checkboxStyle = computed(() => {
       <span
         v-else
         class="size-5 rounded-full border-2 transition-all"
-        :style="checkboxStyle"
+        :class="checkboxClass"
       />
     </button>
 
@@ -77,8 +83,7 @@ const checkboxStyle = computed(() => {
           <Repeat
             v-if="task.recurrence_type && task.recurrence_type !== 'none'"
             :size="11"
-            class="inline ml-1 mb-0.5 align-middle"
-            style="color: hsl(var(--primary) / 0.5)"
+            class="inline ml-1 mb-0.5 align-middle text-muted-foreground"
           />
         </p>
         <div class="flex items-center gap-1.5 mt-0.5">
@@ -103,8 +108,7 @@ const checkboxStyle = computed(() => {
           >P1</span>
           <span
             v-else-if="task.priority === 'high' && !isCompleted"
-            class="text-[10px] rounded-full px-1.5 py-0.5 font-medium"
-            style="background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)"
+            class="text-[10px] rounded-full px-1.5 py-0.5 bg-muted text-warning font-medium"
           >P2</span>
           <span
             v-if="task.subtasks_count > 0"
@@ -119,7 +123,7 @@ const checkboxStyle = computed(() => {
             class="text-[11px] tabular-nums text-muted-foreground"
           >{{ task.due_time.slice(0, 5) }}</span>
 
-          <template v-if="task.due_date">
+          <template v-if="task.due_date && showDate">
             <span
               v-if="overdue"
               class="text-[11px] font-medium text-destructive"
@@ -130,8 +134,7 @@ const checkboxStyle = computed(() => {
             >Hoje</span>
             <span
               v-else-if="dueTomorrow"
-              class="text-[11px] font-medium"
-              style="color: hsl(var(--primary) / 0.8)"
+              class="text-[11px] font-medium text-primary"
             >Amanhã</span>
             <span
               v-else
