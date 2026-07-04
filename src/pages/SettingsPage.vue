@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { useToast } from '@/composables/useToast'
 import { authApi } from '@/services/api/auth'
-import { Loader2, CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock, TriangleAlert, LogOut, Moon, Sun, Pencil, KeyRound, ChevronDown } from 'lucide-vue-next'
+import { Loader2, CheckSquare, Flame, CalendarDays, FileText, Bookmark, ShoppingCart, Lock, TriangleAlert, LogOut, Moon, Sun, Pencil, KeyRound, ChevronDown } from 'lucide-vue-next'
 
 const auth = useAuthStore()
 const ui = useUiStore()
@@ -110,10 +110,8 @@ async function confirmReset() {
 const MODULES = [
   { key: 'tasks',    label: 'Tarefas',    icon: CheckSquare,  description: 'Gerenciador de tarefas e subtarefas' },
   { key: 'habits',   label: 'Hábitos',    icon: Flame,        description: 'Rastreamento de hábitos diários e streaks' },
-  { key: 'goals',    label: 'Metas',      icon: Target,       description: 'Metas de curto e longo prazo' },
   { key: 'calendar', label: 'Agenda',     icon: CalendarDays, description: 'Eventos e compromissos' },
   { key: 'notes',    label: 'Notas',      icon: FileText,     description: 'Notas livres com markdown' },
-  { key: 'daily_log',label: 'Daily Log',  icon: BookOpen,     description: 'Diário diário de atividades' },
   { key: 'bookmarks',label: 'Bookmarks',  icon: Bookmark,     description: 'Links e favoritos organizados' },
   { key: 'purchases',label: 'Compras',    icon: ShoppingCart, description: 'Lista de compras e desejos' },
   { key: 'vault',    label: 'Cofre',      icon: Lock,         description: 'Senhas e dados sensíveis criptografados' },

@@ -12,13 +12,13 @@ import DashboardConsistencyCard from '@/features/dashboard/components/DashboardC
 import DashboardGoalsProgressCard from '@/features/dashboard/components/DashboardGoalsProgressCard.vue'
 import { useDashboard } from '@/features/dashboard/composables/useDashboard'
 import { useToast } from '@/composables/useToast'
-import { useGoalStore } from '@/stores/goals'
+import { useFinanceStore } from '@/stores/finance'
 import { formatDate } from '@/utils/date'
 
 const dashboard = useDashboard()
 const toast = useToast()
-const goalStore = useGoalStore()
-const activeGoals = computed(() => goalStore.goals.filter((g) => g.status === 'active'))
+const financeStore = useFinanceStore()
+const activeGoals = computed(() => financeStore.goals.filter((g) => g.status === 'active'))
 
 const todayRaw = formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' })
 const today = todayRaw.charAt(0).toUpperCase() + todayRaw.slice(1)
@@ -44,7 +44,7 @@ async function handleLogHabit(id: string) {
 
 onMounted(async () => {
   try {
-    await Promise.all([dashboard.load(), goalStore.fetchGoals()])
+    await Promise.all([dashboard.load(), financeStore.fetchGoals()])
   } catch {
     toast.error('Erro ao carregar dashboard')
   }

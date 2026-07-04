@@ -72,11 +72,6 @@ export const API_ENDPOINTS = {
     HABITS_LOG_COUNT: `${API_BASE}/reports/habits-log-count`,
     WEEKLY_PRODUCTIVITY: `${API_BASE}/reports/weekly-productivity`,
   },
-  GOALS: {
-    BASE: `${API_BASE}/goals`,
-    DETAIL: (id: string) => `${API_BASE}/goals/${id}`,
-    PROGRESS: (id: string) => `${API_BASE}/goals/${id}/progress`,
-  },
   CALENDAR: {
     BASE: `${API_BASE}/calendar`,
     DETAIL: (id: string) => `${API_BASE}/calendar/${id}`,

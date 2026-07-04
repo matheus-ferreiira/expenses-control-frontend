@@ -28,9 +28,6 @@ export const ROUTES = {
   PRICES_PRODUCT_DETAIL: 'prices-products-detail',
   PRICES_PURCHASES: 'prices-purchases',
 
-  GOALS: 'goals',
-  GOAL_DETAIL: 'goal-detail',
-
   CALENDAR: 'calendar',
 
   REPORTS: 'reports',
@@ -38,7 +35,6 @@ export const ROUTES = {
   PURCHASES: 'purchases',
 
   NOTES: 'notes',
-  DAILY_LOG: 'daily-log',
   BOOKMARKS: 'bookmarks',
   VAULT: 'vault',
 

@@ -37,16 +37,6 @@ export const appRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/habits/HabitDetailPage.vue'),
       },
       {
-        path: 'goals',
-        name: ROUTES.GOALS,
-        component: () => import('@/pages/goals/GoalsPage.vue'),
-      },
-      {
-        path: 'goals/:id',
-        name: ROUTES.GOAL_DETAIL,
-        component: () => import('@/pages/goals/GoalDetailPage.vue'),
-      },
-      {
         path: 'calendar',
         name: ROUTES.CALENDAR,
         component: () => import('@/pages/calendar/CalendarPage.vue'),
@@ -138,11 +128,6 @@ export const appRoutes: RouteRecordRaw[] = [
         path: 'notes',
         name: ROUTES.NOTES,
         component: () => import('@/pages/notes/NotesPage.vue'),
-      },
-      {
-        path: 'daily-log',
-        name: ROUTES.DAILY_LOG,
-        component: () => import('@/pages/DailyLogPage.vue'),
       },
       {
         path: 'bookmarks',

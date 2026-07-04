@@ -3,13 +3,13 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Skeleton } from '@ui/skeleton'
 import { Target, ArrowRight } from 'lucide-vue-next'
-import type { Goal } from '@/types/goals'
+import type { FinanceGoal } from '@/types/finance'
 import { ROUTES } from '@/constants/routes'
 
 const MAX_SHOWN = 4
 
 const props = defineProps<{
-  goals: Goal[]
+  goals: FinanceGoal[]
   loading?: boolean
 }>()
 
@@ -18,14 +18,18 @@ const router = useRouter()
 const shown = computed(() => props.goals.slice(0, MAX_SHOWN))
 const hasMore = computed(() => props.goals.length > MAX_SHOWN)
 
-function pct(goal: Goal) {
+function pct(goal: FinanceGoal) {
   return Math.min(Math.round(goal.progress_percentage), 100)
 }
 
-function pctColor(goal: Goal) {
+function isOverdue(goal: FinanceGoal) {
+  return !!goal.deadline && new Date(goal.deadline) < new Date() && pct(goal) < 100
+}
+
+function pctColor(goal: FinanceGoal) {
   const p = pct(goal)
   if (p >= 100) return 'hsl(var(--success))'
-  if (goal.is_overdue) return 'hsl(var(--warning))'
+  if (isOverdue(goal)) return 'hsl(var(--warning))'
   return 'hsl(var(--primary))'
 }
 </script>
@@ -39,7 +43,7 @@ function pctColor(goal: Goal) {
       </div>
       <button
         class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
-        @click="router.push({ name: ROUTES.GOALS })"
+        @click="router.push({ name: ROUTES.FINANCE_GOALS })"
       >
         Ver tudo <ArrowRight :size="10" />
       </button>
@@ -69,7 +73,7 @@ function pctColor(goal: Goal) {
         class="px-4 py-2.5 hover:bg-muted transition-base"
       >
         <div class="flex items-center justify-between mb-1.5">
-          <p class="text-[13px] text-foreground truncate flex-1 mr-2">{{ goal.title }}</p>
+          <p class="text-[13px] text-foreground truncate flex-1 mr-2">{{ goal.name }}</p>
           <span
             class="text-[11px] font-semibold tabular-nums shrink-0"
             :style="{ color: pctColor(goal) }"
@@ -88,7 +92,7 @@ function pctColor(goal: Goal) {
       <div v-if="hasMore" class="px-4 py-2.5 text-center">
         <button
           class="text-xs text-muted-foreground hover:text-foreground transition-base"
-          @click="router.push({ name: ROUTES.GOALS })"
+          @click="router.push({ name: ROUTES.FINANCE_GOALS })"
         >
           + {{ goals.length - MAX_SHOWN }} mais
         </button>

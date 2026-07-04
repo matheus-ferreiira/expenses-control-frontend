@@ -2,7 +2,6 @@ import { ref, computed, watch } from 'vue'
 import { reportsApi } from '@/services/api/reports'
 import { tasksApi } from '@/services/api/tasks'
 import { useHabitStore } from '@/stores/habits'
-import { useGoalStore } from '@/stores/goals'
 import { useFinanceStore } from '@/stores/finance'
 import type { ReportPeriod } from '@/types/reports'
 import type { YearlySummary } from '@/types/reports'
@@ -16,7 +15,6 @@ export function useReportsData() {
   const completedTasks = ref<Task[]>([])
 
   const habitStore = useHabitStore()
-  const goalStore = useGoalStore()
   const financeStore = useFinanceStore()
 
   // Date range from period
@@ -116,7 +114,7 @@ export function useReportsData() {
     return Math.round(((curr - prev) / Math.abs(prev)) * 100)
   })
 
-  const activeGoalsCount = computed(() => goalStore.goals.filter((g) => g.status === 'active').length)
+  const activeGoalsCount = computed(() => financeStore.goals.filter((g) => g.status === 'active').length)
 
   // ── Productivity chart data (tasks by period bucket) ─────────────────────
 
@@ -255,7 +253,7 @@ export function useReportsData() {
     try {
       await Promise.all([
         habitStore.habits.length ? Promise.resolve() : habitStore.fetchHabits(),
-        goalStore.goals.length ? Promise.resolve() : goalStore.fetchGoals(),
+        financeStore.goals.length ? Promise.resolve() : financeStore.fetchGoals(),
         financeStore.transactions.length
           ? Promise.resolve()
           : financeStore.fetchTransactions({ per_page: 300 }),

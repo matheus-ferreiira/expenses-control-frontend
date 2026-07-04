@@ -20,7 +20,6 @@ const MODULES: Array<{ prefix: string; label: string; root: string }> = [
   { prefix: 'prices', label: 'Preços', root: ROUTES.PRICES },
   { prefix: 'task', label: 'Tarefas', root: ROUTES.TASKS },
   { prefix: 'habit', label: 'Hábitos', root: ROUTES.HABITS },
-  { prefix: 'goal', label: 'Metas', root: ROUTES.GOALS },
   { prefix: 'calendar', label: 'Agenda', root: ROUTES.CALENDAR },
   { prefix: 'note', label: 'Notas', root: ROUTES.NOTES },
   { prefix: 'bookmark', label: 'Bookmarks', root: ROUTES.BOOKMARKS },
@@ -45,14 +44,11 @@ const LEAF_LABELS: Record<string, string> = {
   [ROUTES.SETTINGS]: 'Configurações',
   [ROUTES.REPORTS]: 'Relatórios',
   [ROUTES.NOTES]: 'Notas',
-  [ROUTES.DAILY_LOG]: 'Daily Log',
   [ROUTES.BOOKMARKS]: 'Bookmarks',
   [ROUTES.PURCHASES]: 'Compras',
   [ROUTES.TASKS]: 'Tarefas',
   [ROUTES.HABITS]: 'Hábitos',
   [ROUTES.HABIT_DETAIL]: 'Detalhe',
-  [ROUTES.GOALS]: 'Metas',
-  [ROUTES.GOAL_DETAIL]: 'Detalhe',
   [ROUTES.CALENDAR]: 'Agenda',
 }
 

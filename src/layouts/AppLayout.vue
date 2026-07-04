@@ -59,7 +59,6 @@ const mobileHeaderTitle = computed(() => {
   if (name === ROUTES.DASHBOARD) return 'Hoje'
   if (name.startsWith('task')) return 'Agenda'
   if (name.startsWith('habit')) return 'Mais'
-  if (name === ROUTES.GOALS || name === ROUTES.GOAL_DETAIL) return 'Metas'
   if (name === ROUTES.CALENDAR) return 'Calendário'
   if (name === ROUTES.REPORTS) return 'Relatórios'
   if (name === ROUTES.NOTES) return 'Notas'
