@@ -78,7 +78,7 @@ const groups = computed<TaskGroup[]>(() => {
 
 <template>
   <!-- Loading skeletons -->
-  <div v-if="loading" class="space-y-0.5">
+  <div v-if="loading" class="bg-card rounded-lg px-4 py-2">
     <div v-for="i in 6" :key="i" class="flex items-center gap-3 py-3">
       <Skeleton class="size-5 rounded-full shrink-0" />
       <Skeleton class="h-3.5 rounded" :style="{ width: `${45 + (i % 3) * 15}%` }" />
@@ -97,9 +97,9 @@ const groups = computed<TaskGroup[]>(() => {
     @cta="emit('create')"
   />
 
-  <!-- Grouped task list — no outer  -->
-  <div v-else>
-    <template v-for="group in groups" :key="group.id">
+  <!-- Grouped task list — cada grupo é um card -->
+  <div v-else class="space-y-3">
+    <section v-for="group in groups" :key="group.id" class="bg-card rounded-lg px-4 pb-1">
       <TaskGroupHeader :label="group.label" :count="group.tasks.length" :group-id="group.id" />
       <TaskItem
         v-for="task in group.tasks"
@@ -108,6 +108,6 @@ const groups = computed<TaskGroup[]>(() => {
         @toggle="emit('toggle', $event)"
         @open="emit('open', $event)"
       />
-    </template>
+    </section>
   </div>
 </template>

@@ -59,8 +59,7 @@ function formatTime(iso: string | null): string {
       <!-- Streak badge -->
       <div
         v-if="history.current_streak > 0"
-        class="flex items-center gap-1 h-6 px-2 rounded-full"
-        style="background: hsl(38 90% 60% / 0.12); color: hsl(38 90% 60%)"
+        class="flex items-center gap-1 h-6 px-2 rounded-full bg-muted text-warning"
       >
         <Flame :size="11" />
         <span class="text-[11px] font-semibold tabular-nums">{{ history.current_streak }}</span>

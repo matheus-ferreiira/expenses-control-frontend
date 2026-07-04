@@ -82,18 +82,19 @@ const groups = computed<PeriodGroup[]>(() => {
     @cta="emit('create')"
   />
 
-  <!-- Period groups — no outer  -->
-  <div v-else class="space-y-2">
-    <div
+  <!-- Period groups — cada período é um card -->
+  <div v-else class="space-y-3">
+    <section
       v-for="group in groups"
       :key="group.id"
+      class="bg-card rounded-lg px-4 pb-1"
     >
       <!-- Period header -->
-      <div class="flex items-center gap-2 py-2 pl-1 mb-1">
+      <div class="flex items-center gap-2 pt-3 pb-1">
         <component
           :is="group.icon"
           :size="13"
-          class="text-muted-foreground shrink-0"
+          class="text-accent-blue shrink-0"
         />
         <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {{ group.label }}
@@ -101,7 +102,7 @@ const groups = computed<PeriodGroup[]>(() => {
             · {{ group.sublabel }}
           </span>
         </span>
-        <span class="text-[11px] text-muted-foreground">{{ group.tasks.length }}</span>
+        <span class="text-[11px] text-muted-foreground tabular-nums">{{ group.tasks.length }}</span>
       </div>
 
       <!-- Task rows with time column -->
@@ -119,12 +120,13 @@ const groups = computed<PeriodGroup[]>(() => {
           <TaskItem
             :task="task"
             :show-time="false"
+            :show-date="false"
             :no-border="true"
             @toggle="emit('toggle', $event)"
             @open="emit('open', $event)"
           />
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>

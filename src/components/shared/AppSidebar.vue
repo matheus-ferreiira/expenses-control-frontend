@@ -31,11 +31,9 @@ const ui = useUiStore()
 const openGroups = ref<Record<string, boolean>>({})
 
 const isOnFinance = computed(() => String(route.name).startsWith('finance'))
-const isOnTasks = computed(() => String(route.name).startsWith('task'))
 const isOnPrices = computed(() => String(route.name).startsWith('prices'))
 
 watch(isOnFinance, (val) => { if (val) openGroups.value[ROUTES.FINANCE] = true }, { immediate: true })
-watch(isOnTasks, (val) => { if (val) openGroups.value[ROUTES.TASKS] = true }, { immediate: true })
 watch(isOnPrices, (val) => { if (val) openGroups.value[ROUTES.PRICES] = true }, { immediate: true })
 
 function isGroupOpen(routeKey: string): boolean {
@@ -46,7 +44,6 @@ function toggleGroup(routeKey: string) {
 }
 function isGroupActive(routeKey: string): boolean {
   if (routeKey === ROUTES.FINANCE) return isOnFinance.value
-  if (routeKey === ROUTES.TASKS) return isOnTasks.value
   if (routeKey === ROUTES.PRICES) return isOnPrices.value
   return false
 }
@@ -56,8 +53,6 @@ interface NavChildItem {
   label: string
   icon?: typeof LayoutDashboard
   route: string
-  viewKey?: string   // tasks: navigate to parent route + ?view=viewKey
-  danger?: boolean
 }
 
 // Transações foi fundida na Visão Geral; Categorias é setup (acesso pelo menu "..." da Visão Geral)
@@ -77,30 +72,10 @@ const PRICES_CHILDREN: NavChildItem[] = [
   { label: 'Minhas Compras', icon: ShoppingBag,    route: ROUTES.PRICES_PURCHASES },
 ]
 
-const TASKS_CHILDREN: NavChildItem[] = [
-  { label: 'Todas',      route: ROUTES.TASKS, viewKey: 'all' },
-  { label: 'Hoje',       route: ROUTES.TASKS, viewKey: 'today' },
-  { label: 'Próximas',   route: ROUTES.TASKS, viewKey: 'upcoming' },
-  { label: 'Atrasadas',  route: ROUTES.TASKS, viewKey: 'overdue', danger: true },
-  { label: 'Concluídas', route: ROUTES.TASKS, viewKey: 'completed' },
-]
-
 function isChildActive(child: NavChildItem): boolean {
   const name = String(route.name)
-  if (child.viewKey) {
-    if (!isOnTasks.value) return false
-    const queryView = String(route.query.view ?? 'all')
-    return queryView === child.viewKey
-  }
   if (child.route === ROUTES.FINANCE || child.route === ROUTES.PRICES) return name === child.route
   return name === child.route || name.startsWith(child.route + '-')
-}
-
-function childTo(child: NavChildItem, parentRoute: string) {
-  if (child.viewKey) {
-    return { name: parentRoute, query: { view: child.viewKey } }
-  }
-  return { name: child.route }
 }
 
 // ── Nav sections ──────────────────────────────────────────────────────────────
@@ -132,7 +107,7 @@ const ALL_NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Finanças', icon: Wallet,        route: ROUTES.FINANCE,   shortcut: 'G F', module: null, children: FINANCE_CHILDREN },
       { label: 'Preços',   icon: Tag,           route: ROUTES.PRICES,    shortcut: '',    module: null, children: PRICES_CHILDREN },
-      { label: 'Tarefas',  icon: CheckSquare,   route: ROUTES.TASKS,     shortcut: 'G T', module: 'tasks', children: TASKS_CHILDREN },
+      { label: 'Tarefas',  icon: CheckSquare,   route: ROUTES.TASKS,     shortcut: 'G T', module: 'tasks' },
       { label: 'Hábitos',  icon: Flame,         route: ROUTES.HABITS,    shortcut: 'G H', module: 'habits' },
       { label: 'Agenda',   icon: CalendarDays,  route: ROUTES.CALENDAR,  shortcut: 'G A', module: 'calendar' },
       { label: 'Notas',    icon: FileText,      route: ROUTES.NOTES,     shortcut: 'G N', module: 'notes' },
@@ -172,10 +147,10 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
   : 'Ctrl K'
 
 const MOBILE_ICON_COLORS: Record<string, string> = {
-  [ROUTES.DASHBOARD]: 'text-blue-400',
-  [ROUTES.TASKS]:     'text-blue-400',
-  [ROUTES.HABITS]:    'text-orange-400',
-  [ROUTES.CALENDAR]:  'text-violet-400',
+  [ROUTES.DASHBOARD]: 'text-primary',
+  [ROUTES.TASKS]:     'text-accent-blue',
+  [ROUTES.HABITS]:    'text-accent-orange',
+  [ROUTES.CALENDAR]:  'text-accent-violet',
   [ROUTES.SETTINGS]:  'text-muted-foreground',
 }
 </script>
@@ -340,16 +315,14 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
               <template v-if="props.open && isGroupOpen(item.route)">
                 <RouterLink
                   v-for="child in item.children"
-                  :key="child.viewKey ?? child.route + child.label"
-                  :to="childTo(child, item.route)"
+                  :key="child.route + child.label"
+                  :to="{ name: child.route }"
                   class="flex items-center rounded-lg transition-colors duration-150 mb-0.5"
                   :class="[
                     props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2 pl-9 pr-3 py-1.5 text-[12px]',
                     isChildActive(child)
                       ? 'text-primary font-medium'
-                      : child.danger && !isChildActive(child)
-                        ? 'text-destructive hover:bg-muted hover:text-destructive'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   ]"
                   @click="emit('navigate')"
                 >

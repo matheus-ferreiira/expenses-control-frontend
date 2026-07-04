@@ -285,7 +285,7 @@ watch(() => props.open, (open) => {
               ref="titleRef"
               v-model="titleDraft"
               type="text"
-              class="w-full text-[20px] font-bold text-foreground bg-transparent border-b outline-none pb-0.5"
+              class="w-full text-[20px] font-semibold text-foreground bg-transparent border-b border-border focus:border-primary outline-none pb-0.5"
               @blur="saveTitle"
               @keydown.enter="saveTitle"
               @keydown.escape="editingTitle = false"
@@ -293,7 +293,7 @@ watch(() => props.open, (open) => {
             <button
               v-else
               type="button"
-              class="text-left w-full text-[20px] font-bold leading-snug"
+              class="text-left w-full text-[20px] font-semibold leading-snug"
               :class="task.status === 'completed' || task.status === 'cancelled'
                 ? 'line-through text-muted-foreground'
                 : 'text-foreground'"

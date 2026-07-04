@@ -51,26 +51,20 @@ function isActive(id: TaskViewId): boolean {
 }
 
 function tabClass(tab: { id: TaskViewId; danger: boolean; count: number }): string {
-  if (isActive(tab.id) && tab.danger) return 'bg-muted text-destructive font-medium'
-  if (isActive(tab.id)) return 'bg-muted text-primary font-medium'
-  if (tab.danger && tab.count > 0) return 'text-destructive hover:text-destructive'
-  return 'text-muted-foreground hover:text-foreground'
-}
-
-function countClass(tab: { danger: boolean }, active: boolean): string {
-  if (tab.danger && active) return 'text-destructive'
-  if (tab.danger) return 'text-destructive'
-  return 'opacity-60'
+  if (isActive(tab.id)) return 'bg-primary text-primary-foreground'
+  if (tab.danger && tab.count > 0) return 'bg-muted text-destructive hover:text-destructive'
+  return 'bg-muted text-muted-foreground hover:text-foreground'
 }
 </script>
 
 <template>
-  <div class="-mx-4 px-4 mb-4 overflow-x-auto scrollbar-none">
+  <div class="-mx-4 px-4 md:-mx-6 md:px-6 mb-4 overflow-x-auto scrollbar-none scroll-fade-x">
     <div class="flex items-center gap-1.5 w-max py-0.5">
       <button
         v-for="tab in tabs"
         :key="tab.id"
-        class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] whitespace-nowrap transition-colors shrink-0"
+        type="button"
+        class="flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors duration-150 shrink-0"
         :class="tabClass(tab)"
         @click="emit('update:selectedView', tab.id)"
       >
@@ -78,7 +72,6 @@ function countClass(tab: { danger: boolean }, active: boolean): string {
         <span
           v-if="tab.count > 0"
           class="text-[11px] tabular-nums font-semibold"
-          :class="countClass(tab, isActive(tab.id))"
         >{{ tab.count }}</span>
       </button>
     </div>

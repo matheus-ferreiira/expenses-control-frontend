@@ -75,7 +75,7 @@ const timePeriod = computed(() => {
   if (!dueTime.value) return null
   const hour = parseInt(dueTime.value.split(':')[0] ?? '0', 10)
   if (hour < 12) return { label: 'MANHÃ', cls: 'bg-muted text-warning' }
-  if (hour < 18) return { label: 'TARDE', style: 'background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)' }
+  if (hour < 18) return { label: 'TARDE', cls: 'bg-muted text-warning' }
   return { label: 'NOITE', cls: 'bg-muted text-primary' }
 })
 
@@ -91,10 +91,10 @@ const estimatedDisplay = computed(() => {
   return `${val}min`
 })
 
-// ── Tag color helper (data-driven: acceptable to use dynamic color) ───────────
+// ── Tag color helper — cor dinâmica SÓ no texto; fundo cinza sólido ──────────
 function tagActiveStyle(color: string | null): string {
   if (!color) return ''
-  return `background: ${color}26; color: ${color}`
+  return `color: ${color}`
 }
 
 // ── Recurrence label for collapsed state ─────────────────────────────────────
@@ -131,12 +131,12 @@ function isQuickActive(id: string): boolean {
 }
 
 // ── Priorities ───────────────────────────────────────────────────────────────
-interface PriorityDef { value: TaskPriority; label: string; activeClass: string; activeStyle?: string }
+interface PriorityDef { value: TaskPriority; label: string; activeClass: string }
 const PRIORITIES: PriorityDef[] = [
   { value: 'urgent', label: 'P1 Urgente', activeClass: 'bg-muted text-destructive' },
-  { value: 'high',   label: 'P2 Alta',    activeClass: '', activeStyle: 'background: hsl(38 90% 60% / 0.15); color: hsl(38 90% 60%)' },
-  { value: 'normal', label: 'P3 Média',   activeClass: 'bg-muted text-warning' },
-  { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted text-muted-foreground' },
+  { value: 'high',   label: 'P2 Alta',    activeClass: 'bg-muted text-warning' },
+  { value: 'normal', label: 'P3 Média',   activeClass: 'bg-muted text-foreground' },
+  { value: 'low',    label: 'P4 Baixa',   activeClass: 'bg-muted text-foreground' },
 ]
 
 // ── Recurrence ───────────────────────────────────────────────────────────────
@@ -292,8 +292,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
               :class="isQuickActive(qd.id)
-                ? 'bg-muted text-primary font-medium'
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="dueDate = qd.date()"
             >{{ qd.label }}</button>
           </div>
@@ -318,8 +318,7 @@ function handleKeydown(e: KeyboardEvent) {
             <span
               v-if="timePeriod"
               class="h-7 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center shrink-0"
-              :class="timePeriod.cls ?? ''"
-              :style="timePeriod.style ?? ''"
+              :class="timePeriod.cls"
             >{{ timePeriod.label }}</span>
           </div>
         </div>
@@ -340,8 +339,7 @@ function handleKeydown(e: KeyboardEvent) {
               class="h-9 rounded-lg text-[12px] font-medium transition-all"
               :class="priority === p.value
                 ? p.activeClass
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
-              :style="priority === p.value && p.activeStyle ? p.activeStyle : ''"
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="priority = p.value"
             >{{ p.label }}</button>
           </div>
@@ -357,8 +355,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
               :class="selectedListId === null
-                ? 'bg-muted text-primary font-medium'
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="selectedListId = null"
             >Nenhuma</button>
 
@@ -368,8 +366,8 @@ function handleKeydown(e: KeyboardEvent) {
               type="button"
               class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
               :class="selectedListId === list.id
-                ? 'bg-muted text-primary font-medium'
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="selectedListId = list.id"
             >{{ list.name }}</button>
 
@@ -391,7 +389,7 @@ function handleKeydown(e: KeyboardEvent) {
                 @click="confirmNewList"
               >
                 <Loader2 v-if="savingList" :size="12" class="animate-spin" />
-                <span v-else class="text-[12px] font-bold leading-none">✓</span>
+                <span v-else class="text-[12px] font-semibold leading-none">✓</span>
               </button>
               <button
                 type="button"
@@ -427,10 +425,10 @@ function handleKeydown(e: KeyboardEvent) {
               v-for="tag in tagStore.tags"
               :key="tag.id"
               type="button"
-              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors font-medium"
+              class="rounded-xl px-3 py-1.5 text-[13px] transition-colors font-medium bg-muted"
               :class="selectedTagIds.includes(tag.id)
-                ? (tag.color ? '' : 'bg-muted text-primary')
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? (tag.color ? '' : 'text-primary')
+                : 'text-muted-foreground hover:text-foreground'"
               :style="selectedTagIds.includes(tag.id) ? tagActiveStyle(tag.color) : ''"
               @click="toggleTag(tag.id)"
             >{{ tag.name }}</button>
@@ -468,8 +466,8 @@ function handleKeydown(e: KeyboardEvent) {
                 type="button"
                 class="rounded-xl px-3 py-1.5 text-[13px] transition-colors"
                 :class="recurrenceType === rt.value
-                  ? 'bg-muted text-primary font-medium'
-                  : 'bg-muted text-muted-foreground hover:bg-muted'"
+                  ? 'bg-primary text-primary-foreground font-medium'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'"
                 @click="selectRecurrenceType(rt.value)"
               >{{ rt.label }}</button>
             </div>
@@ -482,8 +480,8 @@ function handleKeydown(e: KeyboardEvent) {
                 type="button"
                 class="h-9 rounded-lg text-[11px] font-semibold transition-all"
                 :class="weeklyDays.includes(idx)
-                  ? 'bg-muted text-primary'
-                  : 'bg-muted text-muted-foreground hover:bg-muted'"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'"
                 @click="toggleWeekday(idx)"
               >{{ day }}</button>
             </div>

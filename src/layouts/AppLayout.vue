@@ -32,7 +32,7 @@ function openQuickAdd() {
 
 const bottomNavLeft = [
   { icon: LayoutDashboard, label: 'Hoje', route: ROUTES.DASHBOARD },
-  { icon: Calendar, label: 'Agenda', route: ROUTES.TASKS },
+  { icon: Calendar, label: 'Tarefas', route: ROUTES.TASKS },
 ] as const
 
 const bottomNavRight = [
@@ -57,7 +57,7 @@ const mobileHeaderTitle = computed(() => {
   const name = String(route.name)
   if (name.startsWith('finance')) return 'Finanças'
   if (name === ROUTES.DASHBOARD) return 'Hoje'
-  if (name.startsWith('task')) return 'Agenda'
+  if (name.startsWith('task')) return 'Tarefas'
   if (name.startsWith('habit')) return 'Mais'
   if (name === ROUTES.CALENDAR) return 'Calendário'
   if (name === ROUTES.REPORTS) return 'Relatórios'

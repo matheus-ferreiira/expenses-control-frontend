@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { AlertTriangle } from 'lucide-vue-next'
+import { useRoute, useRouter } from 'vue-router'
+import { AlertTriangle, Plus } from 'lucide-vue-next'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import TasksSubNav from '@/features/tasks/components/TasksSubNav.vue'
+import TaskDaySummaryCard from '@/features/tasks/components/TaskDaySummaryCard.vue'
 import TaskListView from '@/features/tasks/views/TaskListView.vue'
 import TaskPeriodView from '@/features/tasks/views/TaskPeriodView.vue'
 import TaskCreateSheet from '@/features/tasks/components/TaskCreateSheet.vue'
@@ -14,16 +16,26 @@ import type { TaskViewId } from '@/features/tasks/types'
 
 const store = useTaskStore()
 const route = useRoute()
+const router = useRouter()
 
-// ── Selected view — persisted + synced with URL query param ─────────────────
+// ── Selected view — URL é a fonte de verdade; localStorage só como fallback ──
 const VIEW_KEY = 'tasks:selectedView'
 const selectedView = ref<TaskViewId>(
-  (route.query.view as TaskViewId) ?? (localStorage.getItem(VIEW_KEY) as TaskViewId) ?? 'all',
+  (localStorage.getItem(VIEW_KEY) as TaskViewId) ?? 'all',
 )
 watch(selectedView, (v) => localStorage.setItem(VIEW_KEY, v))
-watch(() => route.query.view, (view) => {
-  if (view && typeof view === 'string') selectedView.value = view as TaskViewId
-})
+watch(
+  () => route.query.view,
+  (view) => {
+    if (view && typeof view === 'string') selectedView.value = view as TaskViewId
+  },
+  { immediate: true },
+)
+
+function selectView(view: TaskViewId) {
+  selectedView.value = view
+  router.replace({ query: { ...route.query, view } })
+}
 
 // ── Derived tasks by selected view ───────────────────────────────────────────
 function todayStr() {
@@ -82,15 +94,12 @@ const overdueCount = computed(() => store.overdueTasks.length)
 
 // ── Daily progress ───────────────────────────────────────────────────────────
 const progress = computed(() => store.todayProgress)
-const showProgressBar = computed(() => progress.value.total > 0)
 
-const todayProgressLabel = computed(() => {
-  const d = new Date()
-  const rawWeekday = d.toLocaleDateString('pt-BR', { weekday: 'long' })
-  const weekdayName = (rawWeekday.split('-')[0] ?? rawWeekday).toUpperCase()
-  const day = d.getDate()
-  const month = d.toLocaleDateString('pt-BR', { month: 'long' }).toUpperCase()
-  return `HOJE · ${weekdayName}, ${day} DE ${month}`
+const subtitle = computed(() => {
+  const p = `${pendingCount.value} pendente${pendingCount.value !== 1 ? 's' : ''}`
+  return overdueCount.value > 0
+    ? `${p} · ${overdueCount.value} atrasada${overdueCount.value !== 1 ? 's' : ''}`
+    : p
 })
 
 // ── Sheets ───────────────────────────────────────────────────────────────────
@@ -139,100 +148,74 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full px-4 py-6">
+  <AppPageContainer>
 
     <!-- Header -->
-    <div class="flex items-start justify-between mb-5">
-      <div>
-        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-          PRODUTIVIDADE
-        </p>
-        <h1 class="text-[28px] font-bold text-foreground leading-none mb-1.5">Tarefas</h1>
-        <p class="text-[13px] text-muted-foreground tabular-nums">
-          {{ pendingCount }} pendente{{ pendingCount !== 1 ? 's' : '' }}
-          <template v-if="overdueCount > 0">
-            ·
-            <span class="text-destructive font-semibold">
-              {{ overdueCount }} atrasada{{ overdueCount !== 1 ? 's' : '' }}
-            </span>
-          </template>
-        </p>
-      </div>
-      <button
-        type="button"
-        class="h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium transition-all active:scale-95 shrink-0 mt-1"
-        @click="createOpen = true"
-      >
-        + Nova tarefa
-      </button>
-    </div>
+    <PageHeader title="Tarefas" :subtitle="subtitle">
+      <template #actions>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          @click="createOpen = true"
+        >
+          <Plus class="size-3.5" />
+          Nova tarefa
+        </button>
+      </template>
+    </PageHeader>
 
-    <!-- Daily progress card -->
-    <div v-if="showProgressBar" class="flex overflow-hidden bg-card rounded-xl mb-5">
-      <!-- Left accent bar -->
-      <div class="w-0.5 bg-primary shrink-0" />
-      <!-- Content -->
-      <div class="flex-1 p-4">
-        <div class="flex items-center justify-between mb-2.5">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground">
-            {{ todayProgressLabel }}
-          </p>
-          <p class="text-[12px] font-medium tabular-nums">
-            <span v-if="progress.percent >= 100" class="text-success font-semibold">
-              ✓ Tudo concluído hoje!
-            </span>
-            <span v-else class="text-muted-foreground">
-              {{ progress.completed }}/{{ progress.total }} concluídas
-            </span>
-          </p>
+    <!-- Desktop: resumo à esquerda (fixo), lista à direita. Mobile: empilhado -->
+    <div class="lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-5 lg:items-start max-w-[1200px]">
+
+      <!-- Resumo do dia -->
+      <div class="mb-4 lg:mb-0">
+        <TaskDaySummaryCard
+          :today-total="progress.total"
+          :today-completed="progress.completed"
+          :overdue-count="overdueCount"
+        />
+      </div>
+
+      <div class="min-w-0">
+        <!-- Pill tabs (filtros do módulo) -->
+        <TasksSubNav :selected-view="selectedView" @update:selected-view="selectView" />
+
+        <!-- Error banner -->
+        <div
+          v-if="store.error"
+          class="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 mb-4 bg-muted text-destructive text-[12px]"
+        >
+          <div class="flex items-center gap-2">
+            <AlertTriangle :size="14" class="shrink-0" />
+            <span>{{ store.error }}</span>
+          </div>
+          <button
+            class="underline shrink-0 hover:text-foreground transition-colors"
+            @click="store.fetchTasks()"
+          >Tentar novamente</button>
         </div>
-        <div class="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            class="h-full rounded-full transition-all duration-500"
-            :class="progress.percent >= 100 ? 'bg-success' : 'bg-primary'"
-            :style="{ width: `${Math.min(progress.percent, 100)}%` }"
-          />
-        </div>
+
+        <!-- Task list — period grouped for "today" view, regular otherwise -->
+        <TaskPeriodView
+          v-if="selectedView === 'today'"
+          :tasks="displayTasks"
+          :loading="store.loading"
+          @toggle="handleToggle"
+          @open="openDetail"
+          @create="createOpen = true"
+        />
+        <TaskListView
+          v-else
+          :tasks="displayTasks"
+          :loading="store.loading"
+          @toggle="handleToggle"
+          @open="openDetail"
+          @create="createOpen = true"
+        />
       </div>
     </div>
 
-    <!-- Pill tabs -->
-    <TasksSubNav v-model:selected-view="selectedView" />
-
-    <!-- Error banner -->
-    <div
-      v-if="store.error"
-      class="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 mb-4 bg-muted text-destructive text-[12px]"
-    >
-      <div class="flex items-center gap-2">
-        <AlertTriangle :size="14" class="shrink-0" />
-        <span>{{ store.error }}</span>
-      </div>
-      <button
-        class="underline opacity-70 hover:opacity-100 transition-opacity shrink-0"
-        @click="store.fetchTasks()"
-      >Tentar novamente</button>
-    </div>
-
-    <!-- Task list — period grouped for "today" view, regular otherwise -->
-    <TaskPeriodView
-      v-if="selectedView === 'today'"
-      :tasks="displayTasks"
-      :loading="store.loading"
-      @toggle="handleToggle"
-      @open="openDetail"
-      @create="createOpen = true"
-    />
-    <TaskListView
-      v-else
-      :tasks="displayTasks"
-      :loading="store.loading"
-      @toggle="handleToggle"
-      @open="openDetail"
-      @create="createOpen = true"
-    />
-
-  </div>
+  </AppPageContainer>
 
   <!-- Create sheet -->
   <TaskCreateSheet v-model:open="createOpen" />
