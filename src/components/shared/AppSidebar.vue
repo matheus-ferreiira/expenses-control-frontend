@@ -159,7 +159,7 @@ function iconColor(routeName: string): string {
 <template>
   <aside
     class="flex flex-col h-full bg-background transition-[width] duration-300 ease-in-out overflow-hidden"
-    :class="props.mobile ? 'w-full' : (props.open ? 'w-64 border-r border-border' : 'w-14 border-r border-border')"
+    :class="props.mobile ? 'w-full' : (props.open ? 'w-72 border-r border-border' : 'w-14 border-r border-border')"
   >
 
     <!-- ─── Mobile header ─────────────────────────────────────── -->
@@ -189,7 +189,7 @@ function iconColor(routeName: string): string {
     </div>
 
     <!-- ─── Desktop logo ─────────────────────────────────────── -->
-    <div v-else class="flex items-center h-16 px-4 border-b border-border shrink-0">
+    <div v-else class="flex items-center h-16 px-5 border-b border-border shrink-0">
       <div v-if="props.open" class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-[17px] font-semibold text-foreground tracking-tight select-none">Vault</span>
         <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded  select-none text-muted-foreground border-border">
@@ -226,7 +226,7 @@ function iconColor(routeName: string): string {
     </div>
 
     <!-- ─── Desktop search + quick add ─────────────────────────── -->
-    <div v-else class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
+    <div v-else class="px-3 pt-3 pb-1 space-y-0.5 shrink-0">
       <template v-if="props.open">
         <button
           class="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
@@ -263,7 +263,7 @@ function iconColor(routeName: string): string {
 
     <!-- ─── Navigation ────────────────────────────────────────── -->
     <ScrollArea class="flex-1 overflow-hidden">
-      <nav :class="props.mobile ? 'px-3 pb-3' : 'px-2 pb-2'">
+      <nav class="px-3 pb-3">
         <template v-for="(section, sectionIdx) in navSections" :key="sectionIdx">
 
           <!-- Section label (expanded) -->
@@ -416,7 +416,7 @@ function iconColor(routeName: string): string {
       <!-- Theme toggle (expanded) -->
       <button
         v-if="props.open"
-        class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors duration-150"
+        class="flex items-center gap-2 w-full px-4 py-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors duration-150"
         @click="ui.toggleTheme()"
       >
         <Moon v-if="ui.theme === 'dark'" :size="14" class="shrink-0" />
@@ -437,7 +437,7 @@ function iconColor(routeName: string): string {
       </button>
 
       <!-- User row (expanded) -->
-      <div v-if="props.open" class="flex items-center gap-2.5 px-3 py-3">
+      <div v-if="props.open" class="flex items-center gap-2.5 px-4 py-3">
         <Avatar class="h-9 w-9 shrink-0">
           <AvatarFallback class="text-[12px] font-medium bg-muted text-primary">
             {{ initials(auth.user?.name) }}
