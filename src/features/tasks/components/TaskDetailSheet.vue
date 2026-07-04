@@ -167,7 +167,7 @@ function formatEstimated(min: number): string {
 
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
   none: '', daily: 'Diária', weekly: 'Semanal',
-  monthly: 'Mensal', yearly: 'Anual', weekday: 'Dias úteis', custom: 'Personalizado',
+  monthly: 'Mensal', yearly: 'Anual', weekdays: 'Dias úteis', custom: 'Personalizado',
 }
 
 // ── Computed ──────────────────────────────────────────────────────────────────

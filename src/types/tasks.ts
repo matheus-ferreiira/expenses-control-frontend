@@ -1,6 +1,6 @@
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
 export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent'
-export type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'weekday' | 'custom'
+export type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'weekdays' | 'custom'
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   pending: 'Pendente',

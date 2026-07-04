@@ -101,7 +101,7 @@ function tagActiveStyle(color: string | null): string {
 const recurrenceSummary = computed(() => {
   const labels: Record<RecurrenceType, string> = {
     none: '', daily: 'Diária', weekly: 'Semanal',
-    monthly: 'Mensal', yearly: 'Anual', weekday: 'Dias úteis', custom: 'Personalizado',
+    monthly: 'Mensal', yearly: 'Anual', weekdays: 'Dias úteis', custom: 'Personalizado',
   }
   return recurrenceType.value !== 'none' ? labels[recurrenceType.value] : null
 })
@@ -147,7 +147,7 @@ const RECURRENCE_TYPES: RecurrenceDef[] = [
   { value: 'weekly',  label: 'Semanal' },
   { value: 'monthly', label: 'Mensal' },
   { value: 'yearly',  label: 'Anual' },
-  { value: 'weekday', label: 'Dias úteis' },
+  { value: 'weekdays', label: 'Dias úteis' },
   { value: 'custom',  label: 'Personalizado' },
 ]
 
