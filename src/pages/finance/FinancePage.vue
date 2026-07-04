@@ -581,7 +581,7 @@ onMounted(async () => {
         <!-- Nova transação (hidden on mobile) -->
         <button
           type="button"
-          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          class="hidden md:inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
           @click="editingTransaction = null; transactionPrefill = null; formOpen = true"
         >
           <Plus class="size-3.5" />
@@ -611,8 +611,8 @@ onMounted(async () => {
       </template>
     </PageHeader>
 
-    <!-- Desktop: resumo à esquerda (fixo), transações à direita. Mobile: empilhado -->
-    <div class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-5 lg:items-start max-w-[1200px]">
+    <!-- Desktop: sempre 2 colunas — em telas maiores as colunas alargam -->
+    <div class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] lg:gap-5 xl:gap-6 lg:items-start">
     <div>
     <!-- Month Summary -->
     <div class="mb-4 space-y-3">

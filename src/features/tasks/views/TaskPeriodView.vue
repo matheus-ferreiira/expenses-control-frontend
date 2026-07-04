@@ -89,20 +89,24 @@ const groups = computed<PeriodGroup[]>(() => {
       :key="group.id"
       class="bg-card rounded-lg px-4 pb-1"
     >
-      <!-- Period header -->
+      <!-- Period header: ícone+label | horário | total -->
       <div class="flex items-center gap-2 pt-3 pb-1">
-        <component
-          :is="group.icon"
-          :size="13"
-          class="text-accent-blue shrink-0"
-        />
-        <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-          {{ group.label }}
-          <span v-if="group.sublabel" class="text-muted-foreground font-normal lowercase tracking-normal ml-1">
-            · {{ group.sublabel }}
+        <div class="flex items-center gap-2 shrink-0">
+          <component
+            :is="group.icon"
+            :size="13"
+            class="text-accent-blue shrink-0"
+          />
+          <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            {{ group.label }}
           </span>
-        </span>
-        <span class="text-[11px] text-muted-foreground tabular-nums">{{ group.tasks.length }}</span>
+        </div>
+        <span
+          v-if="group.sublabel"
+          class="flex-1 text-center text-[11px] text-muted-foreground tabular-nums"
+        >{{ group.sublabel }}</span>
+        <span v-else class="flex-1" />
+        <span class="text-[11px] text-muted-foreground tabular-nums shrink-0">{{ group.tasks.length }}</span>
       </div>
 
       <!-- Task rows with time column -->

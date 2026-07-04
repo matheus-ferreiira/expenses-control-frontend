@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ChevronRight, House } from 'lucide-vue-next'
 import { ROUTES } from '@/constants/routes'
+import { MODULES as SYSTEM_MODULES } from '@/constants/modules'
 
 /**
  * Trilha de navegação global: Home › Módulo › Página.
@@ -14,17 +15,8 @@ const router = useRouter()
 
 type Crumb = { label: string; route?: string }
 
-/** Módulo por prefixo de rota → label + rota raiz do módulo */
-const MODULES: Array<{ prefix: string; label: string; root: string }> = [
-  { prefix: 'finance', label: 'Finanças', root: ROUTES.FINANCE },
-  { prefix: 'prices', label: 'Preços', root: ROUTES.PRICES },
-  { prefix: 'task', label: 'Tarefas', root: ROUTES.TASKS },
-  { prefix: 'habit', label: 'Hábitos', root: ROUTES.HABITS },
-  { prefix: 'calendar', label: 'Agenda', root: ROUTES.CALENDAR },
-  { prefix: 'note', label: 'Notas', root: ROUTES.NOTES },
-  { prefix: 'bookmark', label: 'Bookmarks', root: ROUTES.BOOKMARKS },
-  { prefix: 'purchase', label: 'Compras', root: ROUTES.PURCHASES },
-]
+/** Módulo por prefixo de rota — fonte única em constants/modules.ts */
+const MODULES = SYSTEM_MODULES.filter((m) => !['dashboard', 'settings', 'reports'].includes(m.prefix))
 
 /** Label da página atual por nome de rota (folha da trilha) */
 const LEAF_LABELS: Record<string, string> = {
@@ -71,7 +63,7 @@ function go(crumb: Crumb) {
 </script>
 
 <template>
-  <nav aria-label="Trilha de navegação" class="flex items-center gap-1 mb-1.5 select-none">
+  <nav aria-label="Trilha de navegação" class="flex items-center gap-1 select-none">
     <template v-for="(crumb, i) in crumbs" :key="i">
       <ChevronRight v-if="i > 0" :size="11" class="text-muted-foreground shrink-0" aria-hidden="true" />
       <button

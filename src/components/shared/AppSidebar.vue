@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { ROUTES } from '@/constants/routes'
+import { MODULES as MODULE_DEFS } from '@/constants/modules'
 import { ScrollArea } from '@ui/scroll-area'
 import { Avatar, AvatarFallback } from '@ui/avatar'
 import {
@@ -146,12 +147,12 @@ const searchShortcut = typeof navigator !== 'undefined' && navigator.platform.in
   ? '⌘K'
   : 'Ctrl K'
 
-const MOBILE_ICON_COLORS: Record<string, string> = {
-  [ROUTES.DASHBOARD]: 'text-primary',
-  [ROUTES.TASKS]:     'text-accent-blue',
-  [ROUTES.HABITS]:    'text-accent-orange',
-  [ROUTES.CALENDAR]:  'text-accent-violet',
-  [ROUTES.SETTINGS]:  'text-muted-foreground',
+// Ícones de módulo sempre na cor de identidade (lei: cor de módulo só em ícones)
+const ICON_COLORS: Record<string, string> = Object.fromEntries(
+  MODULE_DEFS.map((m) => [m.root, m.colorClass]),
+)
+function iconColor(routeName: string): string {
+  return ICON_COLORS[routeName] ?? ''
 }
 </script>
 
@@ -270,7 +271,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
             v-if="props.open && section.label"
             :class="props.mobile
               ? ['px-4 mb-1', sectionIdx > 0 ? 'mt-5' : '']
-              : ['px-3 mb-1', sectionIdx > 0 ? 'mt-4' : '']"
+              : ['px-3 mb-1.5', sectionIdx > 0 ? 'mt-5' : '']"
           >
             <span
               :class="props.mobile
@@ -296,13 +297,13 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 :class="isGroupActive(item.route)
                   ? (props.mobile
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
-                      : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                      : 'bg-sidebar-accent pl-[10px] pr-3 py-[9px] border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
                       ? 'px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
+                      : 'px-3 py-[9px] text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
                 @click="toggleGroup(item.route)"
               >
-                <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" />
+                <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" :class="iconColor(item.route)" />
                 <span class="flex-1 truncate text-left" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
                 <ChevronDown
                   :size="12"
@@ -341,7 +342,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
                 @click="emit('navigate')"
               >
-                <component :is="item.icon" :size="18" />
+                <component :is="item.icon" :size="18" :class="iconColor(item.route)" />
               </RouterLink>
             </template>
 
@@ -356,19 +357,17 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                 :class="isActive(item.route)
                   ? (props.mobile
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
-                      : 'bg-sidebar-accent pl-[10px] pr-3 py-2 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                      : 'bg-sidebar-accent pl-[10px] pr-3 py-[9px] border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
                       ? 'px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
+                      : 'px-3 py-[9px] text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
                 @click="emit('navigate')"
               >
                 <component
                   :is="item.icon"
                   :size="props.mobile ? 20 : 18"
                   class="shrink-0"
-                  :class="props.mobile
-                    ? (isActive(item.route) ? (MOBILE_ICON_COLORS[item.route] ?? 'text-primary') : 'text-muted-foreground')
-                    : ''"
+                  :class="iconColor(item.route)"
                 />
                 <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
                 <span
@@ -387,7 +386,7 @@ const MOBILE_ICON_COLORS: Record<string, string> = {
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
                 @click="emit('navigate')"
               >
-                <component :is="item.icon" :size="18" />
+                <component :is="item.icon" :size="18" :class="iconColor(item.route)" />
               </RouterLink>
 
             </template>

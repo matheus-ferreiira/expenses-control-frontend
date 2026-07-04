@@ -155,7 +155,7 @@ onUnmounted(() => {
       <template #actions>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] lg:h-7 lg:px-2 lg:text-[11.5px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
           @click="createOpen = true"
         >
           <Plus class="size-3.5" />
@@ -164,8 +164,8 @@ onUnmounted(() => {
       </template>
     </PageHeader>
 
-    <!-- Desktop: resumo à esquerda (fixo), lista à direita. Mobile: empilhado -->
-    <div class="lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-5 lg:items-start max-w-[1200px]">
+    <!-- Desktop: sempre 2 colunas — em telas maiores as colunas alargam -->
+    <div class="lg:grid lg:grid-cols-[380px_minmax(0,1fr)] xl:grid-cols-[420px_minmax(0,1fr)] lg:gap-5 xl:gap-6 lg:items-start">
 
       <!-- Resumo do dia -->
       <div class="mb-4 lg:mb-0">
