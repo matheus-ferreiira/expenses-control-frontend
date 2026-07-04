@@ -21,6 +21,8 @@ const emit = defineEmits<{
   delete: [id: string]
   archive: [account: BankAccount]
   unarchive: [account: BankAccount]
+  /** Toque no corpo do card — abre a Visão Geral filtrada por esta conta */
+  view: [account: BankAccount]
 }>()
 </script>
 
@@ -29,7 +31,13 @@ const emit = defineEmits<{
     class="rounded-xl bg-card transition-opacity"
     :class="!account.is_active ? 'opacity-50' : ''"
   >
-    <div class="p-4 flex items-start gap-3">
+    <div
+      class="p-4 flex items-start gap-3 cursor-pointer"
+      role="button"
+      tabindex="0"
+      @click="emit('view', account)"
+      @keydown.enter="emit('view', account)"
+    >
       <!-- Account type icon: 40×40, colored bg 20% opacity -->
       <span
         class="flex items-center justify-center size-10 rounded-xl shrink-0"
@@ -67,6 +75,7 @@ const emit = defineEmits<{
                 type="button"
                 aria-label="Opções da conta"
                 class="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1"
+                @click.stop
               >
                 <MoreHorizontal :size="13" aria-hidden="true" />
               </button>

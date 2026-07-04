@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted } from 'vue'
 import { AppPageContainer } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
@@ -80,6 +81,7 @@ async function confirmDelete() {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
     <!-- Header -->
     <div class="mb-1">
       <div class="flex items-start justify-between mb-4">

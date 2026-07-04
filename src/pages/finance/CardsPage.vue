@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref } from 'vue'
 import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
@@ -154,6 +155,7 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>

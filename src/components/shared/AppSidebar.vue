@@ -11,7 +11,7 @@ import {
   Wallet, FileText, Bookmark, ShoppingCart,
   Settings, Search, Plus, Moon, Sun,
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
-  ArrowUpDown, Landmark, CreditCard, PieChart, Tag, Flag,
+  Landmark, CreditCard, PieChart, Tag, Flag,
   Package, ShoppingBag,
 } from 'lucide-vue-next'
 
@@ -60,15 +60,14 @@ interface NavChildItem {
   danger?: boolean
 }
 
+// Transações foi fundida na Visão Geral; Categorias é setup (acesso pelo menu "..." da Visão Geral)
 const FINANCE_CHILDREN: NavChildItem[] = [
   { label: 'Visão Geral',  icon: LayoutDashboard, route: ROUTES.FINANCE },
-  { label: 'Transações',   icon: ArrowUpDown,      route: ROUTES.FINANCE_TRANSACTIONS },
   { label: 'Contas',       icon: Landmark,          route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões',      icon: CreditCard,        route: ROUTES.FINANCE_CARDS },
   { label: 'Orçamento',    icon: PieChart,          route: ROUTES.FINANCE_BUDGET },
   { label: 'Metas',        icon: Flag,              route: ROUTES.FINANCE_GOALS },
   { label: 'Relatórios',   icon: PieChart,          route: ROUTES.FINANCE_REPORTS },
-  { label: 'Categorias',   icon: Tag,               route: ROUTES.FINANCE_CATEGORIES },
 ]
 
 const PRICES_CHILDREN: NavChildItem[] = [

@@ -1,16 +1,19 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
-import { ChevronRight, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, AlertTriangle } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
+import { ChevronRight, ChevronDown, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, AlertTriangle, Tag } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer } from '@/components/shared'
 import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
 import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
@@ -310,14 +313,99 @@ const mobileStatus = computed(() => {
 })
 
 
-// Quick filter pill definitions
-const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
+// ── Filter chips (fusão da antiga tela Transações) ──────────────────────────
+type ChipId = QuickFilter | 'transfer'
+
+const activeChip = ref<ChipId>('all')
+
+const CHIPS: { id: ChipId; label: string }[] = [
   { id: 'all', label: 'Todas' },
   { id: 'income', label: 'Receitas' },
   { id: 'expense', label: 'Despesas' },
+  { id: 'transfer', label: 'Transferências' },
   { id: 'fix', label: 'Fixas' },
   { id: 'pending', label: 'Pendentes' },
 ]
+
+function setChip(chip: ChipId) {
+  activeChip.value = chip
+  selectedDay.value = null
+  if (chip === 'transfer') {
+    filterState.setType('transfer')
+    filterState.setQuickFilter('all')
+  } else {
+    filterState.setType(undefined)
+    filterState.setQuickFilter(chip)
+  }
+}
+
+// Conta / Categoria (server-side via composable)
+function setAccount(id: string | undefined) {
+  filterState.setAccountId(id)
+  loadTransactions()
+}
+
+function setCategory(id: string | undefined) {
+  filterState.setCategoryId(id)
+  loadTransactions()
+}
+
+const selectedAccountName = computed(() =>
+  filterState.account_id.value
+    ? store.activeAccounts.find((a) => a.id === filterState.account_id.value)?.name ?? null
+    : null,
+)
+
+const selectedCategoryName = computed(() =>
+  filterState.category_id.value
+    ? store.categories.find((c) => c.id === filterState.category_id.value)?.name ?? null
+    : null,
+)
+
+const filterableCategories = computed(() => {
+  if (activeChip.value === 'income') return store.categories.filter((c) => c.type === 'income')
+  if (activeChip.value === 'expense') return store.categories.filter((c) => c.type === 'expense')
+  return store.categories
+})
+
+// Dia do mês (client-side, sobre o mês carregado)
+const selectedDay = ref<string | null>(null)
+
+function selectDay(day: string | null) {
+  selectedDay.value = selectedDay.value === day ? null : day
+}
+
+function formatDayLabel(dateStr: string): string {
+  const day = parseInt(dateStr.split('-')[2] ?? '0')
+  return `Dia ${day}`
+}
+
+const monthDays = computed(() => {
+  const parts = filterState.month.value.split('-').map(Number)
+  const year = parts[0]!
+  const mon = parts[1]!
+  const daysInMonth = new Date(year, mon, 0).getDate()
+  const txDates = new Set(store.transactions.map((t) => t.transaction_date))
+  return Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1
+    const dateStr = `${year}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    return { day, dateStr, hasTx: txDates.has(dateStr) }
+  })
+})
+
+const displayedTransactions = computed(() =>
+  selectedDay.value
+    ? store.transactions.filter((t) => t.transaction_date === selectedDay.value)
+    : store.transactions,
+)
+
+const hasAnyFilter = computed(() =>
+  activeChip.value !== 'all' ||
+  !!filterState.account_id.value ||
+  !!filterState.category_id.value ||
+  !!selectedDay.value ||
+  !!filterState.search.value,
+)
 
 // Search toggle for transaction container
 const txSearchOpen = ref(false)
@@ -387,6 +475,7 @@ async function loadAllTransactions() {
 // Reload when month or quick-filter changes
 watch(() => filterState.month.value, () => {
   currentMonthSummary.value = null
+  selectedDay.value = null
   loadTransactions()
   loadCurrentMonthSummary()
   loadPrevMonthReport()
@@ -439,7 +528,13 @@ async function confirmDelete() {
   }
 }
 
+const route = useRoute()
+
 onMounted(async () => {
+  // Drill-down vindo da tela de Contas: /finance?account_id=...
+  if (typeof route.query.account_id === 'string' && route.query.account_id) {
+    filterState.setAccountId(route.query.account_id)
+  }
   const now = new Date()
   await Promise.all([
     store.fetchAll(),
@@ -454,6 +549,7 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
 
     <!-- Hidden OFX file input -->
     <input
@@ -515,13 +611,13 @@ onMounted(async () => {
             <DropdownMenuItem class="cursor-pointer" @click="triggerOfxImport">
               <Upload class="size-4 mr-2" /> Importar OFX
             </DropdownMenuItem>
+            <DropdownMenuItem class="cursor-pointer" @click="$router.push({ name: 'finance-categories' })">
+              <Tag class="size-4 mr-2" /> Gerenciar categorias
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
-
-    <!-- Sub-nav -->
-
 
     <!-- Month Summary -->
     <div class="mb-4 space-y-3">
@@ -682,26 +778,139 @@ onMounted(async () => {
           <div class="px-3 py-2 border-b border-border overflow-x-auto scrollbar-none scroll-fade-x">
             <div class="flex items-center gap-1.5 w-max">
               <button
-                v-for="f in QUICK_FILTERS"
+                v-for="f in CHIPS"
                 :key="f.id"
                 type="button"
                 class="h-7 px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors duration-150 shrink-0"
-                :class="filterState.quickFilter.value === f.id
+                :class="activeChip === f.id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:text-foreground'"
-                @click="filterState.setQuickFilter(f.id)"
+                @click="setChip(f.id)"
               >
                 {{ f.label }}
               </button>
+
+              <!-- Divider -->
+              <div class="w-px h-5 bg-border shrink-0 self-center" />
+
+              <!-- Conta -->
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <button
+                    type="button"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
+                    :class="selectedAccountName
+                      ? 'bg-muted text-primary'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'"
+                  >
+                    <span class="max-w-[100px] truncate">{{ selectedAccountName ?? 'Conta' }}</span>
+                    <ChevronDown :size="10" class="shrink-0" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" class="w-48">
+                  <DropdownMenuItem @click="setAccount(undefined)">
+                    <span :class="!filterState.account_id.value ? 'text-primary font-medium' : ''">
+                      Todas as contas
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator v-if="store.activeAccounts.length" />
+                  <DropdownMenuItem
+                    v-for="acc in store.activeAccounts"
+                    :key="acc.id"
+                    @click="setAccount(acc.id)"
+                  >
+                    <span :class="filterState.account_id.value === acc.id ? 'text-primary font-medium' : ''">
+                      {{ acc.name }}
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <!-- Categoria -->
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <button
+                    type="button"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
+                    :class="selectedCategoryName
+                      ? 'bg-muted text-primary'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'"
+                  >
+                    <span class="max-w-[100px] truncate">{{ selectedCategoryName ?? 'Categoria' }}</span>
+                    <ChevronDown :size="10" class="shrink-0" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" class="w-48 max-h-64 overflow-y-auto">
+                  <DropdownMenuItem @click="setCategory(undefined)">
+                    <span :class="!filterState.category_id.value ? 'text-primary font-medium' : ''">
+                      Todas as categorias
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator v-if="filterableCategories.length" />
+                  <DropdownMenuItem
+                    v-for="cat in filterableCategories"
+                    :key="cat.id"
+                    @click="setCategory(cat.id)"
+                  >
+                    <span :class="filterState.category_id.value === cat.id ? 'text-primary font-medium' : ''">
+                      {{ cat.name }}
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <!-- Dia do mês -->
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <button
+                    type="button"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
+                    :class="selectedDay
+                      ? 'bg-muted text-primary'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'"
+                  >
+                    {{ selectedDay ? formatDayLabel(selectedDay) : 'Data' }}
+                    <ChevronDown :size="10" class="shrink-0" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" class="w-56 p-2">
+                  <button
+                    type="button"
+                    class="w-full text-left text-[12px] px-2 py-1.5 rounded-md transition-colors hover:bg-muted"
+                    :class="!selectedDay ? 'text-primary font-medium' : 'text-muted-foreground'"
+                    @click="selectDay(null)"
+                  >
+                    Todos os dias
+                  </button>
+                  <div class="mt-1.5 border-t border-border pt-2">
+                    <div class="grid grid-cols-7 gap-0.5">
+                      <button
+                        v-for="{ day, dateStr, hasTx } in monthDays"
+                        :key="dateStr"
+                        type="button"
+                        class="h-7 rounded-md text-[11px] tabular-nums transition-colors"
+                        :class="selectedDay === dateStr
+                          ? 'bg-primary text-primary-foreground font-semibold'
+                          : hasTx
+                            ? 'text-foreground hover:bg-muted font-medium'
+                            : 'text-muted-foreground hover:bg-muted'"
+                        @click="selectDay(dateStr)"
+                      >
+                        {{ day }}
+                      </button>
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
           <!-- Transaction list — nested inside bg-card, no outer  -->
           <TransactionList
-            :transactions="store.transactions"
+            :transactions="displayedTransactions"
             :loading="store.loading"
             :nested="true"
-            :has-filter="filterState.quickFilter.value !== 'all' || !!filterState.search.value"
+            :has-filter="hasAnyFilter"
             :total-balance="totalBalance"
             :total-count="store.transactionsMeta?.total"
             :loading-all="loadingAll"

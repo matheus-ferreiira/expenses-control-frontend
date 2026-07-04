@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { AppPageContainer } from '@/components/shared'
@@ -202,6 +203,7 @@ onMounted(() => {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
     <div class="pb-20">
     <!-- Page header -->
     <div class="flex items-start justify-between mb-4">

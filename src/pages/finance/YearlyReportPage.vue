@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { AppPageContainer } from '@/components/shared'
@@ -199,6 +200,7 @@ function hsl(token: string, alpha = 1): string {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
     <!-- Page header -->
     <div class="flex items-start justify-between mb-6">
       <div>

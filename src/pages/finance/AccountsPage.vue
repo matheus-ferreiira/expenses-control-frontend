@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ROUTES } from '@/constants/routes'
 import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
 import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
@@ -12,6 +15,12 @@ import type { BankAccount } from '@/types/finance'
 
 const store = useFinanceStore()
 const toast = useToast()
+const router = useRouter()
+
+/** Toque na conta → Visão Geral filtrada pelas transações dela */
+function viewStatement(account: BankAccount) {
+  router.push({ name: ROUTES.FINANCE, query: { account_id: account.id } })
+}
 
 const formOpen = ref(false)
 const editingAccount = ref<BankAccount | null>(null)
@@ -101,6 +110,7 @@ onMounted(async () => {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
@@ -165,6 +175,7 @@ onMounted(async () => {
           v-for="account in store.activeAccounts"
           :key="account.id"
           :account="account"
+          @view="viewStatement"
           @edit="openEdit"
           @delete="openDelete"
           @archive="requestArchive"

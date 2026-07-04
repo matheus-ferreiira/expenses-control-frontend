@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { ChevronLeft, ChevronRight, Settings, Plus, Copy, Flag } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
@@ -136,6 +137,7 @@ const hasGoalsItems = computed(() =>
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
 
     <!-- Header -->
     <div class="flex flex-col gap-0.5 mb-4 pb-3 border-b border-border">

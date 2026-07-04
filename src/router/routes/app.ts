@@ -57,9 +57,10 @@ export const appRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/finance/FinancePage.vue'),
       },
       {
+        // Tela antiga fundida na Visão Geral — mantém links/atalhos funcionando
         path: 'finance/transactions',
         name: ROUTES.FINANCE_TRANSACTIONS,
-        component: () => import('@/pages/finance/TransactionsPage.vue'),
+        redirect: { name: ROUTES.FINANCE },
       },
       {
         path: 'finance/accounts',

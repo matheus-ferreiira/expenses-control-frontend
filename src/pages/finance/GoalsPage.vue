@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref } from 'vue'
 import { Flag, Plus } from 'lucide-vue-next'
 import { AppPageContainer } from '@/components/shared'
@@ -90,6 +91,7 @@ function barColor(pct: number): string {
 
 <template>
   <AppPageContainer>
+    <FinanceSubNav />
 
     <!-- Header -->
     <div class="flex items-start justify-between mb-4 pb-3 border-b border-border">
