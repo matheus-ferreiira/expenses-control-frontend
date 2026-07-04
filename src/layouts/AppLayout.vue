@@ -119,7 +119,20 @@ const mobileHeaderTitle = computed(() => {
 
       <!-- Page content — extra bottom padding on mobile for bottom nav -->
       <main class="flex-1 overflow-auto pb-[64px] md:pb-0">
-        <RouterView />
+        <!-- Transição de rota: fade + leve subida, só transform/opacity (GPU) -->
+        <RouterView v-slot="{ Component }">
+          <Transition
+            mode="out-in"
+            enter-active-class="motion-safe:transition-all motion-safe:duration-150 ease-out"
+            enter-from-class="opacity-0 translate-y-1"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="motion-safe:transition-all motion-safe:duration-100 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-1"
+          >
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </main>
     </div>
 

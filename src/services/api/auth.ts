@@ -27,6 +27,16 @@ export const authApi = {
   me: () =>
     client.get<ApiResponse<User>>(API_ENDPOINTS.AUTH.ME).then(unwrap),
 
+  updateProfile: (name: string) =>
+    client
+      .patch<ApiResponse<User>>(API_ENDPOINTS.AUTH.PROFILE, { name })
+      .then(unwrap),
+
+  updatePassword: (payload: { current_password: string; password: string; password_confirmation: string }) =>
+    client
+      .patch<ApiResponse<null>>(API_ENDPOINTS.AUTH.PASSWORD, payload)
+      .then(unwrap),
+
   updateSettings: (settings: Record<string, unknown>) =>
     client
       .patch<ApiResponse<User>>(API_ENDPOINTS.AUTH.SETTINGS, { settings })
