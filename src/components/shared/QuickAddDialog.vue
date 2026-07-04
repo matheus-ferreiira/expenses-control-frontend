@@ -6,6 +6,7 @@ import { useHabitStore } from '@/stores/habits'
 import { useCalendarStore } from '@/stores/calendar'
 import { useShoppingSessionStore } from '@/stores/shoppingSessions'
 import { useShoppingItemStore } from '@/stores/shoppingItems'
+import { useFrequentItems } from '@/features/purchases/composables/useFrequentItems'
 import { useToast } from '@/composables/useToast'
 import { useTransactionForm } from '@/composables/useTransactionForm'
 import { Sheet, SheetContent } from '@ui/sheet'
@@ -47,7 +48,10 @@ function selectAction(a: QuickAction) {
     setTimeout(() => openTransactionForm({ type: a as TransactionType }), 220)
     return
   }
-  if (a === 'shopping') ensureShoppingSession()
+  if (a === 'shopping') {
+    ensureShoppingSession()
+    loadFrequent()
+  }
   action.value = a
 }
 
@@ -137,6 +141,13 @@ async function submitHabits() {
 const shoppingName = ref('')
 const shoppingAdded = ref(0)
 const ensuringSession = ref(false)
+
+// Frequentes do histórico — chips de 1 toque, filtram conforme digita
+const { loadFrequent, suggestions: frequentSuggestions } = useFrequentItems({
+  query: shoppingName,
+  existingNames: () => shoppingStore.activeSession?.items.map((i) => i.name) ?? [],
+  limit: 6,
+})
 
 function resetShoppingForm() {
   shoppingName.value = ''
@@ -381,6 +392,22 @@ const QUICK_ACTIONS = [
                 <Plus v-else :size="18" class="text-primary-foreground" />
               </button>
             </div>
+            <!-- Frequentes — 1 toque adiciona -->
+            <div v-if="frequentSuggestions.length > 0" class="overflow-x-auto scrollbar-none">
+              <div class="flex items-center gap-1.5 w-max">
+                <button
+                  v-for="s in frequentSuggestions"
+                  :key="s.name"
+                  type="button"
+                  class="h-8 px-3 rounded-full text-[12px] font-medium whitespace-nowrap bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 disabled:opacity-40"
+                  :disabled="submitting || ensuringSession"
+                  @click="shoppingName = s.name; submitShoppingItem()"
+                >
+                  + {{ s.name }}
+                </button>
+              </div>
+            </div>
+
             <p v-if="shoppingAdded > 0" class="text-[12px] text-primary font-medium">
               ✓ {{ shoppingAdded }} {{ shoppingAdded === 1 ? 'item adicionado' : 'itens adicionados' }} — continue digitando ou conclua
             </p>

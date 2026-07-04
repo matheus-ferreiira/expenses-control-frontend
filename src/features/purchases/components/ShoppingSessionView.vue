@@ -4,6 +4,7 @@ import { X, Plus, Trash2, Loader2, CheckCircle2, Check, Pencil } from 'lucide-vu
 import { Sheet, SheetContent } from '@ui/sheet'
 import { useShoppingItemStore } from '@/stores/shoppingItems'
 import { useShoppingItems } from '@/features/purchases/composables/useShoppingItems'
+import { useFrequentItems } from '@/features/purchases/composables/useFrequentItems'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import type { ShoppingSession, ShoppingItem } from '@/types/shopping'
@@ -34,6 +35,25 @@ const saving = ref(false)
 
 const { grouped } = useShoppingItems(() => props.session.items)
 
+// Frequentes: chips de 1 toque, filtrados pelo que está sendo digitado
+const { loadFrequent, suggestions } = useFrequentItems({
+  query: newName,
+  existingNames: () => props.session.items.map((i) => i.name),
+})
+
+async function addFrequent(name: string) {
+  if (adding.value) return
+  adding.value = true
+  try {
+    await itemStore.addItem(props.session.id, { name, category: null, price: null })
+    newName.value = ''
+  } catch {
+    toast.error('Erro ao adicionar item')
+  } finally {
+    adding.value = false
+  }
+}
+
 const allBought = computed(
   () => props.session.items_count > 0 && props.session.bought_count === props.session.items_count,
 )
@@ -48,9 +68,15 @@ const suggestedDisplay = computed(() => {
   return null
 })
 
-// Auto-focus name input when sheet opens
+// Modo mercado: só rouba o foco (e sobe o teclado) quando a lista está VAZIA.
+// Com itens, quem abre o sheet quer VER a lista, não digitar.
 watch(open, (val) => {
-  if (val) nextTick(() => nameInputRef.value?.focus())
+  if (val) {
+    loadFrequent()
+    if (props.session.items_count === 0) {
+      nextTick(() => nameInputRef.value?.focus())
+    }
+  }
 })
 
 // ── Price mask ────────────────────────────────────────────────────────────────
@@ -222,6 +248,22 @@ function handleFinish() {
             <Loader2 v-if="adding" :size="16" class="animate-spin text-primary-foreground" />
             <Plus v-else :size="18" class="text-primary-foreground" />
           </button>
+        </div>
+
+        <!-- Frequentes — 1 toque adiciona; filtram conforme você digita -->
+        <div v-if="suggestions.length > 0" class="px-5 pb-3 -mt-0.5 overflow-x-auto scrollbar-none">
+          <div class="flex items-center gap-1.5 w-max">
+            <button
+              v-for="s in suggestions"
+              :key="s.name"
+              type="button"
+              class="h-8 px-3 rounded-full text-[12px] font-medium whitespace-nowrap bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 disabled:opacity-40"
+              :disabled="adding"
+              @click="addFrequent(s.name)"
+            >
+              + {{ s.name }}
+            </button>
+          </div>
         </div>
       </div>
 

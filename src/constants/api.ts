@@ -94,6 +94,7 @@ export const API_ENDPOINTS = {
     SESSION_REOPEN: (id: string) => `${API_BASE}/shopping/sessions/${id}/reopen`,
     SESSION_ITEMS: (sessionId: string) => `${API_BASE}/shopping/sessions/${sessionId}/items`,
     ITEM_DETAIL: (id: string) => `${API_BASE}/shopping/items/${id}`,
+    ITEMS_FREQUENT: `${API_BASE}/shopping/items/frequent`,
   },
   BOOKMARKS: {
     COLLECTIONS: `${API_BASE}/bookmarks/collections`,

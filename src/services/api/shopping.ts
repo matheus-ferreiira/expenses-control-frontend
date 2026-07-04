@@ -46,6 +46,12 @@ export const shoppingApi = {
   },
 
   items: {
+    /** Itens mais usados no histórico — autocomplete e chips de 1 toque */
+    frequent: () =>
+      client
+        .get<ApiResponse<Array<{ name: string; uses: number }>>>(API_ENDPOINTS.SHOPPING.ITEMS_FREQUENT)
+        .then(unwrap),
+
     create: (sessionId: string, payload: CreateItemPayload) =>
       client
         .post<ApiResponse<ShoppingItem>>(API_ENDPOINTS.SHOPPING.SESSION_ITEMS(sessionId), payload)
