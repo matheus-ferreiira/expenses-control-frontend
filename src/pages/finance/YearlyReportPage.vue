@@ -10,7 +10,7 @@ import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
 import { ROUTES } from '@/constants/routes'
 
-type MonthEntry = { month: number; income: number; expenses: number; balance: number }
+type MonthEntry = { month: number; income: number; expenses: number; saved: number; balance: number }
 type YearlyReport = { year: number; months: MonthEntry[] }
 
 const router = useRouter()
@@ -52,8 +52,12 @@ const totalIncome = computed(() =>
 const totalExpenses = computed(() =>
   report.value?.months.reduce((s, m) => s + m.expenses, 0) ?? 0,
 )
-const yearBalance = computed(() => totalIncome.value - totalExpenses.value)
+const totalSaved = computed(() =>
+  report.value?.months.reduce((s, m) => s + (m.saved ?? 0), 0) ?? 0,
+)
+const yearBalance = computed(() => totalIncome.value - totalExpenses.value - totalSaved.value)
 
+// Poupança = guardado em metas + sobra de caixa, sobre a receita
 const savingsRate = computed(() =>
   totalIncome.value > 0
     ? Math.round(((totalIncome.value - totalExpenses.value) / totalIncome.value) * 100)
@@ -61,7 +65,7 @@ const savingsRate = computed(() =>
 )
 
 const monthsWithData = computed(() =>
-  report.value?.months.filter((m) => m.income > 0 || m.expenses > 0).length ?? 0,
+  report.value?.months.filter((m) => m.income > 0 || m.expenses > 0 || (m.saved ?? 0) > 0).length ?? 0,
 )
 
 const avgMonthlyExpenses = computed(() =>
@@ -78,10 +82,13 @@ const worstMonth = computed(() => {
 
 const monthsWithDelta = computed<Array<MonthEntry & { delta: number | null }>>(() => {
   if (!report.value) return []
-  return report.value.months.map((m, i) => ({
-    ...m,
-    delta: i === 0 ? null : m.expenses - (report.value!.months[i - 1]?.expenses ?? 0),
-  }))
+  return report.value.months
+    .map((m, i) => ({
+      ...m,
+      delta: i === 0 ? null : m.expenses - (report.value!.months[i - 1]?.expenses ?? 0),
+    }))
+    // Meses sem movimento são ruído — só mostrar a partir do primeiro mês com dados
+    .filter((m) => m.income > 0 || m.expenses > 0 || (m.saved ?? 0) > 0)
 })
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
@@ -262,17 +269,21 @@ function hsl(token: string, alpha = 1): string {
     <template v-else>
       <!-- Period summary card -->
       <div class="bg-card rounded-lg p-4 mb-5">
-        <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="grid gap-2 text-center" :class="totalSaved > 0 ? 'grid-cols-4' : 'grid-cols-3'">
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Receitas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
             <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(totalIncome) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Despesas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Gastos</p>
             <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(totalExpenses) }}</p>
           </div>
+          <div v-if="totalSaved > 0">
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Guardado</p>
+            <p class="text-[18px] font-semibold text-primary tabular-nums mt-1">{{ formatCurrency(totalSaved) }}</p>
+          </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Saldo</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Sobra</p>
             <p
               class="text-[18px] font-semibold tabular-nums mt-1"
               :class="yearBalance >= 0 ? 'text-success' : 'text-destructive'"
@@ -283,13 +294,13 @@ function hsl(token: string, alpha = 1): string {
         </div>
         <div class="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-3 text-center">
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Taxa de poupança</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Taxa de poupança</p>
             <p class="text-[15px] font-semibold tabular-nums mt-0.5" :class="savingsRate >= 0 ? 'text-success' : 'text-destructive'">
               {{ savingsRate }}%
             </p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-wider">Média mensal</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Média mensal</p>
             <p class="text-[15px] font-semibold tabular-nums mt-0.5 text-destructive">
               {{ formatCurrency(avgMonthlyExpenses) }}
             </p>

@@ -154,6 +154,7 @@ async function loadCurrentMonthSummary() {
 
 const income = computed(() => currentMonthSummary.value?.income ?? 0)
 const expenses = computed(() => currentMonthSummary.value?.expenses ?? 0)
+const saved = computed(() => currentMonthSummary.value?.saved ?? 0)
 
 
 // Total balance across all active accounts
@@ -194,7 +195,8 @@ const transactionCount = computed(() =>
 )
 
 const biggestExpense = computed(() => {
-  const exp = store.transactions.filter((t) => t.type === 'expense')
+  // Aportes em meta são poupança — não concorrem a "maior despesa"
+  const exp = store.transactions.filter((t) => t.type === 'expense' && !t.goal_id)
   if (!exp.length) return null
   return exp.reduce((max, t) => (t.amount > max.amount ? t : max))
 })
@@ -270,9 +272,16 @@ const topCategories = computed<CategoryEntry[]>(() => [
   ...categoriesWithoutMeta.value,
 ])
 
-// Budget usage: expenses as % of income
+// Budget base: the month's planned budget when it exists; income as fallback.
+// Using raw income breaks early in the month (salary lands on day 10 → "spent 100%").
+const budgetBase = computed(() => {
+  const base = Number(store.currentBudget?.base_amount ?? 0)
+  return base > 0 ? base : income.value
+})
+
+// Budget usage: expenses as % of the budget base
 const budgetPercent = computed(() =>
-  income.value > 0 ? Math.min(100, Math.round((expenses.value / income.value) * 100)) : 0,
+  budgetBase.value > 0 ? Math.min(100, Math.round((expenses.value / budgetBase.value) * 100)) : 0,
 )
 
 // Days remaining in the current month
@@ -381,6 +390,9 @@ watch(() => filterState.month.value, () => {
   loadTransactions()
   loadCurrentMonthSummary()
   loadPrevMonthReport()
+  // Budget of the viewed month drives the budget bar base
+  const [y, m] = filterState.month.value.split('-').map(Number)
+  store.fetchBudget(m!, y!)
 })
 watch(() => filterState.quickFilter.value, () => loadTransactions())
 watch(() => filterState.category_id.value, () => loadTransactions())
@@ -520,7 +532,9 @@ onMounted(async () => {
         :is-current-month="filterState.isCurrentMonth()"
         :income="income"
         :expenses="expenses"
+        :saved="saved"
         :budget-percent="budgetPercent"
+        :budget-base="budgetBase"
         :status="mobileStatus"
         :expense-delta="expenseDelta"
         :loading="store.loading"

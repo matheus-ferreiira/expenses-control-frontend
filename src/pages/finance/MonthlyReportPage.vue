@@ -31,6 +31,7 @@ const report = ref<{
   month: number
   income: number
   expenses: number
+  saved: number
   balance: number
   transactions_count: number
   expenses_by_category: Array<{
@@ -143,34 +144,35 @@ const maxCategoryTotal = computed(() =>
 /** Narrative banner */
 const narrative = computed(() => {
   if (!report.value) return null
-  const { income, expenses, expenses_by_category } = report.value
+  const { income, expenses, saved, expenses_by_category } = report.value
   const diff = expenses - income
   const topCat = expenses_by_category[0]?.category ?? null
+  const savedNote = saved > 0 ? ` Você guardou ${formatCurrency(saved)} em metas.` : ''
   if (diff > 0) {
     return {
       tone: 'danger' as const,
       icon: AlertTriangle,
-      text: `Em ${monthLabel.value} você gastou ${formatCurrency(diff)} a mais do que recebeu.${topCat ? ` ${topCat} foi o principal fator.` : ''}`,
+      text: `Em ${monthLabel.value} você gastou ${formatCurrency(diff)} a mais do que recebeu.${topCat ? ` ${topCat} foi o principal fator.` : ''}${savedNote}`,
     }
   }
   if (income > 0 && expenses <= income * 0.8) {
     return {
       tone: 'ok' as const,
       icon: TrendingUp,
-      text: `Ótimo mês! Você ficou ${formatCurrency(income - expenses)} abaixo das suas receitas em ${monthLabel.value}.`,
+      text: `Ótimo mês! Gastos ficaram ${formatCurrency(income - expenses)} abaixo das receitas em ${monthLabel.value}.${savedNote}`,
     }
   }
   return {
     tone: 'neutral' as const,
     icon: Sparkles,
-    text: `${monthLabel.value} equilibrado. Despesas dentro das receitas em quase todas as categorias.`,
+    text: `${monthLabel.value} equilibrado. Gastos dentro das receitas em quase todas as categorias.${savedNote}`,
   }
 })
 
 const narrativeCls = computed(() => {
   if (!narrative.value) return ''
-  if (narrative.value.tone === 'danger') return 'bg-destructive/[0.08] text-destructive'
-  if (narrative.value.tone === 'ok') return 'bg-success/[0.08] text-success'
+  if (narrative.value.tone === 'danger') return 'bg-muted text-destructive'
+  if (narrative.value.tone === 'ok') return 'bg-muted text-success'
   return 'bg-muted text-foreground'
 })
 
@@ -288,17 +290,21 @@ onMounted(() => {
     <template v-else-if="report">
       <!-- Period summary card -->
       <div class="rounded-lg bg-card p-4 mb-4">
-        <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="grid gap-2 text-center" :class="report.saved > 0 ? 'grid-cols-4' : 'grid-cols-3'">
           <div>
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
             <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(report.income) }}</p>
           </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Despesas</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Gastos</p>
             <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(report.expenses) }}</p>
           </div>
+          <div v-if="report.saved > 0">
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Guardado</p>
+            <p class="text-[18px] font-semibold text-primary tabular-nums mt-1">{{ formatCurrency(report.saved) }}</p>
+          </div>
           <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo</p>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Sobra</p>
             <p
               class="text-[18px] font-semibold tabular-nums mt-1"
               :class="report.balance >= 0 ? 'text-success' : 'text-destructive'"

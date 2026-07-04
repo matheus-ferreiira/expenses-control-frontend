@@ -241,9 +241,12 @@ export const financeApi = {
         month: number
         income: number
         expenses: number
+        /** Aportes em metas confirmados no mês — poupança, não gasto */
+        saved: number
         balance: number
         pending_income: number
         pending_expenses: number
+        pending_saved: number
         transactions_count: number
         expenses_by_category: Array<{
           category: string
@@ -263,6 +266,7 @@ export const financeApi = {
           month: number
           income: number
           expenses: number
+          saved: number
           balance: number
         }>
       }>>(API_ENDPOINTS.FINANCE.REPORTS_YEARLY, { params: { year } })

@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { CheckCircle2, AlertTriangle, PiggyBank } from 'lucide-vue-next'
 import MonthNavigator from './MonthNavigator.vue'
 import { formatCurrency } from '@/utils/currency'
 import type { Transaction } from '@/types/finance'
 
-defineProps<{
+const props = defineProps<{
   month: string
   isCurrentMonth: boolean
   income: number
   expenses: number
+  /** Aportes em metas confirmados no mês — poupança, não gasto */
+  saved: number
   budgetPercent: number
+  /** Base da barra de orçamento (base_amount do orçamento do mês, ou receita) */
+  budgetBase: number
   status: { tone: 'ok' | 'warn' | 'danger'; text: string }
   expenseDelta: number | null
   loading: boolean
@@ -18,6 +23,14 @@ defineProps<{
   pendingIncome: number
   pendingExpenses: number
 }>()
+
+const hasPending = computed(() => props.pendingIncome > 0 || props.pendingExpenses > 0)
+
+// Linha de detalhes: Transações + (Maior despesa) + (Guardado) + (Pendentes)
+const detailCols = computed(() => {
+  const count = 1 + (props.biggestExpense ? 1 : 0) + (props.saved > 0 ? 1 : 0) + (hasPending.value ? 1 : 0)
+  return count >= 4 ? 'grid-cols-2' : count === 3 ? 'grid-cols-3' : 'grid-cols-2'
+})
 
 defineEmits<{
   prev: []
@@ -52,7 +65,7 @@ defineEmits<{
       </div>
       <div>
         <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Saldo do mês</p>
-        <p class="block text-[17px] font-semibold tabular-nums mt-1">{{ formatCurrency(income - expenses) }}</p>
+        <p class="block text-[17px] font-semibold tabular-nums mt-1">{{ formatCurrency(income - expenses - saved) }}</p>
       </div>
     </div>
 
@@ -61,7 +74,7 @@ defineEmits<{
       <div class="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
         <span>Orçamento do mês</span>
         <div class="flex flex-col items-end">
-          <span class="tabular-nums font-medium text-foreground">{{ formatCurrency(expenses) }} de {{ formatCurrency(income) }}</span>
+          <span class="tabular-nums font-medium text-foreground">{{ formatCurrency(expenses) }} de {{ formatCurrency(budgetBase) }}</span>
           <span class="tabular-nums text-muted-foreground">{{ budgetPercent }}%</span>
         </div>
       </div>
@@ -103,11 +116,11 @@ defineEmits<{
       </span>
     </div>
 
-    <!-- Enrichment row: count + biggest expense + pending -->
+    <!-- Enrichment row: count + biggest expense + saved + pending -->
     <div
       v-if="!loading"
       class="mt-3 pt-3 border-t border-border grid gap-3"
-      :class="(pendingIncome > 0 || pendingExpenses > 0) ? 'grid-cols-3' : 'grid-cols-2'"
+      :class="detailCols"
     >
       <div>
         <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Transações</p>
@@ -118,7 +131,14 @@ defineEmits<{
         <p class="text-[14px] font-semibold tabular-nums text-destructive">{{ formatCurrency(biggestExpense.amount) }}</p>
         <p class="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">{{ biggestExpense.category?.name ?? biggestExpense.description }}</p>
       </div>
-      <div v-if="pendingIncome > 0 || pendingExpenses > 0">
+      <div v-if="saved > 0">
+        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Guardado</p>
+        <p class="text-[14px] font-semibold tabular-nums text-primary inline-flex items-center gap-1">
+          <PiggyBank :size="14" />
+          {{ formatCurrency(saved) }}
+        </p>
+      </div>
+      <div v-if="hasPending">
         <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Pendentes</p>
         <p class="text-[13px] tabular-nums font-medium leading-snug">
           <span v-if="pendingIncome > 0" class="text-success">+{{ formatCurrency(pendingIncome) }}</span>
