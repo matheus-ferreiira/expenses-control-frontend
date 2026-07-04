@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
+import { AppBreadcrumbs } from '@/components/shared'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTES } from '@/constants/routes'
@@ -180,9 +181,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-          Finanças
-        </p>
+        <AppBreadcrumbs />
         <div class="flex items-center gap-2 mb-1.5">
           <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none">
             Contas

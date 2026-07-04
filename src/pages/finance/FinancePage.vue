@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
-import { AppPageContainer } from '@/components/shared'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
 import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
@@ -561,19 +561,11 @@ onMounted(async () => {
     />
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 mb-4 pb-3 border-b border-border">
-      <div>
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-0.5">
-          Finanças
-        </p>
-        <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight text-foreground mt-0.5">
-          Visão geral
-        </h1>
-        <p class="hidden md:block text-[12px] text-muted-foreground mt-1 max-w-prose leading-relaxed">
-          Contas, cartões, despesas e receitas em uma única tela funcional.
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-1.5">
+    <PageHeader
+      title="Visão geral"
+      subtitle="Contas, cartões, despesas e receitas em uma única tela funcional."
+    >
+      <template #actions>
         <!-- StreakChip -->
         <button
           type="button"
@@ -616,8 +608,8 @@ onMounted(async () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Desktop: resumo à esquerda (fixo), transações à direita. Mobile: empilhado -->
     <div class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-5 lg:items-start max-w-[1200px]">

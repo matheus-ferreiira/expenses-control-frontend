@@ -2,7 +2,7 @@
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref } from 'vue'
 import { Flag, Plus } from 'lucide-vue-next'
-import { AppPageContainer } from '@/components/shared'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
@@ -94,27 +94,18 @@ function barColor(pct: number): string {
     <FinanceSubNav />
 
     <!-- Header -->
-    <div class="flex items-start justify-between mb-4 pb-3 border-b border-border">
-      <div>
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">
-          Finanças
-        </p>
-        <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
-          Metas
-        </h1>
-        <p class="hidden md:block text-[12px] text-muted-foreground mt-1 leading-relaxed">
-          Seus objetivos financeiros
-        </p>
-      </div>
-      <button
-        type="button"
-        class="mt-1 flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
-        @click="openNew"
-      >
-        <Plus :size="16" />
-        Nova meta
-      </button>
-    </div>
+    <PageHeader title="Metas" subtitle="Seus objetivos financeiros">
+      <template #actions>
+        <button
+          type="button"
+          class="flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          @click="openNew"
+        >
+          <Plus :size="16" />
+          Nova meta
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- Loading -->
     <div v-if="store.loadingGoals" class="space-y-3">

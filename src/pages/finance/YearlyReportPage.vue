@@ -2,7 +2,7 @@
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { AppPageContainer } from '@/components/shared'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import { Skeleton } from '@ui/skeleton'
 import {
   ChevronLeft, ChevronRight, Calendar,
@@ -202,19 +202,7 @@ function hsl(token: string, alpha = 1): string {
   <AppPageContainer>
     <FinanceSubNav />
     <!-- Page header -->
-    <div class="flex items-start justify-between mb-6">
-      <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-          Finanças
-        </p>
-        <h1 class="text-[22px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
-          Relatório anual
-        </h1>
-        <p class="hidden md:block text-[13px] text-muted-foreground">
-          Resumo de receitas e despesas do ano.
-        </p>
-      </div>
-    </div>
+    <PageHeader title="Relatório anual" subtitle="Resumo de receitas e despesas do ano." />
 
 
 

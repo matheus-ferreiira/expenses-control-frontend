@@ -9,6 +9,7 @@ export { default as AppCard } from './AppCard.vue'
 
 // Headers
 export { default as PageHeader } from './PageHeader.vue'
+export { default as AppBreadcrumbs } from './AppBreadcrumbs.vue'
 export { default as SectionHeader } from './SectionHeader.vue'
 
 // State

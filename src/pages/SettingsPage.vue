@@ -1,13 +1,34 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AppPageContainer } from '@/components/shared'
+import { useRouter } from 'vue-router'
+import { AppPageContainer, PageHeader } from '@/components/shared'
+import { Avatar, AvatarFallback } from '@ui/avatar'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import { authApi } from '@/services/api/auth'
-import { Loader2, CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock, TriangleAlert } from 'lucide-vue-next'
+import { Loader2, CheckSquare, Flame, Target, CalendarDays, FileText, BookOpen, Bookmark, ShoppingCart, Lock, TriangleAlert, LogOut } from 'lucide-vue-next'
 
 const auth = useAuthStore()
 const toast = useToast()
+const router = useRouter()
+
+// ── Conta ────────────────────────────────────────────────────────────────────
+const loggingOut = ref(false)
+
+function initials(name?: string | null): string {
+  if (!name) return '?'
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+}
+
+async function handleLogout() {
+  loggingOut.value = true
+  try {
+    await auth.logout()
+    router.push({ name: 'login' })
+  } finally {
+    loggingOut.value = false
+  }
+}
 
 const resetConfirmOpen = ref(false)
 const resetting = ref(false)
@@ -57,21 +78,39 @@ async function toggleModule(key: string) {
 <template>
   <AppPageContainer>
     <!-- Header -->
-    <div class="mb-6 pb-3 border-b border-border">
-      <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-0.5">
-        Sistema
-      </p>
-      <h1 class="text-[22px] lg:text-[18px] font-semibold leading-tight tracking-tight">
-        Configurações
-      </h1>
-      <p class="text-[12px] text-muted-foreground mt-1">
-        Ative ou desative módulos para manter a sidebar limpa.
-      </p>
-    </div>
+    <PageHeader title="Configurações" subtitle="Conta, módulos e preferências do sistema" />
+
+    <!-- Conta -->
+    <section class="mb-8">
+      <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+        Conta
+      </h2>
+      <div class="bg-card rounded-xl px-4 py-4 flex items-center gap-4">
+        <Avatar class="h-11 w-11 shrink-0">
+          <AvatarFallback class="text-[14px] font-semibold bg-muted text-primary">
+            {{ initials(auth.user?.name) }}
+          </AvatarFallback>
+        </Avatar>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-semibold text-foreground truncate">{{ auth.user?.name ?? 'Usuário' }}</p>
+          <p class="text-[12px] text-muted-foreground truncate">{{ auth.user?.email ?? '' }}</p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-[12px] font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 disabled:opacity-50"
+          :disabled="loggingOut"
+          @click="handleLogout"
+        >
+          <Loader2 v-if="loggingOut" :size="13" class="animate-spin" />
+          <LogOut v-else :size="13" />
+          Sair
+        </button>
+      </div>
+    </section>
 
     <!-- Módulos -->
     <section>
-      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
         Módulos
       </h2>
       <p class="text-[12px] text-muted-foreground mb-4">
@@ -112,7 +151,7 @@ async function toggleModule(key: string) {
 
     <!-- Zona de perigo -->
     <section class="mt-8">
-      <h2 class="text-[11px] font-semibold uppercase tracking-[0.1em] text-destructive mb-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-widest text-destructive mb-3">
         Zona de perigo
       </h2>
 

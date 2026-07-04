@@ -3,7 +3,7 @@ import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { ChevronLeft, ChevronRight, Settings, Plus, Copy, Flag } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import { AppPageContainer } from '@/components/shared'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
@@ -140,17 +140,7 @@ const hasGoalsItems = computed(() =>
     <FinanceSubNav />
 
     <!-- Header -->
-    <div class="flex flex-col gap-0.5 mb-4 pb-3 border-b border-border">
-      <p class="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">
-        Finanças
-      </p>
-      <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
-        Orçamento
-      </h1>
-      <p class="hidden md:block text-[12px] text-muted-foreground leading-relaxed">
-        Controle de gastos por categoria
-      </p>
-    </div>
+    <PageHeader title="Orçamento" subtitle="Controle de gastos por categoria" />
 
     <!-- Month nav + summary card -->
     <div class="bg-card rounded-lg p-4 mb-4">

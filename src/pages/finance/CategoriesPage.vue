@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted } from 'vue'
-import { AppPageContainer } from '@/components/shared'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
@@ -83,16 +83,8 @@ async function confirmDelete() {
   <AppPageContainer>
     <FinanceSubNav />
     <!-- Header -->
-    <div class="mb-1">
-      <div class="flex items-start justify-between mb-4">
-        <div>
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-            Finanças
-          </p>
-          <h1 class="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
-            Categorias
-          </h1>
-        </div>
+    <PageHeader title="Categorias" subtitle="Organize despesas e receitas por categoria">
+      <template #actions>
         <button
           type="button"
           class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors shrink-0"
@@ -101,10 +93,8 @@ async function confirmDelete() {
           <Plus :size="14" :stroke-width="2.5" />
           Nova categoria
         </button>
-      </div>
-
-  
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Loading -->
     <div v-if="loading" class="space-y-3">

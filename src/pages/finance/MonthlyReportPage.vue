@@ -2,7 +2,7 @@
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { AppPageContainer } from '@/components/shared'
+import { AppPageContainer, PageHeader } from '@/components/shared'
 import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
 import {
@@ -206,19 +206,7 @@ onMounted(() => {
     <FinanceSubNav />
     <div class="pb-20">
     <!-- Page header -->
-    <div class="flex items-start justify-between mb-4">
-      <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-          Finanças
-        </p>
-        <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
-          Relatório mensal
-        </h1>
-        <p class="hidden md:block text-[12px] text-muted-foreground">
-          Resumo de receitas, despesas e categorias do mês.
-        </p>
-      </div>
-    </div>
+    <PageHeader title="Relatório mensal" subtitle="Resumo de receitas, despesas e categorias do mês." />
 
 
 

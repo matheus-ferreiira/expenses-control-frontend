@@ -118,6 +118,8 @@ interface NavSection {
   items: NavItem[]
 }
 
+// Duas seções apenas: MÓDULOS (ordenados por frequência de uso) e SISTEMA.
+// Labels de seção com item único (ex-"FINANÇAS" sobre "Finanças") eram ruído.
 const ALL_NAV_SECTIONS: NavSection[] = [
   {
     label: null,
@@ -126,40 +128,22 @@ const ALL_NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: 'FINANÇAS',
+    label: 'MÓDULOS',
     items: [
-      { label: 'Finanças', icon: Wallet, route: ROUTES.FINANCE, shortcut: 'G F', module: null, children: FINANCE_CHILDREN },
-    ],
-  },
-  {
-    label: 'PREÇOS',
-    items: [
-      { label: 'Preços', icon: Tag, route: ROUTES.PRICES, shortcut: '', module: null, children: PRICES_CHILDREN },
-    ],
-  },
-  {
-    label: 'PRODUTIVIDADE',
-    items: [
-      { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T', module: 'tasks', children: TASKS_CHILDREN },
-      { label: 'Hábitos', icon: Flame,       route: ROUTES.HABITS,   shortcut: 'G H', module: 'habits' },
-      // Metas (produtividade) removidas — Metas Financeiras estão em Finanças
-      { label: 'Agenda',  icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A', module: 'calendar' },
-    ],
-  },
-  {
-    label: 'CONTEÚDO',
-    items: [
-      { label: 'Notas',      icon: FileText, route: ROUTES.NOTES,      shortcut: 'G N', module: 'notes' },
-      // Daily Log removido da sidebar (rota mantida)
-      { label: 'Bookmarks',  icon: Bookmark, route: ROUTES.BOOKMARKS,  shortcut: 'G B', module: 'bookmarks' },
+      { label: 'Finanças', icon: Wallet,        route: ROUTES.FINANCE,   shortcut: 'G F', module: null, children: FINANCE_CHILDREN },
+      { label: 'Preços',   icon: Tag,           route: ROUTES.PRICES,    shortcut: '',    module: null, children: PRICES_CHILDREN },
+      { label: 'Tarefas',  icon: CheckSquare,   route: ROUTES.TASKS,     shortcut: 'G T', module: 'tasks', children: TASKS_CHILDREN },
+      { label: 'Hábitos',  icon: Flame,         route: ROUTES.HABITS,    shortcut: 'G H', module: 'habits' },
+      { label: 'Agenda',   icon: CalendarDays,  route: ROUTES.CALENDAR,  shortcut: 'G A', module: 'calendar' },
+      { label: 'Notas',    icon: FileText,      route: ROUTES.NOTES,     shortcut: 'G N', module: 'notes' },
+      { label: 'Bookmarks', icon: Bookmark,     route: ROUTES.BOOKMARKS, shortcut: 'G B', module: 'bookmarks' },
+      { label: 'Compras',  icon: ShoppingCart,  route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
     ],
   },
   {
     label: 'SISTEMA',
     items: [
-      { label: 'Compras',        icon: ShoppingCart, route: ROUTES.PURCHASES, shortcut: 'G C', module: 'purchases' },
-      // Cofre removido da sidebar (rota mantida)
-      { label: 'Configurações',  icon: Settings,     route: ROUTES.SETTINGS,  shortcut: '',    module: null },
+      { label: 'Configurações', icon: Settings, route: ROUTES.SETTINGS, shortcut: '', module: null },
     ],
   },
 ]
