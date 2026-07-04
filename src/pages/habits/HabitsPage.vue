@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus, Flame, CheckCircle2 } from 'lucide-vue-next'
+import { PageHeader } from '@/components/shared'
 import HabitStatsRow from '@/features/habits/components/HabitStatsRow.vue'
 import HabitsRightPanel from '@/features/habits/components/HabitsRightPanel.vue'
 import HabitsHeatmap from '@/features/habits/components/HabitsHeatmap.vue'
@@ -162,25 +163,21 @@ onUnmounted(() => {
   <div class="flex flex-col min-h-full">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-5 lg:px-8 pt-6 pb-5 border-b border-border mb-6 shrink-0">
-      <div>
-        <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Rotina
-        </p>
-        <h1 class="text-xl md:text-2xl font-semibold tracking-tight text-foreground mt-0.5">
-          Hábitos
-        </h1>
-        <p class="text-sm text-muted-foreground mt-1">
-          Construa consistência diária com acompanhamento visual e streaks.
-        </p>
-      </div>
-      <button
-        class="hidden md:inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-md bg-foreground text-background hover:opacity-90 transition-opacity shrink-0"
-        @click="openCreate"
+    <div class="px-5 lg:px-8 pt-4 md:pt-8 shrink-0">
+      <PageHeader
+        title="Hábitos"
+        subtitle="Construa consistência diária com acompanhamento visual e streaks."
       >
-        <Plus :size="14" />
-        Novo hábito
-      </button>
+        <template #actions>
+          <button
+            class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+            @click="openCreate"
+          >
+            <Plus :size="14" />
+            Novo hábito
+          </button>
+        </template>
+      </PageHeader>
     </div>
 
     <!-- Mobile compact stats bar -->

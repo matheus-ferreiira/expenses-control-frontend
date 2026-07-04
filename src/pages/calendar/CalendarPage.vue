@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { Plus, Link } from 'lucide-vue-next'
+import { PageHeader } from '@/components/shared'
 import { useToast } from '@/composables/useToast'
 import { useCalendarNav } from '@/features/calendar/composables/useCalendarNav'
 import { useCalendarGrid } from '@/features/calendar/composables/useCalendarGrid'
@@ -102,38 +103,31 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 
 <template>
   <div class="flex flex-col h-[calc(100dvh-3rem)] md:h-dvh overflow-hidden">
-    <!-- Page header bar -->
-    <div class="flex items-center justify-between px-4 sm:px-5 py-3 border-b shrink-0 gap-3" style="border-color: hsl(var(--border) / 0.5)">
-      <div class="min-w-0">
-        <p class="text-[10px] font-semibold tracking-[0.12em] uppercase mb-0.5 select-none" style="color: hsl(var(--muted-foreground) / 0.4)">ROTINA</p>
-        <h1 class="text-[18px] font-semibold text-foreground tracking-tight leading-tight">Agenda</h1>
-        <p class="hidden sm:block text-[11px] text-muted-foreground mt-0.5 select-none">Eventos, compromissos e tarefas em um só lugar. Sincronização com Google Calendar em breve.</p>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <button
-          class="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
-          :style="googleConnected
-            ? 'color: hsl(var(--success)); border: 1px solid hsl(var(--success) / 0.4)'
-            : 'color: hsl(var(--muted-foreground) / 0.7); border: 1px solid hsl(var(--border) / 0.6)'"
-          @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'"
-          @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = googleConnected ? 'hsl(var(--success))' : 'hsl(var(--muted-foreground) / 0.7)'"
-          @click="googleModalOpen = true"
-        >
-          <Link :size="12" />
-          Google Calendar
-        </button>
-        <button
-          class="flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-base"
-          style="color: hsl(var(--foreground)); border: 1px solid hsl(var(--border))"
-          @mouseenter="(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--accent))' }"
-          @mouseleave="(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }"
-          @click="modal?.openCreate()"
-        >
-          <Plus :size="12" />
-          <span class="hidden sm:inline">Novo evento</span>
-          <span class="sm:hidden">Evento</span>
-        </button>
-      </div>
+    <!-- Page header -->
+    <div class="px-4 sm:px-5 pt-4 md:pt-6 shrink-0 [&>div]:mb-3 [&>div]:md:mb-4 [&>div]:pb-3 [&>div]:md:pb-4">
+      <PageHeader
+        title="Agenda"
+        subtitle="Eventos, compromissos e tarefas em um só lugar."
+      >
+        <template #actions>
+          <button
+            class="hidden sm:inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-muted transition-colors"
+            :class="googleConnected ? 'text-success' : 'text-muted-foreground hover:text-foreground'"
+            @click="googleModalOpen = true"
+          >
+            <Link :size="14" />
+            Google Calendar
+          </button>
+          <button
+            class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+            @click="modal?.openCreate()"
+          >
+            <Plus :size="14" />
+            <span class="hidden sm:inline">Novo evento</span>
+            <span class="sm:hidden">Evento</span>
+          </button>
+        </template>
+      </PageHeader>
     </div>
 
     <!-- Navigation header -->

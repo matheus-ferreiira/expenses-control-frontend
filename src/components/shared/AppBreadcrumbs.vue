@@ -65,19 +65,19 @@ function go(crumb: Crumb) {
 <template>
   <nav aria-label="Trilha de navegação" class="flex items-center gap-1 select-none">
     <template v-for="(crumb, i) in crumbs" :key="i">
-      <ChevronRight v-if="i > 0" :size="11" class="text-muted-foreground shrink-0" aria-hidden="true" />
+      <ChevronRight v-if="i > 0" :size="13" class="text-muted-foreground shrink-0" aria-hidden="true" />
       <button
         v-if="crumb.route && i < crumbs.length - 1"
         type="button"
-        class="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+        class="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
         @click="go(crumb)"
       >
-        <House v-if="i === 0" :size="11" aria-hidden="true" />
+        <House v-if="i === 0" :size="13" aria-hidden="true" />
         {{ crumb.label }}
       </button>
       <span
         v-else
-        class="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
+        class="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-widest text-primary"
       >
         {{ crumb.label }}
       </span>

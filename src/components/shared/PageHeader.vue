@@ -30,25 +30,25 @@ const iconColor = computed(() => props.iconColor ?? module_.value?.colorClass ??
 </script>
 
 <template>
-  <div class="mb-6 pb-4 border-b border-border">
-    <AppBreadcrumbs v-if="!noBreadcrumbs" class="mb-2" />
+  <div class="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border">
+    <AppBreadcrumbs v-if="!noBreadcrumbs" class="mb-3" />
 
     <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center gap-3 md:gap-4 min-w-0">
         <!-- Chip de ícone — cor de identidade do módulo, fundo cinza sólido -->
         <div
           v-if="icon && !noIcon"
-          class="size-10 rounded-xl bg-muted grid place-items-center shrink-0"
+          class="size-11 md:size-12 rounded-xl bg-muted grid place-items-center shrink-0"
           :class="iconColor"
         >
-          <component :is="icon" :size="20" />
+          <component :is="icon" class="size-[22px] md:size-6" />
         </div>
 
         <div class="min-w-0">
-          <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight truncate">
+          <h1 class="text-[22px] md:text-[26px] font-semibold text-foreground tracking-tight leading-tight truncate">
             {{ title }}
           </h1>
-          <p v-if="subtitle" class="hidden md:block mt-0.5 text-[13px] text-muted-foreground leading-snug max-w-prose truncate">
+          <p v-if="subtitle" class="hidden md:block mt-1 text-[13px] text-muted-foreground leading-snug max-w-prose truncate">
             {{ subtitle }}
           </p>
         </div>

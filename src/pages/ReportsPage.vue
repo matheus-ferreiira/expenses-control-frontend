@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { Download } from 'lucide-vue-next'
+import { PageHeader } from '@/components/shared'
 import { Button } from '@ui/button'
 import {
   Select,
@@ -46,42 +47,34 @@ onMounted(() => load())
   <div class="flex flex-col min-h-full">
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-start justify-between px-4 sm:px-6 pt-6 pb-4 gap-3 sm:gap-0 shrink-0">
-      <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1.5">
-          Análise
-        </p>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground leading-none mb-1.5">
-          Relatórios
-        </h1>
-        <p class="text-[13px] text-muted-foreground">
-          Produtividade, hábitos e finanças em uma visão integrada.
-        </p>
-      </div>
+    <div class="px-4 sm:px-6 pt-4 md:pt-8 shrink-0">
+      <PageHeader
+        title="Relatórios"
+        subtitle="Produtividade, hábitos e finanças em uma visão integrada."
+      >
+        <template #actions>
+          <Select v-model="period">
+            <SelectTrigger class="h-9 w-[120px] text-[13px]">
+              <SelectValue :placeholder="REPORT_PERIOD_LABELS[period]" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="p in REPORT_PERIODS"
+                :key="p"
+                :value="p"
+                class="text-[12px]"
+              >
+                {{ REPORT_PERIOD_LABELS[p] }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-      <!-- Actions -->
-      <div class="flex items-center gap-2 sm:mt-1 shrink-0">
-        <Select v-model="period">
-          <SelectTrigger class="h-8 w-[110px] text-[12px]">
-            <SelectValue :placeholder="REPORT_PERIOD_LABELS[period]" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem
-              v-for="p in REPORT_PERIODS"
-              :key="p"
-              :value="p"
-              class="text-[12px]"
-            >
-              {{ REPORT_PERIOD_LABELS[p] }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button variant="outline" size="sm" class="h-8 text-[12px]">
-          <Download :size="12" class="mr-1.5" />
-          Exportar
-        </Button>
-      </div>
+          <Button variant="outline" size="sm" class="h-9 text-[13px]">
+            <Download :size="13" class="mr-1.5" />
+            Exportar
+          </Button>
+        </template>
+      </PageHeader>
     </div>
 
     <!-- Stats row -->

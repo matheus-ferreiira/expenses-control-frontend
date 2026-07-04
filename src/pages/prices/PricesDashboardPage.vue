@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { AppPageContainer, EmptyState } from '@/components/shared'
+import { AppPageContainer, EmptyState, PageHeader } from '@/components/shared'
 import { Skeleton } from '@ui/skeleton'
 import { ChevronDown, ExternalLink, Package, Plus } from 'lucide-vue-next'
 import PriceGoalBadge from '@/features/prices/components/PriceGoalBadge.vue'
@@ -87,28 +87,23 @@ function netCostClass(value: number): string {
 <template>
   <AppPageContainer>
     <!-- Header -->
-    <div class="flex items-start justify-between mb-4">
-      <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
-          Preços
-        </p>
-        <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none mb-1.5">
-          Visão Geral
-        </h1>
-        <p v-if="dashboard && !loading" class="text-[12px] text-muted-foreground">
-          {{ dashboard.counts.products_tracking }} em acompanhamento ·
-          {{ dashboard.counts.records_total }} registro{{ dashboard.counts.records_total !== 1 ? 's' : '' }} de preço
-        </p>
-      </div>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
-        @click="recordFormOpen = true"
-      >
-        <Plus :size="14" />
-        Registrar preço
-      </button>
-    </div>
+    <PageHeader
+      title="Visão Geral"
+      :subtitle="dashboard && !loading
+        ? `${dashboard.counts.products_tracking} em acompanhamento · ${dashboard.counts.records_total} registro${dashboard.counts.records_total !== 1 ? 's' : ''} de preço`
+        : undefined"
+    >
+      <template #actions>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          @click="recordFormOpen = true"
+        >
+          <Plus :size="14" />
+          Registrar preço
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- Loading -->
     <div v-if="loading" class="space-y-3">

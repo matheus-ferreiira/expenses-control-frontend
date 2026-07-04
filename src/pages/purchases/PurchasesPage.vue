@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
 import { ShoppingCart, Plus, Loader2, History, Trash2, Pencil } from 'lucide-vue-next'
+import { PageHeader } from '@/components/shared'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -90,15 +91,9 @@ function onFinishSessionSheet() {
 </script>
 
 <template>
-  <div class="p-5 space-y-6">
+  <div class="px-5 pt-4 md:pt-8 pb-5 space-y-6">
     <!-- Header -->
-    <div>
-      <p class="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1.5 select-none">
-        PESSOAL
-      </p>
-      <h1 class="text-[22px] font-semibold text-foreground tracking-tight leading-tight">Compras</h1>
-      <p class="mt-1 text-[13px] text-muted-foreground">Gerencie suas idas ao mercado.</p>
-    </div>
+    <PageHeader title="Compras" subtitle="Gerencie suas idas ao mercado." class="!mb-0" />
 
     <!-- Loading -->
     <div v-if="store.loading" class="flex items-center justify-center py-16 text-muted-foreground">

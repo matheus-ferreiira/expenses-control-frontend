@@ -159,7 +159,7 @@ function iconColor(routeName: string): string {
 <template>
   <aside
     class="flex flex-col h-full bg-background transition-[width] duration-300 ease-in-out overflow-hidden"
-    :class="props.mobile ? 'w-full' : (props.open ? 'w-56 border-r border-border' : 'w-[52px] border-r border-border')"
+    :class="props.mobile ? 'w-full' : (props.open ? 'w-64 border-r border-border' : 'w-14 border-r border-border')"
   >
 
     <!-- ─── Mobile header ─────────────────────────────────────── -->
@@ -189,9 +189,9 @@ function iconColor(routeName: string): string {
     </div>
 
     <!-- ─── Desktop logo ─────────────────────────────────────── -->
-    <div v-else class="flex items-center h-[52px] px-3 border-b border-border shrink-0">
+    <div v-else class="flex items-center h-16 px-4 border-b border-border shrink-0">
       <div v-if="props.open" class="flex items-center gap-2 flex-1 min-w-0">
-        <span class="text-[15px] font-semibold text-foreground tracking-tight select-none">Vault</span>
+        <span class="text-[17px] font-semibold text-foreground tracking-tight select-none">Vault</span>
         <span class="text-[9px] font-medium tracking-widest uppercase leading-none px-1 py-0.5 rounded  select-none text-muted-foreground border-border">
           Beta
         </span>
@@ -229,18 +229,18 @@ function iconColor(routeName: string): string {
     <div v-else class="px-2 pt-2.5 pb-1 space-y-0.5 shrink-0">
       <template v-if="props.open">
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
+          class="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           @click="emit('search')"
         >
-          <Search :size="13" class="shrink-0" />
+          <Search :size="15" class="shrink-0" />
           <span class="flex-1 text-[13px]">Buscar...</span>
           <kbd class="text-[10px] font-mono text-muted-foreground">{{ searchShortcut }}</kbd>
         </button>
         <button
-          class="flex items-center gap-2 w-full px-2.5 py-[7px] rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
+          class="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-md transition-colors duration-150 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           @click="emit('quickAdd')"
         >
-          <Plus :size="13" class="shrink-0" />
+          <Plus :size="15" class="shrink-0" />
           <span class="flex-1 text-[13px]">Quick add</span>
           <kbd class="text-[10px] font-mono text-muted-foreground">N</kbd>
         </button>
@@ -271,12 +271,12 @@ function iconColor(routeName: string): string {
             v-if="props.open && section.label"
             :class="props.mobile
               ? ['px-4 mb-1', sectionIdx > 0 ? 'mt-5' : '']
-              : ['px-3 mb-1.5', sectionIdx > 0 ? 'mt-5' : '']"
+              : ['px-3 mb-2', sectionIdx > 0 ? 'mt-6' : '']"
           >
             <span
               :class="props.mobile
                 ? 'text-[11px] font-medium text-muted-foreground uppercase tracking-widest'
-                : 'text-[10px] font-medium text-muted-foreground uppercase tracking-widest'"
+                : 'text-[11px] font-semibold text-muted-foreground uppercase tracking-widest'"
             >
               {{ section.label }}
             </span>
@@ -297,16 +297,16 @@ function iconColor(routeName: string): string {
                 :class="isGroupActive(item.route)
                   ? (props.mobile
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
-                      : 'bg-sidebar-accent pl-[10px] pr-3 py-[9px] border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                      : 'bg-sidebar-accent pl-[10px] pr-3 py-2.5 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
                       ? 'px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-[9px] text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
+                      : 'px-3 py-2.5 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
                 @click="toggleGroup(item.route)"
               >
-                <component :is="item.icon" :size="props.mobile ? 20 : 18" class="shrink-0" :class="iconColor(item.route)" />
-                <span class="flex-1 truncate text-left" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
+                <component :is="item.icon" :size="20" class="shrink-0" :class="iconColor(item.route)" />
+                <span class="flex-1 truncate text-left" :class="'text-[14px]'">{{ item.label }}</span>
                 <ChevronDown
-                  :size="12"
+                  :size="14"
                   class="shrink-0 transition-transform duration-200 text-muted-foreground"
                   :class="isGroupOpen(item.route) ? 'rotate-180' : ''"
                 />
@@ -320,14 +320,14 @@ function iconColor(routeName: string): string {
                   :to="{ name: child.route }"
                   class="flex items-center rounded-lg transition-colors duration-150 mb-0.5"
                   :class="[
-                    props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2 pl-9 pr-3 py-1.5 text-[12px]',
+                    props.mobile ? 'gap-2.5 pl-10 pr-4 py-2 text-[13px]' : 'gap-2.5 pl-11 pr-3 py-2 text-[13px]',
                     isChildActive(child)
                       ? 'text-primary font-medium'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   ]"
                   @click="emit('navigate')"
                 >
-                  <component v-if="child.icon" :is="child.icon" :size="props.mobile ? 15 : 14" class="shrink-0" />
+                  <component v-if="child.icon" :is="child.icon" :size="15" class="shrink-0" />
                   <span class="truncate">{{ child.label }}</span>
                 </RouterLink>
               </template>
@@ -357,19 +357,19 @@ function iconColor(routeName: string): string {
                 :class="isActive(item.route)
                   ? (props.mobile
                       ? 'bg-sidebar-accent pl-[10px] pr-4 py-3 border-l-2 border-primary text-foreground font-medium rounded-xl gap-3.5'
-                      : 'bg-sidebar-accent pl-[10px] pr-3 py-[9px] border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
+                      : 'bg-sidebar-accent pl-[10px] pr-3 py-2.5 border-l-2 border-primary text-foreground font-medium rounded-lg gap-3')
                   : (props.mobile
                       ? 'px-4 py-3 text-muted-foreground hover:bg-muted hover:text-foreground rounded-xl gap-3.5'
-                      : 'px-3 py-[9px] text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
+                      : 'px-3 py-2.5 text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg gap-3')"
                 @click="emit('navigate')"
               >
                 <component
                   :is="item.icon"
-                  :size="props.mobile ? 20 : 18"
+                  :size="20"
                   class="shrink-0"
                   :class="iconColor(item.route)"
                 />
-                <span class="flex-1 truncate" :class="props.mobile ? 'text-[14px]' : 'text-[13px]'">{{ item.label }}</span>
+                <span class="flex-1 truncate" :class="'text-[14px]'">{{ item.label }}</span>
                 <span
                   v-if="item.shortcut && !props.mobile"
                   class="text-[10px] font-mono text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
@@ -419,8 +419,8 @@ function iconColor(routeName: string): string {
         class="flex items-center gap-2 w-full px-3 py-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors duration-150"
         @click="ui.toggleTheme()"
       >
-        <Moon v-if="ui.theme === 'dark'" :size="13" class="shrink-0" />
-        <Sun v-else :size="13" class="shrink-0" />
+        <Moon v-if="ui.theme === 'dark'" :size="14" class="shrink-0" />
+        <Sun v-else :size="14" class="shrink-0" />
         <span class="flex-1 text-[12px] text-left">Aparência</span>
         <span class="text-[10px] text-muted-foreground">
           {{ ui.theme === 'dark' ? 'Escuro' : 'Claro' }}
@@ -438,7 +438,7 @@ function iconColor(routeName: string): string {
 
       <!-- User row (expanded) -->
       <div v-if="props.open" class="flex items-center gap-2.5 px-3 py-3">
-        <Avatar class="h-8 w-8 shrink-0">
+        <Avatar class="h-9 w-9 shrink-0">
           <AvatarFallback class="text-[12px] font-medium bg-muted text-primary">
             {{ initials(auth.user?.name) }}
           </AvatarFallback>

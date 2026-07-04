@@ -99,7 +99,7 @@ const mobileHeaderTitle = computed(() => {
     <!-- ─── Main area ─────────────────────────────────────────── -->
     <div
       class="flex flex-col flex-1 min-w-0 min-h-screen transition-[margin] duration-300 ease-in-out"
-      :class="ui.sidebarOpen ? 'md:ml-56' : 'md:ml-[52px]'"
+      :class="ui.sidebarOpen ? 'md:ml-64' : 'md:ml-14'"
     >
       <!-- Mobile top bar (only on small screens) -->
       <div class="md:hidden flex items-center h-11 px-4 shrink-0">

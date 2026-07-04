@@ -161,7 +161,7 @@ const selectedCategoryColor = computed(() => {
                 :class="[
                   'h-9 rounded-md text-xs font-medium  transition-all',
                   form.frequency === f
-                    ? 'bg-foreground text-background'
+                    ? 'bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground hover:bg-accent',
                 ]"
                 @click="form.frequency = f"
@@ -206,7 +206,7 @@ const selectedCategoryColor = computed(() => {
                 :class="[
                   'flex-1 h-8 text-xs font-medium rounded-md  transition-base',
                   form.target_days.includes(day)
-                    ? 'bg-foreground text-background'
+                    ? 'bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground ',
                 ]"
                 @click="toggleTargetDay(day)"

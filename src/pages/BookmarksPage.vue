@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { PageHeader } from '@/components/shared'
 import { Bookmark, Plus, ArrowLeft, Search, Star, Loader2 } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { useBookmarkCollectionStore } from '@/stores/bookmarkCollections'
@@ -98,26 +99,22 @@ onMounted(async () => {
     <!-- ── VIEW A — Grid de coleções ───────────────────────────────────── -->
     <template v-if="!isViewB">
       <!-- Header -->
-      <div class="px-5 pt-6 pb-4 shrink-0">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-              PESSOAL
-            </p>
-            <h1 class="text-[28px] font-bold text-foreground leading-none">Bookmarks</h1>
-            <p class="text-[13px] text-muted-foreground mt-1.5">
-              Seus links organizados por coleção
-            </p>
-          </div>
-          <button
-            type="button"
-            class="shrink-0 flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:opacity-90 transition-opacity mt-1"
-            @click="openNewCollection"
-          >
-            <Plus :size="14" />
-            Nova coleção
-          </button>
-        </div>
+      <div class="px-5 pt-4 md:pt-8 shrink-0">
+        <PageHeader
+          title="Bookmarks"
+          subtitle="Seus links organizados por coleção"
+        >
+          <template #actions>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-primary text-primary-foreground text-[13px] font-medium hover:brightness-110 transition-colors"
+              @click="openNewCollection"
+            >
+              <Plus :size="14" />
+              Nova coleção
+            </button>
+          </template>
+        </PageHeader>
       </div>
 
       <!-- Grid de coleções -->

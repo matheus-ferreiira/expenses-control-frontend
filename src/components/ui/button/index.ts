@@ -8,9 +8,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-foreground text-background hover:bg-foreground/90",
+        // Lei do VaultOS: ação = primary sólido, nunca bg-foreground/opacidade
+        default: "bg-primary text-primary-foreground hover:brightness-110",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground hover:brightness-110",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:

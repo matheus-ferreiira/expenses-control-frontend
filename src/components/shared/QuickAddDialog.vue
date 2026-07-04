@@ -333,12 +333,12 @@ const QUICK_ACTIONS = [
                   :class="isCompletedToday(habit) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
                 >
                   <div class="size-5 rounded border-2 flex items-center justify-center shrink-0 transition-all" :class="selectedHabits.has(habit.id)
-                    ? 'bg-foreground border-foreground'
+                    ? 'bg-primary border-primary'
                     : 'border-border'" @click="toggleHabit(habit.id)">
-                    <Check v-if="selectedHabits.has(habit.id)" :size="12" class="text-background" />
+                    <Check v-if="selectedHabits.has(habit.id)" :size="12" class="text-primary-foreground" />
                   </div>
-                  <span class="flex items-center justify-center w-7 h-7 rounded-md shrink-0"
-                    :style="{ backgroundColor: (habit.color ?? 'hsl(var(--muted))') + '25', color: habit.color ?? 'hsl(var(--muted-foreground))' }">
+                  <span class="flex items-center justify-center w-7 h-7 rounded-md shrink-0 bg-muted"
+                    :style="{ color: habit.color ?? 'hsl(var(--muted-foreground))' }">
                     <component :is="habit.icon && findIcon(habit.icon) ? findIcon(habit.icon)!.component : null"
                       v-if="habit.icon && findIcon(habit.icon)" :size="14" />
                   </span>
