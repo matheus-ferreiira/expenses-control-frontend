@@ -4,24 +4,28 @@ import { useUiStore } from '@/stores/ui'
 import { useTaskStore } from '@/stores/tasks'
 import { useHabitStore } from '@/stores/habits'
 import { useCalendarStore } from '@/stores/calendar'
+import { useShoppingSessionStore } from '@/stores/shoppingSessions'
+import { useShoppingItemStore } from '@/stores/shoppingItems'
 import { useToast } from '@/composables/useToast'
 import { useTransactionForm } from '@/composables/useTransactionForm'
 import { Sheet, SheetContent } from '@ui/sheet'
 import {
   CheckSquare, TrendingDown, TrendingUp, Repeat, CalendarPlus,
-  ArrowLeft, Loader2, Check, ArrowLeftRight,
+  ArrowLeft, Loader2, Check, ArrowLeftRight, ShoppingCart, Plus,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { DatePicker } from '@/components/ui/date-picker'
 import type { TransactionType } from '@/types/finance'
 
-type QuickAction = 'expense' | 'income' | 'transfer' | 'task' | 'habit' | 'event'
+type QuickAction = 'expense' | 'income' | 'transfer' | 'task' | 'habit' | 'event' | 'shopping'
 
 const ui = useUiStore()
 const taskStore = useTaskStore()
 const habitStore = useHabitStore()
 const calendarStore = useCalendarStore()
+const shoppingStore = useShoppingSessionStore()
+const shoppingItemStore = useShoppingItemStore()
 const toast = useToast()
 const { openTransactionForm } = useTransactionForm()
 
@@ -43,6 +47,7 @@ function selectAction(a: QuickAction) {
     setTimeout(() => openTransactionForm({ type: a as TransactionType }), 220)
     return
   }
+  if (a === 'shopping') ensureShoppingSession()
   action.value = a
 }
 
@@ -56,6 +61,7 @@ function close() {
     action.value = null
     resetTaskForm()
     resetEventForm()
+    resetShoppingForm()
   }, 300)
 }
 
@@ -124,6 +130,65 @@ async function submitHabits() {
   }
 }
 
+// ── Shopping item form ───────────────────────────────────────────────────────
+// Captura em 2 toques: sem lista ativa, cria uma automaticamente — o dialog de
+// nomear lista era a barreira que fazia o bloco de notas ganhar.
+
+const shoppingName = ref('')
+const shoppingAdded = ref(0)
+const ensuringSession = ref(false)
+
+function resetShoppingForm() {
+  shoppingName.value = ''
+  shoppingAdded.value = 0
+}
+
+async function ensureShoppingSession() {
+  if (shoppingStore.activeSession) return
+  ensuringSession.value = true
+  try {
+    await shoppingStore.fetchSessions()
+    if (!shoppingStore.activeSession) {
+      const label = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' }).format(new Date())
+      await shoppingStore.createSession(`Mercado ${label}`)
+    }
+  } catch {
+    toast.error('Erro ao preparar a lista de compras')
+  } finally {
+    ensuringSession.value = false
+  }
+}
+
+async function submitShoppingItem() {
+  const name = shoppingName.value.trim()
+  if (!name || submitting.value) return
+  if (!shoppingStore.activeSession) {
+    await ensureShoppingSession()
+    if (!shoppingStore.activeSession) return
+  }
+  submitting.value = true
+  try {
+    await shoppingItemStore.addItem(shoppingStore.activeSession.id, {
+      name,
+      category: null,
+      price: null,
+    })
+    shoppingAdded.value++
+    shoppingName.value = ''
+  } catch {
+    toast.error('Erro ao adicionar item')
+  } finally {
+    submitting.value = false
+  }
+}
+
+function finishShoppingAdd() {
+  if (shoppingAdded.value > 0) {
+    toast.success(`${shoppingAdded.value} ${shoppingAdded.value === 1 ? 'item adicionado' : 'itens adicionados'} à lista`)
+  }
+  close()
+}
+
 // ── Event form ───────────────────────────────────────────────────────────────
 
 const eventForm = reactive({
@@ -160,13 +225,15 @@ async function submitEvent() {
   }
 }
 
+// Chips cinza sólido + cor do módulo SÓ no ícone (lei do design system — sem tint /N)
 const QUICK_ACTIONS = [
-  { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, bgClass: 'bg-[hsl(var(--color-task)/0.15)]', iconClass: 'text-[hsl(var(--color-task))]' },
+  { id: 'task' as QuickAction, label: 'Nova tarefa', desc: 'Item para sua lista', icon: CheckSquare, bgClass: 'bg-muted', iconClass: 'text-accent-blue' },
   { id: 'expense' as QuickAction, label: 'Nova despesa', desc: 'Registre um gasto', icon: TrendingDown, bgClass: 'bg-muted', iconClass: 'text-destructive' },
   { id: 'income' as QuickAction, label: 'Nova receita', desc: 'Registre uma entrada', icon: TrendingUp, bgClass: 'bg-muted', iconClass: 'text-success' },
+  { id: 'shopping' as QuickAction, label: 'Item de compra', desc: 'Adicionar à lista do mercado', icon: ShoppingCart, bgClass: 'bg-muted', iconClass: 'text-accent-lime' },
   { id: 'transfer' as QuickAction, label: 'Transferência', desc: 'Mover entre contas', icon: ArrowLeftRight, bgClass: 'bg-muted', iconClass: 'text-muted-foreground' },
-  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-muted', iconClass: 'text-warning' },
-  { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, bgClass: 'bg-[hsl(var(--color-event)/0.15)]', iconClass: 'text-[hsl(var(--color-event))]' },
+  { id: 'habit' as QuickAction, label: 'Marcar hábito', desc: 'Concluir hábito de hoje', icon: Repeat, bgClass: 'bg-muted', iconClass: 'text-accent-orange' },
+  { id: 'event' as QuickAction, label: 'Novo evento', desc: 'Adicionar à agenda', icon: CalendarPlus, bgClass: 'bg-muted', iconClass: 'text-accent-violet' },
 ]
 </script>
 
@@ -276,6 +343,54 @@ const QUICK_ACTIONS = [
               :disabled="submitting">
               <Loader2 v-if="submitting" :size="14" class="animate-spin" />
               Confirmar
+            </button>
+          </div>
+        </form>
+      </template>
+
+      <!-- ── Shopping Item Form ── -->
+      <template v-else-if="action === 'shopping'">
+        <form class="flex flex-col" @submit.prevent="submitShoppingItem">
+          <header class="flex items-center gap-2 px-3 pt-1 pb-3 border-b border-border sticky top-0 bg-background z-10">
+            <button type="button" class="size-9 grid place-items-center rounded-md hover:bg-card text-muted-foreground"
+              @click="goBack">
+              <ArrowLeft :size="16" />
+            </button>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-[13px] font-semibold">Item de compra</h3>
+              <p class="text-[11px] text-muted-foreground truncate">
+                <template v-if="ensuringSession">Preparando lista…</template>
+                <template v-else-if="shoppingStore.activeSession">Lista: {{ shoppingStore.activeSession.title }}</template>
+              </p>
+            </div>
+          </header>
+          <div class="px-5 py-4 space-y-3">
+            <div class="flex gap-2">
+              <input
+                v-model="shoppingName"
+                autofocus
+                placeholder="Sabão, papel higiênico, café..."
+                class="flex-1 h-12 px-4 rounded-xl bg-card focus:border-primary outline-none text-[15px] transition-colors placeholder:text-muted-foreground"
+              />
+              <button
+                type="submit"
+                class="size-12 rounded-xl bg-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 shrink-0"
+                :disabled="submitting || ensuringSession || !shoppingName.trim()"
+              >
+                <Loader2 v-if="submitting" :size="16" class="animate-spin text-primary-foreground" />
+                <Plus v-else :size="18" class="text-primary-foreground" />
+              </button>
+            </div>
+            <p v-if="shoppingAdded > 0" class="text-[12px] text-primary font-medium">
+              ✓ {{ shoppingAdded }} {{ shoppingAdded === 1 ? 'item adicionado' : 'itens adicionados' }} — continue digitando ou conclua
+            </p>
+          </div>
+          <div class="sticky bottom-0 bg-background border-t border-border px-4 py-3">
+            <button type="button"
+              class="w-full h-12 rounded-lg font-semibold text-[13px] bg-primary text-primary-foreground flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              @click="finishShoppingAdd">
+              <Check :size="14" />
+              Concluir
             </button>
           </div>
         </form>

@@ -23,8 +23,6 @@ const toast = useToast()
 
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const newName = ref('')
-const newCategory = ref('')
-const priceCents = ref('')
 const adding = ref(false)
 
 // Inline edit state
@@ -65,28 +63,14 @@ function formatPriceCents(digits: string): string {
   })
 }
 
-function handlePriceInput(e: Event) {
-  const raw = (e.target as HTMLInputElement).value
-  const digits = raw.replace(/\D/g, '')
-  priceCents.value = digits
-  ;(e.target as HTMLInputElement).value = formatPriceCents(digits)
-}
-
 // ── Actions ───────────────────────────────────────────────────────────────────
 async function addItem() {
   const name = newName.value.trim()
   if (!name) return
   adding.value = true
   try {
-    const parsedPrice = priceCents.value ? parseInt(priceCents.value, 10) / 100 : null
-    await itemStore.addItem(props.session.id, {
-      name,
-      category: newCategory.value.trim() || null,
-      price: parsedPrice,
-    })
+    await itemStore.addItem(props.session.id, { name, category: null, price: null })
     newName.value = ''
-    newCategory.value = ''
-    priceCents.value = ''
     // Return focus to name input for fast sequential entry
     await nextTick()
     nameInputRef.value?.focus()
@@ -114,10 +98,6 @@ async function removeItem(itemId: string) {
 }
 
 function handleNameKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter') addItem()
-}
-
-function handleFieldKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter') addItem()
 }
 
@@ -223,40 +203,25 @@ function handleFinish() {
           </button>
         </div>
 
-        <!-- Add item form -->
-        <div class="px-5 pb-3 space-y-2">
+        <!-- Add item form — input único: categoria/preço ficam no modo edição
+             (dados de prod: 0 de 10 itens usaram esses campos no cadastro) -->
+        <div class="px-5 pb-3 flex gap-2">
           <input
             ref="nameInputRef"
             v-model="newName"
-            placeholder="Nome do item..."
-            class="w-full h-12 px-4 rounded-xl bg-muted focus:border-primary outline-none text-[15px] transition-colors placeholder:text-muted-foreground"
+            placeholder="Adicionar item... (Enter)"
+            class="flex-1 h-12 px-4 rounded-xl bg-muted focus:border-primary outline-none text-[15px] transition-colors placeholder:text-muted-foreground"
             @keydown="handleNameKeydown"
           />
-          <div class="flex gap-2">
-            <input
-              v-model="newCategory"
-              placeholder="Categoria (opcional)"
-              class="flex-1 h-11 px-3 rounded-xl bg-muted focus:border-primary outline-none text-[13px] transition-colors placeholder:text-muted-foreground"
-              @keydown="handleFieldKeydown"
-            />
-            <input
-              inputmode="numeric"
-              placeholder="R$ 0,00"
-              class="w-28 h-11 px-3 rounded-xl bg-muted focus:border-primary outline-none text-[13px] tabular-nums text-right transition-colors placeholder:text-muted-foreground"
-              :value="formatPriceCents(priceCents)"
-              @input="handlePriceInput"
-              @keydown="handleFieldKeydown"
-            />
-            <button
-              type="button"
-              class="size-11 rounded-xl bg-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 shrink-0"
-              :disabled="adding || !newName.trim()"
-              @click="addItem"
-            >
-              <Loader2 v-if="adding" :size="16" class="animate-spin text-primary-foreground" />
-              <Plus v-else :size="18" class="text-primary-foreground" />
-            </button>
-          </div>
+          <button
+            type="button"
+            class="size-12 rounded-xl bg-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 shrink-0"
+            :disabled="adding || !newName.trim()"
+            @click="addItem"
+          >
+            <Loader2 v-if="adding" :size="16" class="animate-spin text-primary-foreground" />
+            <Plus v-else :size="18" class="text-primary-foreground" />
+          </button>
         </div>
       </div>
 
