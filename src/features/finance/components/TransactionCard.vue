@@ -45,6 +45,11 @@ const subtitle = computed(() => {
   // Transferência para conta OU para cartão (pagamento de fatura)
   if (t.type === 'transfer') return `→ ${t.destination_account?.name ?? t.card?.name ?? '?'}`
   const parts: string[] = []
+  if (t.reconciliation_status === 'conflict') parts.push('Conciliação pendente')
+  if (t.economic_kind === 'unknown') parts.push('Finalidade desconhecida')
+  if (t.economic_kind === 'reimbursement') parts.push('Reembolso · sem renda')
+  if (t.economic_kind === 'shared_expense') parts.push(`Parte pessoal ${formatCurrency((t.economic_effect?.expense ?? 0) / 100)}`)
+  if (!t.category) parts.push('Categoria pendente')
   if (t.is_recurring) parts.push('↻ Fixa')
   if (t.category) parts.push(t.category.name)
   const account = t.account?.name ?? t.card?.name

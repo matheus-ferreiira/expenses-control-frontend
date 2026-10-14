@@ -13,6 +13,7 @@ import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import type { BankAccount } from '@/types/finance'
+import { financeApi } from '@/services/api/finance'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,13 +28,23 @@ import {
 const store = useFinanceStore()
 const toast = useToast()
 const router = useRouter()
+const balanceDate = ref(new Date().toLocaleDateString('en-CA'))
+const datedBalances = ref<{ id: string; name: string; balance_cents: number | null }[]>([])
+const checkingBalances = ref(false)
+async function checkBalances() {
+  checkingBalances.value = true
+  try {
+    datedBalances.value = await Promise.all(store.activeAccounts.map(async (account) => ({ id: account.id, name: account.name, ...await financeApi.accounts.balanceAt(account.id, balanceDate.value) })))
+  } catch { toast.error('Não foi possível consultar os saldos por data') }
+  finally { checkingBalances.value = false }
+}
 
 /** Toque na conta → Visão Geral filtrada pelas transações dela */
 function viewStatement(account: BankAccount) {
   router.push({ name: ROUTES.FINANCE, query: { account_id: account.id } })
 }
 
-// ── Ajustar saldo — cria transação de ajuste com a diferença ─────────────────
+// Conferência datada: preserva o valor observado sem criar receita/despesa.
 const adjustOpen = ref(false)
 const adjustTarget = ref<BankAccount | null>(null)
 const adjustDisplay = ref('')
@@ -65,25 +76,19 @@ const adjustDiff = computed(() => {
 
 async function confirmAdjust() {
   if (!adjustTarget.value || adjustParsed.value === null || adjusting.value) return
-  if (adjustDiff.value === 0) {
-    adjustOpen.value = false
-    return
-  }
   adjusting.value = true
   try {
-    await store.createTransaction({
-      type: adjustDiff.value > 0 ? 'income' : 'expense',
-      amount: Math.abs(adjustDiff.value),
-      description: 'Ajuste de saldo',
-      transaction_date: new Date().toISOString().slice(0, 10),
-      account_id: adjustTarget.value.id,
+    const result = await financeApi.accounts.observeBalance(adjustTarget.value.id, {
+      date: new Date().toLocaleDateString('en-CA'),
+      balance: adjustParsed.value.toFixed(2),
+      evidence: 'Conferência manual informada pelo titular no aplicativo',
     })
     await store.fetchAccounts()
-    toast.success('Saldo ajustado')
+    toast.success(result.difference_cents ? `Conferência registrada. Diferença: ${formatCurrency(result.difference_cents / 100)}` : 'Conferência de saldo registrada')
     adjustOpen.value = false
     adjustTarget.value = null
   } catch {
-    toast.error('Erro ao ajustar saldo')
+    toast.error('Erro ao registrar conferência')
   } finally {
     adjusting.value = false
   }
@@ -210,6 +215,15 @@ onMounted(async () => {
     </div>
 
     <!-- Loading -->
+    <div class="mb-4 rounded-lg bg-card p-3 text-sm">
+      <label class="flex items-center gap-2">Saldo por data
+        <input v-model="balanceDate" type="date" class="rounded bg-muted px-2 py-1" />
+        <button :disabled="checkingBalances" class="text-primary" @click="checkBalances">Consultar</button>
+      </label>
+      <p v-for="account in datedBalances" :key="account.id" class="mt-2">
+        {{ account.name }}: {{ account.balance_cents === null ? 'Saldo histórico não confirmado' : formatCurrency(account.balance_cents / 100) }}
+      </p>
+    </div>
     <div v-if="loading" class="grid grid-cols-1 gap-3">
       <div v-for="i in 3" :key="i" class="rounded-lg bg-card p-3.5 space-y-2.5">
         <div class="flex items-center gap-2.5">
@@ -304,9 +318,9 @@ onMounted(async () => {
   <AlertDialog v-model:open="adjustOpen">
     <AlertDialogContent class="max-w-sm">
       <AlertDialogHeader>
-        <AlertDialogTitle class="text-[15px]">Ajustar saldo — {{ adjustTarget?.name }}</AlertDialogTitle>
+        <AlertDialogTitle class="text-[15px]">Conferir saldo — {{ adjustTarget?.name }}</AlertDialogTitle>
         <AlertDialogDescription class="text-[13px]">
-          Informe o saldo real da conta. A diferença vira uma transação "Ajuste de saldo".
+          Informe o saldo real da conta. A conferência será registrada; diferenças ficarão pendentes de conciliação.
         </AlertDialogDescription>
       </AlertDialogHeader>
 
@@ -326,7 +340,7 @@ onMounted(async () => {
           />
         </div>
         <p v-if="adjustDiff !== 0" class="text-[11px] mt-1.5" :class="adjustDiff > 0 ? 'text-success' : 'text-destructive'">
-          Ajuste de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }}
+          Diferença de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }}
         </p>
       </div>
 
@@ -339,7 +353,7 @@ onMounted(async () => {
           :disabled="adjustParsed === null || adjusting"
           @click="confirmAdjust"
         >
-          Ajustar
+          Registrar conferência
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

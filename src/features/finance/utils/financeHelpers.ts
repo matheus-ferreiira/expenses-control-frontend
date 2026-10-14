@@ -115,8 +115,8 @@ export function groupTransactionsByDate(
       }).toUpperCase()
     }
 
-    const income = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-    const expenses = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+    const income = txs.filter((t) => t.status === 'confirmed').reduce((s, t) => s + (t.economic_effect ? t.economic_effect.income / 100 : t.type === 'income' ? t.amount : 0), 0)
+    const expenses = txs.filter((t) => t.status === 'confirmed').reduce((s, t) => s + (t.economic_effect ? t.economic_effect.expense / 100 : t.type === 'expense' && !t.goal_id ? t.amount : 0), 0)
 
     return { date, label, transactions: txs, income, expenses }
   })
@@ -124,16 +124,9 @@ export function groupTransactionsByDate(
   // Compute running end-of-day balance (newest first → walk newest to oldest).
   // endBalance[newest] = totalBalance (right now)
   // endBalance[i+1]    = endBalance[i] − confirmed net delta of group[i]
-  if (totalBalance !== undefined) {
-    let running = totalBalance
-    for (const group of groups) {
-      group.endBalance = running
-      const confirmedNet = group.transactions
-        .filter((t) => t.status === 'confirmed' && t.type !== 'transfer')
-        .reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0)
-      running -= confirmedNet
-    }
-  }
+  // A paginated transaction list cannot reconstruct account balances.
+  // Date-specific balances are supplied by the account balance-at endpoint.
+  void totalBalance
 
   return groups
 }

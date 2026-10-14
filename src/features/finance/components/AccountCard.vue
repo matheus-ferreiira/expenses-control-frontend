@@ -23,7 +23,7 @@ const emit = defineEmits<{
   unarchive: [account: BankAccount]
   /** Toque no corpo do card — abre a Visão Geral filtrada por esta conta */
   view: [account: BankAccount]
-  /** Corrigir saldo divergente via transação de ajuste */
+  /** Registrar conferência datada sem gerar movimentação. */
   adjust: [account: BankAccount]
 }>()
 </script>
@@ -89,7 +89,7 @@ const emit = defineEmits<{
               </DropdownMenuItem>
               <DropdownMenuItem v-if="account.is_active" @click="emit('adjust', account)">
                 <Scale :size="12" class="mr-2" />
-                Ajustar saldo
+                Conferir saldo
               </DropdownMenuItem>
               <DropdownMenuSeparator v-if="account.is_active" />
               <DropdownMenuItem v-if="account.is_active" @click="emit('archive', account)">

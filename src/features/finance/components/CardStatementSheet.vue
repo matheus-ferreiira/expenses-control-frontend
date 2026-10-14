@@ -50,32 +50,37 @@ const billingPeriod = computed(() => {
 
 const transactions = ref<Transaction[]>([])
 const loading = ref(false)
+const statement = ref<Awaited<ReturnType<typeof financeApi.cards.statement>> | null>(null)
+const paymentReference = ref('')
+let loadVersion = 0
 
 async function loadTransactions() {
   if (!props.card || !billingPeriod.value) return
+  const version = ++loadVersion
   loading.value = true
   transactions.value = []
+  statement.value = null
+  payment.value = null
+  payPanelOpen.value = false
   try {
-    const result = await financeApi.transactions.list({
-      card_id: props.card.id,
-      start_date: billingPeriod.value.startDate,
-      end_date: billingPeriod.value.endDate,
-      per_page: 200,
-    })
-    transactions.value = result.data
+    const result = await financeApi.cards.statement(props.card.id, statementMonth.value)
+    if (version !== loadVersion) return
+    statement.value = result
+    transactions.value = result.transactions
+    payment.value = result.payments[0] ?? null
   } catch {
+    if (version !== loadVersion) return
     transactions.value = []
     toast.error('Erro ao carregar extrato')
   } finally {
-    loading.value = false
+    if (version === loadVersion) loading.value = false
   }
-  loadPayment()
 }
 
 // ── Statement payment ─────────────────────────────────────────────────────────
 
 /** "YYYY-MM" do fechamento do ciclo em exibição — identifica a fatura */
-const statementMonth = computed(() => billingPeriod.value?.endDate.slice(0, 7) ?? '')
+const statementMonth = computed(() => billingPeriod.value?.dueDate.slice(0, 7) ?? '')
 
 const payment = ref<Transaction | null>(null)
 const payPanelOpen = ref(false)
@@ -83,17 +88,9 @@ const payAccountId = ref('')
 const payAmount = ref('')
 const paying = ref(false)
 
-async function loadPayment() {
-  if (!props.card || !statementMonth.value) return
-  try {
-    payment.value = await financeApi.cards.getStatementPayment(props.card.id, statementMonth.value)
-  } catch {
-    payment.value = null
-  }
-}
-
 function openPayPanel() {
-  payAmount.value = totalUsed.value.toFixed(2).replace('.', ',')
+  paymentReference.value = crypto.randomUUID()
+  payAmount.value = ((statement.value?.remaining_cents ?? 0) / 100).toFixed(2).replace('.', ',')
   if (!store.activeAccounts.length) store.fetchAccounts()
   payAccountId.value = store.activeAccounts[0]?.id ?? ''
   payPanelOpen.value = true
@@ -112,10 +109,12 @@ async function submitPayment() {
       account_id: payAccountId.value,
       amount: payAmountParsed.value,
       statement_month: statementMonth.value,
+      payment_reference: paymentReference.value,
     })
     payment.value = paid
     payPanelOpen.value = false
-    toast.success('Fatura paga')
+    toast.success('Pagamento registrado')
+    await loadTransactions()
     emit('paid', paid)
     store.fetchAccounts()
   } catch {
@@ -148,11 +147,7 @@ watch(
 
 // ── Computed ──────────────────────────────────────────────────────────────────
 
-const totalUsed = computed(() =>
-  transactions.value
-    .filter((t) => t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0),
-)
+const totalUsed = computed(() => (statement.value?.charges_cents ?? 0) / 100)
 
 const utilPct = computed(() =>
   props.card ? utilizationPercent(totalUsed.value, props.card.limit_amount) : 0,
@@ -167,7 +162,7 @@ const limitBarClass = computed(() => {
 const groups = computed(() => groupTransactionsByDate(transactions.value))
 
 function prevCycle() { referenceOffset.value-- }
-function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
+function nextCycle() { referenceOffset.value++ }
 </script>
 
 <template>
@@ -227,7 +222,6 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
           <button
             type="button"
             class="min-h-[44px] min-w-[44px] grid place-items-center rounded-lg hover:bg-muted text-muted-foreground transition-colors"
-            :class="referenceOffset >= 0 ? 'opacity-30 pointer-events-none' : ''"
             @click="nextCycle"
           >
             <ChevronRight :size="18" />
@@ -268,13 +262,15 @@ function nextCycle() { if (referenceOffset.value < 0) referenceOffset.value++ }
           >
             <CheckCircle2 :size="14" class="shrink-0" />
             <span class="leading-snug flex-1">
-              Fatura paga · {{ formatCurrency(payment.amount) }}
+              Pagamentos · {{ formatCurrency((statement?.paid_cents ?? 0) / 100) }}
+              · Restante {{ formatCurrency((statement?.remaining_cents ?? 0) / 100) }}
               <template v-if="payment.account"> · {{ payment.account.name }}</template>
             </span>
           </div>
 
           <!-- Pagar fatura -->
-          <template v-else-if="totalUsed > 0">
+          <p v-if="statement?.difference_cents" class="mt-2 text-xs text-warning">Diferença entre CSV e aplicativo: {{ formatCurrency(statement.difference_cents / 100) }} · pendente de conciliação.</p>
+          <template v-if="(statement?.remaining_cents ?? 0) > 0">
             <button
               v-if="!payPanelOpen"
               type="button"

@@ -21,6 +21,8 @@ import type {
 
 export const financeApi = {
   accounts: {
+    balanceAt: (id: string, date: string) => client.get<ApiResponse<{ balance_cents: number | null; status: string }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-at`, { params: { date } }).then(unwrap),
+    observeBalance: (id: string, payload: { date: string; balance: string; evidence: string }) => client.post<ApiResponse<{ difference_cents: number | null }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-observations`, payload).then(unwrap),
     list: () =>
       client.get<ApiResponse<BankAccount[]>>(API_ENDPOINTS.FINANCE.ACCOUNTS).then(unwrap),
 
@@ -46,6 +48,7 @@ export const financeApi = {
   },
 
   cards: {
+    statement: (id: string, cycle: string) => client.get<ApiResponse<{ transactions: Transaction[]; payments: Transaction[]; charges_cents: number; paid_cents: number; remaining_cents: number; manual_cents: number | null; difference_cents: number | null }>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/statement`, { params: { cycle } }).then(unwrap),
     list: () =>
       client.get<ApiResponse<CreditCard[]>>(API_ENDPOINTS.FINANCE.CARDS).then(unwrap),
 
@@ -72,7 +75,7 @@ export const financeApi = {
     /** Paga a fatura do mês (transfer conta → cartão, marcada com statement_month) */
     payStatement: (
       id: string,
-      payload: { account_id: string; amount: number; statement_month: string; payment_date?: string },
+      payload: { account_id: string; amount: number; statement_month: string; payment_date?: string; payment_reference?: string },
     ) =>
       client
         .post<ApiResponse<Transaction>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/pay-statement`, payload)

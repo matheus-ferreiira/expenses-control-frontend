@@ -64,6 +64,13 @@ export interface CreditCard {
 }
 
 export interface Transaction {
+  economic_kind?: string | null
+  classification_status?: string | null
+  reconciliation_status?: string | null
+  economic_effect?: { income: number; expense: number }
+  recovery_locked?: boolean
+  original_purchase_on?: string | null
+  statement_due_on?: string | null
   id: string
   account_id: string | null
   /** For type=transfer: the account being credited (destination) */

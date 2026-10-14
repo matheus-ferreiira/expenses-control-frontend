@@ -1,5 +1,20 @@
 import { describe, it, expect } from 'vitest'
-import { getCardBillingPeriod, formatDayMonth } from './financeHelpers'
+import { getCardBillingPeriod, formatDayMonth, groupTransactionsByDate } from './financeHelpers'
+import type { Transaction } from '@/types/finance'
+
+describe('recovered transactions', () => {
+  it('uses personal economic amounts and never infers balances from a partial page', () => {
+    const transactions = [
+      { id: 'lunch', transaction_date: '2026-10-13', type: 'expense', amount: 83, status: 'confirmed', economic_effect: { income: 0, expense: 2075 } },
+      { id: 'repayment', transaction_date: '2026-10-13', type: 'income', amount: 62.25, status: 'confirmed', economic_effect: { income: 0, expense: 0 } },
+      { id: 'forecast', transaction_date: '2026-10-13', type: 'expense', amount: 100, status: 'pending' },
+    ] as Transaction[]
+    const groups = groupTransactionsByDate(transactions, 220.96)
+    expect(groups[0]?.income).toBe(0)
+    expect(groups[0]?.expenses).toBe(20.75)
+    expect(groups[0]?.endBalance).toBeUndefined()
+  })
+})
 
 describe('formatDayMonth', () => {
   it('formats an ISO date as "day month-abbr"', () => {
