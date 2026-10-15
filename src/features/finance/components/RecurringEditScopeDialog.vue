@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RefreshCw } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { RefreshCw, Trash2 } from 'lucide-vue-next'
 import type { RecurrenceUpdateScope } from '@/types/finance'
 
-defineProps<{ open: boolean }>()
+/** mode "delete" asks which occurrences to remove; what was already paid is never rewritten or deleted. */
+const props = withDefaults(defineProps<{ open: boolean; mode?: 'edit' | 'delete'; loading?: boolean }>(), {
+  mode: 'edit',
+  loading: false,
+})
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
@@ -11,8 +15,9 @@ const emit = defineEmits<{
 }>()
 
 const selected = ref<RecurrenceUpdateScope>('this_only')
+watch(() => props.open, (open) => { if (open) selected.value = 'this_only' })
 
-const options: { value: RecurrenceUpdateScope; label: string; description: string }[] = [
+const editOptions: { value: RecurrenceUpdateScope; label: string; description: string }[] = [
   {
     value: 'this_only',
     label: 'Só esta',
@@ -21,18 +26,34 @@ const options: { value: RecurrenceUpdateScope; label: string; description: strin
   {
     value: 'this_and_future',
     label: 'Esta e as futuras',
-    description: 'Altera esta e todas as ocorrências seguintes da série',
+    description: 'Altera esta e as próximas ainda não pagas',
   },
   {
     value: 'all',
-    label: 'Todas',
-    description: 'Altera todas as ocorrências da série (passadas e futuras)',
+    label: 'Todas as não pagas',
+    description: 'Altera todas as previsões ainda não pagas da série. O que já foi pago não muda',
   },
 ]
 
+const deleteOptions: { value: RecurrenceUpdateScope; label: string; description: string }[] = [
+  {
+    value: 'this_only',
+    label: 'Só esta',
+    description: 'Exclui apenas esta ocorrência; a série continua',
+  },
+  {
+    value: 'this_and_future',
+    label: 'Esta e as futuras',
+    description: 'Encerra a série a partir daqui. O que já foi pago continua no histórico',
+  },
+]
+
+const options = computed(() => (props.mode === 'delete' ? deleteOptions : editOptions))
+
 function confirm() {
   emit('confirm', selected.value)
-  emit('update:open', false)
+  // In delete mode the parent closes the dialog once the API answers
+  if (props.mode === 'edit') emit('update:open', false)
 }
 
 function cancel() {
@@ -58,12 +79,20 @@ function cancel() {
         <div class="relative w-full sm:max-w-sm bg-card rounded-t-lg sm:rounded-lg  p-5 pb-safe">
           <!-- Icon + title -->
           <div class="flex items-center gap-3 mb-4">
-            <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-muted text-primary shrink-0">
-              <RefreshCw :size="16" />
+            <div
+              class="flex items-center justify-center w-9 h-9 rounded-xl bg-muted shrink-0"
+              :class="mode === 'delete' ? 'text-destructive' : 'text-primary'"
+            >
+              <Trash2 v-if="mode === 'delete'" :size="16" />
+              <RefreshCw v-else :size="16" />
             </div>
             <div>
-              <h3 class="text-[14px] font-semibold text-foreground">Editar transação fix</h3>
-              <p class="text-[11px] text-muted-foreground mt-0.5">Qual o escopo da alteração?</p>
+              <h3 class="text-[14px] font-semibold text-foreground">
+                {{ mode === 'delete' ? 'Excluir transação fix' : 'Editar transação fix' }}
+              </h3>
+              <p class="text-[11px] text-muted-foreground mt-0.5">
+                {{ mode === 'delete' ? 'O que deve ser excluído?' : 'Qual o escopo da alteração?' }}
+              </p>
             </div>
           </div>
 
@@ -107,10 +136,12 @@ function cancel() {
             </button>
             <button
               type="button"
-              class="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[14px] font-semibold hover:brightness-110 transition-colors"
+              :disabled="loading"
+              class="flex-1 h-10 rounded-lg text-[14px] font-semibold hover:brightness-110 transition-colors disabled:opacity-60"
+              :class="mode === 'delete' ? 'bg-destructive text-background' : 'bg-primary text-primary-foreground'"
               @click="confirm"
             >
-              Confirmar
+              {{ mode === 'delete' ? (loading ? 'Excluindo...' : 'Excluir') : 'Confirmar' }}
             </button>
           </div>
         </div>

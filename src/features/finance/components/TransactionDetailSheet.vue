@@ -6,8 +6,7 @@ import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { getContrastColor } from '@/utils/color'
 import { findIcon } from '@/lib/icons'
-import { financeApi } from '@/services/api/finance'
-import { useToast } from '@/composables/useToast'
+import ConfirmTransactionSheet from './ConfirmTransactionSheet.vue'
 
 const props = defineProps<{
   transaction: Transaction | null
@@ -22,21 +21,17 @@ const emit = defineEmits<{
   confirmed: [transaction: Transaction]
 }>()
 
-const toast = useToast()
-const confirming = ref(false)
+// "Paguei / Recebi" opens a small sheet with the real amount and date
+const confirmOpen = ref(false)
 
-async function handleConfirm() {
-  if (!props.transaction || confirming.value) return
-  confirming.value = true
-  try {
-    const updated = await financeApi.transactions.confirm(props.transaction.id)
-    emit('confirmed', updated)
-    close()
-  } catch {
-    toast.error('Não foi possível confirmar a transação. Tente novamente.')
-  } finally {
-    confirming.value = false
-  }
+function handleConfirm() {
+  if (!props.transaction) return
+  confirmOpen.value = true
+}
+
+function onConfirmed(updated: Transaction) {
+  emit('confirmed', updated)
+  close()
 }
 
 function close() {
@@ -261,12 +256,11 @@ const amountClass = computed(() => {
           <div v-if="transaction.status === 'pending'" class="px-4 pt-1">
             <button
               type="button"
-              :disabled="confirming"
               class="w-full h-[52px] rounded-xl bg-success text-background text-[13px] font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
               @click="handleConfirm"
             >
               <CheckCircle2 :size="16" />
-              {{ confirming ? 'Confirmando...' : 'Marcar como paga' }}
+              {{ transaction.type === 'income' ? 'Recebi' : 'Paguei' }}
             </button>
           </div>
           <div class="mt-2">
@@ -301,4 +295,5 @@ const amountClass = computed(() => {
       </template>
     </SheetContent>
   </Sheet>
+  <ConfirmTransactionSheet v-model:open="confirmOpen" :transaction="transaction" @confirmed="onConfirmed" />
 </template>

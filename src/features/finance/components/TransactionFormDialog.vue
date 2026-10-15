@@ -137,6 +137,9 @@ const isEditingRecurring = computed(
   () => !!props.transaction?.recurrence_group_id,
 )
 
+/** Imported from a bank statement: only category, tags and notes can change (the API enforces it too). */
+const locked = computed(() => !!props.transaction?.recovery_locked)
+
 // ── Recurrence config UI ─────────────────────────────────────────────────────
 const FREQUENCY_OPTIONS = [
   { value: 'weekly',      label: 'Semanal' },
@@ -358,7 +361,8 @@ function close() {
 
 async function submit() {
   if (!validate()) return
-  if (props.transaction && isEditingRecurring.value) {
+  // A classification change on an imported record applies to that record only
+  if (props.transaction && isEditingRecurring.value && !locked.value) {
     scopeDialogOpen.value = true
     return
   }
@@ -438,7 +442,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             v-for="([t, cfg]) in (Object.entries(TYPE_CONFIG) as [TransactionType, typeof TYPE_CONFIG[TransactionType]][])"
             :key="t"
             type="button"
-            class="flex-1 h-10 flex items-center justify-center gap-1.5 text-[13px] transition-colors border-b-2"
+            :disabled="locked && form.type !== t"
+            class="flex-1 h-10 flex items-center justify-center gap-1.5 text-[13px] transition-colors border-b-2 disabled:opacity-40"
             :class="form.type === t
               ? [t === 'expense' ? 'border-destructive text-destructive' : t === 'income' ? 'border-success text-success' : 'border-foreground text-foreground', 'font-semibold']
               : 'border-border text-muted-foreground hover:text-muted-foreground font-medium'"
@@ -454,7 +459,14 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       <form class="flex-1 overflow-y-auto" @submit.prevent="submit">
         <div class="px-4 pt-5 pb-3 space-y-5">
 
+          <p v-if="locked" class="rounded-lg bg-card px-3 py-2.5 text-[12px] leading-snug text-muted-foreground">
+            <span class="font-semibold text-foreground">Importado do extrato.</span>
+            Valor, data, conta e descrição ficam travados para o saldo continuar batendo com o banco.
+            Você pode mudar a categoria, as tags e as observações.
+          </p>
+
           <!-- ── VALOR ────────────────────────────────────── -->
+          <fieldset :disabled="locked" class="min-w-0 border-0 p-0 m-0" :class="locked && 'opacity-60'">
           <div class="text-center mb-2">
             <div class="flex items-center justify-center gap-1.5 mb-3">
               <span class="text-[18px] font-medium text-muted-foreground">R$</span>
@@ -484,6 +496,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </button>
             </div>
           </div>
+          </fieldset>
 
           <!-- ── CATEGORIA — grid visual ────────────────────── -->
           <div v-if="form.type !== 'transfer'">
@@ -540,6 +553,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             />
           </div>
 
+          <!-- Cash facts (meta → parcelamento): locked on records imported from a bank statement -->
+          <fieldset :disabled="locked" class="min-w-0 border-0 p-0 m-0 space-y-5" :class="locked && 'opacity-60'">
           <!-- ── META (aporte) — chips opcionais ─────────────── -->
           <div v-if="activeGoals.length > 0">
             <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
@@ -921,6 +936,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
               </p>
             </div>
           </div>
+          </fieldset>
 
           <!-- ── TAGS ─────────────────────────────────────── -->
           <div v-if="store.tags.length > 0">

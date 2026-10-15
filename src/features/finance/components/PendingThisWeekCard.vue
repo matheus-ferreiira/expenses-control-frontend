@@ -6,6 +6,7 @@ import { formatCurrency } from '@/utils/currency'
 import { financeApi } from '@/services/api/finance'
 import { useToast } from '@/composables/useToast'
 import { toISODate } from '@/utils/date'
+import ConfirmTransactionSheet from './ConfirmTransactionSheet.vue'
 
 const emit = defineEmits<{
   /** Disparado após qualquer confirmação — o pai recarrega resumo/saldos/lista */
@@ -30,7 +31,8 @@ async function load() {
       sort_direction: 'asc',
       per_page: 50,
     })
-    pending.value = result.data
+    // Card purchases, installments and subscriptions confirm themselves on their date: nothing to review.
+    pending.value = result.data.filter((t) => !(t.card_id && t.type !== 'transfer'))
   } catch {
     pending.value = []
   } finally {
@@ -63,28 +65,36 @@ const totalPending = computed(() =>
   pending.value.reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0),
 )
 
-async function confirmOne(t: Transaction) {
+/** Only what is already due can be confirmed in one go, each at its forecast value. */
+const duePending = computed(() => pending.value.filter((t) => t.transaction_date <= todayStr))
+const totalDue = computed(() =>
+  duePending.value.reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0),
+)
+
+// "Paguei / Recebi": confirms one item with the real amount and date
+const confirmTarget = ref<Transaction | null>(null)
+const confirmOpen = ref(false)
+
+function confirmOne(t: Transaction) {
   if (confirmingId.value || confirmingAll.value) return
-  confirmingId.value = t.id
-  try {
-    await financeApi.transactions.confirm(t.id)
-    pending.value = pending.value.filter((p) => p.id !== t.id)
-    toast.success('Transação confirmada')
-    emit('confirmed')
-  } catch {
-    toast.error('Erro ao confirmar transação')
-  } finally {
-    confirmingId.value = null
-  }
+  confirmTarget.value = t
+  confirmOpen.value = true
+}
+
+function onConfirmed(t: Transaction) {
+  pending.value = pending.value.filter((p) => p.id !== t.id)
+  toast.success('Transação confirmada')
+  emit('confirmed')
 }
 
 async function confirmAll() {
-  if (confirmingAll.value || pending.value.length === 0) return
+  if (confirmingAll.value || duePending.value.length === 0) return
+  if (!window.confirm(`Confirmar ${duePending.value.length} vencidas pelo valor previsto (${formatCurrency(totalDue.value)})?`)) return
   confirmingAll.value = true
   try {
-    const ids = pending.value.map((t) => t.id)
+    const ids = duePending.value.map((t) => t.id)
     await financeApi.transactions.confirmBatch(ids)
-    pending.value = []
+    pending.value = pending.value.filter((t) => !ids.includes(t.id))
     toast.success(`${ids.length} transações confirmadas`)
     emit('confirmed')
   } catch {
@@ -116,7 +126,7 @@ async function confirmAll() {
         </div>
       </div>
       <button
-        v-if="pending.length > 1"
+        v-if="duePending.length > 1"
         type="button"
         class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-semibold bg-primary text-primary-foreground transition-all active:scale-[0.98] disabled:opacity-40"
         :disabled="confirmingAll"
@@ -124,7 +134,7 @@ async function confirmAll() {
       >
         <Loader2 v-if="confirmingAll" :size="12" class="animate-spin" />
         <CheckCheck v-else :size="12" />
-        Confirmar todas
+        Confirmar vencidas ({{ duePending.length }})
       </button>
     </div>
 
@@ -164,4 +174,6 @@ async function confirmAll() {
       </div>
     </div>
   </div>
+
+  <ConfirmTransactionSheet v-model:open="confirmOpen" :transaction="confirmTarget" @confirmed="onConfirmed" />
 </template>

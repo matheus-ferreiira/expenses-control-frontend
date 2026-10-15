@@ -170,9 +170,9 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
-  async function deleteTransaction(id: string): Promise<void> {
+  async function deleteTransaction(id: string, scope?: 'this_only' | 'this_and_future'): Promise<void> {
     try {
-      await financeApi.transactions.delete(id)
+      await financeApi.transactions.delete(id, scope)
       transactions.value = transactions.value.filter((t) => t.id !== id)
       // Refresh account balances since backend reverses the balance on delete
       fetchAccounts().catch(() => {})

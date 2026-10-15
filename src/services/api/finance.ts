@@ -125,15 +125,16 @@ export const financeApi = {
         .put<ApiResponse<Transaction>>(API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id), payload)
         .then(unwrap),
 
-    confirm: (id: string) =>
+    /** Confirma com o que de fato aconteceu; sem payload, usa a previsão (só se já venceu) */
+    confirm: (id: string, payload: { amount?: number; date?: string } = {}) =>
       client
         .patch<ApiResponse<Transaction>>(
           `${API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id)}/confirm`,
-          {},
+          payload,
         )
         .then(unwrap),
 
-    /** Confirma várias pendentes de uma vez (revisão semanal 1-toque) */
+    /** Confirma várias pendentes já vencidas de uma vez; as futuras são ignoradas pela API */
     confirmBatch: (ids: string[]) =>
       client
         .patch<ApiResponse<Transaction[]>>(
@@ -142,9 +143,10 @@ export const financeApi = {
         )
         .then(unwrap),
 
-    delete: (id: string) =>
+    /** Em séries fixas: "this_only" (padrão) ou "this_and_future"; o que já foi pago nunca é apagado junto */
+    delete: (id: string, scope?: 'this_only' | 'this_and_future') =>
       client
-        .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id))
+        .delete<ApiResponse<null>>(API_ENDPOINTS.FINANCE.TRANSACTION_DETAIL(id), { params: scope ? { scope } : undefined })
         .then(unwrap),
   },
 

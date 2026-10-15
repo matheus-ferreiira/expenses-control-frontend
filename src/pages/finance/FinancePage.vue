@@ -20,6 +20,8 @@ import TransactionDetailSheet from '@/features/finance/components/TransactionDet
 import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CardStatementSheet from '@/features/finance/components/CardStatementSheet.vue'
+import ConfirmTransactionSheet from '@/features/finance/components/ConfirmTransactionSheet.vue'
+import RecurringEditScopeDialog from '@/features/finance/components/RecurringEditScopeDialog.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useAuthStore } from '@/stores/auth'
@@ -29,7 +31,7 @@ import { useHistoricalBalance } from '@/features/finance/composables/useHistoric
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { currentMonth, formatDayMonth } from '@/features/finance/utils/financeHelpers'
-import type { CardOverview, CreditCard, Transaction } from '@/types/finance'
+import type { CardOverview, CreditCard, RecurrenceUpdateScope, Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
 const authStore = useAuthStore()
@@ -123,13 +125,13 @@ async function handleTransactionConfirmed(updated: Transaction) {
   toast.success('Transação confirmada')
 }
 
-async function handleQuickConfirm(t: Transaction) {
-  try {
-    const updated = await financeApi.transactions.confirm(t.id)
-    handleTransactionConfirmed(updated)
-  } catch {
-    toast.error('Erro ao confirmar transação')
-  }
+// Quick confirm from the list opens "Paguei / Recebi" with the real amount and date
+const quickConfirmTarget = ref<Transaction | null>(null)
+const quickConfirmOpen = ref(false)
+
+function handleQuickConfirm(t: Transaction) {
+  quickConfirmTarget.value = t
+  quickConfirmOpen.value = true
 }
 
 /** Card "Pendentes da semana" confirmou algo — recarrega saldos, resumo e lista */
@@ -139,8 +141,8 @@ async function onWeeklyPendingConfirmed() {
 
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
 const deleteDescription = computed(() =>
-  isRecurringDelete.value
-    ? 'Esta é uma transação fix. Todas as ocorrências (passadas e futuras) serão excluídas permanentemente. Esta ação não pode ser desfeita.'
+  deletingTransaction.value?.installment_group_id
+    ? 'Esta é uma compra parcelada: todas as parcelas serão excluídas. Esta ação não pode ser desfeita.'
     : 'Esta ação não pode ser desfeita.',
 )
 
@@ -548,24 +550,25 @@ function openDelete(id: string) {
   deleteOpen.value = true
 }
 
-async function confirmDelete() {
+async function confirmDelete(scope?: RecurrenceUpdateScope) {
   if (!deletingTransaction.value) return
   deleting.value = true
   const isRecurring = isRecurringDelete.value
-  const groupId = deletingTransaction.value.recurrence_group_id
+  const deleteScope = isRecurring && scope === 'this_and_future' ? 'this_and_future' : 'this_only'
   const installmentGroupId = deletingTransaction.value.installment_group_id
   const id = deletingTransaction.value.id
   try {
-    await store.deleteTransaction(id)
-    if (isRecurring && groupId) {
-      store.removeTransactionGroup(groupId)
+    await store.deleteTransaction(id, isRecurring ? deleteScope : undefined)
+    if (isRecurring) {
+      // Other occurrences may have gone too ("esta e as futuras"): reload what the server kept
+      await loadTransactions()
     } else if (installmentGroupId) {
       store.transactions = store.transactions.filter(
         (t) => t.installment_group_id !== installmentGroupId,
       )
     }
     loadCurrentMonthSummary()
-    toast.success(isRecurring ? 'Série fix excluída' : 'Transação excluída')
+    toast.success(isRecurring && deleteScope === 'this_and_future' ? 'Série encerrada a partir desta' : 'Transação excluída')
     deleteOpen.value = false
     deletingTransaction.value = null
   } catch {
@@ -1019,13 +1022,26 @@ onMounted(async () => {
   />
 
   <ConfirmDialog
-    v-model:open="deleteOpen"
-    :title="isRecurringDelete ? 'Excluir série fix' : 'Excluir transação'"
+    :open="deleteOpen && !isRecurringDelete"
+    title="Excluir transação"
     :description="deleteDescription"
-    :confirm-label="isRecurringDelete ? 'Excluir todas' : 'Excluir'"
+    confirm-label="Excluir"
     variant="destructive"
     :loading="deleting"
+    @update:open="deleteOpen = $event"
+    @confirm="confirmDelete()"
+  />
+  <RecurringEditScopeDialog
+    :open="deleteOpen && isRecurringDelete"
+    mode="delete"
+    :loading="deleting"
+    @update:open="deleteOpen = $event"
     @confirm="confirmDelete"
+  />
+  <ConfirmTransactionSheet
+    v-model:open="quickConfirmOpen"
+    :transaction="quickConfirmTarget"
+    @confirmed="handleTransactionConfirmed"
   />
 
   <!-- Transaction detail bottom sheet -->
