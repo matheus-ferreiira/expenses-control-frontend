@@ -295,3 +295,20 @@ export interface TransactionFilters {
   sort_by?: 'transaction_date' | 'amount' | 'description' | 'created_at'
   sort_direction?: 'asc' | 'desc'
 }
+
+/** Fatura de cartão descontada do saldo previsto (valor ainda a pagar). */
+export interface CardStatementDue {
+  card_id: string
+  card_name: string
+  cycle: string
+  due_on: string
+  remaining_cents: number
+}
+
+export interface HistoricalBalance {
+  balance: number
+  /** Saldo + previstos − faturas de cartão que vencem até o fim do mês */
+  projected_balance: number
+  card_due?: number
+  card_statements?: CardStatementDue[]
+}

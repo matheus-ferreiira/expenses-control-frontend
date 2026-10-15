@@ -28,7 +28,7 @@ import { useTransactionFilters, type QuickFilter } from '@/features/finance/comp
 import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
-import { currentMonth } from '@/features/finance/utils/financeHelpers'
+import { currentMonth, formatDayMonth } from '@/features/finance/utils/financeHelpers'
 import type { CardOverview, CreditCard, Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
@@ -177,7 +177,12 @@ const localProjectedBalance = computed(() =>
   totalBalance.value + pendingIncome.value - pendingExpenses.value
 )
 
-const { projectedBalance: historicalProjected } = useHistoricalBalance(
+const {
+  projectedBalance: historicalProjected,
+  cardDue,
+  cardStatementsDue,
+  reload: reloadHistoricalBalance,
+} = useHistoricalBalance(
   computed(() => filterState.month.value),
 )
 
@@ -213,13 +218,14 @@ function openCardStatement(card: CreditCard, cycle?: string) {
 }
 
 async function onStatementPaid() {
-  await Promise.all([loadCardOverviews(), loadTransactions(), loadCurrentMonthSummary(), store.fetchAccounts()])
+  await Promise.all([loadCardOverviews(), loadTransactions(), loadCurrentMonthSummary(), store.fetchAccounts(), reloadHistoricalBalance()])
 }
 
 // Lançamentos feitos em qualquer tela (inclusive pelo "+" global) atualizam totais e cartões
 watch(() => store.transactionsVersion, () => {
   loadCurrentMonthSummary()
   loadCardOverviews()
+  reloadHistoricalBalance()
 })
 
 // ── Balance detail sheet ──────────────────────────────────────────────────────
@@ -739,10 +745,24 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- Faturas de cartão descontadas do previsto -->
+        <div v-if="cardDue > 0" class="mt-3 rounded-md bg-muted px-3 py-2 space-y-1">
+          <div
+            v-for="s in cardStatementsDue"
+            :key="s.card_id + s.cycle"
+            class="flex items-center justify-between gap-3 text-[12px]"
+          >
+            <span class="text-muted-foreground truncate">
+              Fatura {{ s.card_name }} · vence {{ formatDayMonth(s.due_on) }}
+            </span>
+            <span class="tabular-nums font-medium text-destructive shrink-0">−{{ formatCurrency(s.remaining_cents / 100) }}</span>
+          </div>
+        </div>
+
         <!-- Footer note -->
         <div class="border-t border-border mt-3 pt-3">
           <p class="text-[11px] text-muted-foreground leading-snug">
-            considera transações agendadas e recorrentes pendentes
+            considera transações agendadas, recorrentes pendentes e faturas de cartão que vencem até o fim do mês
           </p>
         </div>
       </div>

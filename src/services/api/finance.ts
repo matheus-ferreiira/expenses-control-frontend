@@ -6,6 +6,7 @@ import type {
   Budget,
   CardOverview,
   CardStatementDetail,
+  HistoricalBalance,
   CreditCard,
   CreateBudgetDTO,
   CreateGoalDTO,
@@ -237,7 +238,7 @@ export const financeApi = {
 
   getHistoricalBalance: (year: number, month: number) =>
     client
-      .get<ApiResponse<{ balance: number; projected_balance: number }>>(
+      .get<ApiResponse<HistoricalBalance>>(
         API_ENDPOINTS.FINANCE.BALANCE_HISTORICAL,
         { params: { year, month } },
       )
