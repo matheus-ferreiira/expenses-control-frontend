@@ -19,6 +19,8 @@ const props = defineProps<{
   /** Resumo calculado no backend; null enquanto carrega ou para cartões arquivados */
   overview?: CardOverview | null
   loading?: boolean
+  /** Versão para a Visão Geral: sem o menu de editar/arquivar/excluir */
+  compact?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -76,7 +78,7 @@ const money = (cents: number) => formatCurrency(cents / 100)
           </div>
         </div>
 
-        <DropdownMenu>
+        <DropdownMenu v-if="!compact">
           <DropdownMenuTrigger as-child>
             <Button variant="ghost" size="icon" aria-label="Opções do cartão" class="min-h-[44px] min-w-[44px] shrink-0 -mr-2 -mt-1">
               <MoreHorizontal :size="13" aria-hidden="true" />

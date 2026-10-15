@@ -18,6 +18,8 @@ import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
 import TransactionDetailSheet from '@/features/finance/components/TransactionDetailSheet.vue'
 import BalanceDetailSheet from '@/features/finance/components/BalanceDetailSheet.vue'
+import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
+import CardStatementSheet from '@/features/finance/components/CardStatementSheet.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useAuthStore } from '@/stores/auth'
@@ -27,7 +29,7 @@ import { useHistoricalBalance } from '@/features/finance/composables/useHistoric
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { currentMonth } from '@/features/finance/utils/financeHelpers'
-import type { Transaction } from '@/types/finance'
+import type { CardOverview, CreditCard, Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
 const authStore = useAuthStore()
@@ -107,6 +109,7 @@ function onDetailDuplicate(t: Transaction) {
     amount: t.amount.toString(),
     category_id: t.category_id ?? undefined,
     account_id: t.account_id ?? undefined,
+    card_id: t.card_id ?? undefined,
   }
   // Duplicate with today as date and without recurrence/installments
   // (fromTransaction in the form clears is_recurring and total_installments)
@@ -116,7 +119,7 @@ function onDetailDuplicate(t: Transaction) {
 async function handleTransactionConfirmed(updated: Transaction) {
   const idx = store.transactions.findIndex((t) => t.id === updated.id)
   if (idx !== -1) store.transactions[idx] = updated
-  await Promise.all([store.fetchAll(), loadCurrentMonthSummary()])
+  await Promise.all([store.fetchAll(), loadCurrentMonthSummary(), loadCardOverviews()])
   toast.success('Transação confirmada')
 }
 
@@ -131,7 +134,7 @@ async function handleQuickConfirm(t: Transaction) {
 
 /** Card "Pendentes da semana" confirmou algo — recarrega saldos, resumo e lista */
 async function onWeeklyPendingConfirmed() {
-  await Promise.all([store.fetchAll(), loadTransactions(), loadCurrentMonthSummary()])
+  await Promise.all([store.fetchAll(), loadTransactions(), loadCurrentMonthSummary(), loadCardOverviews()])
 }
 
 const isRecurringDelete = computed(() => !!deletingTransaction.value?.recurrence_group_id)
@@ -180,6 +183,44 @@ const { projectedBalance: historicalProjected } = useHistoricalBalance(
 
 // Displayed projected balance: API value (cumulative for future months) with local fallback
 const projectedBalance = computed(() => historicalProjected.value ?? localProjectedBalance.value)
+
+// ── Cartões: fatura a pagar, fatura aberta e limite real (backend) ─────────────
+const cardOverviews = ref<Record<string, CardOverview>>({})
+const loadingCardOverviews = ref(false)
+const statementOpen = ref(false)
+const statementCard = ref<CreditCard | null>(null)
+const statementCycle = ref<string | null>(null)
+
+async function loadCardOverviews() {
+  if (!store.cards.length) await store.fetchCards()
+  loadingCardOverviews.value = true
+  try {
+    const entries = await Promise.all(
+      store.activeCards.map(async (card) => [card.id, await financeApi.cards.overview(card.id)] as const),
+    )
+    cardOverviews.value = Object.fromEntries(entries)
+  } catch {
+    // o restante da Visão Geral continua funcionando sem o resumo do cartão
+  } finally {
+    loadingCardOverviews.value = false
+  }
+}
+
+function openCardStatement(card: CreditCard, cycle?: string) {
+  statementCard.value = card
+  statementCycle.value = cycle ?? null
+  statementOpen.value = true
+}
+
+async function onStatementPaid() {
+  await Promise.all([loadCardOverviews(), loadTransactions(), loadCurrentMonthSummary(), store.fetchAccounts()])
+}
+
+// Lançamentos feitos em qualquer tela (inclusive pelo "+" global) atualizam totais e cartões
+watch(() => store.transactionsVersion, () => {
+  loadCurrentMonthSummary()
+  loadCardOverviews()
+})
 
 // ── Balance detail sheet ──────────────────────────────────────────────────────
 const balanceSheetOpen = ref(false)
@@ -537,7 +578,7 @@ onMounted(async () => {
   }
   const now = new Date()
   await Promise.all([
-    store.fetchAll(),
+    store.fetchAll().then(loadCardOverviews),
     loadTransactions(),
     loadCurrentMonthSummary(),
     loadPrevMonthReport(),
@@ -639,8 +680,20 @@ onMounted(async () => {
         @select-month="filterState.month.value = $event"
       />
 
+      <!-- Cartões: fatura a pagar, fatura aberta, limite real e próximas faturas -->
+      <CreditCardCard
+        v-for="card in store.activeCards"
+        :key="card.id"
+        :card="card"
+        :overview="cardOverviews[card.id] ?? null"
+        :loading="loadingCardOverviews"
+        compact
+        @statement="openCardStatement"
+      />
+
       <!-- Pendentes da semana — confirmação 1-toque -->
       <PendingThisWeekCard @confirmed="onWeeklyPendingConfirmed" />
+
 
       <!-- Saldo previsto -->
       <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card rounded-lg p-4">
@@ -922,6 +975,13 @@ onMounted(async () => {
     </div>
 
   </AppPageContainer>
+
+  <CardStatementSheet
+    v-model:open="statementOpen"
+    :card="statementCard"
+    :initial-cycle="statementCycle"
+    @paid="onStatementPaid"
+  />
 
   <BalanceDetailSheet
     v-model:open="balanceSheetOpen"

@@ -51,6 +51,8 @@ export const useFinanceStore = defineStore('finance', () => {
       loadingTags.value,
   )
   const error = ref<string | null>(null)
+  /** Incrementado a cada criação, edição ou exclusão de transação — telas que exibem totais observam e recarregam. */
+  const transactionsVersion = ref(0)
 
   const activeAccounts = computed(() => accounts.value.filter((a) => a.is_active))
   const archivedAccounts = computed(() => accounts.value.filter((a) => !a.is_active))
@@ -142,6 +144,7 @@ export const useFinanceStore = defineStore('finance', () => {
       }
       // Refresh account balances since backend adjusts them on transaction create
       fetchAccounts().catch(() => {})
+      transactionsVersion.value++
       return result
     } catch (e: unknown) {
       error.value = 'Erro ao criar transação'
@@ -159,6 +162,7 @@ export const useFinanceStore = defineStore('finance', () => {
       if (idx !== -1) transactions.value[idx] = updated
       // Refresh account balances since backend may adjust them on transaction update
       fetchAccounts().catch(() => {})
+      transactionsVersion.value++
       return updated
     } catch (e: unknown) {
       error.value = 'Erro ao atualizar transação'
@@ -172,6 +176,7 @@ export const useFinanceStore = defineStore('finance', () => {
       transactions.value = transactions.value.filter((t) => t.id !== id)
       // Refresh account balances since backend reverses the balance on delete
       fetchAccounts().catch(() => {})
+      transactionsVersion.value++
     } catch (e: unknown) {
       error.value = 'Erro ao excluir transação'
       throw e
@@ -425,6 +430,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
   return {
     accounts,
+    transactionsVersion,
     cards,
     transactions,
     transactionsMeta,

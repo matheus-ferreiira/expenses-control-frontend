@@ -28,6 +28,7 @@ export interface TransactionPrefill {
   amount?: string
   category_id?: string
   account_id?: string
+  card_id?: string
 }
 
 const props = defineProps<{
@@ -50,14 +51,38 @@ const { form, errors, submitting, fromTransaction, reset, validate, applyApiErro
 // ── UI state ─────────────────────────────────────────────────────────────────
 const amountInputRef = ref<HTMLInputElement | null>(null)
 
-// ── Payment method (account vs credit card) ──────────────────────────────────
-const paymentMethodTab = ref<'account' | 'card'>('account')
+// ── Onde pagou: UMA conta OU UM cartão (nunca os dois) ────────────────────────
+// Compra no cartão não sai da conta; sai só quando a fatura é paga.
+const LAST_PAYMENT_KEY = 'vault:last-payment'
 
-function setPaymentMethodTab(tab: 'account' | 'card') {
-  paymentMethodTab.value = tab
-  if (tab === 'account') form.card_id = ''
-  else form.account_id = ''
+function selectAccount(id: string) {
+  form.account_id = id
+  form.card_id = ''
 }
+
+function selectCard(id: string) {
+  form.card_id = id
+  form.account_id = ''
+}
+
+function rememberPayment() {
+  try {
+    localStorage.setItem(LAST_PAYMENT_KEY, JSON.stringify(form.card_id ? { kind: 'card', id: form.card_id } : { kind: 'account', id: form.account_id }))
+  } catch { /* preferência opcional */ }
+}
+
+/** Pré-seleciona o último meio usado (cartão só em despesa); senão a primeira conta. */
+function applyDefaultPayment() {
+  let last: { kind?: string; id?: string } = {}
+  try { last = JSON.parse(localStorage.getItem(LAST_PAYMENT_KEY) ?? '{}') } catch { last = {} }
+  if (form.type === 'expense' && last.kind === 'card' && store.activeCards.some((c) => c.id === last.id)) return selectCard(last.id!)
+  if (last.kind === 'account' && store.activeAccounts.some((a) => a.id === last.id)) return selectAccount(last.id!)
+  selectAccount(store.activeAccounts[0]?.id ?? '')
+}
+
+// Enquanto o formulário é preenchido a partir de uma transação/prefill, mudanças de tipo
+// não devem limpar a categoria nem a forma de pagamento.
+let syncingForm = false
 
 // ── Form validity ─────────────────────────────────────────────────────────────
 const isFormValid = computed(() => {
@@ -286,38 +311,44 @@ const submitLabel = computed(() => {
 
 watch(
   () => props.open,
-  (isOpen) => {
-    if (isOpen) {
-      if (!store.categories.length) store.fetchCategories()
-      if (!store.activeAccounts.length) store.fetchAccounts()
-      if (!store.tags.length) store.fetchTags()
-      if (!store.goals.length) store.fetchGoals()
-      if (props.transaction) fromTransaction(props.transaction)
-      else {
-        reset()
-        if (props.prefill) {
-          const p = props.prefill
-          if (p.type) form.type = p.type
-          if (p.description) form.description = p.description
-          if (p.amount) form.amount = p.amount
-          if (p.category_id) form.category_id = p.category_id
-          if (p.account_id) form.account_id = p.account_id
-        }
-        if (!form.account_id && store.activeAccounts.length > 0) {
-          form.account_id = store.activeAccounts[0]?.id ?? ''
-        }
-      }
-      nextTick(() => setTimeout(() => amountInputRef.value?.focus(), 150))
+  async (isOpen) => {
+    if (!isOpen) return
+    if (!store.categories.length) store.fetchCategories()
+    if (!store.tags.length) store.fetchTags()
+    if (!store.goals.length) store.fetchGoals()
+    // Contas e cartões precisam estar carregados para mostrar "Onde pagou" (o "+" global abre de qualquer tela)
+    await Promise.all([
+      store.activeAccounts.length ? null : store.fetchAccounts(),
+      store.cards.length ? null : store.fetchCards(),
+    ])
+    syncingForm = true
+    if (props.transaction) fromTransaction(props.transaction)
+    else {
+      reset()
+      const p = props.prefill
+      if (p?.type) form.type = p.type
+      if (p?.description) form.description = p.description
+      if (p?.amount) form.amount = p.amount
+      if (p?.category_id) form.category_id = p.category_id
+      if (p?.card_id && form.type === 'expense') selectCard(p.card_id)
+      else if (p?.account_id) selectAccount(p.account_id)
+      else applyDefaultPayment()
     }
+    await nextTick()
+    syncingForm = false
+    setTimeout(() => amountInputRef.value?.focus(), 150)
   },
 )
 
 watch(
   () => form.type,
   (newType) => {
+    if (syncingForm) return
     form.category_id = ''
     if (newType !== 'transfer') form.destination_account_id = ''
     if (newType === 'transfer') form.total_installments = 0
+    // Cartão só vale para despesa
+    if (newType !== 'expense' && form.card_id) applyDefaultPayment()
   },
 )
 
@@ -349,6 +380,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
     } else {
       const result = await store.createTransaction(toPayload())
       const created = Array.isArray(result) ? result[0]! : result
+      rememberPayment()
       emit('created', created)
       toast.success('Transação registrada')
       if ('vibrate' in navigator) navigator.vibrate(50)
@@ -356,8 +388,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
     close()
   } catch (err: unknown) {
     if (isAxiosError(err) && err.response?.status === 422) {
-      applyApiErrors(err.response.data?.errors ?? {})
-      toast.error('Verifique os campos do formulário')
+      const apiErrors: Record<string, string[]> = err.response.data?.errors ?? {}
+      applyApiErrors(apiErrors)
+      toast.error(Object.values(apiErrors)[0]?.[0] ?? err.response.data?.message ?? 'Verifique os campos do formulário')
     } else {
       toast.error('Erro ao salvar transação')
     }
@@ -665,40 +698,19 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
           </template>
 
-          <!-- Single account (or card) for income/expense -->
+          <!-- Onde pagou / recebeu: uma conta OU um cartão (cartão só em despesa) -->
           <div v-else>
-            <div class="flex items-center justify-between mb-2">
-              <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-                Forma de pagamento <span class="text-destructive">*</span>
-              </p>
-              <div v-if="form.type === 'expense' && store.cards.length > 0" class="flex gap-1.5">
-                <button
-                  type="button"
-                  class="h-6 px-2.5 rounded-full text-[11px] font-medium transition-colors"
-                  :class="paymentMethodTab === 'account' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'"
-                  @click="setPaymentMethodTab('account')"
-                >
-                  Conta
-                </button>
-                <button
-                  type="button"
-                  class="h-6 px-2.5 rounded-full text-[11px] font-medium transition-colors"
-                  :class="paymentMethodTab === 'card' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'"
-                  @click="setPaymentMethodTab('card')"
-                >
-                  Cartão
-                </button>
-              </div>
-            </div>
-
-            <div v-if="paymentMethodTab === 'account'" class="space-y-1.5">
+            <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
+              {{ form.type === 'income' ? 'Recebido em' : 'Onde pagou' }} <span class="text-destructive">*</span>
+            </p>
+            <div class="space-y-1.5">
               <button
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 type="button"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-                :class="form.account_id === acc.id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
-                @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted transition-colors duration-150 outline-none active:scale-[0.99]"
+                :aria-pressed="form.account_id === acc.id"
+                @click="selectAccount(acc.id)"
               >
                 <span
                   class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold"
@@ -707,37 +719,37 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   {{ acc.name.charAt(0).toUpperCase() }}
                 </span>
                 <div class="min-w-0 flex-1 text-left">
-                  <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
-                  <p class="text-[11px] text-muted-foreground capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
+                  <p class="text-[13px] font-medium truncate" :class="form.account_id === acc.id ? 'text-primary' : 'text-foreground'">{{ acc.name }}</p>
+                  <p class="text-[11px] text-muted-foreground">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }} · sai do saldo agora</p>
                 </div>
                 <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
                   {{ formatCurrency(acc.balance) }}
                 </span>
-                <Check v-if="form.account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
+                <Check v-if="form.account_id === acc.id" :size="16" class="text-primary shrink-0" aria-hidden="true" />
               </button>
-            </div>
 
-            <div v-else class="space-y-1.5">
-              <button
-                v-for="c in store.activeCards"
-                :key="c.id"
-                type="button"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-                :class="form.card_id === c.id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
-                @click="form.card_id = form.card_id === c.id ? '' : c.id"
-              >
-                <span
-                  class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold text-foreground"
-                  :style="{ background: c.color || 'hsl(var(--muted))' }"
+              <template v-if="form.type === 'expense'">
+                <button
+                  v-for="c in store.activeCards"
+                  :key="c.id"
+                  type="button"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted transition-colors duration-150 outline-none active:scale-[0.99]"
+                  :aria-pressed="form.card_id === c.id"
+                  @click="selectCard(c.id)"
                 >
-                  {{ c.name.substring(0, 2).toUpperCase() }}
-                </span>
-                <div class="min-w-0 flex-1 text-left">
-                  <p class="text-[13px] font-medium text-foreground truncate">{{ c.name }}</p>
-                  <p class="text-[11px] text-muted-foreground">Fecha dia {{ c.closing_day }} · Vence dia {{ c.due_day }}</p>
-                </div>
-                <Check v-if="form.card_id === c.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
-              </button>
+                  <span
+                    class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[11px] font-semibold text-foreground"
+                    :style="{ background: c.color || 'hsl(var(--muted))' }"
+                  >
+                    <CreditCard :size="14" />
+                  </span>
+                  <div class="min-w-0 flex-1 text-left">
+                    <p class="text-[13px] font-medium truncate" :class="form.card_id === c.id ? 'text-primary' : 'text-foreground'">Cartão {{ c.name }}</p>
+                    <p class="text-[11px] text-muted-foreground">Crédito · entra na fatura (fecha dia {{ c.closing_day }})</p>
+                  </div>
+                  <Check v-if="form.card_id === c.id" :size="16" class="text-primary shrink-0" aria-hidden="true" />
+                </button>
+              </template>
             </div>
             <p v-if="errors.account_id" class="text-[11px] text-destructive mt-1">{{ errors.account_id }}</p>
           </div>
