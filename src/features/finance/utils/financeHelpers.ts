@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 import { Landmark, PiggyBank, TrendingUp, Wallet } from 'lucide-vue-next'
-import type { Transaction, TransactionType, AccountType } from '@/types/finance'
+import type { Transaction, TransactionType, AccountType, CardStatementInfo } from '@/types/finance'
 import { toISODate } from '@/utils/date'
 
 // ── Month helpers ──────────────────────────────────────────────────────────
@@ -263,6 +263,62 @@ export function getCardBillingPeriod(
     dueDate,
     label: `${formatDayMonth(startDate)} – ${formatDayMonth(endDate)}`,
   }
+}
+
+// ── Credit card statements (status comes from the backend) ─────────────────
+
+/** Days from `today` until a YYYY-MM-DD date (negative when it has passed). */
+export function daysUntil(dateStr: string, today: string = toISODate(new Date())): number {
+  const [y1, m1, d1] = today.split('-').map(Number)
+  const [y2, m2, d2] = dateStr.split('-').map(Number)
+  return Math.round((Date.UTC(y2!, m2! - 1, d2!) - Date.UTC(y1!, m1! - 1, d1!)) / 86_400_000)
+}
+
+export type StatementTone = 'ok' | 'warn' | 'danger' | 'muted'
+
+function dueText(dueOn: string, today?: string): string {
+  const days = daysUntil(dueOn, today)
+  if (days === 0) return 'vence hoje'
+  if (days === 1) return 'vence amanhã'
+  return `vence em ${days} dias (${formatDayMonth(dueOn)})`
+}
+
+/** Human label for a statement: "Fechada · vence em 5 dias (20 out)", "Venceu em 20 out", "Paga"… */
+export function statementStatusInfo(
+  s: Pick<CardStatementInfo, 'status' | 'closing_on' | 'due_on'>,
+  today?: string,
+): { label: string; tone: StatementTone } {
+  switch (s.status) {
+    case 'historical':
+      return { label: 'Quitada (histórico)', tone: 'muted' }
+    case 'paid':
+      return { label: 'Paga', tone: 'ok' }
+    case 'empty':
+      return { label: 'Sem lançamentos', tone: 'muted' }
+    case 'future':
+      return { label: `Futura · fecha ${formatDayMonth(s.closing_on)}`, tone: 'muted' }
+    case 'open':
+      return { label: `Aberta · fecha ${formatDayMonth(s.closing_on)}`, tone: 'muted' }
+    case 'overdue':
+      return { label: `Venceu em ${formatDayMonth(s.due_on)}`, tone: 'danger' }
+    case 'partial':
+      return { label: `Parcialmente paga · ${dueText(s.due_on, today)}`, tone: 'warn' }
+    case 'closed': {
+      const days = daysUntil(s.due_on, today)
+      return { label: `Fechada · ${dueText(s.due_on, today)}`, tone: days <= 5 ? 'warn' : 'muted' }
+    }
+  }
+}
+
+/** "14 set – 13 out" */
+export function statementPeriodLabel(s: Pick<CardStatementInfo, 'start_on' | 'closing_on'>): string {
+  return `${formatDayMonth(s.start_on)} – ${formatDayMonth(s.closing_on)}`
+}
+
+/** "out/2026" for a cycle "2026-10" (the due month). */
+export function cycleLabel(cycle: string): string {
+  const [y, m] = cycle.split('-').map(Number)
+  return `${MON_ABBR[(m ?? 1) - 1]}/${y}`
 }
 
 // ── Credit card utilization ────────────────────────────────────────────────

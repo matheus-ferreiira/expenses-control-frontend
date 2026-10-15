@@ -4,6 +4,8 @@ import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
   BankAccount,
   Budget,
+  CardOverview,
+  CardStatementDetail,
   CreditCard,
   CreateBudgetDTO,
   CreateGoalDTO,
@@ -48,7 +50,16 @@ export const financeApi = {
   },
 
   cards: {
-    statement: (id: string, cycle: string) => client.get<ApiResponse<{ transactions: Transaction[]; payments: Transaction[]; charges_cents: number; paid_cents: number; remaining_cents: number; manual_cents: number | null; difference_cents: number | null }>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/statement`, { params: { cycle } }).then(unwrap),
+    statement: (id: string, cycle: string) =>
+      client
+        .get<ApiResponse<CardStatementDetail>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/statement`, { params: { cycle } })
+        .then(unwrap),
+
+    /** Faturas a pagar, fatura aberta, próximas faturas e limite disponível real */
+    overview: (id: string) =>
+      client
+        .get<ApiResponse<CardOverview>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/overview`)
+        .then(unwrap),
     list: () =>
       client.get<ApiResponse<CreditCard[]>>(API_ENDPOINTS.FINANCE.CARDS).then(unwrap),
 

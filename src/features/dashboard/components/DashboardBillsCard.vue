@@ -10,7 +10,8 @@ defineProps<{
 }>()
 
 function dueLabel(days: number): string {
-  if (days === 0) return 'Hoje'
+  if (days < 0) return days === -1 ? 'Venceu ontem' : `Venceu há ${-days} dias`
+  if (days === 0) return 'Vence hoje'
   if (days === 1) return 'Amanhã'
   return `Em ${days} dias`
 }
@@ -39,7 +40,7 @@ function dueLabelClass(days: number): string {
 
     <!-- Empty -->
     <div v-else-if="bills.length === 0" class="px-4 py-4 text-center">
-      <p class="text-xs text-muted-foreground">Nenhuma conta nos próximos 10 dias.</p>
+      <p class="text-xs text-muted-foreground">Nenhuma fatura de cartão a pagar.</p>
     </div>
 
     <!-- List -->

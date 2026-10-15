@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import { financeApi } from '@/services/api/finance'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { isToday, toISODate } from '@/utils/date'
+import { cycleLabel, daysUntil } from '@/features/finance/utils/financeHelpers'
 import type { Transaction } from '@/types/finance'
 import type { CashflowPeriod, CashflowPoint, UpcomingBill } from '../types'
 
@@ -176,28 +177,25 @@ export function useDashboard() {
 
   // ── Upcoming Bills (credit card due days) ─────────────────────────────────
 
-  const upcomingBills = computed((): UpcomingBill[] => {
-    const today = new Date()
-    const todayDay = today.getDate()
-    const LOOKAHEAD = 10
+  // Faturas fechadas ainda não quitadas, com o valor que falta pagar (backend).
+  const upcomingBills = ref<UpcomingBill[]>([])
 
-    return financeStore.activeCards
-      .map((card) => {
-        let daysUntilDue = card.due_day - todayDay
-        if (daysUntilDue < 0) daysUntilDue += 30
-        const dueDate = new Date(today)
-        dueDate.setDate(today.getDate() + daysUntilDue)
-        return {
-          id: card.id,
-          name: card.name,
-          dueDate: toISODate(dueDate),
-          amount: card.limit_amount,
-          daysUntilDue,
-        }
-      })
-      .filter((b) => b.daysUntilDue <= LOOKAHEAD)
+  async function loadUpcomingBills(): Promise<void> {
+    const overviews = await Promise.all(
+      financeStore.activeCards.map(async (card) => ({ card, overview: await financeApi.cards.overview(card.id) })),
+    )
+    upcomingBills.value = overviews
+      .flatMap(({ card, overview }) =>
+        overview.to_pay.map((s) => ({
+          id: `${card.id}-${s.cycle}`,
+          name: `Fatura ${card.name} · ${cycleLabel(s.cycle)}`,
+          dueDate: s.due_on,
+          amount: s.remaining_cents / 100,
+          daysUntilDue: daysUntil(s.due_on, overview.today),
+        })),
+      )
       .sort((a, b) => a.daysUntilDue - b.daysUntilDue)
-  })
+  }
 
   // ── Greeting ──────────────────────────────────────────────────────────────
 
@@ -255,7 +253,7 @@ export function useDashboard() {
         taskStore.fetchTasks(),
         habitStore.fetchHabits(),
         financeStore.fetchAccounts(),
-        financeStore.fetchCards(),
+        financeStore.fetchCards().then(loadUpcomingBills).catch(() => { upcomingBills.value = [] }),
         txFetch,
         calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
       ])

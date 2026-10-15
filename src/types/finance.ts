@@ -63,6 +63,45 @@ export interface CreditCard {
   created_at: string
 }
 
+/** Situação de uma fatura, calculada no backend (CardCycle::status). */
+export type CardStatementStatus =
+  | 'future' | 'open' | 'closed' | 'partial' | 'overdue' | 'paid' | 'empty' | 'historical'
+
+/** Uma fatura identificada pelo mês de vencimento ("YYYY-MM"). Valores em centavos. */
+export interface CardStatementInfo {
+  cycle: string
+  start_on: string
+  closing_on: string
+  due_on: string
+  status: CardStatementStatus
+  charges_cents: number
+  paid_cents: number
+  remaining_cents: number
+}
+
+export interface CardStatementDetail extends CardStatementInfo {
+  historical: boolean
+  transactions: Transaction[]
+  payments: Transaction[]
+  documentary_cents: number | null
+  manual_cents: number | null
+  difference_cents: number | null
+}
+
+/** Resumo do cartão: faturas a pagar, fatura aberta, próximas faturas e limite real. */
+export interface CardOverview {
+  card_id: string
+  today: string
+  open_cycle: string
+  to_pay: CardStatementInfo[]
+  open: CardStatementInfo
+  upcoming: CardStatementInfo[]
+  upcoming_total_cents: number
+  limit_cents: number
+  used_cents: number
+  available_cents: number
+}
+
 export interface Transaction {
   economic_kind?: string | null
   classification_status?: string | null

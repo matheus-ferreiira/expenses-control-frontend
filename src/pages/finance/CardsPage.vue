@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { AppBreadcrumbs } from '@/components/shared'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
@@ -10,10 +10,8 @@ import { Skeleton } from '@ui/skeleton'
 import { Plus, CreditCard, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
-import { getCardBillingPeriod } from '@/features/finance/utils/financeHelpers'
 import { financeApi } from '@/services/api/finance'
-import { toISODate } from '@/utils/date'
-import type { CreditCard as CreditCardType, Transaction } from '@/types/finance'
+import type { CardOverview, CreditCard as CreditCardType } from '@/types/finance'
 
 const store = useFinanceStore()
 const toast = useToast()
@@ -28,10 +26,30 @@ const loading = ref(false)
 // Statement sheet state
 const statementOpen = ref(false)
 const statementCard = ref<CreditCardType | null>(null)
+const statementCycle = ref<string | null>(null)
 
-function openStatement(card: CreditCardType) {
+function openStatement(card: CreditCardType, cycle?: string) {
   statementCard.value = card
+  statementCycle.value = cycle ?? null
   statementOpen.value = true
+}
+
+/** Resumo de cada cartão ativo, calculado no backend (faturas, compromissos e limite real). */
+const overviews = ref<Record<string, CardOverview>>({})
+const loadingOverviews = ref(false)
+
+async function loadOverviews() {
+  loadingOverviews.value = true
+  try {
+    const entries = await Promise.all(
+      store.activeCards.map(async (card) => [card.id, await financeApi.cards.overview(card.id)] as const),
+    )
+    overviews.value = Object.fromEntries(entries)
+  } catch {
+    toast.error('Erro ao carregar as faturas dos cartões')
+  } finally {
+    loadingOverviews.value = false
+  }
 }
 
 // Archive / unarchive state
@@ -39,9 +57,6 @@ const archiveOpen = ref(false)
 const archiveTarget = ref<CreditCardType | null>(null)
 const archiving = ref(false)
 const showArchived = ref(false)
-
-/** All transactions from the last 60 days — covers any possible billing cycle */
-const billingTransactions = ref<Transaction[]>([])
 
 function openCreate() {
   editingCard.value = null
@@ -102,55 +117,14 @@ async function unarchiveCard(card: CreditCardType) {
   }
 }
 
-/**
- * Billing period for each card — computed from closing_day.
- * Result is a Map so we avoid recomputing per render.
- */
-const billingPeriods = computed(() => {
-  const map = new Map<string, ReturnType<typeof getCardBillingPeriod>>()
-  for (const card of store.cards) {
-    map.set(card.id, getCardBillingPeriod(card.closing_day, card.due_day))
-  }
-  return map
-})
-
-/**
- * Amount charged to a card in its current billing period.
- * Uses billingTransactions (60-day window) instead of the calendar-month store.transactions.
- */
-function cardUsed(cardId: string): number {
-  const period = billingPeriods.value.get(cardId)
-  if (!period) return 0
-  return billingTransactions.value
-    .filter((t) =>
-      t.card_id === cardId &&
-      t.type === 'expense' &&
-      t.transaction_date >= period.startDate &&
-      t.transaction_date <= period.endDate,
-    )
-    .reduce((s, t) => s + t.amount, 0)
-}
-
 onMounted(async () => {
   loading.value = true
   try {
-    await store.fetchCards()
-
-    // Load 60 days of transactions — enough to cover any billing cycle
-    // (billing period is at most 31 days, can span 2 calendar months)
-    const end = new Date()
-    const start = new Date()
-    start.setDate(start.getDate() - 60)
-
-    const result = await financeApi.transactions.list({
-      start_date: toISODate(start),
-      end_date: toISODate(end),
-      per_page: 500,
-    })
-    billingTransactions.value = result.data
+    await Promise.all([store.fetchCards(), store.activeAccounts.length ? Promise.resolve() : store.fetchAccounts()])
   } finally {
     loading.value = false
   }
+  await loadOverviews()
 })
 </script>
 
@@ -221,11 +195,10 @@ onMounted(async () => {
           v-for="card in store.activeCards"
           :key="card.id"
           :card="card"
-          :used-amount="cardUsed(card.id)"
-          :billing-period="billingPeriods.get(card.id)"
+          :overview="overviews[card.id] ?? null"
+          :loading="loadingOverviews"
           @edit="openEdit"
           @delete="openDelete"
-          @pay="openEdit"
           @archive="requestArchive"
           @unarchive="unarchiveCard"
           @statement="openStatement"
@@ -247,11 +220,8 @@ onMounted(async () => {
             v-for="card in store.archivedCards"
             :key="card.id"
             :card="card"
-            :used-amount="0"
-            :billing-period="billingPeriods.get(card.id)"
             @edit="openEdit"
             @delete="openDelete"
-            @pay="openEdit"
             @archive="requestArchive"
             @unarchive="unarchiveCard"
           />
@@ -269,7 +239,8 @@ onMounted(async () => {
   <CardStatementSheet
     v-model:open="statementOpen"
     :card="statementCard"
-    @select-transaction="() => {}"
+    :initial-cycle="statementCycle"
+    @paid="loadOverviews"
   />
 
   <!-- Archive confirmation -->
