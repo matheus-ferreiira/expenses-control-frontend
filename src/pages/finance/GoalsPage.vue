@@ -6,6 +6,7 @@ import { AppPageContainer, PageHeader } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
+import { toISODate } from '@/utils/date'
 import type { FinanceGoal } from '@/types/finance'
 import GoalFormSheet from '@/features/finance/components/GoalFormSheet.vue'
 import {
@@ -53,19 +54,23 @@ function onGoalCreated(goal: FinanceGoal, createRecurring: boolean) {
 async function confirmCreateRecurring() {
   if (!pendingGoalForRecurring.value) return
   const goal = pendingGoalForRecurring.value
-  const today = new Date().toISOString().slice(0, 10)
-  const firstAccount = store.activeAccounts[0]
+  // Local date: toISOString() is UTC, so after 21h the contribution landed on the next day (D-30)
+  const today = toISODate(new Date())
+  // With its own account, a contribution is a transfer INTO it from another account; it used to be an
+  // expense debiting the goal account itself, which lowered the progress (D-16).
+  const source = store.activeAccounts.find((a) => a.id !== goal.bank_account_id)
   // Aportes suficientes para atingir a meta — a série termina quando ela é alcançada
   const monthsToGoal = Math.max(1, Math.ceil((goal.remaining ?? goal.target_amount) / goal.monthly_contribution))
   try {
     await store.createTransaction({
       description: `Aporte: ${goal.name}`,
       amount: goal.monthly_contribution,
-      type: 'expense',
       transaction_date: today,
       is_recurring: true,
       recurrence_config: { frequency: 'monthly', end_type: 'count', count: monthsToGoal },
-      account_id: goal.bank_account_id ?? firstAccount?.id,
+      ...(goal.bank_account_id && source
+        ? { type: 'transfer' as const, account_id: source.id, destination_account_id: goal.bank_account_id }
+        : { type: 'expense' as const, account_id: source?.id ?? store.activeAccounts[0]?.id }),
       goal_id: goal.id,
     })
     toast.success(`Aporte mensal criado — ${monthsToGoal} ${monthsToGoal === 1 ? 'mês' : 'meses'} até a meta`)

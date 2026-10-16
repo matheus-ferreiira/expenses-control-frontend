@@ -18,6 +18,8 @@ export interface TransactionFormData {
   card_id: string
   notes: string
   is_recurring: boolean
+  /** Income that gives back money already spent (a friend paying their share): not counted as income */
+  is_reimbursement: boolean
   /** Recurrence configuration when is_recurring=true */
   recurrence_frequency: RecurrenceFrequency
   recurrence_end_type: RecurrenceEndType
@@ -48,6 +50,7 @@ const DEFAULTS: TransactionFormData = {
   card_id: '',
   notes: '',
   is_recurring: false,
+  is_reimbursement: false,
   recurrence_frequency: 'monthly',
   recurrence_end_type: 'never',
   recurrence_count: 12,
@@ -77,6 +80,7 @@ export function useTransactionForm() {
     form.card_id = t.card_id ?? ''
     form.notes = t.notes ?? ''
     form.is_recurring = t.is_recurring
+    form.is_reimbursement = t.economic_kind === 'reimbursement'
     // Restore recurrence_config if present
     const cfg = t.recurrence_config as Record<string, unknown> | null
     form.recurrence_frequency = (cfg?.frequency as RecurrenceFrequency) ?? 'monthly'
@@ -166,6 +170,7 @@ export function useTransactionForm() {
       }
     }
     if (form.tag_ids.length > 0) payload.tag_ids = [...form.tag_ids]
+    payload.is_reimbursement = form.type === 'income' && form.is_reimbursement
     return payload
   }
 

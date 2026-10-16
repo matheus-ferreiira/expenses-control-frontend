@@ -27,22 +27,7 @@ const year = ref(today.getFullYear())
 const month = ref(today.getMonth() + 1)
 
 const loading = ref(false)
-const report = ref<{
-  year: number
-  month: number
-  income: number
-  expenses: number
-  saved: number
-  balance: number
-  transactions_count: number
-  expenses_by_category: Array<{
-    category: string
-    color: string
-    total: number
-    count: number
-    percentage: number
-  }>
-} | null>(null)
+const report = ref<Awaited<ReturnType<typeof financeApi.monthlyReport>> | null>(null)
 
 const monthLabel = computed(() => `${MONTH_NAMES[month.value - 1]} de ${year.value}`)
 
@@ -142,34 +127,42 @@ const maxCategoryTotal = computed(() =>
   Math.max(...(report.value?.expenses_by_category.map((c) => c.total) ?? [1]), 1)
 )
 
-/** Narrative banner */
+/**
+ * Narrative banner: every sentence states its numbers and base (D-35). No judgement the data does not
+ * support ("ótimo mês", "principal fator"); partial, future and empty months are said as such.
+ */
 const narrative = computed(() => {
   if (!report.value) return null
-  const { income, expenses, saved, expenses_by_category } = report.value
-  const diff = expenses - income
-  const topCat = expenses_by_category[0]?.category ?? null
-  const savedNote = saved > 0 ? ` Você guardou ${formatCurrency(saved)} em metas.` : ''
-  if (diff > 0) {
+  const { income, expenses, saved, pending_income, pending_expenses, expenses_by_category, transactions_count } = report.value
+  const now = new Date()
+  const isCurrent = year.value === now.getFullYear() && month.value === now.getMonth() + 1
+  const isFuture = year.value > now.getFullYear() || (year.value === now.getFullYear() && month.value > now.getMonth() + 1)
+  const savedNote = saved > 0 ? ` Guardado em metas: ${formatCurrency(saved)}.` : ''
+  const pendingNote = pending_income > 0 || pending_expenses > 0
+    ? ` Ainda previstos: +${formatCurrency(pending_income)} e −${formatCurrency(pending_expenses)}.`
+    : ''
+  if (transactions_count === 0) {
+    return { tone: 'neutral' as const, icon: Sparkles, text: `Não há lançamentos em ${monthLabel.value}.` }
+  }
+  if (isFuture) {
+    return { tone: 'neutral' as const, icon: Sparkles, text: `${monthLabel.value} ainda não começou.${pendingNote}` }
+  }
+  const top = expenses_by_category[0]
+  const topNote = top && expenses > 0 ? ` Maior gasto: ${top.category}, ${formatCurrency(top.total)} (${top.percentage}% das despesas).` : ''
+  if (isCurrent) {
     return {
-      tone: 'danger' as const,
-      icon: AlertTriangle,
-      text: `Em ${monthLabel.value} você gastou ${formatCurrency(diff)} a mais do que recebeu.${topCat ? ` ${topCat} foi o principal fator.` : ''}${savedNote}`,
+      tone: 'neutral' as const,
+      icon: Sparkles,
+      text: `Até hoje (dia ${now.getDate()}): recebido ${formatCurrency(income)}, gasto ${formatCurrency(expenses)}.${pendingNote}${topNote}${savedNote}`,
     }
   }
-  if (income > 0 && expenses <= income * 0.8) {
-    return {
-      tone: 'ok' as const,
-      icon: TrendingUp,
-      text: `Ótimo mês! Gastos ficaram ${formatCurrency(income - expenses)} abaixo das receitas em ${monthLabel.value}.${savedNote}`,
-    }
-  }
+  const result = Math.round((income - expenses) * 100) / 100
   return {
-    tone: 'neutral' as const,
-    icon: Sparkles,
-    text: `${monthLabel.value} equilibrado. Gastos dentro das receitas em quase todas as categorias.${savedNote}`,
+    tone: result < 0 ? ('danger' as const) : ('ok' as const),
+    icon: result < 0 ? AlertTriangle : TrendingUp,
+    text: `Em ${monthLabel.value}: recebido ${formatCurrency(income)}, gasto ${formatCurrency(expenses)}, resultado ${formatCurrency(result)}.${topNote}${savedNote}`,
   }
 })
-
 const narrativeCls = computed(() => {
   if (!narrative.value) return ''
   if (narrative.value.tone === 'danger') return 'bg-muted text-destructive'

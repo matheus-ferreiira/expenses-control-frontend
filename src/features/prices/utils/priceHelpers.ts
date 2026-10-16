@@ -24,7 +24,7 @@ export function daysAgoISO(days: number): string {
   return d.toLocaleDateString('en-CA')
 }
 
-/** Chart series color tokens — resolved at runtime via CSS vars (same approach as FinanceCashflowChart). */
+/** Chart series color tokens — resolved at runtime via CSS vars. */
 export const PRICE_CHART_TOKENS = [
   '--chart-1',
   '--chart-3',

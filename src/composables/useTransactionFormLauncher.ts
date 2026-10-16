@@ -5,7 +5,7 @@ import type { TransactionType } from '@/types/finance'
 const transactionFormOpen = ref(false)
 const transactionFormPrefill = ref<{ type?: TransactionType } | null>(null)
 
-export function useTransactionForm() {
+export function useTransactionFormLauncher() {
   function openTransactionForm(prefill?: { type?: TransactionType }) {
     transactionFormPrefill.value = prefill ?? null
     transactionFormOpen.value = true

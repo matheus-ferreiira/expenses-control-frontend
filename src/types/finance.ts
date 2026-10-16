@@ -1,5 +1,5 @@
 export type TransactionType = 'income' | 'expense' | 'transfer'
-export type AccountType = 'checking' | 'savings' | 'investment' | 'wallet'
+export type AccountType = 'checking' | 'savings' | 'investment' | 'wallet' | 'cash'
 export type TransactionStatus = 'confirmed' | 'pending'
 
 export const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
@@ -18,6 +18,7 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   savings: 'Poupança',
   investment: 'Investimento',
   wallet: 'Carteira',
+  cash: 'Dinheiro',
 }
 
 export interface TransactionTag {
@@ -48,7 +49,22 @@ export interface BankAccount {
   currency: string
   color: string
   is_active: boolean
+  /** Última conferência de saldo (YYYY-MM-DD) */
+  last_checked_on?: string | null
+  /** A conta tem um ponto de partida conferido (entra no saldo reconstruído) */
+  balance_verified?: boolean
   created_at: string
+}
+
+/** Uma conferência de saldo: o valor visto no banco comparado ao que o app calcula para a data */
+export interface BalanceObservation {
+  id: string
+  kind: 'opening' | 'observation'
+  observed_on: string
+  observed_cents: number
+  calculated_cents: number | null
+  difference_cents: number | null
+  recorded_at: string
 }
 
 export interface CreditCard {
@@ -168,6 +184,10 @@ export interface BudgetSummary {
   total_budgeted: number
   total_budgeted_percentage: number
   total_spent: number
+  /** Gasto do mês em categorias sem item no orçamento */
+  unbudgeted_spent?: number
+  /** Gasto do mês sem categoria (o orçamento não consegue acompanhar) */
+  uncategorized_spent?: number
   free_amount: number
   free_percentage: number
   categories_percentage: number
@@ -269,6 +289,8 @@ export interface CreateTransactionPayload {
   notes?: string
   transaction_date: string
   is_recurring?: boolean
+  /** Receita que devolve dinheiro já gasto: não conta como renda */
+  is_reimbursement?: boolean
   recurrence_config?: Record<string, unknown>
   total_installments?: number
   tag_ids?: string[]
@@ -311,4 +333,6 @@ export interface HistoricalBalance {
   projected_balance: number
   card_due?: number
   card_statements?: CardStatementDue[]
+  /** Contas somadas pelo saldo registrado, sem saldo inicial conferido (ex.: carteira) */
+  unverified_accounts?: string[]
 }

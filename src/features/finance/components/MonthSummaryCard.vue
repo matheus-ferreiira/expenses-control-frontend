@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { CheckCircle2, AlertTriangle, PiggyBank } from 'lucide-vue-next'
 import MonthNavigator from './MonthNavigator.vue'
 import { formatCurrency } from '@/utils/currency'
-import type { Transaction } from '@/types/finance'
 
 const props = defineProps<{
   month: string
@@ -19,7 +18,8 @@ const props = defineProps<{
   expenseDelta: number | null
   loading: boolean
   transactionCount: number
-  biggestExpense: Transaction | null
+  /** Maior despesa do mês, calculada no backend sobre o mês inteiro */
+  biggestExpense: { amount: number; description: string; category: string | null } | null
   pendingIncome: number
   pendingExpenses: number
 }>()
@@ -129,7 +129,7 @@ defineEmits<{
       <div v-if="biggestExpense">
         <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Maior despesa</p>
         <p class="text-[14px] font-semibold tabular-nums text-destructive">{{ formatCurrency(biggestExpense.amount) }}</p>
-        <p class="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">{{ biggestExpense.category?.name ?? biggestExpense.description }}</p>
+        <p class="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">{{ biggestExpense.category ?? biggestExpense.description }}</p>
       </div>
       <div v-if="saved > 0">
         <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Guardado</p>

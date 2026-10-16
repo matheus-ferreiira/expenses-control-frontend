@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { useKeyboardShortcut } from '@/composables/useKeyboardShortcut'
-import { useTransactionForm } from '@/composables/useTransactionForm'
+import { useTransactionFormLauncher } from '@/composables/useTransactionFormLauncher'
 import AppSidebar from '@/components/shared/AppSidebar.vue'
 import CommandPalette from '@/components/shared/CommandPalette.vue'
 import QuickAddDialog from '@/components/shared/QuickAddDialog.vue'
@@ -16,7 +16,7 @@ const ui = useUiStore()
 const route = useRoute()
 const router = useRouter()
 useKeyboardShortcut()
-const { transactionFormOpen, transactionFormPrefill } = useTransactionForm()
+const { transactionFormOpen, transactionFormPrefill } = useTransactionFormLauncher()
 
 const mobileMenuOpen = ref(false)
 

@@ -11,7 +11,6 @@ export const API_ENDPOINTS = {
     PASSWORD: `${API_BASE}/auth/password`,
     FORGOT_PASSWORD: `${API_BASE}/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE}/auth/reset-password`,
-    RESET_DATA: `${API_BASE}/auth/reset-data`,
   },
   TASKS: {
     BASE: `${API_BASE}/tasks`,
@@ -59,6 +58,8 @@ export const API_ENDPOINTS = {
     REPORTS: `${API_BASE}/finance/reports`,
     REPORTS_MONTHLY: `${API_BASE}/finance/reports/monthly`,
     REPORTS_YEARLY: `${API_BASE}/finance/reports/yearly`,
+    REPORTS_SERIES: `${API_BASE}/finance/reports/series`,
+    REPORTS_CATEGORIES: `${API_BASE}/finance/reports/categories`,
     REPORTS_CASHFLOW: `${API_BASE}/finance/reports/cashflow`,
     REPORTS_BALANCE: `${API_BASE}/finance/reports/balance`,
     BUDGETS: `${API_BASE}/finance/budgets`,

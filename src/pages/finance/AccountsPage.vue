@@ -12,7 +12,7 @@ import { Plus, Landmark, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
-import type { BankAccount } from '@/types/finance'
+import type { BalanceObservation, BankAccount } from '@/types/finance'
 import { financeApi } from '@/services/api/finance'
 import {
   AlertDialog,
@@ -49,11 +49,31 @@ const adjustOpen = ref(false)
 const adjustTarget = ref<BankAccount | null>(null)
 const adjustDisplay = ref('')
 const adjusting = ref(false)
+// What the app calculates for today — the base the backend compares the check against (D-42)
+const adjustBase = ref<number | null>(null)
+const adjustHistory = ref<BalanceObservation[]>([])
 
-function openAdjust(account: BankAccount) {
+async function openAdjust(account: BankAccount) {
   adjustTarget.value = account
   adjustDisplay.value = account.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  adjustBase.value = account.balance
+  adjustHistory.value = []
   adjustOpen.value = true
+  try {
+    const [at, history] = await Promise.all([
+      financeApi.accounts.balanceAt(account.id, new Date().toLocaleDateString('en-CA')),
+      financeApi.accounts.balanceObservations(account.id),
+    ])
+    if (at.balance_cents !== null) adjustBase.value = at.balance_cents / 100
+    adjustHistory.value = history.slice(0, 5)
+  } catch {
+    // the check still works against the recorded balance
+  }
+}
+
+function formatDay(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
 }
 
 function onAdjustInput(e: Event) {
@@ -70,8 +90,8 @@ const adjustParsed = computed(() => {
 })
 
 const adjustDiff = computed(() => {
-  if (adjustTarget.value === null || adjustParsed.value === null) return 0
-  return Math.round((adjustParsed.value - adjustTarget.value.balance) * 100) / 100
+  if (adjustBase.value === null || adjustParsed.value === null) return 0
+  return Math.round((adjustParsed.value - adjustBase.value) * 100) / 100
 })
 
 async function confirmAdjust() {
@@ -84,7 +104,8 @@ async function confirmAdjust() {
       evidence: 'Conferência manual informada pelo titular no aplicativo',
     })
     await store.fetchAccounts()
-    toast.success(result.difference_cents ? `Conferência registrada. Diferença: ${formatCurrency(result.difference_cents / 100)}` : 'Conferência de saldo registrada')
+    if (result.opening_created) toast.success('Saldo inicial da conta registrado — agora ela entra no saldo previsto')
+    else toast.success(result.difference_cents ? `Conferência registrada. Diferença: ${formatCurrency(result.difference_cents / 100)}` : 'Conferência registrada: o saldo bate')
     adjustOpen.value = false
     adjustTarget.value = null
   } catch {
@@ -134,8 +155,11 @@ async function confirmDelete() {
     toast.success('Conta excluída')
     deleteOpen.value = false
     deletingId.value = null
-  } catch {
-    toast.error('Erro ao excluir conta')
+  } catch (e: unknown) {
+    // An account with transactions is archived instead (D-25): show why
+    const data = (e as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response?.data
+    toast.error(data?.errors?.account?.[0] ?? data?.message ?? 'Erro ao excluir conta')
+    deleteOpen.value = false
   } finally {
     deleting.value = false
   }
@@ -307,7 +331,7 @@ onMounted(async () => {
   <ConfirmDialog
     v-model:open="deleteOpen"
     title="Excluir conta"
-    description="Todos os dados desta conta serão removidos permanentemente."
+    description="A conta será excluída. Contas com lançamentos não podem ser excluídas: arquive-as para escondê-las mantendo o histórico."
     confirm-label="Excluir"
     variant="destructive"
     :loading="deleting"
@@ -340,8 +364,25 @@ onMounted(async () => {
           />
         </div>
         <p v-if="adjustDiff !== 0" class="text-[11px] mt-1.5" :class="adjustDiff > 0 ? 'text-success' : 'text-destructive'">
-          Diferença de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }}
+          Diferença de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }} em relação ao saldo calculado pelo app
         </p>
+        <p v-if="adjustTarget && adjustTarget.balance_verified === false" class="text-[11px] mt-1.5 text-muted-foreground">
+          Esta conta ainda não tem saldo conferido: o valor informado vira o saldo inicial dela.
+        </p>
+
+        <!-- History (D-42) -->
+        <div v-if="adjustHistory.length" class="mt-4">
+          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5">Conferências anteriores</p>
+          <div v-for="h in adjustHistory" :key="h.id" class="flex items-center justify-between py-1.5 border-b border-border last:border-0 text-[12px]">
+            <span class="text-muted-foreground">{{ formatDay(h.observed_on) }} · {{ h.kind === 'opening' ? 'saldo inicial' : 'conferência' }}</span>
+            <span class="tabular-nums text-foreground">
+              {{ formatCurrency(h.observed_cents / 100) }}
+              <span v-if="h.difference_cents" :class="h.difference_cents > 0 ? 'text-success' : 'text-destructive'">
+                ({{ h.difference_cents > 0 ? '+' : '' }}{{ formatCurrency(h.difference_cents / 100) }})
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
 
       <AlertDialogFooter class="gap-2">

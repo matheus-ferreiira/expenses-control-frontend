@@ -159,11 +159,11 @@ onBeforeUnmount(() => {
 <template>
   <div class="rounded-lg bg-card">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-      <div class="flex items-center gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-border">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
         <span class="text-[14px] font-medium text-foreground">Cashflow</span>
         <!-- Totals -->
-        <div v-if="!loading" class="flex items-center gap-3">
+        <div v-if="!loading" class="flex flex-wrap items-center gap-x-3 gap-y-0.5 whitespace-nowrap">
           <span class="text-[11px] text-success tabular-nums">
             +{{ formatCurrency(totalIncome) }}
           </span>
@@ -198,10 +198,12 @@ onBeforeUnmount(() => {
 
     <!-- Chart -->
     <div class="px-4 pt-3 pb-4 h-48 md:h-64 relative">
-      <div v-if="loading" class="absolute inset-4">
+      <!-- The canvas stays displayed: Chart.js keeps the style it was created with and restores it on
+           rebuild, so a canvas hidden by v-show during loading stayed hidden for good. -->
+      <canvas ref="canvasRef" />
+      <div v-if="loading" class="absolute inset-4 bg-card">
         <Skeleton class="h-full w-full rounded" />
       </div>
-      <canvas v-show="!loading" ref="canvasRef" />
     </div>
   </div>
 </template>

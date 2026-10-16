@@ -52,6 +52,4 @@ export const authApi = {
       .post<ApiResponse<null>>(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload)
       .then(unwrap),
 
-  resetData: () =>
-    client.delete<ApiResponse<null>>(API_ENDPOINTS.AUTH.RESET_DATA).then(unwrap),
 }

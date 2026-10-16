@@ -3,6 +3,7 @@ import { reportsApi } from '@/services/api/reports'
 import { tasksApi } from '@/services/api/tasks'
 import { useHabitStore } from '@/stores/habits'
 import { useFinanceStore } from '@/stores/finance'
+import { financeApi } from '@/services/api/finance'
 import type { ReportPeriod } from '@/types/reports'
 import type { YearlySummary } from '@/types/reports'
 import type { Task } from '@/types/tasks'
@@ -85,27 +86,40 @@ export function useReportsData() {
 
   watch(period, () => fetchHabitsLogCount())
 
-  const monthIncome = computed(() => {
-    return financeStore.transactions
-      .filter((t) => t.type === 'income' && t.transaction_date >= startDate.value)
-      .reduce((s, t) => s + t.amount, 0)
-  })
+  // Finance figures come from the backend for the selected period, with the same economic policy as the
+  // monthly report — they used to be summed from the Visão Geral list cache, whatever month it held (D-13).
+  const financeTotals = ref({ income: 0, net: 0, prevNet: 0 })
+  const topCategory = ref<{ name: string; total: number } | null>(null)
 
-  const financeNet = computed(() => {
-    const txns = financeStore.transactions.filter((t) => t.transaction_date >= startDate.value)
-    const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-    const expenses = txns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-    return income - expenses
-  })
+  async function fetchFinanceFigures() {
+    const today = new Date().toLocaleDateString('en-CA')
+    const dayBefore = (iso: string) => {
+      const [y, m, d] = iso.split('-').map(Number)
+      return new Date(y!, m! - 1, d! - 1).toLocaleDateString('en-CA')
+    }
+    try {
+      const [curr, prev, categories] = await Promise.all([
+        financeApi.reportSeries(startDate.value, today, 'month'),
+        financeApi.reportSeries(prevStartDate.value, dayBefore(startDate.value), 'month'),
+        financeApi.reportCategories(startDate.value, today),
+      ])
+      const sum = (rows: typeof curr, key: 'income' | 'expenses') => rows.reduce((s, r) => s + r[key], 0)
+      financeTotals.value = {
+        income: sum(curr, 'income'),
+        net: Math.round((sum(curr, 'income') - sum(curr, 'expenses')) * 100) / 100,
+        prevNet: Math.round((sum(prev, 'income') - sum(prev, 'expenses')) * 100) / 100,
+      }
+      topCategory.value = categories[0] ? { name: categories[0].category, total: categories[0].total } : null
+    } catch {
+      // non-fatal — keep previous values
+    }
+  }
 
-  const financeNetPrev = computed(() => {
-    const txns = financeStore.transactions.filter(
-      (t) => t.transaction_date >= prevStartDate.value && t.transaction_date < startDate.value,
-    )
-    const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-    const expenses = txns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-    return income - expenses
-  })
+  watch(period, () => fetchFinanceFigures())
+
+  const monthIncome = computed(() => financeTotals.value.income)
+  const financeNet = computed(() => financeTotals.value.net)
+  const financeNetPrev = computed(() => financeTotals.value.prevNet)
 
   const financeNetDelta = computed(() => {
     const curr = financeNet.value
@@ -231,20 +245,7 @@ export function useReportsData() {
     return best.count > 0 ? best : null
   })
 
-  const topExpenseCategory = computed(() => {
-    const expenses = financeStore.transactions.filter(
-      (t) => t.type === 'expense' && t.transaction_date >= startDate.value,
-    )
-    const byCategory: Record<string, { name: string; total: number }> = {}
-    for (const t of expenses) {
-      const name = t.category?.name ?? 'Sem categoria'
-      if (!byCategory[name]) byCategory[name] = { name, total: 0 }
-      byCategory[name].total += t.amount
-    }
-    const entries = Object.values(byCategory)
-    if (!entries.length) return null
-    return entries.reduce((max, c) => (c.total > max.total ? c : max))
-  })
+  const topExpenseCategory = computed(() => topCategory.value)
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
@@ -254,9 +255,7 @@ export function useReportsData() {
       await Promise.all([
         habitStore.habits.length ? Promise.resolve() : habitStore.fetchHabits(),
         financeStore.goals.length ? Promise.resolve() : financeStore.fetchGoals(),
-        financeStore.transactions.length
-          ? Promise.resolve()
-          : financeStore.fetchTransactions({ per_page: 300 }),
+        fetchFinanceFigures(),
       ])
 
       const [tasksResult, yearly] = await Promise.all([

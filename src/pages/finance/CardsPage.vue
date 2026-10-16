@@ -81,8 +81,11 @@ async function confirmDelete() {
     toast.success('Cartão excluído')
     deleteOpen.value = false
     deletingId.value = null
-  } catch {
-    toast.error('Erro ao excluir cartão')
+  } catch (e: unknown) {
+    // A card with purchases or payments is archived instead (D-25): show why
+    const data = (e as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response?.data
+    toast.error(data?.errors?.card?.[0] ?? data?.message ?? 'Erro ao excluir cartão')
+    deleteOpen.value = false
   } finally {
     deleting.value = false
   }
@@ -257,7 +260,7 @@ onMounted(async () => {
   <ConfirmDialog
     v-model:open="deleteOpen"
     title="Excluir cartão"
-    description="Todos os dados deste cartão serão removidos permanentemente."
+    description="O cartão será excluído. Cartões com compras ou pagamentos não podem ser excluídos: arquive-os para escondê-los mantendo o histórico."
     confirm-label="Excluir"
     variant="destructive"
     :loading="deleting"

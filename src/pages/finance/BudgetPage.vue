@@ -226,6 +226,15 @@ const hasGoalsItems = computed(() =>
               · {{ budget.summary.goals_percentage.toFixed(1) }}%
             </span>
           </div>
+          <!-- Spending the budget does not cover stays visible (D-36) -->
+          <div v-if="budget.summary.unbudgeted_spent" class="flex items-center justify-between text-[11px]">
+            <span class="text-muted-foreground">Gasto fora do orçamento</span>
+            <span class="text-muted-foreground tabular-nums">{{ formatCurrency(budget.summary.unbudgeted_spent) }}</span>
+          </div>
+          <div v-if="budget.summary.uncategorized_spent" class="flex items-center justify-between text-[11px]">
+            <span class="text-warning">Gasto sem categoria</span>
+            <span class="text-warning tabular-nums">{{ formatCurrency(budget.summary.uncategorized_spent) }}</span>
+          </div>
           <div class="flex items-center justify-between text-[11px]">
             <span class="text-success">Livre</span>
             <span class="text-success tabular-nums font-medium">

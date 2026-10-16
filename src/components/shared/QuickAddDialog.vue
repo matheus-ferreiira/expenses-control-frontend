@@ -8,7 +8,7 @@ import { useShoppingSessionStore } from '@/stores/shoppingSessions'
 import { useShoppingItemStore } from '@/stores/shoppingItems'
 import { useFrequentItems } from '@/features/purchases/composables/useFrequentItems'
 import { useToast } from '@/composables/useToast'
-import { useTransactionForm } from '@/composables/useTransactionForm'
+import { useTransactionFormLauncher } from '@/composables/useTransactionFormLauncher'
 import { Sheet, SheetContent } from '@ui/sheet'
 import {
   CheckSquare, TrendingDown, TrendingUp, Repeat, CalendarPlus,
@@ -28,7 +28,7 @@ const calendarStore = useCalendarStore()
 const shoppingStore = useShoppingSessionStore()
 const shoppingItemStore = useShoppingItemStore()
 const toast = useToast()
-const { openTransactionForm } = useTransactionForm()
+const { openTransactionForm } = useTransactionFormLauncher()
 
 const open = computed({
   get: () => ui.quickAddOpen,

@@ -23,9 +23,11 @@ export function useDashboard() {
   const dashboardLoading = ref(false)
   const loading = computed(() => dashboardLoading.value)
 
-  // Dashboard uses its own isolated transaction list so Finance page filters
-  // (month, per_page: 20) cannot overwrite the data needed here.
-  const dashboardTxs = ref<Transaction[]>([])
+  // Every financial number here comes from the backend, with the same economic policy as the reports
+  // (D-11): the browser used to add raw amounts of up to 500 transactions, pending ones included.
+  const recentTxs = ref<Transaction[]>([])
+  const monthIncome = ref(0)
+  const monthExpenses = ref(0)
 
   // ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -97,75 +99,42 @@ export function useDashboard() {
     financeStore.activeAccounts.reduce((sum, a) => sum + a.balance, 0),
   )
 
-  const monthTransactions = computed(() => {
+  const recentTransactions = computed(() => recentTxs.value.filter((t) => t.type !== 'transfer').slice(0, 5))
+
+  // Chart series per period, loaded once from the backend (economic, confirmed only)
+  const cashflowCache = ref<Partial<Record<CashflowPeriod, CashflowPoint[]>>>({})
+  const cashflowLoading = new Set<CashflowPeriod>()
+
+  async function loadCashflow(period: CashflowPeriod): Promise<void> {
+    if (cashflowLoading.has(period)) return
+    cashflowLoading.add(period)
     const now = new Date()
-    const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
-    return dashboardTxs.value.filter((t) => t.transaction_date >= monthStart && t.type !== 'transfer')
-  })
-
-  const monthIncome = computed(() =>
-    monthTransactions.value
-      .filter((t) => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0),
-  )
-
-  const monthExpenses = computed(() =>
-    monthTransactions.value
-      .filter((t) => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0),
-  )
-
-  const recentTransactions = computed(() =>
-    [...dashboardTxs.value]
-      .filter((t) => t.type !== 'transfer')
-      .sort((a, b) => b.transaction_date.localeCompare(a.transaction_date))
-      .slice(0, 5),
-  )
-
-  function computeCashflow(period: CashflowPeriod): CashflowPoint[] {
-    const now = new Date()
-    const txs = dashboardTxs.value.filter((t) => t.type !== 'transfer')
-
-    if (period === '1S') {
-      return Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(now)
-        d.setDate(now.getDate() - 6 + i)
-        const dateStr = toISODate(d)
-        const label = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')
-        const dayTxs = txs.filter((t) => t.transaction_date === dateStr)
-        const income = dayTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-        const expense = dayTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-        return { label, income, expense, net: income - expense }
-      })
+    const byDay = period === '1S' || period === '1M'
+    const start = byDay
+      ? new Date(now.getFullYear(), now.getMonth(), now.getDate() - (period === '1S' ? 6 : 29))
+      : new Date(now.getFullYear(), now.getMonth() - (period === '6M' ? 5 : 11), 1)
+    try {
+      const rows = await financeApi.reportSeries(toISODate(start), toISODate(now), byDay ? 'day' : 'month')
+      cashflowCache.value = {
+        ...cashflowCache.value,
+        [period]: rows.map((r) => {
+          const [y, m, d] = r.period.split('-').map(Number)
+          const date = new Date(y!, m! - 1, d ?? 1)
+          const label = byDay
+            ? date.toLocaleDateString('pt-BR', period === '1S' ? { weekday: 'short' } : { day: '2-digit', month: 'short' }).replace('.', '')
+            : date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+          return { label, income: r.income, expense: r.expenses, net: Math.round((r.income - r.expenses) * 100) / 100 }
+        }),
+      }
+    } catch {
+      cashflowLoading.delete(period)
     }
-
-    if (period === '1M') {
-      return Array.from({ length: 30 }, (_, i) => {
-        const d = new Date(now)
-        d.setDate(now.getDate() - 29 + i)
-        const dateStr = toISODate(d)
-        const label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
-        const dayTxs = txs.filter((t) => t.transaction_date === dateStr)
-        const income = dayTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-        const expense = dayTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-        return { label, income, expense, net: income - expense }
-      })
-    }
-
-    const months = period === '6M' ? 6 : 12
-    return Array.from({ length: months }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - (months - 1 - i), 1)
-      const year = d.getFullYear()
-      const month = d.getMonth() + 1
-      const prefix = `${year}-${String(month).padStart(2, '0')}`
-      const label = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-      const monthTxs = txs.filter((t) => t.transaction_date.startsWith(prefix))
-      const income = monthTxs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-      const expense = monthTxs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-      return { label, income, expense, net: income - expense }
-    })
   }
 
+  function computeCashflow(period: CashflowPeriod): CashflowPoint[] {
+    if (!cashflowCache.value[period]) void loadCashflow(period)
+    return cashflowCache.value[period] ?? []
+  }
   // ── Calendar ──────────────────────────────────────────────────────────────
 
   const todayEvents = computed(() => {
@@ -233,28 +202,33 @@ export function useDashboard() {
     dashboardLoading.value = true
     try {
       const now = new Date()
-      const yearAgo = new Date(now)
-      yearAgo.setFullYear(now.getFullYear() - 1)
 
-      // Fetch transactions into an isolated local ref — avoids the Finance page
-      // month-filter overwriting shared financeStore.transactions before this resolves.
-      const txFetch = financeApi.transactions
-        .list({
-          start_date: toISODate(yearAgo),
-          end_date: toISODate(now),
-          per_page: 500,
-        })
-        .then((res) => {
-          dashboardTxs.value = res.data
+      const monthFetch = financeApi
+        .monthlyReport(now.getFullYear(), now.getMonth() + 1)
+        .then((r) => {
+          monthIncome.value = r.income
+          monthExpenses.value = r.expenses
         })
         .catch(() => {})
+      const recentFetch = financeApi.transactions
+        .list({ status: 'confirmed', sort_by: 'transaction_date', sort_direction: 'desc', per_page: 10 })
+        .then((res) => {
+          recentTxs.value = res.data
+        })
+        .catch(() => {})
+      // On a reload, drop the cached series; on the first load keep the request already in flight
+      if (Object.keys(cashflowCache.value).length) {
+        cashflowCache.value = {}
+        cashflowLoading.clear()
+      }
 
       await Promise.allSettled([
         taskStore.fetchTasks(),
         habitStore.fetchHabits(),
         financeStore.fetchAccounts(),
         financeStore.fetchCards().then(loadUpcomingBills).catch(() => { upcomingBills.value = [] }),
-        txFetch,
+        monthFetch,
+        recentFetch,
         calendarStore.fetchForMonth(now.getFullYear(), now.getMonth()),
       ])
     } finally {

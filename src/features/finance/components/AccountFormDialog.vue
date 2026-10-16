@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@ui/sheet'
-import { Loader2, Wallet, Landmark, PiggyBank, TrendingUp, DollarSign, ArrowLeft } from 'lucide-vue-next'
+import { Loader2, Wallet, Landmark, PiggyBank, TrendingUp, DollarSign, ArrowLeft, Banknote } from 'lucide-vue-next'
 import { AppFormField, ColorPicker } from '@/components/shared'
 import type { BankAccount, AccountType } from '@/types/finance'
 import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
@@ -46,13 +46,14 @@ function onBalanceFocus(e: Event) {
   setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0)
 }
 
-const accountTypes: AccountType[] = ['checking', 'savings', 'investment', 'wallet']
+const accountTypes: AccountType[] = ['checking', 'savings', 'investment', 'wallet', 'cash']
 
 const TYPE_ICONS: Record<AccountType, typeof Wallet> = {
   checking:   Landmark,
   savings:    PiggyBank,
   investment: TrendingUp,
   wallet:     Wallet,
+  cash:       Banknote,
 }
 
 const previewIcon = computed(() => TYPE_ICONS[form.type] ?? DollarSign)
@@ -179,7 +180,12 @@ async function submit() {
           </div>
         </div>
 
-        <AppFormField label="Saldo inicial (R$)" :error="errors.balance">
+        <!-- The balance of an existing account changes only through transactions or a balance check (D-32) -->
+        <p v-if="props.account" class="rounded-lg bg-card px-3 py-2.5 text-[12px] leading-snug text-muted-foreground">
+          Saldo atual: <span class="font-semibold text-foreground tabular-nums">{{ formatCurrency(props.account.balance) }}</span>.
+          Para corrigir, use <span class="font-medium text-foreground">Conferir saldo</span> na lista de contas.
+        </p>
+        <AppFormField v-else label="Saldo inicial (R$)" :error="errors.balance">
           <div class="w-full flex items-center gap-2 h-10 px-3 rounded-lg bg-card focus-within: transition-colors">
             <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
             <input

@@ -27,7 +27,7 @@ let chartInstance: ChartJS<'line', (number | null)[], string> | null = null
 
 const hasData = computed(() => props.datasets.some((d) => d.points.length > 0))
 
-// Colors resolved from CSS vars at runtime — same approach as FinanceCashflowChart
+// Colors resolved from CSS vars at runtime
 function getCSSVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }

@@ -7,7 +7,7 @@ import { Textarea } from '@ui/textarea'
 import {
   ArrowLeft, Loader2, Plus, Repeat, X, CreditCard,
   TrendingDown, TrendingUp, ArrowRightLeft,
-  Wallet, Check, Flag,
+  Wallet, Check, Flag, Undo2,
 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { AppNumberStepper } from '@/components/shared'
@@ -542,7 +542,18 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   {{ cat.name }}
                 </span>
               </button>
-
+              <!-- Create a category without leaving the form (the sheet had no way to be opened) -->
+              <button
+                type="button"
+                class="flex flex-col items-center transition-all active:scale-95"
+                aria-label="Nova categoria"
+                @click="showCategorySheet = true"
+              >
+                <span class="size-14 rounded-xl flex items-center justify-center bg-muted">
+                  <Plus :size="22" class="text-muted-foreground" />
+                </span>
+                <span class="text-[11px] text-muted-foreground mt-1.5 leading-tight">Nova</span>
+              </button>
             </div>
 
             <!-- Category quick-create sheet -->
@@ -735,7 +746,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 </span>
                 <div class="min-w-0 flex-1 text-left">
                   <p class="text-[13px] font-medium truncate" :class="form.account_id === acc.id ? 'text-primary' : 'text-foreground'">{{ acc.name }}</p>
-                  <p class="text-[11px] text-muted-foreground">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }} · sai do saldo agora</p>
+                  <p class="text-[11px] text-muted-foreground">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }} · {{ form.type === 'income' ? 'entra no saldo agora' : 'sai do saldo agora' }}</p>
                 </div>
                 <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
                   {{ formatCurrency(acc.balance) }}
@@ -937,6 +948,33 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
             </div>
           </div>
           </fieldset>
+
+          <!-- ── REEMBOLSO — only for income; editable on imported records too ── -->
+          <div v-if="form.type === 'income'" class="flex items-center gap-3 py-3 border-b border-border">
+            <span class="size-9 rounded-xl flex items-center justify-center shrink-0 bg-muted">
+              <Undo2 :size="16" :class="form.is_reimbursement ? 'text-primary' : 'text-muted-foreground'" />
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-medium text-foreground">Reembolso</p>
+              <p class="text-[11px] text-muted-foreground">
+                {{ form.is_reimbursement ? 'Devolve um gasto seu: não conta como renda' : 'Ex.: amigo pagando a parte dele do almoço' }}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              :aria-checked="form.is_reimbursement"
+              aria-label="Reembolso"
+              class="h-6 w-11 rounded-full transition-colors flex items-center px-0.5 shrink-0"
+              :class="form.is_reimbursement ? 'bg-primary' : 'bg-muted'"
+              @click="form.is_reimbursement = !form.is_reimbursement"
+            >
+              <span
+                class="size-5 rounded-full bg-background transition-transform duration-200"
+                :class="form.is_reimbursement ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
+          </div>
 
           <!-- ── TAGS ─────────────────────────────────────── -->
           <div v-if="store.tags.length > 0">

@@ -106,6 +106,36 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  /** Loads every page (the API serves at most 500 per page; asking for 9999 used to fail, D-20). */
+  async function fetchAllTransactions(filters?: TransactionFilters) {
+    const version = ++_fetchTxVersion
+    loadingTransactions.value = true
+    error.value = null
+    try {
+      const all: Transaction[] = []
+      let page = 1
+      let meta = null
+      do {
+        const result = await financeApi.transactions.list({ ...filters, per_page: 500, page })
+        if (version !== _fetchTxVersion) return // superseded by a later call
+        all.push(...result.data)
+        meta = result.meta
+        page++
+      } while (meta && meta.current_page < meta.last_page)
+      transactions.value = all
+      transactionsMeta.value = meta ? { ...meta, current_page: 1, last_page: 1, per_page: all.length, from: all.length ? 1 : null, to: all.length || null } : meta
+    } catch (e: unknown) {
+      if (version === _fetchTxVersion) {
+        error.value = 'Erro ao carregar transações'
+        throw e
+      }
+    } finally {
+      if (version === _fetchTxVersion) {
+        loadingTransactions.value = false
+      }
+    }
+  }
+
   async function fetchCategories() {
     loadingCategories.value = true
     try {
@@ -444,6 +474,7 @@ export const useFinanceStore = defineStore('finance', () => {
     fetchAccounts,
     fetchCards,
     fetchTransactions,
+    fetchAllTransactions,
     fetchCategories,
     fetchAll,
     createTransaction,

@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronRight, ChevronDown, X, Plus, Upload, Flame, MoreHorizontal, Search, Calendar, AlertTriangle, Tag } from 'lucide-vue-next'
+import { ChevronRight, ChevronDown, X, Plus, Flame, MoreHorizontal, Search, Calendar, AlertTriangle, Tag } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,21 +50,6 @@ const streakActive = computed(() => {
     && d.getMonth() === today.getMonth()
     && d.getDate() === today.getDate()
 })
-
-// ── OFX import ───────────────────────────────────────────────────────────────
-const ofxInputRef = ref<HTMLInputElement | null>(null)
-
-function triggerOfxImport() {
-  ofxInputRef.value?.click()
-}
-
-function handleOfxFile(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  toast.success(`Arquivo "${file.name}" selecionado — importação em breve!`)
-  // Reset so same file can be selected again
-  ;(event.target as HTMLInputElement).value = ''
-}
 
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
@@ -183,9 +168,17 @@ const {
   projectedBalance: historicalProjected,
   cardDue,
   cardStatementsDue,
+  unverifiedAccountIds,
   reload: reloadHistoricalBalance,
 } = useHistoricalBalance(
   computed(() => filterState.month.value),
+)
+
+const unverifiedAccountNames = computed(() =>
+  unverifiedAccountIds.value
+    .map((id) => store.accounts.find((a) => a.id === id)?.name)
+    .filter(Boolean)
+    .join(', '),
 )
 
 // Displayed projected balance: API value (cumulative for future months) with local fallback
@@ -246,78 +239,57 @@ const transactionCount = computed(() =>
   currentMonthSummary.value?.transactions_count ?? store.transactions.length
 )
 
-const biggestExpense = computed(() => {
-  // Aportes em meta são poupança — não concorrem a "maior despesa"
-  const exp = store.transactions.filter((t) => t.type === 'expense' && !t.goal_id)
-  if (!exp.length) return null
-  return exp.reduce((max, t) => (t.amount > max.amount ? t : max))
+// Month figures come from the backend over the whole month, confirmed only and with the economic
+// policy (own share of shared bills) — not from the page loaded in the browser, with its filters (D-14).
+const biggestExpense = computed(() => currentMonthSummary.value?.largest_expense ?? null)
+
+const spentByCategory = computed(() => {
+  const spent = new Map<string, number>()
+  for (const c of currentMonthSummary.value?.expenses_by_category ?? []) {
+    if (c.category_id) spent.set(c.category_id, c.total)
+  }
+  return spent
 })
-
-
 
 // Grouped categories panel:
 // Group A — categories WITH monthly_limit (always shown, even R$0 spent)
-// Group B — categories with transactions but NO monthly_limit (show with "Definir meta" CTA)
+// Group B — categories with spending but NO monthly_limit (show with "Definir meta" CTA)
 type CategoryEntry = {
   id: string; name: string; color: string; icon: string | null
   total: number; monthlyLimit: number | null
   percent: number; budgetPercent: number | null
 }
 
-const categoriesWithMeta = computed<CategoryEntry[]>(() => {
-  // Sum transactions per category
-  const spent = new Map<string, number>()
-  store.transactions
-    .filter((t) => t.type === 'expense' && t.category)
-    .forEach((t) => {
-      spent.set(t.category!.id, (spent.get(t.category!.id) ?? 0) + t.amount)
-    })
-
-  const totalExpenses = Array.from(spent.values()).reduce((s, v) => s + v, 0)
-
-  return store.categories
+const categoriesWithMeta = computed<CategoryEntry[]>(() =>
+  store.categories
     .filter((c) => c.type === 'expense' && c.monthly_limit != null && c.monthly_limit > 0)
     .map((c) => {
-      const total = spent.get(c.id) ?? 0
-      const budgetPercent = Math.min(150, Math.round((total / c.monthly_limit!) * 100))
+      const total = spentByCategory.value.get(c.id) ?? 0
       return {
         id: c.id, name: c.name, color: c.color, icon: c.icon ?? null,
         total, monthlyLimit: c.monthly_limit,
-        percent: totalExpenses > 0 ? Math.round((total / totalExpenses) * 100) : 0,
-        budgetPercent,
+        percent: expenses.value > 0 ? Math.round((total / expenses.value) * 100) : 0,
+        budgetPercent: Math.min(150, Math.round((total / c.monthly_limit!) * 100)),
       }
     })
-    .sort((a, b) => b.budgetPercent! - a.budgetPercent!)
-})
+    .sort((a, b) => b.budgetPercent! - a.budgetPercent!),
+)
 
-const categoriesWithoutMeta = computed<CategoryEntry[]>(() => {
-  const totalExpenses = store.transactions
-    .filter((t) => t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0)
-
-  const map = new Map<string, CategoryEntry>()
-  store.transactions
-    .filter((t) => t.type === 'expense' && t.category)
-    .forEach((t) => {
-      const cat = t.category!
-      const storeCat = store.categories.find((c) => c.id === cat.id)
-      if (storeCat?.monthly_limit) return // already covered in categoriesWithMeta
-      const entry = map.get(cat.id)
-      if (entry) { entry.total += t.amount; return }
-      map.set(cat.id, {
-        id: cat.id, name: cat.name, color: cat.color,
-        icon: storeCat?.icon ?? cat.icon ?? null,
-        total: t.amount, monthlyLimit: null,
-        percent: 0, budgetPercent: null,
-      })
+const categoriesWithoutMeta = computed<CategoryEntry[]>(() =>
+  (currentMonthSummary.value?.expenses_by_category ?? [])
+    .filter((c) => c.category_id && !store.categories.find((s) => s.id === c.category_id)?.monthly_limit)
+    .map((c) => {
+      const storeCat = store.categories.find((s) => s.id === c.category_id)
+      return {
+        id: c.category_id!, name: c.category, color: c.color, icon: storeCat?.icon ?? null,
+        total: c.total, monthlyLimit: null,
+        percent: expenses.value > 0 ? Math.round((c.total / expenses.value) * 100) : 0,
+        budgetPercent: null,
+      }
     })
-
-  return Array.from(map.values())
-    .map((c) => ({ ...c, percent: totalExpenses > 0 ? Math.round((c.total / totalExpenses) * 100) : 0 }))
     .sort((a, b) => b.total - a.total)
-    .slice(0, 5)
-})
-
+    .slice(0, 5),
+)
 // Keep for backward-compat references (exceededCategory alert)
 const topCategories = computed<CategoryEntry[]>(() => [
   ...categoriesWithMeta.value,
@@ -515,7 +487,7 @@ async function loadTransactions() {
 async function loadAllTransactions() {
   loadingAll.value = true
   try {
-    await store.fetchTransactions({ ...filterState.toApiFilters(), per_page: 9999 })
+    await store.fetchAllTransactions(filterState.toApiFilters())
   } finally {
     loadingAll.value = false
   }
@@ -601,15 +573,6 @@ onMounted(async () => {
   <AppPageContainer>
     <FinanceSubNav />
 
-    <!-- Hidden OFX file input -->
-    <input
-      ref="ofxInputRef"
-      type="file"
-      accept=".ofx,.csv,.OFX,.CSV"
-      class="hidden"
-      @change="handleOfxFile"
-    />
-
     <!-- Header -->
     <PageHeader
       title="Visão geral"
@@ -638,7 +601,7 @@ onMounted(async () => {
           Transação
         </button>
 
-        <!-- More options dropdown (Importar OFX) -->
+        <!-- More options dropdown -->
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <button
@@ -650,9 +613,6 @@ onMounted(async () => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-48">
-            <DropdownMenuItem class="cursor-pointer" @click="triggerOfxImport">
-              <Upload class="size-4 mr-2" /> Importar OFX
-            </DropdownMenuItem>
             <DropdownMenuItem class="cursor-pointer" @click="$router.push({ name: 'finance-categories' })">
               <Tag class="size-4 mr-2" /> Gerenciar categorias
             </DropdownMenuItem>
@@ -766,6 +726,10 @@ onMounted(async () => {
         <div class="border-t border-border mt-3 pt-3">
           <p class="text-[11px] text-muted-foreground leading-snug">
             considera transações agendadas, recorrentes pendentes e faturas de cartão que vencem até o fim do mês
+          </p>
+          <!-- Accounts counted by their recorded balance (no verified opening yet, D-17) -->
+          <p v-if="unverifiedAccountNames" class="text-[11px] text-warning leading-snug mt-1">
+            inclui {{ unverifiedAccountNames }} pelo saldo registrado, ainda não conferido. Confira em Contas.
           </p>
         </div>
       </div>

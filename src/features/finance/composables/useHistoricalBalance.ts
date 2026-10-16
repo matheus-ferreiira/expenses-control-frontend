@@ -30,5 +30,6 @@ export function useHistoricalBalance(month: Ref<string> | ComputedRef<string>) {
     /** Faturas de cartão descontadas do saldo previsto */
     cardDue: computed(() => data.value?.card_due ?? 0),
     cardStatementsDue: computed(() => data.value?.card_statements ?? []),
+    unverifiedAccountIds: computed(() => data.value?.unverified_accounts ?? []),
   }
 }

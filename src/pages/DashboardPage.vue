@@ -75,7 +75,8 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Summary cards -->
+    <!-- Summary cards (multi-root component: the spacing lives on a wrapper) -->
+    <div class="mb-5">
     <DashboardSummaryCards
       :pending-today="dashboard.pendingToday.value.length"
       :completed-today="dashboard.completedToday.value.length"
@@ -87,8 +88,8 @@ onMounted(async () => {
       :month-expenses="dashboard.monthExpenses.value"
       :month-income="dashboard.monthIncome.value"
       :loading="dashboard.loading.value"
-      class="mb-5"
     />
+    </div>
 
     <!-- Main grid: 2/3 main + 1/3 sidebar -->
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">

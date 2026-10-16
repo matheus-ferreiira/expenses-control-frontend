@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +13,17 @@ import { ACCOUNT_TYPE_LABELS } from '@/types/finance'
 import { ACCOUNT_TYPE_ICONS } from '@/features/finance/utils/financeHelpers'
 import { formatCurrency } from '@/utils/currency'
 
-defineProps<{
+const props = defineProps<{
   account: BankAccount
 }>()
+
+/** "conferida em 15/10" or "saldo não conferido" (D-42) */
+const checkedLabel = computed(() => {
+  const d = props.account.last_checked_on
+  if (!d) return props.account.balance_verified === false ? 'saldo não conferido' : null
+  const [, m, day] = d.split('-')
+  return `conferida em ${day}/${m}`
+})
 
 const emit = defineEmits<{
   edit: [account: BankAccount]
@@ -69,7 +78,7 @@ const emit = defineEmits<{
         <!-- Row 2: subtitle + menu -->
         <div class="flex items-center justify-between mt-0.5">
           <p class="text-[12px] text-muted-foreground truncate">
-            {{ [account.bank_name, ACCOUNT_TYPE_LABELS[account.type]].filter(Boolean).join(' · ') }}
+            {{ [account.bank_name, ACCOUNT_TYPE_LABELS[account.type], checkedLabel].filter(Boolean).join(' · ') }}
           </p>
           <DropdownMenu>
             <DropdownMenuTrigger as-child>

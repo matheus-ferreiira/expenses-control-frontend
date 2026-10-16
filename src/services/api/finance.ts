@@ -2,6 +2,7 @@ import { client, unwrap, unwrapPaginated } from './client'
 import { API_ENDPOINTS } from '@/constants/api'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
+  BalanceObservation,
   BankAccount,
   Budget,
   CardOverview,
@@ -25,7 +26,9 @@ import type {
 export const financeApi = {
   accounts: {
     balanceAt: (id: string, date: string) => client.get<ApiResponse<{ balance_cents: number | null; status: string }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-at`, { params: { date } }).then(unwrap),
-    observeBalance: (id: string, payload: { date: string; balance: string; evidence: string }) => client.post<ApiResponse<{ difference_cents: number | null }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-observations`, payload).then(unwrap),
+    observeBalance: (id: string, payload: { date: string; balance: string; evidence: string }) => client.post<ApiResponse<{ observed_cents: number; calculated_cents: number | null; difference_cents: number | null; opening_created: boolean }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-observations`, payload).then(unwrap),
+    /** Histórico de conferências da conta, mais recente primeiro */
+    balanceObservations: (id: string) => client.get<ApiResponse<BalanceObservation[]>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-observations`).then(unwrap),
     list: () =>
       client.get<ApiResponse<BankAccount[]>>(API_ENDPOINTS.FINANCE.ACCOUNTS).then(unwrap),
 
@@ -93,10 +96,10 @@ export const financeApi = {
         .post<ApiResponse<Transaction>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/pay-statement`, payload)
         .then(unwrap),
 
-    /** Pagamento que quitou a fatura do mês, ou null se em aberto */
-    getStatementPayment: (id: string, statementMonth: string) =>
+    /** Todos os pagamentos feitos à fatura do mês (pode ser paga em partes) */
+    getStatementPayments: (id: string, statementMonth: string) =>
       client
-        .get<ApiResponse<Transaction | null>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/statement-payment`, {
+        .get<ApiResponse<Transaction[]>>(`${API_ENDPOINTS.FINANCE.CARD_DETAIL(id)}/statement-payment`, {
           params: { statement_month: statementMonth },
         })
         .then(unwrap),
@@ -265,7 +268,10 @@ export const financeApi = {
         pending_expenses: number
         pending_saved: number
         transactions_count: number
+        /** Maior despesa confirmada do mês (pela parte própria), ou null */
+        largest_expense: { id: string; description: string; amount: number; transaction_date: string; category: string | null } | null
         expenses_by_category: Array<{
+          category_id: string | null
           category: string
           color: string
           total: number
@@ -273,6 +279,22 @@ export const financeApi = {
           percentage: number
         }>
       }>>(API_ENDPOINTS.FINANCE.REPORTS_MONTHLY, { params: { year, month } })
+      .then(unwrap),
+
+  /** Receitas e despesas por dia ou mês, com a mesma política econômica do relatório mensal */
+  reportSeries: (startDate: string, endDate: string, group: 'day' | 'month') =>
+    client
+      .get<ApiResponse<Array<{ period: string; income: number; expenses: number }>>>(API_ENDPOINTS.FINANCE.REPORTS_SERIES, {
+        params: { start_date: startDate, end_date: endDate, group },
+      })
+      .then(unwrap),
+
+  /** Gasto por categoria entre duas datas (confirmado, parte própria), do maior para o menor */
+  reportCategories: (startDate: string, endDate: string) =>
+    client
+      .get<ApiResponse<Array<{ category_id: string | null; category: string; color: string; total: number }>>>(API_ENDPOINTS.FINANCE.REPORTS_CATEGORIES, {
+        params: { start_date: startDate, end_date: endDate },
+      })
       .then(unwrap),
 
   yearlyReport: (year: number) =>
