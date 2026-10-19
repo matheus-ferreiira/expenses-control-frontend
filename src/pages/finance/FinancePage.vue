@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronRight, ChevronDown, X, Plus, Flame, MoreHorizontal, Search, Calendar, AlertTriangle, Tag, PiggyBank } from 'lucide-vue-next'
+import { ChevronRight, ChevronDown, X, Plus, Flame, MoreHorizontal, Search, AlertTriangle, Tag, PiggyBank } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -209,6 +209,11 @@ const unverifiedAccountNames = computed(() =>
 
 // Displayed projected balance: API value (cumulative for future months) with local fallback
 const projectedBalance = computed(() => historicalProjected.value ?? localProjectedBalance.value)
+const endOfMonthLabel = computed(() => {
+  if (monthMode.value === 'current') return 'No fim do mês'
+  const [y, m] = filterState.month.value.split('-').map(Number)
+  return `No fim de ${new Date(y!, m! - 1, 1).toLocaleDateString('pt-BR', { month: 'long' })}`
+})
 
 // ── Cartões: fatura a pagar, fatura aberta e limite real (backend) ─────────────
 const cardOverviews = ref<Record<string, CardOverview>>({})
@@ -585,6 +590,7 @@ onMounted(async () => {
     <PageHeader
       title="Visão geral"
       subtitle="Contas, cartões, despesas e receitas em uma única tela funcional."
+      compact-mobile
     >
       <template #actions>
         <!-- StreakChip -->
@@ -645,7 +651,7 @@ onMounted(async () => {
         :pending-expenses="pendingExpenses"
         :saved="saved"
         :pending-saved="pendingSaved"
-        :reserve-total="store.reserveBalance"
+        :daily-pace="currentMonthSummary?.daily_variable_spending ?? null"
         :budget-base="budgetBase"
         :comparison="expenseComparison"
         :loading="!currentMonthSummary"
@@ -655,79 +661,43 @@ onMounted(async () => {
         @select-month="filterState.month.value = $event"
       />
 
-      <!-- Cartões: fatura a pagar, fatura aberta, limite real e próximas faturas -->
-      <CreditCardCard
-        v-for="card in store.activeCards"
-        :key="card.id"
-        :card="card"
-        :overview="cardOverviews[card.id] ?? null"
-        :loading="loadingCardOverviews"
-        compact
-        @statement="openCardStatement"
-      />
-
-      <!-- Pendentes da semana — confirmação 1-toque -->
-      <PendingThisWeekCard @confirmed="onWeeklyPendingConfirmed" />
-
-
-      <!-- Saldo previsto -->
-      <div v-if="filterState.month.value >= currentMonth() && !store.loading" class="bg-card rounded-lg p-4">
-        <!-- Header -->
-        <div class="flex items-center gap-2 mb-3">
-          <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <Calendar :size="16" class="text-primary" />
-          </div>
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Saldo Previsto
-          </p>
-        </div>
+      <!-- Saldo: quanto há nas contas agora e quanto haverá no fim do mês (mês atual e futuros) -->
+      <div v-if="monthMode !== 'past' && !store.loading" class="bg-card rounded-lg p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Saldo</p>
 
         <!-- Values — 2 columns, both clickable -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <p class="text-[12px] text-muted-foreground mb-1">Saldo atual</p>
+            <p class="text-[12px] text-muted-foreground mb-1">Nas contas</p>
             <button
               type="button"
               class="flex items-center gap-1 hover:opacity-80 transition-opacity"
-              @click="openBalanceSheet('Saldo atual', totalBalance)"
+              @click="openBalanceSheet('Nas contas', totalBalance)"
             >
               <span
-                class="text-[20px] font-semibold tabular-nums leading-none"
+                class="text-[20px] font-semibold tabular-nums leading-none whitespace-nowrap"
                 :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
               >{{ formatCurrency(totalBalance) }}</span>
-              <ChevronRight :size="14" class="text-muted-foreground mt-0.5" />
+              <ChevronRight :size="14" class="text-muted-foreground mt-0.5 shrink-0" />
             </button>
           </div>
           <div>
-            <p class="text-[12px] text-muted-foreground mb-1">Saldo previsto</p>
+            <p class="text-[12px] text-muted-foreground mb-1">{{ endOfMonthLabel }}</p>
             <button
               type="button"
               class="flex items-center gap-1 hover:opacity-80 transition-opacity"
-              @click="openBalanceSheet('Saldo previsto', projectedBalance)"
+              @click="openBalanceSheet(endOfMonthLabel, projectedBalance)"
             >
               <span
-                class="text-[20px] font-semibold tabular-nums leading-none"
+                class="text-[20px] font-semibold tabular-nums leading-none whitespace-nowrap"
                 :class="projectedBalance >= 0 ? 'text-success' : 'text-destructive'"
               >{{ formatCurrency(projectedBalance) }}</span>
-              <ChevronRight :size="14" class="text-muted-foreground mt-0.5" />
+              <ChevronRight :size="14" class="text-muted-foreground mt-0.5 shrink-0" />
             </button>
           </div>
         </div>
 
-        <!-- Dinheiro guardado: fora do saldo atual e do previsto -->
-        <RouterLink
-          v-if="store.reserveAccounts.length"
-          to="/finance/accounts"
-          class="mt-3 flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2 text-[12px] hover:opacity-80 transition-opacity"
-        >
-          <span class="inline-flex items-center gap-1.5 text-muted-foreground min-w-0">
-            <PiggyBank :size="14" class="text-primary shrink-0" />
-            <span class="truncate">Guardado em {{ store.reserveAccounts.map((a) => a.name).join(', ') }}</span>
-          </span>
-          <span class="tabular-nums font-semibold text-primary shrink-0">{{ formatCurrency(store.reserveBalance) }}</span>
-        </RouterLink>
-
-        <!-- Faturas de cartão descontadas do previsto -->
+        <!-- Faturas de cartão descontadas do fim do mês -->
         <div v-if="cardDue > 0" class="mt-3 rounded-md bg-muted px-3 py-2 space-y-1">
           <div
             v-for="s in cardStatementsDue"
@@ -741,22 +711,50 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Footer note -->
-        <div class="border-t border-border mt-3 pt-3">
-          <p class="text-[11px] text-muted-foreground leading-snug">
-            considera transações agendadas, recorrentes pendentes e faturas de cartão que vencem até o fim do mês; o dinheiro guardado fica de fora
-          </p>
-          <!-- Accounts counted by their recorded balance (no verified opening yet, D-17) -->
-          <p v-if="unverifiedAccountNames" class="text-[11px] text-warning leading-snug mt-1">
-            inclui {{ unverifiedAccountNames }} pelo saldo registrado, ainda não conferido. Confira em Contas.
-          </p>
-        </div>
+        <!-- Dinheiro guardado: fora dos dois saldos -->
+        <RouterLink
+          v-if="store.reserveAccounts.length"
+          to="/finance/accounts"
+          class="mt-3 flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2 text-[12px] hover:opacity-80 transition-opacity"
+        >
+          <span class="inline-flex items-center gap-1.5 text-muted-foreground min-w-0">
+            <PiggyBank :size="14" class="text-primary shrink-0" />
+            <span class="truncate">Guardado · {{ store.reserveAccounts.map((a) => a.name).join(', ') }}</span>
+          </span>
+          <span class="tabular-nums font-semibold text-primary shrink-0">{{ formatCurrency(store.reserveBalance) }}</span>
+        </RouterLink>
+
+        <p class="text-[11px] text-muted-foreground leading-snug mt-3">
+          O fim do mês soma o que está agendado e desconta as faturas que vencem até lá. O gasto do dia a dia não entra.
+        </p>
+        <!-- Accounts counted by their recorded balance (no verified opening yet, D-17) -->
+        <p v-if="unverifiedAccountNames" class="text-[11px] text-warning leading-snug mt-1">
+          Inclui {{ unverifiedAccountNames }} pelo saldo registrado, ainda não conferido. Confira em Contas.
+        </p>
       </div>
+
+      <!-- A confirmar: vencidos e da semana, confirmação 1-toque (só no mês em andamento) -->
+      <PendingThisWeekCard v-if="monthMode === 'current'" @confirmed="onWeeklyPendingConfirmed" />
+
+      <!-- Cartões, versão compacta: fatura a pagar, fatura aberta e limite livre (só no mês em andamento) -->
+      <template v-if="monthMode === 'current'">
+        <CreditCardCard
+          v-for="card in store.activeCards"
+          :key="card.id"
+          :card="card"
+          :overview="cardOverviews[card.id] ?? null"
+          :loading="loadingCardOverviews"
+          compact
+          @statement="openCardStatement"
+        />
+      </template>
+
 
       <!-- Categorias do mês selecionado (mesma base do relatório mensal) -->
       <CategoryBreakdownList
         v-if="!store.loading && currentMonthSummary"
         boxed
+        compact
         selectable
         :title="categoryType === 'expense' ? 'Despesas por categoria' : 'Receitas por categoria'"
         :empty-text="categoryType === 'expense' ? 'Nenhuma despesa confirmada neste mês.' : 'Nenhuma receita confirmada neste mês.'"

@@ -20,8 +20,8 @@ const props = defineProps<{
   /** Guardado no mês: aportes em metas + o que foi para as caixinhas */
   saved: number
   pendingSaved: number
-  /** Total guardado hoje nas caixinhas */
-  reserveTotal: number
+  /** Gasto médio por dia fora de contas fixas e parcelas (últimos 60 dias); só no mês em andamento */
+  dailyPace: number | null
   /** Base do orçamento do mês, quando existe */
   budgetBase: number | null
   /** Despesas a mais (+) ou a menos (−) que o período comparado */
@@ -61,6 +61,12 @@ const leftover = computed(() =>
   round2(props.mode === 'future' ? expectedIncome.value - expectedExpenses.value : props.income - props.expenses),
 )
 const forecast = computed(() => round2(expectedIncome.value - expectedExpenses.value))
+/** O previsto só conta o que está lançado; no ritmo do dia a dia, os dias que faltam também gastam */
+const paceForecast = computed(() =>
+  props.mode === 'current' && props.dailyPace && props.dailyPace > 0 && daysLeft.value > 0
+    ? round2(forecast.value - props.dailyPace * daysLeft.value)
+    : null,
+)
 
 const columns = computed(() => {
   if (props.mode === 'future') {
@@ -132,7 +138,7 @@ const comparisonText = computed(() => {
 
 // ── Guardado ────────────────────────────────────────────────────────────────
 const monthSaved = computed(() => (props.mode === 'future' ? props.pendingSaved : props.saved))
-const showSaved = computed(() => monthSaved.value !== 0 || props.reserveTotal > 0)
+const showSaved = computed(() => monthSaved.value !== 0)
 const leftPending = computed(() => props.mode === 'past' && (props.pendingIncome > 0 || props.pendingExpenses > 0))
 </script>
 
@@ -166,15 +172,23 @@ const leftPending = computed(() => props.mode === 'past' && (props.pendingIncome
       </div>
     </div>
 
-    <!-- Previsão de fechamento (mês em andamento) -->
+    <!-- Resultado previsto do mês em andamento: com o que está lançado e, abaixo, no ritmo do dia a dia -->
     <div
-      v-if="!loading && mode === 'current' && (pendingIncome > 0 || pendingExpenses > 0)"
-      class="mt-3 flex items-center justify-between rounded-md bg-muted px-3 py-2 text-[12px]"
+      v-if="!loading && mode === 'current' && (pendingIncome > 0 || pendingExpenses > 0 || paceForecast !== null)"
+      class="mt-3 rounded-md bg-muted px-3 py-2 text-[12px]"
     >
-      <span class="text-muted-foreground">Previsão de fechamento</span>
-      <span class="tabular-nums font-semibold whitespace-nowrap" :class="forecast < 0 ? 'text-destructive' : 'text-success'">
-        {{ forecast > 0 ? '+' : '' }}{{ formatCurrency(forecast) }}
-      </span>
+      <div class="flex items-center justify-between gap-3">
+        <span class="text-muted-foreground">Resultado previsto</span>
+        <span class="tabular-nums font-semibold whitespace-nowrap" :class="forecast < 0 ? 'text-destructive' : 'text-success'">
+          {{ forecast > 0 ? '+' : '' }}{{ formatCurrency(forecast) }}
+        </span>
+      </div>
+      <div v-if="paceForecast !== null" class="mt-1 flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
+        <span>no ritmo do dia a dia (~{{ formatCurrency(dailyPace!) }}/dia)</span>
+        <span class="tabular-nums font-medium whitespace-nowrap" :class="paceForecast < 0 ? 'text-destructive' : 'text-foreground'">
+          ≈ {{ paceForecast > 0 ? '+' : '' }}{{ formatCurrency(paceForecast) }}
+        </span>
+      </div>
     </div>
 
     <!-- Barra: gasto (cheio) e a pagar (claro) contra a base; o traço marca o dia de hoje -->
@@ -231,21 +245,13 @@ const leftPending = computed(() => props.mode === 'past' && (props.pendingIncome
       <span v-if="pendingExpenses > 0" class="tabular-nums">−{{ formatCurrency(pendingExpenses) }} a pagar</span>
     </p>
 
-    <!-- Guardado: no mês e o total nas caixinhas -->
-    <div v-if="showSaved && !loading" class="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-3">
-      <div>
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
-          {{ mode === 'future' ? 'Guardar (previsto)' : 'Guardado no mês' }}
-        </p>
-        <p class="text-[14px] font-semibold tabular-nums text-primary inline-flex items-center gap-1">
-          <PiggyBank :size="14" />
-          {{ formatCurrency(monthSaved) }}
-        </p>
-      </div>
-      <div v-if="reserveTotal > 0">
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Total guardado</p>
-        <p class="text-[14px] font-semibold tabular-nums text-foreground">{{ formatCurrency(reserveTotal) }}</p>
-      </div>
+    <!-- Guardado no mês (o total nas caixinhas fica no card de saldo) -->
+    <div v-if="showSaved && !loading" class="mt-3 pt-3 border-t border-border flex items-center justify-between gap-3">
+      <span class="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
+        <PiggyBank :size="14" class="text-primary" />
+        {{ mode === 'future' ? 'Guardar no mês (previsto)' : 'Guardado no mês' }}
+      </span>
+      <span class="text-[14px] font-semibold tabular-nums text-primary">{{ formatCurrency(monthSaved) }}</span>
     </div>
   </div>
 </template>

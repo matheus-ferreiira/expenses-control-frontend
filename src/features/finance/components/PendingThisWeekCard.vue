@@ -44,6 +44,11 @@ onMounted(load)
 defineExpose({ reload: load })
 
 const todayStr = toISODate(new Date())
+const weekEndLabel = (() => {
+  const d = new Date()
+  d.setDate(d.getDate() + 7)
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+})()
 
 function dateLabel(t: Transaction): { text: string; overdue: boolean } {
   if (t.transaction_date < todayStr) {
@@ -61,9 +66,9 @@ function dateLabel(t: Transaction): { text: string; overdue: boolean } {
   }
 }
 
-const totalPending = computed(() =>
-  pending.value.reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0),
-)
+// Receber and pagar shown apart: a single net figure (+R$ 2.195) hid what is coming in and going out
+const toReceive = computed(() => pending.value.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0))
+const toPay = computed(() => pending.value.filter((t) => t.type !== 'income').reduce((s, t) => s + t.amount, 0))
 
 /** Only what is already due can be confirmed in one go, each at its forecast value. */
 const duePending = computed(() => pending.value.filter((t) => t.transaction_date <= todayStr))
@@ -107,28 +112,16 @@ async function confirmAll() {
 
 <template>
   <div v-if="!loading && pending.length > 0" class="bg-card rounded-lg p-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-1">
-      <div class="flex items-center gap-2">
-        <div class="size-8 rounded-lg bg-muted grid place-items-center shrink-0">
-          <Clock :size="16" class="text-warning" />
-        </div>
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Pendentes da semana
-          </p>
-          <p class="text-[12px] text-muted-foreground tabular-nums">
-            {{ pending.length }} {{ pending.length === 1 ? 'transação' : 'transações' }} ·
-            <span :class="totalPending >= 0 ? 'text-success' : 'text-destructive'" class="font-semibold">
-              {{ totalPending >= 0 ? '+' : '' }}{{ formatCurrency(totalPending) }}
-            </span>
-          </p>
-        </div>
-      </div>
+    <!-- Header: title and the batch action on one line, what comes in and goes out below -->
+    <div class="flex items-center justify-between gap-3">
+      <p class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+        <Clock :size="14" class="text-warning shrink-0" />
+        A confirmar
+      </p>
       <button
         v-if="duePending.length > 1"
         type="button"
-        class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-semibold bg-primary text-primary-foreground transition-all active:scale-[0.98] disabled:opacity-40"
+        class="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-semibold bg-primary text-primary-foreground whitespace-nowrap transition-all active:scale-[0.98] disabled:opacity-40"
         :disabled="confirmingAll"
         @click="confirmAll"
       >
@@ -137,6 +130,11 @@ async function confirmAll() {
         Confirmar vencidas ({{ duePending.length }})
       </button>
     </div>
+    <p class="text-[12px] text-muted-foreground tabular-nums mt-1 mb-1">
+      {{ pending.length }} {{ pending.length === 1 ? 'item' : 'itens' }} até {{ weekEndLabel }}
+      <template v-if="toReceive > 0"> · <span class="text-success font-medium">+{{ formatCurrency(toReceive) }} a receber</span></template>
+      <template v-if="toPay > 0"> · <span class="text-destructive font-medium">−{{ formatCurrency(toPay) }} a pagar</span></template>
+    </p>
 
     <!-- Rows -->
     <div>

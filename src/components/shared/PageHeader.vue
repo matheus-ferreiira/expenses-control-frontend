@@ -21,6 +21,11 @@ const props = defineProps<{
   noBreadcrumbs?: boolean
   /** Esconde o chip de ícone */
   noIcon?: boolean
+  /**
+   * No celular, só as ações: a barra do app e a sub-navegação já dizem onde se está.
+   * O título continua no DOM (sr-only) para leitores de tela.
+   */
+  compactMobile?: boolean
 }>()
 
 const route = useRoute()
@@ -30,11 +35,13 @@ const iconColor = computed(() => props.iconColor ?? module_.value?.colorClass ??
 </script>
 
 <template>
-  <div class="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border">
-    <AppBreadcrumbs v-if="!noBreadcrumbs" class="mb-3" />
+  <div :class="compactMobile ? 'mb-3 lg:mb-8 lg:pb-6 lg:border-b border-border' : 'mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border'">
+    <div v-if="!noBreadcrumbs" :class="compactMobile ? 'hidden lg:block' : ''">
+      <AppBreadcrumbs class="mb-3" />
+    </div>
 
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 md:gap-4 min-w-0">
+    <div class="flex items-center gap-4" :class="compactMobile ? 'justify-end lg:justify-between' : 'justify-between'">
+      <div class="flex items-center gap-3 md:gap-4 min-w-0" :class="compactMobile ? 'sr-only lg:not-sr-only lg:flex' : ''">
         <!-- Chip de ícone — cor de identidade do módulo, fundo cinza sólido -->
         <div
           v-if="icon && !noIcon"

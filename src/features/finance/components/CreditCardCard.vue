@@ -9,7 +9,8 @@ import {
 import { Button } from '@ui/button'
 import { Skeleton } from '@ui/skeleton'
 import { computed } from 'vue'
-import { MoreHorizontal, Pencil, Trash2, Archive, ArchiveRestore, FileText } from 'lucide-vue-next'
+import { MoreHorizontal, Pencil, Trash2, Archive, ArchiveRestore, FileText, ChevronRight } from 'lucide-vue-next'
+import { ROUTES } from '@/constants/routes'
 import type { CardOverview, CreditCard as CreditCardType } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { cycleLabel, statementStatusInfo, type StatementTone } from '../utils/financeHelpers'
@@ -19,7 +20,10 @@ const props = defineProps<{
   /** Resumo calculado no backend; null enquanto carrega ou para cartões arquivados */
   overview?: CardOverview | null
   loading?: boolean
-  /** Versão para a Visão Geral: sem o menu de editar/arquivar/excluir */
+  /**
+   * Versão para a Visão Geral: fatura a pagar, fatura aberta e limite livre. Sem o menu de
+   * editar/arquivar/excluir, as próximas faturas e o botão de extrato (ficam na tela Cartões).
+   */
   compact?: boolean
 }>()
 
@@ -78,7 +82,15 @@ const money = (cents: number) => formatCurrency(cents / 100)
           </div>
         </div>
 
-        <DropdownMenu v-if="!compact">
+        <RouterLink
+          v-if="compact"
+          :to="{ name: ROUTES.FINANCE_CARDS }"
+          class="inline-flex items-center gap-0.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors shrink-0 min-h-[36px] -mr-1"
+        >
+          Ver cartão
+          <ChevronRight :size="14" aria-hidden="true" />
+        </RouterLink>
+        <DropdownMenu v-else>
           <DropdownMenuTrigger as-child>
             <Button variant="ghost" size="icon" aria-label="Opções do cartão" class="min-h-[44px] min-w-[44px] shrink-0 -mr-2 -mt-1">
               <MoreHorizontal :size="13" aria-hidden="true" />
@@ -139,8 +151,30 @@ const money = (cents: number) => formatCurrency(cents / 100)
           + {{ overview.to_pay.length - 1 }} outra(s) fatura(s) em aberto
         </p>
 
+        <!-- Compacto: fatura aberta e limite livre lado a lado -->
+        <div v-if="compact" class="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            class="text-left rounded-md hover:bg-muted/50 transition-colors"
+            @click="emit('statement', card, overview.open_cycle)"
+          >
+            <p class="text-[11px] text-muted-foreground">Fatura aberta · {{ cycleLabel(overview.open_cycle) }}</p>
+            <p class="text-[16px] font-semibold tabular-nums text-foreground leading-tight mt-0.5">{{ money(overview.open.charges_cents) }}</p>
+            <p class="text-[11px] text-muted-foreground mt-0.5">{{ openInfo?.label }}</p>
+          </button>
+          <div>
+            <p class="text-[11px] text-muted-foreground">Limite livre</p>
+            <p class="text-[16px] font-semibold tabular-nums text-foreground leading-tight mt-0.5">{{ money(overview.available_cents) }}</p>
+            <div class="h-1.5 bg-muted rounded-full overflow-hidden mt-1.5">
+              <div class="h-full rounded-full transition-all" :class="limitBarClass" :style="{ width: `${usedPct}%` }" />
+            </div>
+            <p class="text-[11px] text-muted-foreground mt-1 tabular-nums">{{ usedPct }}% usado de {{ money(overview.limit_cents) }}</p>
+          </div>
+        </div>
+
         <!-- Fatura aberta -->
         <button
+          v-if="!compact"
           type="button"
           class="w-full text-left flex items-center justify-between gap-3"
           @click="emit('statement', card, overview.open_cycle)"
@@ -153,7 +187,7 @@ const money = (cents: number) => formatCurrency(cents / 100)
         </button>
 
         <!-- Limite real -->
-        <div class="pt-2.5 border-t border-border">
+        <div v-if="!compact" class="pt-2.5 border-t border-border">
           <div class="flex items-baseline justify-between mb-1.5">
             <p class="text-[12px] text-muted-foreground">Limite disponível</p>
             <p class="text-[14px] font-semibold tabular-nums text-foreground">
@@ -170,7 +204,7 @@ const money = (cents: number) => formatCurrency(cents / 100)
         </div>
 
         <!-- Próximas faturas (parcelas e assinaturas já lançadas) -->
-        <div v-if="overview.upcoming.length" class="pt-2.5 border-t border-border">
+        <div v-if="!compact && overview.upcoming.length" class="pt-2.5 border-t border-border">
           <div class="flex items-baseline justify-between mb-1.5">
             <p class="text-[12px] text-muted-foreground">Já comprometido nas próximas faturas</p>
             <p class="text-[13px] font-semibold tabular-nums text-foreground">{{ money(overview.upcoming_total_cents) }}</p>
@@ -191,6 +225,7 @@ const money = (cents: number) => formatCurrency(cents / 100)
 
       <!-- Extrato -->
       <button
+        v-if="!compact"
         type="button"
         class="w-full flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-medium bg-muted text-foreground hover:brightness-110 transition-colors"
         @click="emit('statement', card)"
