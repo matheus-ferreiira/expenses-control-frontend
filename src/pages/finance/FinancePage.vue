@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronRight, ChevronDown, X, Plus, Flame, MoreHorizontal, Search, AlertTriangle, Tag, PiggyBank } from 'lucide-vue-next'
+import { ChevronRight, ChevronDown, X, Plus, Search, AlertTriangle, PiggyBank } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer, PageHeader } from '@/components/shared'
 import MonthSummaryCard, { type MonthMode } from '@/features/finance/components/MonthSummaryCard.vue'
 import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
@@ -26,7 +25,6 @@ import ConfirmTransactionSheet from '@/features/finance/components/ConfirmTransa
 import RecurringEditScopeDialog from '@/features/finance/components/RecurringEditScopeDialog.vue'
 import { ConfirmDialog } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
-import { useAuthStore } from '@/stores/auth'
 import { financeApi } from '@/services/api/finance'
 import { useTransactionFilters, type QuickFilter } from '@/features/finance/composables/useTransactionFilters'
 import { useHistoricalBalance } from '@/features/finance/composables/useHistoricalBalance'
@@ -36,22 +34,8 @@ import { currentMonth, formatDayMonth } from '@/features/finance/utils/financeHe
 import type { CardOverview, CategoryBreakdownItem, CreditCard, RecurrenceUpdateScope, Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
-const authStore = useAuthStore()
 const filterState = useTransactionFilters()
 const toast = useToast()
-
-// ── Streak ───────────────────────────────────────────────────────────────────
-const streakSheetOpen = ref(false)
-const streak = computed(() => authStore.user?.current_streak ?? 0)
-const streakActive = computed(() => {
-  const last = authStore.user?.last_transaction_date
-  if (!last) return false
-  const today = new Date()
-  const d = new Date(last + 'T00:00:00')
-  return d.getFullYear() === today.getFullYear()
-    && d.getMonth() === today.getMonth()
-    && d.getDate() === today.getDate()
-})
 
 const formOpen = ref(false)
 const editingTransaction = ref<Transaction | null>(null)
@@ -256,7 +240,7 @@ watch(() => store.transactionsVersion, () => {
 
 // ── Balance detail sheet ──────────────────────────────────────────────────────
 const balanceSheetOpen = ref(false)
-const balanceSheetTitle = ref('Saldo atual')
+const balanceSheetTitle = ref('Nas contas')
 const balanceSheetAmount = ref(0)
 
 function openBalanceSheet(title: string, amount: number) {
@@ -435,8 +419,8 @@ watch(filterState.search, () => loadTransactions())
 
 
 // ── Expense comparison ────────────────────────────────────────────────────
-// A closed month is compared with the whole previous month; the month in progress with the previous
-// month up to the same day (a full month against half a month says nothing); a future month is not compared.
+// The closed month and the month in progress are both compared with the whole previous month (no
+// day-based comparison, by the user's choice); a future month is not compared.
 const comparisonData = ref<{ month: string; label: string; expenses: number } | null>(null)
 
 async function loadComparison() {
@@ -452,19 +436,8 @@ async function loadComparison() {
   const prevMonth = prev.getMonth() + 1
   const name = prev.toLocaleDateString('pt-BR', { month: 'long' })
   try {
-    let total: number
-    let label: string
-    if (mode === 'past') {
-      total = (await financeApi.monthlyReport(prevYear, prevMonth)).expenses
-      label = name
-    } else {
-      const day = Math.min(new Date().getDate(), new Date(prevYear, prevMonth, 0).getDate())
-      const mm = String(prevMonth).padStart(2, '0')
-      const series = await financeApi.reportSeries(`${prevYear}-${mm}-01`, `${prevYear}-${mm}-${String(day).padStart(2, '0')}`, 'day')
-      total = series.reduce((sum, point) => sum + point.expenses, 0)
-      label = `${name} até o dia ${day}`
-    }
-    if (filterState.month.value === viewed) comparisonData.value = { month: viewed, label, expenses: total }
+    const total = (await financeApi.monthlyReport(prevYear, prevMonth)).expenses
+    if (filterState.month.value === viewed) comparisonData.value = { month: viewed, label: name, expenses: total }
   } catch {
     // sem comparação; o resto do card continua
   }
@@ -593,18 +566,6 @@ onMounted(async () => {
       compact-mobile
     >
       <template #actions>
-        <!-- StreakChip -->
-        <button
-          type="button"
-          :aria-label="`Streak de ${streak} dias`"
-          class="inline-flex items-center gap-1 h-9 px-2.5 rounded-full bg-card text-[12px] font-semibold tabular-nums hover:bg-muted active:scale-95 transition-all"
-          :class="streakActive ? 'text-warning' : 'text-muted-foreground'"
-          @click="streakSheetOpen = true"
-        >
-          <Flame class="size-3.5" :class="streakActive ? '' : 'opacity-50'" />
-          {{ streak }}
-        </button>
-
         <!-- Nova transação (hidden on mobile) -->
         <button
           type="button"
@@ -615,23 +576,6 @@ onMounted(async () => {
           Transação
         </button>
 
-        <!-- More options dropdown -->
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <button
-              type="button"
-              aria-label="Mais opções"
-              class="min-w-9 h-9 grid place-items-center rounded-md bg-card text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all"
-            >
-              <MoreHorizontal class="size-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="w-48">
-            <DropdownMenuItem class="cursor-pointer" @click="$router.push({ name: 'finance-categories' })">
-              <Tag class="size-4 mr-2" /> Gerenciar categorias
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </template>
     </PageHeader>
 
@@ -651,7 +595,6 @@ onMounted(async () => {
         :pending-expenses="pendingExpenses"
         :saved="saved"
         :pending-saved="pendingSaved"
-        :daily-pace="currentMonthSummary?.daily_variable_spending ?? null"
         :budget-base="budgetBase"
         :comparison="expenseComparison"
         :loading="!currentMonthSummary"
@@ -1055,29 +998,4 @@ onMounted(async () => {
     @confirmed="handleTransactionConfirmed"
   />
 
-  <!-- Streak info sheet -->
-  <Sheet v-model:open="streakSheetOpen">
-    <SheetContent side="bottom" class="rounded-t-2xl p-5 max-w-xl mx-auto">
-      <div class="mx-auto -mt-2 mb-3 h-1 w-10 rounded-full bg-border" />
-      <SheetHeader class="text-left">
-        <SheetTitle class="text-[15px] flex items-center gap-2">
-          <Flame class="size-4 text-warning" />
-          {{ streak }} dias seguidos
-        </SheetTitle>
-        <SheetDescription class="text-[12px]">
-          {{ streakActive
-            ? 'Você está registrando há vários dias seguidos. Continue assim!'
-            : 'Você ainda não registrou nada hoje. Registre uma transação para manter sua sequência.' }}
-        </SheetDescription>
-      </SheetHeader>
-      <button
-        v-if="!streakActive"
-        type="button"
-        class="w-full mt-4 inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-md text-[14.5px] lg:h-8 lg:px-2.5 lg:text-[12.5px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
-        @click="streakSheetOpen = false; editingTransaction = null; transactionPrefill = null; formOpen = true"
-      >
-        <Plus class="size-4" /> Registrar agora
-      </button>
-    </SheetContent>
-  </Sheet>
 </template>

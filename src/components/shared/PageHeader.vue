@@ -35,7 +35,7 @@ const iconColor = computed(() => props.iconColor ?? module_.value?.colorClass ??
 </script>
 
 <template>
-  <div :class="compactMobile ? 'mb-3 lg:mb-8 lg:pb-6 lg:border-b border-border' : 'mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border'">
+  <div :class="compactMobile ? 'md:mb-3 lg:mb-8 lg:pb-6 lg:border-b border-border' : 'mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border'">
     <div v-if="!noBreadcrumbs" :class="compactMobile ? 'hidden lg:block' : ''">
       <AppBreadcrumbs class="mb-3" />
     </div>

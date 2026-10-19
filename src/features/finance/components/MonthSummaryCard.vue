@@ -20,8 +20,6 @@ const props = defineProps<{
   /** Guardado no mês: aportes em metas + o que foi para as caixinhas */
   saved: number
   pendingSaved: number
-  /** Gasto médio por dia fora de contas fixas e parcelas (últimos 60 dias); só no mês em andamento */
-  dailyPace: number | null
   /** Base do orçamento do mês, quando existe */
   budgetBase: number | null
   /** Despesas a mais (+) ou a menos (−) que o período comparado */
@@ -61,12 +59,6 @@ const leftover = computed(() =>
   round2(props.mode === 'future' ? expectedIncome.value - expectedExpenses.value : props.income - props.expenses),
 )
 const forecast = computed(() => round2(expectedIncome.value - expectedExpenses.value))
-/** O previsto só conta o que está lançado; no ritmo do dia a dia, os dias que faltam também gastam */
-const paceForecast = computed(() =>
-  props.mode === 'current' && props.dailyPace && props.dailyPace > 0 && daysLeft.value > 0
-    ? round2(forecast.value - props.dailyPace * daysLeft.value)
-    : null,
-)
 
 const columns = computed(() => {
   if (props.mode === 'future') {
@@ -132,8 +124,10 @@ const status = computed<{ tone: 'ok' | 'warn' | 'danger'; text: string } | null>
 const comparisonText = computed(() => {
   const c = props.comparison
   if (!c) return null
-  if (Math.abs(c.delta) < 0.01) return { up: false, text: `Mesmas despesas que ${c.label}` }
-  return { up: c.delta > 0, text: `${formatCurrency(Math.abs(c.delta))} ${c.delta > 0 ? 'a mais' : 'a menos'} em despesas que ${c.label}` }
+  // The month in progress is set against the whole previous month: "Até agora" says it is not over yet
+  const prefix = props.mode === 'current' ? 'Até agora, ' : ''
+  if (Math.abs(c.delta) < 0.01) return { up: false, text: `${prefix ? `${prefix}mesmas` : 'Mesmas'} despesas que ${c.label}` }
+  return { up: c.delta > 0, text: `${prefix}${formatCurrency(Math.abs(c.delta))} ${c.delta > 0 ? 'a mais' : 'a menos'} em despesas que ${c.label}` }
 })
 
 // ── Guardado ────────────────────────────────────────────────────────────────
@@ -172,21 +166,15 @@ const leftPending = computed(() => props.mode === 'past' && (props.pendingIncome
       </div>
     </div>
 
-    <!-- Resultado previsto do mês em andamento: com o que está lançado e, abaixo, no ritmo do dia a dia -->
+    <!-- Resultado previsto do mês em andamento, com o que está lançado -->
     <div
-      v-if="!loading && mode === 'current' && (pendingIncome > 0 || pendingExpenses > 0 || paceForecast !== null)"
+      v-if="!loading && mode === 'current' && (pendingIncome > 0 || pendingExpenses > 0)"
       class="mt-3 rounded-md bg-muted px-3 py-2 text-[12px]"
     >
       <div class="flex items-center justify-between gap-3">
         <span class="text-muted-foreground">Resultado previsto</span>
         <span class="tabular-nums font-semibold whitespace-nowrap" :class="forecast < 0 ? 'text-destructive' : 'text-success'">
           {{ forecast > 0 ? '+' : '' }}{{ formatCurrency(forecast) }}
-        </span>
-      </div>
-      <div v-if="paceForecast !== null" class="mt-1 flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
-        <span>no ritmo do dia a dia (~{{ formatCurrency(dailyPace!) }}/dia)</span>
-        <span class="tabular-nums font-medium whitespace-nowrap" :class="paceForecast < 0 ? 'text-destructive' : 'text-foreground'">
-          ≈ {{ paceForecast > 0 ? '+' : '' }}{{ formatCurrency(paceForecast) }}
         </span>
       </div>
     </div>

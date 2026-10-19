@@ -56,13 +56,14 @@ interface NavChildItem {
   route: string
 }
 
-// Transações foi fundida na Visão Geral; Categorias é setup (acesso pelo menu "..." da Visão Geral)
+// Transações foi fundida na Visão Geral
 const FINANCE_CHILDREN: NavChildItem[] = [
   { label: 'Visão Geral',  icon: LayoutDashboard, route: ROUTES.FINANCE },
   { label: 'Contas',       icon: Landmark,          route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões',      icon: CreditCard,        route: ROUTES.FINANCE_CARDS },
   { label: 'Orçamento',    icon: PieChart,          route: ROUTES.FINANCE_BUDGET },
   { label: 'Metas',        icon: Flag,              route: ROUTES.FINANCE_GOALS },
+  { label: 'Categorias',   icon: Tag,               route: ROUTES.FINANCE_CATEGORIES },
   { label: 'Relatórios',   icon: PieChart,          route: ROUTES.FINANCE_REPORTS },
 ]
 

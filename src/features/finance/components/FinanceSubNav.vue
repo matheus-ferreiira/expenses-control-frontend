@@ -15,6 +15,7 @@ const ITEMS: { label: string; route: string }[] = [
   { label: 'Cartões', route: ROUTES.FINANCE_CARDS },
   { label: 'Orçamento', route: ROUTES.FINANCE_BUDGET },
   { label: 'Metas', route: ROUTES.FINANCE_GOALS },
+  { label: 'Categorias', route: ROUTES.FINANCE_CATEGORIES },
   { label: 'Relatórios', route: ROUTES.FINANCE_REPORTS },
 ]
 

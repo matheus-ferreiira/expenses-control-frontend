@@ -273,8 +273,6 @@ export const financeApi = {
         transactions_count: number
         /** Maior despesa confirmada do mês (pela parte própria), ou null */
         largest_expense: { id: string; description: string; amount: number; transaction_date: string; category: string | null } | null
-        /** Gasto médio por dia fora de contas fixas e parcelas (60 dias); só no mês em andamento */
-        daily_variable_spending?: number | null
         expenses_by_category: CategoryBreakdownItem[]
         income_by_category: CategoryBreakdownItem[]
       }>>(API_ENDPOINTS.FINANCE.REPORTS_MONTHLY, { params: { year, month } })
