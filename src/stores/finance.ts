@@ -56,6 +56,12 @@ export const useFinanceStore = defineStore('finance', () => {
 
   const activeAccounts = computed(() => accounts.value.filter((a) => a.is_active))
   const archivedAccounts = computed(() => accounts.value.filter((a) => !a.is_active))
+  // Caixinhas/investimentos guardam dinheiro: ficam fora do saldo disponível
+  const isReserve = (a: BankAccount) => a.is_reserve ?? a.type === 'investment'
+  const availableAccounts = computed(() => activeAccounts.value.filter((a) => !isReserve(a)))
+  const reserveAccounts = computed(() => activeAccounts.value.filter(isReserve))
+  const availableBalance = computed(() => availableAccounts.value.reduce((s, a) => s + a.balance, 0))
+  const reserveBalance = computed(() => reserveAccounts.value.reduce((s, a) => s + a.balance, 0))
   const activeCards = computed(() => cards.value.filter((c) => c.is_active))
   const archivedCards = computed(() => cards.value.filter((c) => !c.is_active))
 
@@ -469,6 +475,10 @@ export const useFinanceStore = defineStore('finance', () => {
     error,
     activeAccounts,
     archivedAccounts,
+    availableAccounts,
+    reserveAccounts,
+    availableBalance,
+    reserveBalance,
     activeCards,
     archivedCards,
     fetchAccounts,

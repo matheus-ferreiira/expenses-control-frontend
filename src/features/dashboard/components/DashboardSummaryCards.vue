@@ -11,6 +11,8 @@ const props = defineProps<{
   bestStreak: number
   bestStreakHabitName?: string
   totalBalance: number
+  /** Guardado nas caixinhas, fora do saldo */
+  reserveBalance?: number
   monthExpenses: number
   monthIncome: number
   loading?: boolean
@@ -113,7 +115,7 @@ function expenseRatio(): string {
         <div class="flex items-center gap-1.5 mb-2.5">
           <Wallet :size="12" class="text-success shrink-0" />
           <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground select-none">
-            Saldo total
+            Saldo disponível
           </p>
         </div>
         <p
@@ -123,6 +125,7 @@ function expenseRatio(): string {
           {{ formatCurrency(totalBalance) }}
         </p>
         <p class="text-[11px] text-muted-foreground">{{ balanceChange() }}</p>
+        <p v-if="reserveBalance" class="text-[11px] text-primary tabular-nums mt-0.5">+ {{ formatCurrency(reserveBalance) }} guardado</p>
       </template>
     </div>
 

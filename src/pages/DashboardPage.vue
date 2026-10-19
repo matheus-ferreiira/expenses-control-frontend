@@ -85,6 +85,7 @@ onMounted(async () => {
       :best-streak="dashboard.bestStreak.value"
       :best-streak-habit-name="dashboard.bestStreakHabit.value?.name"
       :total-balance="dashboard.totalBalance.value"
+      :reserve-balance="dashboard.reserveBalance.value"
       :month-expenses="dashboard.monthExpenses.value"
       :month-income="dashboard.monthIncome.value"
       :loading="dashboard.loading.value"

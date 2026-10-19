@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PiggyBank } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { formatCurrency } from '@/utils/currency'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -35,11 +36,11 @@ const store = useFinanceStore()
         </p>
       </div>
       <div class="border-t border-border pt-2 px-5 pb-6">
-        <p v-if="!store.activeAccounts.length" class="text-[12px] text-muted-foreground py-2">
+        <p v-if="!store.availableAccounts.length" class="text-[12px] text-muted-foreground py-2">
           Nenhuma conta ativa
         </p>
         <div
-          v-for="account in store.activeAccounts"
+          v-for="account in store.availableAccounts"
           :key="account.id"
           class="flex items-center gap-3 py-3 border-b border-border last:border-0"
         >
@@ -54,6 +55,23 @@ const store = useFinanceStore()
             :class="account.balance >= 0 ? 'text-success' : 'text-destructive'"
           >{{ formatCurrency(account.balance) }}</span>
         </div>
+        <!-- Caixinhas: listadas à parte, não somam no saldo acima -->
+        <template v-if="store.reserveAccounts.length">
+          <p class="text-[10px] uppercase tracking-widest text-muted-foreground mt-4 mb-1">
+            Guardado · {{ formatCurrency(store.reserveBalance) }}
+          </p>
+          <div
+            v-for="account in store.reserveAccounts"
+            :key="account.id"
+            class="flex items-center gap-3 py-3 border-b border-border last:border-0"
+          >
+            <div class="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+              <PiggyBank :size="16" class="text-primary" />
+            </div>
+            <span class="flex-1 text-[14px] font-medium truncate">{{ account.name }}</span>
+            <span class="tabular-nums font-semibold text-[14px] text-primary">{{ formatCurrency(account.balance) }}</span>
+          </div>
+        </template>
       </div>
     </SheetContent>
   </Sheet>

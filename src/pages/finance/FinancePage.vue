@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronRight, ChevronDown, X, Plus, Flame, MoreHorizontal, Search, Calendar, AlertTriangle, Tag } from 'lucide-vue-next'
+import { ChevronRight, ChevronDown, X, Plus, Flame, MoreHorizontal, Search, Calendar, AlertTriangle, Tag, PiggyBank } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -150,10 +150,8 @@ const expenses = computed(() => currentMonthSummary.value?.expenses ?? 0)
 const saved = computed(() => currentMonthSummary.value?.saved ?? 0)
 
 
-// Total balance across all active accounts
-const totalBalance = computed(() =>
-  store.activeAccounts.reduce((s, a) => s + a.balance, 0),
-)
+// Available balance: active accounts except reserves (caixinhas), which show apart as "Guardado"
+const totalBalance = computed(() => store.availableBalance)
 
 // Pending amounts — from API summary (authoritative) with 0 fallback while loading
 const pendingIncome = computed(() => currentMonthSummary.value?.pending_income ?? 0)
@@ -708,6 +706,19 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- Dinheiro guardado: fora do saldo atual e do previsto -->
+        <RouterLink
+          v-if="store.reserveAccounts.length"
+          to="/finance/accounts"
+          class="mt-3 flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2 text-[12px] hover:opacity-80 transition-opacity"
+        >
+          <span class="inline-flex items-center gap-1.5 text-muted-foreground min-w-0">
+            <PiggyBank :size="14" class="text-primary shrink-0" />
+            <span class="truncate">Guardado em {{ store.reserveAccounts.map((a) => a.name).join(', ') }}</span>
+          </span>
+          <span class="tabular-nums font-semibold text-primary shrink-0">{{ formatCurrency(store.reserveBalance) }}</span>
+        </RouterLink>
+
         <!-- Faturas de cartão descontadas do previsto -->
         <div v-if="cardDue > 0" class="mt-3 rounded-md bg-muted px-3 py-2 space-y-1">
           <div
@@ -725,7 +736,7 @@ onMounted(async () => {
         <!-- Footer note -->
         <div class="border-t border-border mt-3 pt-3">
           <p class="text-[11px] text-muted-foreground leading-snug">
-            considera transações agendadas, recorrentes pendentes e faturas de cartão que vencem até o fim do mês
+            considera transações agendadas, recorrentes pendentes e faturas de cartão que vencem até o fim do mês; o dinheiro guardado fica de fora
           </p>
           <!-- Accounts counted by their recorded balance (no verified opening yet, D-17) -->
           <p v-if="unverifiedAccountNames" class="text-[11px] text-warning leading-snug mt-1">

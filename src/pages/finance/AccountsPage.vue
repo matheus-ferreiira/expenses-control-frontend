@@ -128,9 +128,7 @@ const archiveTarget = ref<BankAccount | null>(null)
 const archiving = ref(false)
 const showArchived = ref(false)
 
-const totalBalance = computed(() =>
-  store.activeAccounts.reduce((s, a) => s + a.balance, 0),
-)
+const totalBalance = computed(() => store.availableBalance)
 
 function openCreate() {
   editingAccount.value = null
@@ -224,7 +222,8 @@ onMounted(async () => {
           </span>
         </div>
         <p class="text-[12px] text-muted-foreground">
-          <span v-if="!loading">Total: {{ formatCurrency(totalBalance) }} · </span>
+          <span v-if="!loading">Disponível: {{ formatCurrency(totalBalance) }} · </span>
+          <span v-if="!loading && store.reserveAccounts.length">Guardado: {{ formatCurrency(store.reserveBalance) }} · </span>
           {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
         </p>
       </div>

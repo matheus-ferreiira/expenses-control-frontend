@@ -178,6 +178,10 @@ async function submit() {
               {{ ACCOUNT_TYPE_LABELS[t] }}
             </button>
           </div>
+          <p v-if="form.type === 'investment'" class="mt-2 text-[12px] leading-snug text-muted-foreground">
+            Dinheiro guardado: aparece como <span class="font-medium text-foreground">Guardado</span> e fica fora do saldo disponível e do previsto.
+            Para guardar, faça uma transferência para esta conta.
+          </p>
         </div>
 
         <!-- The balance of an existing account changes only through transactions or a balance check (D-32) -->

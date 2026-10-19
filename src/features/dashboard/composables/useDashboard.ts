@@ -95,9 +95,9 @@ export function useDashboard() {
 
   // ── Finance ───────────────────────────────────────────────────────────────
 
-  const totalBalance = computed(() =>
-    financeStore.activeAccounts.reduce((sum, a) => sum + a.balance, 0),
-  )
+  // Saldo disponível: caixinhas ficam à parte (reserveBalance)
+  const totalBalance = computed(() => financeStore.availableBalance)
+  const reserveBalance = computed(() => financeStore.reserveBalance)
 
   const recentTransactions = computed(() => recentTxs.value.filter((t) => t.type !== 'transfer').slice(0, 5))
 
@@ -253,6 +253,7 @@ export function useDashboard() {
     pendingHabitsToday,
     // finance
     totalBalance,
+    reserveBalance,
     monthIncome,
     monthExpenses,
     recentTransactions,

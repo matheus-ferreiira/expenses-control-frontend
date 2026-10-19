@@ -16,7 +16,7 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   checking: 'Conta Corrente',
   savings: 'Poupança',
-  investment: 'Investimento',
+  investment: 'Caixinha / investimento',
   wallet: 'Carteira',
   cash: 'Dinheiro',
 }
@@ -53,6 +53,8 @@ export interface BankAccount {
   last_checked_on?: string | null
   /** A conta tem um ponto de partida conferido (entra no saldo reconstruído) */
   balance_verified?: boolean
+  /** Dinheiro guardado (caixinha, investimento): fora do saldo disponível e do previsto */
+  is_reserve?: boolean
   created_at: string
 }
 
@@ -335,4 +337,8 @@ export interface HistoricalBalance {
   card_statements?: CardStatementDue[]
   /** Contas somadas pelo saldo registrado, sem saldo inicial conferido (ex.: carteira) */
   unverified_accounts?: string[]
+  /** Total nas contas de reserva (caixinhas) ao fim do mês */
+  reserve_balance?: number
+  /** Reserva + transferências previstas para as caixinhas até o fim do mês */
+  projected_reserve_balance?: number
 }
