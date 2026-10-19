@@ -43,7 +43,6 @@ const daysInMonth = computed(() => {
 })
 const today = new Date().getDate()
 const daysLeft = computed(() => daysInMonth.value - today)
-const elapsedPct = computed(() => Math.round((today / daysInMonth.value) * 100))
 
 const modeLabel = computed(() => {
   if (props.mode === 'past') return 'Mês fechado'
@@ -99,7 +98,7 @@ const spentPct = computed(() => pct(barSpent.value))
 const totalPct = computed(() => pct(barSpent.value + barPending.value))
 const spentWidth = computed(() => Math.min(100, spentPct.value))
 const pendingWidth = computed(() => Math.max(0, Math.min(100, totalPct.value) - spentWidth.value))
-const barTone = computed(() => (totalPct.value > 100 ? 'bg-destructive' : spentPct.value > elapsedPct.value + 10 && props.mode === 'current' ? 'bg-warning' : 'bg-primary'))
+const barTone = computed(() => (totalPct.value > 100 ? 'bg-destructive' : 'bg-primary'))
 
 // ── Status: o que o mês diz, conforme ele já fechou, está andando ou ainda vai começar ──
 const status = computed<{ tone: 'ok' | 'warn' | 'danger'; text: string } | null>(() => {
@@ -115,10 +114,10 @@ const status = computed<{ tone: 'ok' | 'warn' | 'danger'; text: string } | null>
     if (leftover.value < 0) return { tone: 'warn', text: `Pelo previsto, sai ${formatCurrency(-leftover.value)} a mais do que entra` }
     return { tone: 'ok', text: expectedIncome.value > 0 ? `Pelo previsto, sobram ${Math.round((leftover.value / expectedIncome.value) * 100)}% do que entra` : 'Sem despesas previstas' }
   }
+  // Month in progress: whether what is recorded closes positive, not a pace against the days gone by
+  if (expectedIncome.value === 0 && expectedExpenses.value === 0) return null
   if (forecast.value < 0) return { tone: 'danger', text: `Pelo previsto, o mês fecha ${formatCurrency(-forecast.value)} no negativo` }
-  if (base.value <= 0) return null
-  if (spentPct.value > elapsedPct.value + 10) return { tone: 'warn', text: `Já gastou ${spentPct.value}% com ${elapsedPct.value}% do mês` }
-  return { tone: 'ok', text: `No ritmo: ${spentPct.value}% gasto com ${elapsedPct.value}% do mês` }
+  return { tone: 'ok', text: expectedIncome.value > 0 ? `Pelo previsto, sobram ${Math.round((forecast.value / expectedIncome.value) * 100)}% do que entra` : 'Sem despesas previstas' }
 })
 
 const comparisonText = computed(() => {
@@ -179,7 +178,7 @@ const leftPending = computed(() => props.mode === 'past' && (props.pendingIncome
       </div>
     </div>
 
-    <!-- Barra: gasto (cheio) e a pagar (claro) contra a base; o traço marca o dia de hoje -->
+    <!-- Barra: gasto (cheio) e a pagar (claro) contra a base -->
     <div v-if="!loading && base > 0" class="mt-4">
       <div class="flex items-start justify-between gap-3 text-[11px] text-muted-foreground mb-1.5">
         <span>{{ baseLabel }}</span>
@@ -201,7 +200,6 @@ const leftPending = computed(() => props.mode === 'past' && (props.pendingIncome
           :class="barTone"
           :style="{ left: `${spentWidth}%`, width: `${pendingWidth}%` }"
         />
-        <div v-if="mode === 'current'" class="absolute inset-y-0 w-px bg-foreground/60" :style="{ left: `${elapsedPct}%` }" />
       </div>
     </div>
 
