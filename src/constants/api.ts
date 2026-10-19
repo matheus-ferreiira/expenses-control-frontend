@@ -60,6 +60,7 @@ export const API_ENDPOINTS = {
     REPORTS_YEARLY: `${API_BASE}/finance/reports/yearly`,
     REPORTS_SERIES: `${API_BASE}/finance/reports/series`,
     REPORTS_CATEGORIES: `${API_BASE}/finance/reports/categories`,
+    REPORTS_CATEGORY_TRANSACTIONS: `${API_BASE}/finance/reports/category-transactions`,
     REPORTS_CASHFLOW: `${API_BASE}/finance/reports/cashflow`,
     REPORTS_BALANCE: `${API_BASE}/finance/reports/balance`,
     BUDGETS: `${API_BASE}/finance/budgets`,

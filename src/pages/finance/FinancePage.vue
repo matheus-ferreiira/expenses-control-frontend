@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { AppPageContainer, PageHeader } from '@/components/shared'
 import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
 import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
+import CategoryTransactionsSheet from '@/features/finance/components/CategoryTransactionsSheet.vue'
 import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
@@ -32,7 +33,7 @@ import { useHistoricalBalance } from '@/features/finance/composables/useHistoric
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import { currentMonth, formatDayMonth } from '@/features/finance/utils/financeHelpers'
-import type { CardOverview, CreditCard, RecurrenceUpdateScope, Transaction } from '@/types/finance'
+import type { CardOverview, CategoryBreakdownItem, CreditCard, RecurrenceUpdateScope, Transaction } from '@/types/finance'
 
 const store = useFinanceStore()
 const authStore = useAuthStore()
@@ -136,6 +137,22 @@ const deleteDescription = computed(() =>
 // Falls back to 0 while loading or on error.
 type MonthlySummary = Awaited<ReturnType<typeof financeApi.monthlyReport>>
 const currentMonthSummary = ref<MonthlySummary | null>(null)
+const categoryType = ref<'expense' | 'income'>('expense')
+const categorySheetOpen = ref(false)
+const selectedBreakdownCategory = ref<CategoryBreakdownItem | null>(null)
+const categoryBreakdown = computed(() => categoryType.value === 'income'
+  ? currentMonthSummary.value?.income_by_category ?? []
+  : currentMonthSummary.value?.expenses_by_category ?? [])
+
+function openCategoryTransactions(category: CategoryBreakdownItem) {
+  selectedBreakdownCategory.value = category
+  categorySheetOpen.value = true
+}
+
+function openCategoryTransactionDetail(transaction: Transaction) {
+  categorySheetOpen.value = false
+  openDetail(transaction)
+}
 
 async function loadCurrentMonthSummary() {
   const [year, month] = filterState.month.value.split('-').map(Number)
@@ -762,14 +779,32 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Despesas por categoria do mês selecionado (mesma base do relatório mensal) -->
+      <!-- Categorias do mês selecionado (mesma base do relatório mensal) -->
       <CategoryBreakdownList
         v-if="!store.loading && currentMonthSummary"
         boxed
-        title="Despesas por categoria"
-        empty-text="Nenhuma despesa neste mês."
-        :categories="currentMonthSummary.expenses_by_category"
-      />
+        selectable
+        :title="categoryType === 'expense' ? 'Despesas por categoria' : 'Receitas por categoria'"
+        :empty-text="categoryType === 'expense' ? 'Nenhuma despesa confirmada neste mês.' : 'Nenhuma receita confirmada neste mês.'"
+        :categories="categoryBreakdown"
+        @select="openCategoryTransactions"
+      >
+        <template #controls>
+          <div class="flex gap-1 rounded-lg bg-muted p-1 mb-3" role="group" aria-label="Tipo de transações por categoria">
+            <button
+              v-for="option in (['expense', 'income'] as const)"
+              :key="option"
+              type="button"
+              :aria-pressed="categoryType === option"
+              class="flex-1 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              :class="categoryType === option ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+              @click="categoryType = option"
+            >
+              {{ option === 'expense' ? 'Despesas' : 'Receitas' }}
+            </button>
+          </div>
+        </template>
+      </CategoryBreakdownList>
     </div>
 
     <!-- Alert banner — category budget exceeded -->
@@ -996,6 +1031,14 @@ onMounted(async () => {
     v-model:open="balanceSheetOpen"
     :title="balanceSheetTitle"
     :total-amount="balanceSheetAmount"
+  />
+
+  <CategoryTransactionsSheet
+    v-model:open="categorySheetOpen"
+    :category="selectedBreakdownCategory"
+    :type="categoryType"
+    :month="filterState.month.value"
+    @select="openCategoryTransactionDetail"
   />
 
   <!-- Dialogs -->

@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from '@/constants/api'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type {
   BalanceObservation,
+  CategoryBreakdownItem,
   BankAccount,
   Budget,
   CardOverview,
@@ -272,16 +273,15 @@ export const financeApi = {
         transactions_count: number
         /** Maior despesa confirmada do mês (pela parte própria), ou null */
         largest_expense: { id: string; description: string; amount: number; transaction_date: string; category: string | null } | null
-        expenses_by_category: Array<{
-          category_id: string | null
-          category: string
-          color: string
-          total: number
-          count: number
-          percentage: number
-        }>
+        expenses_by_category: CategoryBreakdownItem[]
+        income_by_category: CategoryBreakdownItem[]
       }>>(API_ENDPOINTS.FINANCE.REPORTS_MONTHLY, { params: { year, month } })
       .then(unwrap),
+
+  categoryTransactions: (params: { year: number; month: number; type: 'income' | 'expense'; category_id: string | null; page?: number }) =>
+    client
+      .get<PaginatedResponse<Transaction>>(API_ENDPOINTS.FINANCE.REPORTS_CATEGORY_TRANSACTIONS, { params })
+      .then(unwrapPaginated),
 
   /** Receitas e despesas por dia ou mês, com a mesma política econômica do relatório mensal */
   reportSeries: (startDate: string, endDate: string, group: 'day' | 'month') =>

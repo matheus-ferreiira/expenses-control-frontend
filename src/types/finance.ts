@@ -304,6 +304,15 @@ export type UpdateTransactionPayload = Partial<CreateTransactionPayload> & {
   scope?: RecurrenceUpdateScope
 }
 
+export interface CategoryBreakdownItem {
+  category_id: string | null
+  category: string
+  color: string
+  total: number
+  count: number
+  percentage: number
+}
+
 export interface TransactionFilters {
   type?: TransactionType
   category_id?: string
