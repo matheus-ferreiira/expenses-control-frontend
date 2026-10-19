@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer, PageHeader } from '@/components/shared'
-import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
+import MonthSummaryCard, { type MonthMode } from '@/features/finance/components/MonthSummaryCard.vue'
 import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
 import CategoryTransactionsSheet from '@/features/finance/components/CategoryTransactionsSheet.vue'
 import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
@@ -155,17 +155,27 @@ function openCategoryTransactionDetail(transaction: Transaction) {
 }
 
 async function loadCurrentMonthSummary() {
-  const [year, month] = filterState.month.value.split('-').map(Number)
+  const viewed = filterState.month.value
+  const [year, month] = viewed.split('-').map(Number)
   try {
-    currentMonthSummary.value = await financeApi.monthlyReport(year!, month!)
+    const summary = await financeApi.monthlyReport(year!, month!)
+    if (filterState.month.value === viewed) currentMonthSummary.value = summary
   } catch {
-    currentMonthSummary.value = null
+    if (filterState.month.value === viewed) currentMonthSummary.value = null
   }
 }
 
 const income = computed(() => currentMonthSummary.value?.income ?? 0)
 const expenses = computed(() => currentMonthSummary.value?.expenses ?? 0)
 const saved = computed(() => currentMonthSummary.value?.saved ?? 0)
+const pendingSaved = computed(() => currentMonthSummary.value?.pending_saved ?? 0)
+
+// The month card changes with the viewed month: closed, in progress or a forecast
+const monthMode = computed<MonthMode>(() => {
+  const viewed = filterState.month.value
+  const now = currentMonth()
+  return viewed < now ? 'past' : viewed > now ? 'future' : 'current'
+})
 
 
 // Available balance: active accounts except reserves (caixinhas), which show apart as "Guardado"
@@ -250,15 +260,6 @@ function openBalanceSheet(title: string, amount: number) {
   balanceSheetOpen.value = true
 }
 
-// Enrichment stats for mobile summary row
-const transactionCount = computed(() =>
-  currentMonthSummary.value?.transactions_count ?? store.transactions.length
-)
-
-// Month figures come from the backend over the whole month, confirmed only and with the economic
-// policy (own share of shared bills) — not from the page loaded in the browser, with its filters (D-14).
-const biggestExpense = computed(() => currentMonthSummary.value?.largest_expense ?? null)
-
 const spentByCategory = computed(() => {
   const spent = new Map<string, number>()
   for (const c of currentMonthSummary.value?.expenses_by_category ?? []) {
@@ -312,41 +313,15 @@ const topCategories = computed<CategoryEntry[]>(() => [
   ...categoriesWithoutMeta.value,
 ])
 
-// Budget base: the month's planned budget when it exists; income as fallback.
-// Using raw income breaks early in the month (salary lands on day 10 → "spent 100%").
+// The viewed month's budget base, when there is one. Without it the card compares with the month's
+// expected income (received + still to receive), never with what was received so far.
 const budgetBase = computed(() => {
-  const base = Number(store.currentBudget?.base_amount ?? 0)
-  return base > 0 ? base : income.value
-})
-
-// Budget usage: expenses as % of the budget base
-const budgetPercent = computed(() =>
-  budgetBase.value > 0 ? Math.min(100, Math.round((expenses.value / budgetBase.value) * 100)) : 0,
-)
-
-// Days remaining in the current month
-const daysLeftInMonth = computed(() => {
-  const now = new Date()
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  return lastDay - now.getDate()
-})
-
-
-// Mobile status chip — mirrors the Lovable MonthSummary status logic
-const mobileStatus = computed(() => {
-  if (exceededCategory.value) {
-    return {
-      tone: 'danger' as const,
-      text: `${exceededCategory.value.name} ultrapassou a meta em ${formatCurrency(exceededCategory.value.total - (exceededCategory.value.monthlyLimit ?? 0))}`,
-    }
-  }
-  if (budgetPercent.value >= 80) {
-    return {
-      tone: 'warn' as const,
-      text: `Já gastou ${budgetPercent.value}% — faltam ${daysLeftInMonth.value} dias no mês`,
-    }
-  }
-  return { tone: 'ok' as const, text: 'Você está no ritmo certo para este mês' }
+  // The store keeps the last fetched budget: use it only when it is the viewed month's
+  const budget = store.currentBudget
+  const [y, m] = filterState.month.value.split('-').map(Number)
+  if (!budget || budget.year !== y || budget.month !== m) return null
+  const base = Number(budget.base_amount)
+  return base > 0 ? base : null
 })
 
 
@@ -454,31 +429,47 @@ function closeSearch() {
 watch(filterState.search, () => loadTransactions())
 
 
-// ── Previous month comparison ─────────────────────────────────────────────
-const prevMonthReport = ref<{
-  income: number
-  expenses: number
-  expenses_by_category: Array<{ category: string; color: string; total: number; count: number; percentage: number }>
-} | null>(null)
+// ── Expense comparison ────────────────────────────────────────────────────
+// A closed month is compared with the whole previous month; the month in progress with the previous
+// month up to the same day (a full month against half a month says nothing); a future month is not compared.
+const comparisonData = ref<{ month: string; label: string; expenses: number } | null>(null)
 
-const expenseDelta = computed(() => {
-  if (!prevMonthReport.value) return null
-  return expenses.value - prevMonthReport.value.expenses
-})
-
-// incomeDelta reserved for future use
-// const incomeDelta = computed(() => prevMonthReport.value ? income.value - prevMonthReport.value.income : null)
-
-async function loadPrevMonthReport() {
-  const current = filterState.month.value
-  const d = new Date(current + '-01')
-  d.setMonth(d.getMonth() - 1)
+async function loadComparison() {
+  const viewed = filterState.month.value
+  const mode = monthMode.value
+  comparisonData.value = null
+  if (mode === 'future') return
+  const [y, m] = viewed.split('-').map(Number)
+  // Built from local date parts: `new Date('2026-10-01')` is UTC and in Brazil fell on the previous day,
+  // so the old code compared October with August
+  const prev = new Date(y!, m! - 2, 1)
+  const prevYear = prev.getFullYear()
+  const prevMonth = prev.getMonth() + 1
+  const name = prev.toLocaleDateString('pt-BR', { month: 'long' })
   try {
-    prevMonthReport.value = await financeApi.monthlyReport(d.getFullYear(), d.getMonth() + 1)
+    let total: number
+    let label: string
+    if (mode === 'past') {
+      total = (await financeApi.monthlyReport(prevYear, prevMonth)).expenses
+      label = name
+    } else {
+      const day = Math.min(new Date().getDate(), new Date(prevYear, prevMonth, 0).getDate())
+      const mm = String(prevMonth).padStart(2, '0')
+      const series = await financeApi.reportSeries(`${prevYear}-${mm}-01`, `${prevYear}-${mm}-${String(day).padStart(2, '0')}`, 'day')
+      total = series.reduce((sum, point) => sum + point.expenses, 0)
+      label = `${name} até o dia ${day}`
+    }
+    if (filterState.month.value === viewed) comparisonData.value = { month: viewed, label, expenses: total }
   } catch {
-    prevMonthReport.value = null
+    // sem comparação; o resto do card continua
   }
 }
+
+const expenseComparison = computed(() => {
+  const c = comparisonData.value
+  if (!c || c.month !== filterState.month.value || !currentMonthSummary.value) return null
+  return { label: c.label, delta: Math.round((expenses.value - c.expenses) * 100) / 100 }
+})
 
 // ── First exceeded category (for alert banner) ────────────────────────────
 // Exceeded only when spending goes past the limit: reaching it exactly is on budget (same rule as the backend)
@@ -516,7 +507,7 @@ watch(() => filterState.month.value, () => {
   selectedDay.value = null
   loadTransactions()
   loadCurrentMonthSummary()
-  loadPrevMonthReport()
+  loadComparison()
   // Budget of the viewed month drives the budget bar base
   const [y, m] = filterState.month.value.split('-').map(Number)
   store.fetchBudget(m!, y!)
@@ -579,7 +570,7 @@ onMounted(async () => {
     store.fetchAll().then(loadCardOverviews),
     loadTransactions(),
     loadCurrentMonthSummary(),
-    loadPrevMonthReport(),
+    loadComparison(),
     store.fetchBudget(now.getMonth() + 1, now.getFullYear()),
     store.fetchGoals(),
   ])
@@ -647,19 +638,17 @@ onMounted(async () => {
       <!-- Main card: month nav + stats + budget + status chip + vs mês anterior -->
       <MonthSummaryCard
         :month="filterState.month.value"
-        :is-current-month="filterState.isCurrentMonth()"
+        :mode="monthMode"
         :income="income"
         :expenses="expenses"
-        :saved="saved"
-        :budget-percent="budgetPercent"
-        :budget-base="budgetBase"
-        :status="mobileStatus"
-        :expense-delta="expenseDelta"
-        :loading="store.loading"
-        :transaction-count="transactionCount"
-        :biggest-expense="biggestExpense"
         :pending-income="pendingIncome"
         :pending-expenses="pendingExpenses"
+        :saved="saved"
+        :pending-saved="pendingSaved"
+        :reserve-total="store.reserveBalance"
+        :budget-base="budgetBase"
+        :comparison="expenseComparison"
+        :loading="!currentMonthSummary"
         @prev="filterState.prevMonth()"
         @next="filterState.nextMonth()"
         @reset="filterState.resetToCurrentMonth()"

@@ -276,9 +276,9 @@ onMounted(() => {
             <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Sobra</p>
             <p
               class="text-[18px] font-semibold tabular-nums mt-1"
-              :class="report.balance >= 0 ? 'text-success' : 'text-destructive'"
+              :class="report.income - report.expenses >= 0 ? 'text-success' : 'text-destructive'"
             >
-              {{ formatCurrency(report.balance) }}
+              {{ formatCurrency(Math.round((report.income - report.expenses) * 100) / 100) }}
             </p>
           </div>
         </div>

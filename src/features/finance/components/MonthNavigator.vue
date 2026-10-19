@@ -60,7 +60,7 @@ function isPickerSelectedMonth(monthIdx: number): boolean {
           type="button"
           class="flex items-center gap-1 min-w-28 justify-center hover:text-primary transition-colors group"
         >
-          <span class="text-[13px] font-medium text-foreground group-hover:text-primary transition-colors">
+          <span class="text-[13px] font-medium text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
             {{ monthLabel(month) }}
           </span>
           <ChevronDown
