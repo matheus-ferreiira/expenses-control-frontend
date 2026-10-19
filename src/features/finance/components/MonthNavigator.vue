@@ -49,7 +49,7 @@ function isPickerSelectedMonth(monthIdx: number): boolean {
 
 <template>
   <div class="flex items-center gap-1">
-    <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px]" @click="emit('prev')">
+    <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px]" aria-label="Mês anterior" @click="emit('prev')">
       <ChevronLeft :size="14" />
     </Button>
 
@@ -122,7 +122,7 @@ function isPickerSelectedMonth(monthIdx: number): boolean {
       </PopoverContent>
     </Popover>
 
-    <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px]" @click="emit('next')">
+    <Button variant="ghost" size="icon" class="min-h-[44px] min-w-[44px]" aria-label="Próximo mês" @click="emit('next')">
       <ChevronRight :size="14" />
     </Button>
 

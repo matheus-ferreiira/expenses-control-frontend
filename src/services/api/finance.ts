@@ -261,8 +261,10 @@ export const financeApi = {
         month: number
         income: number
         expenses: number
-        /** Aportes em metas confirmados no mês — poupança, não gasto */
+        /** Guardado no mês (aportes em metas + o que foi para as caixinhas) — poupança, não gasto */
         saved: number
+        /** Líquido transferido para as caixinhas no mês */
+        reserved?: number
         balance: number
         pending_income: number
         pending_expenses: number

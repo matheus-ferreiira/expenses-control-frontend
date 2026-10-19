@@ -7,12 +7,12 @@ import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
 import {
   ChevronLeft, ChevronRight, TrendingUp, PieChart,
-  AlertTriangle, Sparkles, Tag,
+  AlertTriangle, Sparkles,
 } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
 import { formatCurrency } from '@/utils/currency'
 import { useFinanceStore } from '@/stores/finance'
-import { findIcon } from '@/lib/icons'
+import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
 
 const router = useRouter()
 const financeStore = useFinanceStore()
@@ -122,11 +122,6 @@ async function load() {
   }
 }
 
-/** Bar width relative to the largest category spend */
-const maxCategoryTotal = computed(() =>
-  Math.max(...(report.value?.expenses_by_category.map((c) => c.total) ?? [1]), 1)
-)
-
 /**
  * Narrative banner: every sentence states its numbers and base (D-35). No judgement the data does not
  * support ("ótimo mês", "principal fator"); partial, future and empty months are said as such.
@@ -137,7 +132,7 @@ const narrative = computed(() => {
   const now = new Date()
   const isCurrent = year.value === now.getFullYear() && month.value === now.getMonth() + 1
   const isFuture = year.value > now.getFullYear() || (year.value === now.getFullYear() && month.value > now.getMonth() + 1)
-  const savedNote = saved > 0 ? ` Guardado em metas: ${formatCurrency(saved)}.` : ''
+  const savedNote = saved > 0 ? ` Guardado: ${formatCurrency(saved)}.` : ''
   const pendingNote = pending_income > 0 || pending_expenses > 0
     ? ` Ainda previstos: +${formatCurrency(pending_income)} e −${formatCurrency(pending_expenses)}.`
     : ''
@@ -169,15 +164,6 @@ const narrativeCls = computed(() => {
   if (narrative.value.tone === 'ok') return 'bg-muted text-success'
   return 'bg-muted text-foreground'
 })
-
-function categoryIcon(categoryName: string): object {
-  const cat = financeStore.categories.find((c) => c.name === categoryName)
-  if (cat?.icon) {
-    const found = findIcon(cat.icon)
-    if (found) return found.component as object
-  }
-  return Tag
-}
 
 function getCSSVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
@@ -342,50 +328,7 @@ onMounted(() => {
 
       <!-- Category breakdown with mini-bars -->
       <div v-if="report.expenses_by_category.length > 0">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Por categoria
-          </p>
-          <span class="text-[11px] text-muted-foreground">
-            {{ report.expenses_by_category.length }} categorias
-          </span>
-        </div>
-
-        <ul class="divide-y divide-border bg-card rounded-md overflow-hidden">
-          <li
-            v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total)"
-            :key="cat.category"
-            class="px-4 py-3"
-          >
-            <div class="flex items-center gap-3">
-              <!-- IconSwatch-style -->
-              <span
-                class="size-7 rounded-lg grid place-items-center shrink-0"
-                :style="{ background: cat.color + '22', color: cat.color }"
-              >
-                <component :is="categoryIcon(cat.category)" :size="14" :stroke-width="1.9" />
-              </span>
-              <span class="flex-1 text-[13px] text-foreground truncate">{{ cat.category }}</span>
-              <div class="text-right shrink-0">
-                <span class="block text-[13px] tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
-                <span class="block text-[12px] tabular-nums text-muted-foreground">{{ cat.percentage }}% do total</span>
-              </div>
-            </div>
-            <!-- Bar using category color -->
-            <div class="mt-1.5 ml-10 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all duration-500"
-                :style="{
-                  width: `${Math.min(100, Math.round((cat.total / maxCategoryTotal) * 100))}%`,
-                  background: cat.color,
-                }"
-              />
-            </div>
-            <p class="ml-10 mt-1 text-[10.5px] text-muted-foreground tabular-nums">
-              {{ cat.count }} transaç{{ cat.count !== 1 ? 'ões' : 'ão' }}
-            </p>
-          </li>
-        </ul>
+        <CategoryBreakdownList :categories="report.expenses_by_category" />
       </div>
 
       <!-- Empty expenses -->

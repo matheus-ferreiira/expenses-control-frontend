@@ -12,6 +12,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer, PageHeader } from '@/components/shared'
 import MonthSummaryCard from '@/features/finance/components/MonthSummaryCard.vue'
+import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
 import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
@@ -463,8 +464,9 @@ async function loadPrevMonthReport() {
 }
 
 // ── First exceeded category (for alert banner) ────────────────────────────
+// Exceeded only when spending goes past the limit: reaching it exactly is on budget (same rule as the backend)
 const exceededCategory = computed(() =>
-  topCategories.value.find((c) => c.budgetPercent != null && c.budgetPercent >= 100) ?? null
+  topCategories.value.find((c) => c.monthlyLimit != null && c.total > c.monthlyLimit) ?? null
 )
 
 // ── Pagination ───────────────────────────────────────────────────────────────
@@ -759,6 +761,15 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+
+      <!-- Despesas por categoria do mês selecionado (mesma base do relatório mensal) -->
+      <CategoryBreakdownList
+        v-if="!store.loading && currentMonthSummary"
+        boxed
+        title="Despesas por categoria"
+        empty-text="Nenhuma despesa neste mês."
+        :categories="currentMonthSummary.expenses_by_category"
+      />
     </div>
 
     <!-- Alert banner — category budget exceeded -->
