@@ -29,6 +29,9 @@ export const financeApi = {
     balanceAt: (id: string, date: string) => client.get<ApiResponse<{ balance_cents: number | null; status: string }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-at`, { params: { date } }).then(unwrap),
     observeBalance: (id: string, payload: { date: string; balance: string; evidence: string }) => client.post<ApiResponse<{ observed_cents: number; calculated_cents: number | null; difference_cents: number | null; opening_created: boolean }>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-observations`, payload).then(unwrap),
     /** Histórico de conferências da conta, mais recente primeiro */
+    /** What came in and went out of each account in the month (cash, as the bank statement shows) */
+    movements: (year: number, month: number) =>
+      client.get<ApiResponse<{ account_id: string; in: number; out: number }[]>>(`${API_ENDPOINTS.FINANCE.ACCOUNTS}/movements`, { params: { year, month } }).then(unwrap),
     balanceObservations: (id: string) => client.get<ApiResponse<BalanceObservation[]>>(`${API_ENDPOINTS.FINANCE.ACCOUNT_DETAIL(id)}/balance-observations`).then(unwrap),
     list: () =>
       client.get<ApiResponse<BankAccount[]>>(API_ENDPOINTS.FINANCE.ACCOUNTS).then(unwrap),

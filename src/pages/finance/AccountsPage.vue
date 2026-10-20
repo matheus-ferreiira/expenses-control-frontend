@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
-import { AppBreadcrumbs } from '@/components/shared'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTES } from '@/constants/routes'
-import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
+import { AppPageContainer, ConfirmDialog, EmptyState, PageHeader } from '@/components/shared'
 import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
 import { Skeleton } from '@ui/skeleton'
-import { Plus, Landmark, ChevronDown, ChevronRight } from 'lucide-vue-next'
+import { Plus, Landmark, ChevronDown, ChevronRight, CalendarDays } from 'lucide-vue-next'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
@@ -28,16 +28,53 @@ import {
 const store = useFinanceStore()
 const toast = useToast()
 const router = useRouter()
+// ── Saldo em uma data (sheet) ───────────────────────────────────────────────
+const datedOpen = ref(false)
 const balanceDate = ref(new Date().toLocaleDateString('en-CA'))
-const datedBalances = ref<{ id: string; name: string; balance_cents: number | null }[]>([])
+const datedBalances = ref<{ id: string; name: string; reserve: boolean; balance_cents: number | null }[]>([])
 const checkingBalances = ref(false)
 async function checkBalances() {
+  if (!balanceDate.value) return
   checkingBalances.value = true
   try {
-    datedBalances.value = await Promise.all(store.activeAccounts.map(async (account) => ({ id: account.id, name: account.name, ...await financeApi.accounts.balanceAt(account.id, balanceDate.value) })))
+    datedBalances.value = await Promise.all(store.activeAccounts.map(async (account) => ({
+      id: account.id, name: account.name, reserve: account.is_reserve ?? account.type === 'investment',
+      ...await financeApi.accounts.balanceAt(account.id, balanceDate.value),
+    })))
   } catch { toast.error('Não foi possível consultar os saldos por data') }
   finally { checkingBalances.value = false }
 }
+function openDatedBalances() {
+  datedOpen.value = true
+  checkBalances()
+}
+// Accounts without a verified balance on that date stay out of the total, which says so
+const datedAvailable = computed(() => datedBalances.value.filter((b) => !b.reserve))
+const datedAvailableTotal = computed(() => datedAvailable.value.reduce((s, b) => s + (b.balance_cents ?? 0), 0) / 100)
+const datedMissing = computed(() => datedAvailable.value.filter((b) => b.balance_cents === null).length)
+const datedKnown = computed(() => datedAvailable.value.length - datedMissing.value)
+
+// ── Movimento do mês por conta ──────────────────────────────────────────────
+const movements = ref<Record<string, { in: number; out: number }>>({})
+const monthLabel = new Date().toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+async function loadMovements() {
+  const now = new Date()
+  try {
+    const rows = await financeApi.accounts.movements(now.getFullYear(), now.getMonth() + 1)
+    movements.value = Object.fromEntries(rows.map((r) => [r.account_id, { in: r.in, out: r.out }]))
+  } catch {
+    // the list still works without the month's movement
+  }
+}
+function movementFor(id: string) {
+  const m = movements.value[id]
+  return m ? { ...m, monthLabel } : null
+}
+
+const accountGroups = computed(() => [
+  { key: 'available', label: 'Disponível', accounts: store.availableAccounts, total: store.availableBalance },
+  { key: 'reserve', label: 'Guardado', accounts: store.reserveAccounts, total: store.reserveBalance },
+].filter((g) => g.accounts.length))
 
 /** Toque na conta → Visão Geral filtrada pelas transações dela */
 function viewStatement(account: BankAccount) {
@@ -195,7 +232,7 @@ async function unarchiveAccount(account: BankAccount) {
 onMounted(async () => {
   loading.value = true
   try {
-    await store.fetchAccounts()
+    await Promise.all([store.fetchAccounts(), loadMovements()])
   } finally {
     loading.value = false
   }
@@ -205,48 +242,43 @@ onMounted(async () => {
 <template>
   <AppPageContainer>
     <FinanceSubNav />
-    <!-- Header -->
-    <div class="flex items-start justify-between mb-4">
-      <div>
-        <AppBreadcrumbs />
-        <div class="flex items-center gap-2 mb-1.5">
-          <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none">
-            Contas
-          </h1>
-          <!-- Archived badge — draws attention when there are archived accounts -->
-          <span
-            v-if="!loading && store.archivedAccounts.length > 0"
-            class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground "
-          >
-            {{ store.archivedAccounts.length }} arquivada{{ store.archivedAccounts.length !== 1 ? 's' : '' }}
-          </span>
-        </div>
+    <PageHeader title="Contas" subtitle="Saldos, conferências e o movimento de cada conta." compact-mobile>
+      <template #actions>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          @click="openCreate"
+        >
+          <Plus :size="14" />
+          Nova conta
+        </button>
+      </template>
+    </PageHeader>
+
+    <!-- Summary: what is available to spend, what is put away -->
+    <div v-if="!loading && store.activeAccounts.length" class="mb-4 rounded-lg bg-card p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Disponível</p>
+      <p class="text-[26px] font-semibold tabular-nums leading-tight mt-1" :class="totalBalance < 0 ? 'text-destructive' : 'text-foreground'">
+        {{ formatCurrency(totalBalance) }}
+      </p>
+      <div class="mt-2 flex items-center justify-between gap-3">
         <p class="text-[12px] text-muted-foreground">
-          <span v-if="!loading">Disponível: {{ formatCurrency(totalBalance) }} · </span>
-          <span v-if="!loading && store.reserveAccounts.length">Guardado: {{ formatCurrency(store.reserveBalance) }} · </span>
-          {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }} ativa{{ store.activeAccounts.length !== 1 ? 's' : '' }}
+          <template v-if="store.reserveAccounts.length">
+            <span class="whitespace-nowrap">Guardado <span class="text-primary font-medium tabular-nums">{{ formatCurrency(store.reserveBalance) }}</span></span> ·
+          </template>
+          <span class="whitespace-nowrap">{{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }}</span>
         </p>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[12px] font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          @click="openDatedBalances"
+        >
+          <CalendarDays :size="13" />
+          Saldo em uma data
+        </button>
       </div>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
-        @click="openCreate"
-      >
-        <Plus :size="14" />
-        Nova conta
-      </button>
     </div>
 
-    <!-- Loading -->
-    <div class="mb-4 rounded-lg bg-card p-3 text-sm">
-      <label class="flex items-center gap-2">Saldo por data
-        <input v-model="balanceDate" type="date" class="rounded bg-muted px-2 py-1" />
-        <button :disabled="checkingBalances" class="text-primary" @click="checkBalances">Consultar</button>
-      </label>
-      <p v-for="account in datedBalances" :key="account.id" class="mt-2">
-        {{ account.name }}: {{ account.balance_cents === null ? 'Saldo histórico não confirmado' : formatCurrency(account.balance_cents / 100) }}
-      </p>
-    </div>
     <div v-if="loading" class="grid grid-cols-1 gap-3">
       <div v-for="i in 3" :key="i" class="rounded-lg bg-card p-3.5 space-y-2.5">
         <div class="flex items-center gap-2.5">
@@ -271,32 +303,39 @@ onMounted(async () => {
     />
 
     <template v-else>
-      <!-- Active accounts grid -->
-      <div class="grid grid-cols-1 gap-3">
-        <AccountCard
-          v-for="account in store.activeAccounts"
-          :key="account.id"
-          :account="account"
-          @view="viewStatement"
-          @edit="openEdit"
-          @adjust="openAdjust"
-          @delete="openDelete"
-          @archive="requestArchive"
-          @unarchive="unarchiveAccount"
-        />
-      </div>
+      <!-- Disponível and Guardado, each with its subtotal -->
+      <section v-for="group in accountGroups" :key="group.key" class="mb-4">
+        <div class="flex items-center justify-between px-1 mb-1.5">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{{ group.label }}</p>
+          <p class="text-[12px] tabular-nums text-muted-foreground">{{ formatCurrency(group.total) }}</p>
+        </div>
+        <div class="rounded-lg bg-card divide-y divide-border overflow-hidden">
+          <AccountCard
+            v-for="account in group.accounts"
+            :key="account.id"
+            :account="account"
+            :movement="movementFor(account.id)"
+            @view="viewStatement"
+            @edit="openEdit"
+            @adjust="openAdjust"
+            @delete="openDelete"
+            @archive="requestArchive"
+            @unarchive="unarchiveAccount"
+          />
+        </div>
+      </section>
 
       <!-- Archived accounts — collapsible section -->
       <div v-if="store.archivedAccounts.length > 0" class="mt-6">
         <button
           type="button"
-          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground hover:text-muted-foreground transition-colors mb-3"
+          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors mb-3"
           @click="showArchived = !showArchived"
         >
           <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
           <span>{{ showArchived ? 'Ocultar' : 'Ver' }} contas arquivadas ({{ store.archivedAccounts.length }})</span>
         </button>
-        <div v-if="showArchived" class="grid grid-cols-1 gap-3 opacity-60">
+        <div v-if="showArchived" class="rounded-lg bg-card divide-y divide-border overflow-hidden opacity-60">
           <AccountCard
             v-for="account in store.archivedAccounts"
             :key="account.id"
@@ -315,6 +354,38 @@ onMounted(async () => {
     v-model:open="formOpen"
     :account="editingAccount"
   />
+
+  <!-- Saldo em uma data -->
+  <Sheet v-model:open="datedOpen">
+    <SheetContent side="bottom" class="rounded-t-2xl p-0 max-w-lg mx-auto max-h-[85vh] overflow-y-auto">
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border" />
+      <SheetHeader class="text-left px-5 pt-3">
+        <SheetTitle class="text-[15px]">Saldo em uma data</SheetTitle>
+        <SheetDescription class="text-[12px]">Quanto havia em cada conta no fim do dia escolhido.</SheetDescription>
+      </SheetHeader>
+      <div class="px-5 pb-6 mt-4">
+        <input
+          v-model="balanceDate"
+          type="date"
+          :max="new Date().toLocaleDateString('en-CA')"
+          aria-label="Data"
+          class="w-full h-11 rounded-lg bg-muted px-3 text-[14px] text-foreground outline-none"
+          @change="checkBalances"
+        />
+        <div class="mt-4 rounded-lg bg-card divide-y divide-border" :class="checkingBalances ? 'opacity-50' : ''">
+          <div v-for="b in datedBalances" :key="b.id" class="flex items-center justify-between gap-3 px-3 py-2.5 text-[13px]">
+            <span class="truncate">{{ b.name }}<span v-if="b.reserve" class="text-muted-foreground"> · guardado</span></span>
+            <span v-if="b.balance_cents === null" class="text-[12px] text-muted-foreground shrink-0">sem saldo conferido nessa data</span>
+            <span v-else class="tabular-nums font-medium shrink-0" :class="b.balance_cents < 0 ? 'text-destructive' : 'text-foreground'">{{ formatCurrency(b.balance_cents / 100) }}</span>
+          </div>
+          <div v-if="datedKnown" class="flex items-center justify-between px-3 py-2.5 text-[13px] font-semibold">
+            <span>Disponível<span v-if="datedMissing" class="font-normal text-muted-foreground"> (só contas conferidas)</span></span>
+            <span class="tabular-nums">{{ formatCurrency(datedAvailableTotal) }}</span>
+          </div>
+        </div>
+      </div>
+    </SheetContent>
+  </Sheet>
 
   <!-- Archive confirmation -->
   <ConfirmDialog
