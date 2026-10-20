@@ -742,7 +742,7 @@ onMounted(async () => {
               type="button"
               :aria-pressed="categoryType === option"
               class="flex-1 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              :class="categoryType === option ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+              :class="categoryType === option ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'"
               @click="categoryType = option"
             >
               {{ option === 'expense' ? 'Despesas' : 'Receitas' }}
@@ -821,7 +821,7 @@ onMounted(async () => {
                 type="button"
                 :aria-pressed="activeChip === f.id"
                 class="flex-1 h-7 rounded-md text-[12px] font-medium transition-colors"
-                :class="activeChip === f.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+                :class="activeChip === f.id ? 'bg-primary/15 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'"
                 @click="setChip(f.id)"
               >
                 {{ f.label }}
