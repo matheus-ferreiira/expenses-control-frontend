@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Skeleton } from '@ui/skeleton'
-import { Search, Inbox, Plus, Loader2, ChevronDown, AlertCircle } from 'lucide-vue-next'
+import { Search, Inbox, Plus, Loader2, ChevronDown, ChevronRight, AlertCircle, CalendarClock } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { groupTransactionsByDate } from '../utils/financeHelpers'
@@ -29,6 +29,15 @@ const props = defineProps<{
   monthContext?: 'current' | 'past' | 'future'
   /** Error message to display instead of the transaction list. */
   error?: string | null
+  /**
+   * Scheduled (pending) items go to a collapsed "Agendadas" block on top; the list below shows
+   * only what already happened.
+   */
+  splitScheduled?: boolean
+  /** Show only this many of the latest items, with "Ver mais". */
+  limit?: number
+  /** A narrowing filter (search, account, category, day, status) is on: list everything, unsplit. */
+  showAll?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -46,12 +55,35 @@ const emit = defineEmits<{
   quickDuplicate: [transaction: Transaction]
 }>()
 
-const groups = computed(() => groupTransactionsByDate(props.transactions, props.totalBalance))
+const split = computed(() => props.splitScheduled && !props.showAll)
+const scheduled = computed(() => (split.value ? props.transactions.filter((t) => t.status === 'pending') : []))
+const happened = computed(() => (split.value ? props.transactions.filter((t) => t.status !== 'pending') : props.transactions))
 
-/** True when the backend has more results than what's currently loaded. */
+// Scheduled items read nearest first; what happened reads latest first
+const scheduledGroups = computed(() => groupTransactionsByDate(scheduled.value).reverse())
+const scheduledOpen = ref(false)
+const scheduledIn = computed(() => scheduled.value.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0))
+const scheduledOut = computed(() => scheduled.value.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0))
+
+const expanded = ref(false)
+const limited = computed(() => !!props.limit && !props.showAll && !expanded.value && happened.value.length > props.limit)
+const visible = computed(() => {
+  if (!limited.value) return happened.value
+  return [...happened.value].sort((a, b) => b.transaction_date.localeCompare(a.transaction_date)).slice(0, props.limit)
+})
+const hiddenCount = computed(() => happened.value.length - visible.value.length)
+const groups = computed(() => groupTransactionsByDate(visible.value, props.totalBalance))
+
+/** True when the backend has more results than what's currently loaded (only offered once all are shown). */
 const isTruncated = computed(() =>
-  props.totalCount != null && props.totalCount > props.transactions.length,
+  !limited.value && props.totalCount != null && props.totalCount > props.transactions.length,
 )
+
+function groupTotal(group: { income: number; expenses: number }): string | null {
+  if (group.income === 0 && group.expenses === 0) return null
+  const net = group.income - group.expenses
+  return `${net >= 0 ? '+' : '−'}${formatCurrency(Math.abs(net))}`
+}
 </script>
 
 <template>
@@ -124,17 +156,54 @@ const isTruncated = computed(() =>
 
   <!-- Grouped list -->
   <div v-else :class="nested ? '' : 'rounded-md overflow-clip'">
-    <template v-for="(group, groupIndex) in groups" :key="group.date">
-      <!-- Date header -->
-      <div class="flex justify-between items-center mb-1 px-1" :class="groupIndex === 0 ? 'mt-5' : 'mt-4'">
+    <!-- Agendadas: collapsed block on top, nearest first -->
+    <div v-if="scheduled.length" class="border-b border-border">
+      <button
+        type="button"
+        class="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+        :aria-expanded="scheduledOpen"
+        @click="scheduledOpen = !scheduledOpen"
+      >
+        <ChevronRight :size="14" class="text-muted-foreground shrink-0 transition-transform" :class="scheduledOpen ? 'rotate-90' : ''" />
+        <CalendarClock :size="14" class="text-warning shrink-0" />
+        <span class="text-[13px] font-medium text-foreground">Agendadas ({{ scheduled.length }})</span>
+        <span class="ml-auto text-[12px] tabular-nums whitespace-nowrap">
+          <span v-if="scheduledIn > 0" class="text-success">+{{ formatCurrency(scheduledIn) }}</span>
+          <span v-if="scheduledIn > 0 && scheduledOut > 0" class="text-muted-foreground"> · </span>
+          <span v-if="scheduledOut > 0" class="text-muted-foreground">−{{ formatCurrency(scheduledOut) }}</span>
+        </span>
+      </button>
+      <div v-if="scheduledOpen" class="pb-1">
+        <template v-for="group in scheduledGroups" :key="'s' + group.date">
+          <div class="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{{ group.label }}</div>
+          <ul class="divide-y divide-border">
+            <TransactionCard
+              v-for="t in group.transactions"
+              :key="t.id"
+              :transaction="t"
+              :highlighted="t.id === highlightedId"
+              @select="emit('select', $event)"
+              @confirm="emit('confirm', $event)"
+              @quick-delete="emit('quickDelete', $event)"
+              @quick-duplicate="emit('quickDuplicate', $event)"
+            />
+          </ul>
+        </template>
+      </div>
+    </div>
+
+    <p v-if="split && !groups.length" class="px-4 py-6 text-center text-[12px] text-muted-foreground">
+      Nada lançado ainda neste mês, só agendadas.
+    </p>
+
+    <template v-for="group in groups" :key="group.date">
+      <!-- Date header: same side margins as the rows, total aligned with the amounts -->
+      <div class="flex justify-between items-center px-4 pt-3 pb-1">
         <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {{ group.label }}
         </span>
-        <span
-          v-if="group.income !== 0 || group.expenses !== 0"
-          class="text-[12px] tabular-nums text-muted-foreground"
-        >
-          {{ group.income >= group.expenses ? '+' : '-' }}{{ formatCurrency(Math.abs(group.income - group.expenses)) }}
+        <span v-if="groupTotal(group)" class="text-[12px] tabular-nums text-muted-foreground">
+          {{ groupTotal(group) }}
         </span>
       </div>
 
@@ -152,6 +221,16 @@ const isTruncated = computed(() =>
         />
       </ul>
     </template>
+
+    <!-- Only the latest items until asked for more -->
+    <button
+      v-if="limited"
+      type="button"
+      class="w-full border-t border-border py-3 text-[13px] font-medium text-primary hover:bg-muted/40 transition-colors"
+      @click="expanded = true"
+    >
+      Ver mais ({{ hiddenCount }})
+    </button>
 
     <!-- Truncation banner — shown when backend has more results than current page -->
     <div

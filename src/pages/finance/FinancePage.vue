@@ -1,14 +1,8 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, watch, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronRight, ChevronDown, X, Plus, Search, AlertTriangle, PiggyBank } from 'lucide-vue-next'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { ChevronRight, X, Plus, Search, AlertTriangle, PiggyBank, SlidersHorizontal } from 'lucide-vue-next'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { AppPageContainer, PageHeader } from '@/components/shared'
 import MonthSummaryCard, { type MonthMode } from '@/features/finance/components/MonthSummaryCard.vue'
 import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
@@ -331,13 +325,12 @@ const CHIPS: { id: ChipId; label: string }[] = [
 function setChip(chip: ChipId) {
   activeChip.value = chip
   selectedDay.value = null
-  if (chip === 'transfer') {
-    filterState.setType('transfer')
-    filterState.setQuickFilter('all')
-  } else {
-    filterState.setType(undefined)
-    filterState.setQuickFilter(chip)
-  }
+  const before = filterState.quickFilter.value
+  // setQuickFilter clears the manual type, so the transfer type is set after it (it used to be wiped)
+  filterState.setQuickFilter(chip === 'transfer' ? 'all' : chip)
+  if (chip === 'transfer') filterState.setType('transfer')
+  // The quickFilter watcher reloads only when it changes ('all' ↔ transfers keeps it at 'all')
+  if (filterState.quickFilter.value === before) loadTransactions()
 }
 
 // Conta / Categoria (server-side via composable)
@@ -399,6 +392,43 @@ const displayedTransactions = computed(() =>
     ? store.transactions.filter((t) => t.transaction_date === selectedDay.value)
     : store.transactions,
 )
+
+// The three main types sit inline; transfers, fixed and pending go to the "Filtros" sheet
+const MAIN_CHIPS = CHIPS.filter((c) => ['all', 'income', 'expense'].includes(c.id))
+const EXTRA_CHIPS = CHIPS.filter((c) => !['all', 'income', 'expense'].includes(c.id))
+const filtersOpen = ref(false)
+const extraChipActive = computed(() => EXTRA_CHIPS.some((c) => c.id === activeChip.value))
+
+/** Filters that narrow the list down: show every match, without the scheduled block or the limit */
+const narrowingFilter = computed(() =>
+  extraChipActive.value ||
+  !!filterState.account_id.value ||
+  !!filterState.category_id.value ||
+  !!selectedDay.value ||
+  !!filterState.search.value,
+)
+
+const activeFilterPills = computed(() => {
+  const pills: { key: string; label: string; clear: () => void }[] = []
+  if (extraChipActive.value) {
+    pills.push({ key: 'chip', label: CHIPS.find((c) => c.id === activeChip.value)!.label, clear: () => setChip('all') })
+  }
+  if (selectedAccountName.value) pills.push({ key: 'account', label: selectedAccountName.value, clear: () => setAccount(undefined) })
+  if (selectedCategoryName.value) pills.push({ key: 'category', label: selectedCategoryName.value, clear: () => setCategory(undefined) })
+  if (selectedDay.value) pills.push({ key: 'day', label: formatDayLabel(selectedDay.value), clear: () => selectDay(null) })
+  return pills
+})
+const extraFilterCount = computed(() => activeFilterPills.value.length)
+
+function clearExtraFilters() {
+  if (extraChipActive.value) setChip('all')
+  selectedDay.value = null
+  // A category change reloads through its watcher; an account change alone needs an explicit reload
+  const reload = !!filterState.account_id.value && !filterState.category_id.value
+  filterState.setAccountId(undefined)
+  filterState.setCategoryId(undefined)
+  if (reload) loadTransactions()
+}
 
 const hasAnyFilter = computed(() =>
   activeChip.value !== 'all' ||
@@ -782,140 +812,57 @@ onMounted(async () => {
             </template>
           </div>
 
-          <!-- Filter chips — inside container with border-b -->
-          <div class="px-3 py-2 border-b border-border overflow-x-auto scrollbar-none scroll-fade-x">
-            <div class="flex items-center gap-1.5 w-max">
+          <!-- Filters: the three main types inline, everything else in the "Filtros" sheet -->
+          <div class="flex items-center gap-2 px-3 py-2 border-b border-border">
+            <div class="flex flex-1 gap-1 rounded-lg bg-muted p-1" role="group" aria-label="Tipo de transação">
               <button
-                v-for="f in CHIPS"
+                v-for="f in MAIN_CHIPS"
                 :key="f.id"
                 type="button"
-                class="h-7 px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors duration-150 shrink-0"
-                :class="activeChip === f.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:text-foreground'"
+                :aria-pressed="activeChip === f.id"
+                class="flex-1 h-7 rounded-md text-[12px] font-medium transition-colors"
+                :class="activeChip === f.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
                 @click="setChip(f.id)"
               >
                 {{ f.label }}
               </button>
-
-              <!-- Divider -->
-              <div class="w-px h-5 bg-border shrink-0 self-center" />
-
-              <!-- Conta -->
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                  <button
-                    type="button"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
-                    :class="selectedAccountName
-                      ? 'bg-muted text-primary'
-                      : 'bg-muted text-muted-foreground hover:text-foreground'"
-                  >
-                    <span class="max-w-[100px] truncate">{{ selectedAccountName ?? 'Conta' }}</span>
-                    <ChevronDown :size="10" class="shrink-0" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" class="w-48">
-                  <DropdownMenuItem @click="setAccount(undefined)">
-                    <span :class="!filterState.account_id.value ? 'text-primary font-medium' : ''">
-                      Todas as contas
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator v-if="store.activeAccounts.length" />
-                  <DropdownMenuItem
-                    v-for="acc in store.activeAccounts"
-                    :key="acc.id"
-                    @click="setAccount(acc.id)"
-                  >
-                    <span :class="filterState.account_id.value === acc.id ? 'text-primary font-medium' : ''">
-                      {{ acc.name }}
-                    </span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <!-- Categoria -->
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                  <button
-                    type="button"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
-                    :class="selectedCategoryName
-                      ? 'bg-muted text-primary'
-                      : 'bg-muted text-muted-foreground hover:text-foreground'"
-                  >
-                    <span class="max-w-[100px] truncate">{{ selectedCategoryName ?? 'Categoria' }}</span>
-                    <ChevronDown :size="10" class="shrink-0" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" class="w-48 max-h-64 overflow-y-auto">
-                  <DropdownMenuItem @click="setCategory(undefined)">
-                    <span :class="!filterState.category_id.value ? 'text-primary font-medium' : ''">
-                      Todas as categorias
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator v-if="filterableCategories.length" />
-                  <DropdownMenuItem
-                    v-for="cat in filterableCategories"
-                    :key="cat.id"
-                    @click="setCategory(cat.id)"
-                  >
-                    <span :class="filterState.category_id.value === cat.id ? 'text-primary font-medium' : ''">
-                      {{ cat.name }}
-                    </span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <!-- Dia do mês -->
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                  <button
-                    type="button"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 whitespace-nowrap"
-                    :class="selectedDay
-                      ? 'bg-muted text-primary'
-                      : 'bg-muted text-muted-foreground hover:text-foreground'"
-                  >
-                    {{ selectedDay ? formatDayLabel(selectedDay) : 'Data' }}
-                    <ChevronDown :size="10" class="shrink-0" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" class="w-56 p-2">
-                  <button
-                    type="button"
-                    class="w-full text-left text-[12px] px-2 py-1.5 rounded-md transition-colors hover:bg-muted"
-                    :class="!selectedDay ? 'text-primary font-medium' : 'text-muted-foreground'"
-                    @click="selectDay(null)"
-                  >
-                    Todos os dias
-                  </button>
-                  <div class="mt-1.5 border-t border-border pt-2">
-                    <div class="grid grid-cols-7 gap-0.5">
-                      <button
-                        v-for="{ day, dateStr, hasTx } in monthDays"
-                        :key="dateStr"
-                        type="button"
-                        class="h-7 rounded-md text-[11px] tabular-nums transition-colors"
-                        :class="selectedDay === dateStr
-                          ? 'bg-primary text-primary-foreground font-semibold'
-                          : hasTx
-                            ? 'text-foreground hover:bg-muted font-medium'
-                            : 'text-muted-foreground hover:bg-muted'"
-                        @click="selectDay(dateStr)"
-                      >
-                        {{ day }}
-                      </button>
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
+            <button
+              type="button"
+              class="h-9 px-3 rounded-lg text-[12px] font-medium inline-flex items-center gap-1.5 shrink-0 transition-colors"
+              :class="extraFilterCount ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'"
+              @click="filtersOpen = true"
+            >
+              <SlidersHorizontal :size="14" />
+              Filtros<template v-if="extraFilterCount"> ({{ extraFilterCount }})</template>
+            </button>
+          </div>
+
+          <!-- Active extra filters, removable -->
+          <div v-if="activeFilterPills.length" class="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-border">
+            <button
+              v-for="pill in activeFilterPills"
+              :key="pill.key"
+              type="button"
+              class="h-7 pl-2.5 pr-1.5 rounded-full bg-primary/15 text-primary text-[12px] font-medium inline-flex items-center gap-1"
+              :aria-label="`Remover filtro ${pill.label}`"
+              @click="pill.clear()"
+            >
+              {{ pill.label }}
+              <X :size="12" />
+            </button>
+            <button type="button" class="h-7 px-2 text-[12px] text-muted-foreground hover:text-foreground" @click="clearExtraFilters">
+              Limpar
+            </button>
           </div>
 
           <!-- Transaction list — nested inside bg-card, no outer  -->
           <TransactionList
+            :key="filterState.month.value"
             :transactions="displayedTransactions"
+            split-scheduled
+            :limit="20"
+            :show-all="narrowingFilter"
             :loading="store.loading"
             :nested="true"
             :has-filter="hasAnyFilter"
@@ -934,6 +881,112 @@ onMounted(async () => {
     </div>
 
   </AppPageContainer>
+
+  <!-- Filtros: mostrar só, conta, categoria e dia -->
+  <Sheet v-model:open="filtersOpen">
+    <SheetContent side="bottom" class="rounded-t-2xl p-0 max-w-lg mx-auto max-h-[85vh] overflow-y-auto">
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border" />
+      <SheetHeader class="text-left px-5 pt-3">
+        <SheetTitle class="text-[15px]">Filtros</SheetTitle>
+        <SheetDescription class="text-[12px]">Valem para a lista de transações do mês.</SheetDescription>
+      </SheetHeader>
+
+      <div class="px-5 pb-6 space-y-5 mt-4">
+        <section>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Mostrar só</p>
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              v-for="f in EXTRA_CHIPS"
+              :key="f.id"
+              type="button"
+              :aria-pressed="activeChip === f.id"
+              class="h-8 px-3 rounded-full text-[12px] font-medium transition-colors"
+              :class="activeChip === f.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'"
+              @click="setChip(activeChip === f.id ? 'all' : f.id)"
+            >
+              {{ f.label }}
+            </button>
+          </div>
+        </section>
+
+        <section>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Conta</p>
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              v-for="acc in [{ id: undefined, name: 'Todas' }, ...store.activeAccounts]"
+              :key="acc.id ?? 'all'"
+              type="button"
+              :aria-pressed="filterState.account_id.value === acc.id"
+              class="h-8 px-3 rounded-full text-[12px] font-medium transition-colors"
+              :class="filterState.account_id.value === acc.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'"
+              @click="setAccount(acc.id)"
+            >
+              {{ acc.name }}
+            </button>
+          </div>
+        </section>
+
+        <section>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Categoria</p>
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              v-for="cat in [{ id: undefined, name: 'Todas' }, ...filterableCategories]"
+              :key="cat.id ?? 'all'"
+              type="button"
+              :aria-pressed="filterState.category_id.value === cat.id"
+              class="h-8 px-3 rounded-full text-[12px] font-medium transition-colors"
+              :class="filterState.category_id.value === cat.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'"
+              @click="filterState.setCategoryId(cat.id)"
+            >
+              {{ cat.name }}
+            </button>
+          </div>
+        </section>
+
+        <section>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Dia</p>
+            <button v-if="selectedDay" type="button" class="text-[12px] text-primary" @click="selectDay(null)">Todos os dias</button>
+          </div>
+          <div class="grid grid-cols-7 gap-1">
+            <button
+              v-for="{ day, dateStr, hasTx } in monthDays"
+              :key="dateStr"
+              type="button"
+              :aria-pressed="selectedDay === dateStr"
+              class="h-9 rounded-md text-[12px] tabular-nums transition-colors"
+              :class="selectedDay === dateStr
+                ? 'bg-primary text-primary-foreground font-semibold'
+                : hasTx
+                  ? 'text-foreground bg-muted/60 hover:bg-muted font-medium'
+                  : 'text-muted-foreground hover:bg-muted'"
+              @click="selectDay(dateStr)"
+            >
+              {{ day }}
+            </button>
+          </div>
+        </section>
+
+        <div class="flex gap-2 pt-1">
+          <button
+            v-if="extraFilterCount"
+            type="button"
+            class="flex-1 h-11 rounded-lg text-[14px] font-medium bg-muted text-foreground"
+            @click="clearExtraFilters"
+          >
+            Limpar
+          </button>
+          <button
+            type="button"
+            class="flex-1 h-11 rounded-lg text-[14px] font-medium bg-primary text-primary-foreground"
+            @click="filtersOpen = false"
+          >
+            Ver {{ displayedTransactions.length }} transaç{{ displayedTransactions.length === 1 ? 'ão' : 'ões' }}
+          </button>
+        </div>
+      </div>
+    </SheetContent>
+  </Sheet>
 
   <CardStatementSheet
     v-model:open="statementOpen"

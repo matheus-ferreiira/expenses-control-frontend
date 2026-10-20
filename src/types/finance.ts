@@ -323,7 +323,8 @@ export interface TransactionFilters {
   search?: string
   page?: number
   per_page?: number
-  is_recurring?: boolean
+  /** Sent as 1/0: Laravel's boolean rule rejects the string "true" that a boolean becomes in the query */
+  is_recurring?: 0 | 1
   status?: TransactionStatus
   sort_by?: 'transaction_date' | 'amount' | 'description' | 'created_at'
   sort_direction?: 'asc' | 'desc'

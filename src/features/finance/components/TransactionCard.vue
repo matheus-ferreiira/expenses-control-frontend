@@ -4,6 +4,7 @@ import { ArrowLeftRight, Check, Copy, Trash2 } from 'lucide-vue-next'
 import type { Transaction } from '@/types/finance'
 import { formatCurrency } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
+import { toISODate } from '@/utils/date'
 
 const props = defineProps<{
   transaction: Transaction
@@ -27,10 +28,13 @@ const highlightBg = computed(() => {
 })
 
 // ── Amount ─────────────────────────────────────────────────────────────────
+// Spending in the normal text colour, income in green: red is kept for what is overdue
+const isOverdue = computed(() => isPending.value && props.transaction.transaction_date < toISODate(new Date()))
 const amountClass = computed(() => {
   if (props.transaction.amount === 0) return 'text-muted-foreground'
+  if (isOverdue.value) return 'text-destructive'
   if (props.transaction.type === 'income') return 'text-success'
-  if (props.transaction.type === 'expense') return 'text-destructive'
+  if (props.transaction.type === 'expense') return 'text-foreground'
   return 'text-muted-foreground'
 })
 
@@ -162,7 +166,7 @@ onUnmounted(() => {
     <button
       v-else
       type="button"
-      class="w-full flex items-center gap-3 py-3 px-4 text-left transition-colors duration-150 cursor-pointer select-none"
+      class="w-full flex items-center gap-3 py-2.5 px-4 text-left transition-colors duration-150 cursor-pointer select-none"
       :class="[highlightBg]"
       @mousedown="startPress"
       @mouseup="cancelPress"
@@ -174,7 +178,7 @@ onUnmounted(() => {
       <!-- Avatar -->
       <span
         v-if="transaction.type !== 'transfer'"
-        class="rounded-xl flex items-center justify-center w-10 h-10 shrink-0"
+        class="rounded-lg flex items-center justify-center size-8 shrink-0"
         :style="transaction.category?.color ? {
           background: transaction.category.color + '26',
           color: transaction.category.color,
@@ -186,20 +190,20 @@ onUnmounted(() => {
         <component
           v-if="transaction.category?.icon && findIcon(transaction.category.icon)"
           :is="findIcon(transaction.category.icon)!.component"
-          :size="18"
+          :size="15"
           :stroke-width="1.9"
           aria-hidden="true"
         />
-        <span v-else class="text-[13px] font-semibold">
+        <span v-else class="text-[12px] font-semibold">
           {{ transaction.description.charAt(0).toUpperCase() }}
         </span>
       </span>
       <span
         v-else
-        class="rounded-xl flex items-center justify-center w-10 h-10 shrink-0 text-muted-foreground"
+        class="rounded-lg flex items-center justify-center size-8 shrink-0 text-muted-foreground"
         style="background: rgba(255,255,255,0.08)"
       >
-        <ArrowLeftRight :size="16" :stroke-width="1.9" aria-hidden="true" />
+        <ArrowLeftRight :size="14" :stroke-width="1.9" aria-hidden="true" />
       </span>
 
       <!-- Description + subtitle -->
