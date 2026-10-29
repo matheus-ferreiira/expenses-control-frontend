@@ -192,6 +192,10 @@ npm run build          # type-check + build de produção
 npm run preview        # preview do build
 npm run test:unit      # Vitest
 npm run test:e2e:dev   # Cypress em dev
+# Teste de Finanças contra o backend local (porta 8001) e o dev server (5176):
+#   env -u ELECTRON_RUN_AS_NODE npx cypress run --config baseUrl=http://localhost:5176 --spec cypress/e2e/finance.cy.ts
+#   (dentro do VS Code a variável ELECTRON_RUN_AS_NODE quebra o Cypress: "bad option --smoke-test")
+#   Usuário local: dev@vault.test (cadastro fechado: crie-o uma vez no banco local)
 npm run lint           # ESLint + fix
 npm run type-check     # vue-tsc
 npm run format         # Prettier
@@ -219,7 +223,8 @@ O PWA busca uma versão nova ao voltar para o app, ao ganhar foco, ao voltar a f
 - Sempre `lang="ts"` em `<script setup>`; nunca `any`
 - Props: `defineProps<{...}>()` · Emits: `defineEmits<{ event: [payload: Type] }>()`
 - Barrel exports em diretórios com vários arquivos
-- Antes de commitar: `npm run type-check`, `npm run lint`, `npm run build`, `npm run test:unit`
+- Antes de commitar: `npm run type-check`, `npm run lint`, `npm run build`, `npm run test:unit`;
+  mexeu numa tela de Finanças: rode também `cypress/e2e/finance.cy.ts` (ver Comandos)
   **e a documentação atualizada** (ver topo deste arquivo)
 
 ## Credenciais de Teste (Playwright)

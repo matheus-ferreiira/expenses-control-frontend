@@ -208,6 +208,7 @@ Valores em centavos vêm com sufixo `_cents` (cartões, faturas, conferência de
 - [ ] `npm run lint` sem erros
 - [ ] `npm run build` sem erros
 - [ ] `npm run test:unit` passando
+- [ ] Mexeu numa tela de Finanças: `cypress/e2e/finance.cy.ts` passando (comando no `CLAUDE.md`)
 - [ ] Nenhum `any` nos services/stores
 - [ ] Props e emits tipados
 - [ ] Tela nova/alterada segue a Visão Geral (`design-system.md`)
