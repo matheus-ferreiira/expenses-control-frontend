@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { computed, onMounted, ref, watch } from 'vue'
-import { ChevronLeft, ChevronRight, Settings, Plus, Copy, Flag } from 'lucide-vue-next'
+import { ChevronRight, Settings, Plus, Copy, Flag } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { AppPageContainer, PageHeader } from '@/components/shared'
+import { Skeleton } from '@ui/skeleton'
+import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
-import { formatCurrency } from '@/utils/currency'
+import { formatCurrency, formatPercent } from '@/utils/currency'
 import { findIcon } from '@/lib/icons'
 import { ROUTES } from '@/constants/routes'
 import type { Budget } from '@/types/finance'
@@ -55,6 +57,21 @@ function nextMonth() {
   } else {
     selectedMonth.value++
   }
+}
+
+// MonthNavigator (same as Visão Geral) works with "YYYY-MM"
+const monthKey = computed(() => `${selectedYear.value}-${String(selectedMonth.value).padStart(2, '0')}`)
+const isCurrentMonth = computed(() => selectedYear.value === now.getFullYear() && selectedMonth.value === now.getMonth() + 1)
+
+function selectMonth(key: string) {
+  const [y, m] = key.split('-').map(Number)
+  selectedYear.value = y!
+  selectedMonth.value = m!
+}
+
+function resetMonth() {
+  selectedYear.value = now.getFullYear()
+  selectedMonth.value = now.getMonth() + 1
 }
 
 async function loadBudget() {
@@ -135,292 +152,256 @@ const hasGoalsItems = computed(() =>
 )
 </script>
 
+
 <template>
   <AppPageContainer>
     <FinanceSubNav />
 
-    <!-- Header -->
-    <PageHeader title="Orçamento" subtitle="Controle de gastos por categoria" />
-
-    <!-- Month nav + summary card -->
-    <div class="bg-card rounded-lg p-4 mb-4">
-      <!-- Month nav -->
-      <div class="flex items-center justify-between mb-4">
+    <PageHeader title="Orçamento" subtitle="Quanto cada categoria pode gastar no mês e quanto já gastou." compact-mobile>
+      <template v-if="budget" #actions>
         <button
           type="button"
-          class="min-w-11 h-11 -m-1.5 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
-          @click="prevMonth"
-        >
-          <ChevronLeft :size="20" />
-        </button>
-        <span class="text-[15px] font-semibold">{{ monthLabel }}</span>
-        <button
-          type="button"
-          class="min-w-11 h-11 -m-1.5 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
-          @click="nextMonth"
-        >
-          <ChevronRight :size="20" />
-        </button>
-      </div>
-
-      <!-- KPIs — 3 colunas -->
-      <template v-if="budget">
-        <div class="grid grid-cols-3 gap-2 text-center mb-4">
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Valor base</p>
-            <p class="text-[17px] font-semibold tabular-nums mt-1">
-              {{ formatCurrency(budget.summary.base_amount) }}
-            </p>
-          </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Orçado</p>
-            <p class="text-[17px] font-semibold tabular-nums mt-1">
-              {{ formatCurrency(budget.summary.total_budgeted) }}
-            </p>
-          </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Livre</p>
-            <p
-              class="text-[17px] font-semibold tabular-nums mt-1"
-              :class="budget.summary.free_amount >= 0 ? 'text-success' : 'text-destructive'"
-            >
-              {{ formatCurrency(budget.summary.free_amount) }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Barra de uso total -->
-        <div class="mt-1">
-          <div class="flex items-center justify-between mb-1.5">
-            <p class="text-[11px] uppercase tracking-widest text-muted-foreground">Uso do orçamento</p>
-            <p class="text-[11px] text-muted-foreground tabular-nums">
-              {{ formatCurrency(budget.summary.total_spent) }} de {{ formatCurrency(budget.summary.total_budgeted) }}
-              · {{ totalSpentPercent }}%
-            </p>
-          </div>
-          <div class="h-1 rounded-full bg-muted overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all duration-700"
-              :class="totalBarColor"
-              :style="{ width: `${Math.min(100, totalSpentPercent)}%` }"
-            />
-          </div>
-          <p class="text-[11px] text-muted-foreground mt-1">
-            {{ budget.summary.free_percentage.toFixed(1) }}% do total ainda disponível
-          </p>
-        </div>
-
-        <!-- Resumo: categorias + metas + livre -->
-        <div class="mt-3 pt-3 border-t border-border space-y-1">
-          <div class="flex items-center justify-between text-[11px]">
-            <span class="text-muted-foreground">Categorias</span>
-            <span class="text-muted-foreground tabular-nums">
-              {{ formatCurrency(budget.summary.total_from_categories) }}
-              · {{ budget.summary.categories_percentage.toFixed(1) }}%
-            </span>
-          </div>
-          <div v-if="hasGoalsItems" class="flex items-center justify-between text-[11px]">
-            <span class="text-muted-foreground">Metas</span>
-            <span class="text-muted-foreground tabular-nums">
-              {{ formatCurrency(budget.summary.total_from_goals) }}
-              · {{ budget.summary.goals_percentage.toFixed(1) }}%
-            </span>
-          </div>
-          <!-- Spending the budget does not cover stays visible (D-36) -->
-          <div v-if="budget.summary.unbudgeted_spent" class="flex items-center justify-between text-[11px]">
-            <span class="text-muted-foreground">Gasto fora do orçamento</span>
-            <span class="text-muted-foreground tabular-nums">{{ formatCurrency(budget.summary.unbudgeted_spent) }}</span>
-          </div>
-          <div v-if="budget.summary.uncategorized_spent" class="flex items-center justify-between text-[11px]">
-            <span class="text-warning">Gasto sem categoria</span>
-            <span class="text-warning tabular-nums">{{ formatCurrency(budget.summary.uncategorized_spent) }}</span>
-          </div>
-          <div class="flex items-center justify-between text-[11px]">
-            <span class="text-success">Livre</span>
-            <span class="text-success tabular-nums font-medium">
-              {{ formatCurrency(budget.summary.free_amount) }}
-              · {{ budget.summary.free_percentage.toFixed(1) }}%
-            </span>
-          </div>
-        </div>
-      </template>
-
-      <!-- Sem orçamento -->
-      <template v-else-if="!store.loadingBudget">
-        <div class="text-center py-2">
-          <p class="text-[13px] text-muted-foreground mb-1">
-            Nenhum orçamento para {{ monthLabel }}
-          </p>
-        </div>
-      </template>
-
-      <!-- Loading -->
-      <template v-else>
-        <div class="space-y-2 py-2">
-          <div class="h-4 w-32 rounded bg-muted animate-pulse mx-auto" />
-          <div class="h-3 w-24 rounded bg-muted animate-pulse mx-auto" />
-        </div>
-      </template>
-    </div>
-
-    <!-- Estado vazio — opções -->
-    <template v-if="!budget && !store.loadingBudget">
-      <div class="space-y-2 mb-4">
-        <button
-          v-if="previousBudget"
-          type="button"
-          :disabled="copyingPrevious"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card text-left transition-colors hover:bg-muted active:scale-[0.99]"
-          @click="copyFromPrevious"
-        >
-          <span class="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <Copy :size="18" class="text-primary" />
-          </span>
-          <div class="flex-1 min-w-0">
-            <p class="text-[14px] font-medium text-foreground">Copiar orçamento de {{ prevMonthLabel }}</p>
-            <p class="text-[12px] text-muted-foreground mt-0.5">Usar o mesmo valor base e categorias</p>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg bg-card text-left transition-colors hover:bg-muted active:scale-[0.99]"
+          class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
           @click="configSheetOpen = true"
         >
-          <span class="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <Plus :size="18" class="text-muted-foreground" />
-          </span>
-          <div class="flex-1 min-w-0">
-            <p class="text-[14px] font-medium text-foreground">Criar novo orçamento</p>
-            <p class="text-[12px] text-muted-foreground mt-0.5">Definir valor base e limites por categoria</p>
-          </div>
-        </button>
-      </div>
-    </template>
-
-    <!-- Listas quando tem orçamento -->
-    <template v-else-if="budget">
-
-      <!-- Seção: Categorias -->
-      <div class="flex items-center justify-between mb-3">
-        <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
-          Categorias
-        </p>
-        <button
-          type="button"
-          class="flex items-center gap-1 text-[12px] text-primary hover:text-primary transition-colors"
-          @click="configSheetOpen = true"
-        >
-          <Settings :size="13" />
+          <Settings class="size-3.5" />
           Configurar
         </button>
-      </div>
+      </template>
+    </PageHeader>
 
-      <div class="space-y-2 mb-5">
-        <div
-          v-for="item in budget.items"
-          :key="item.category_id"
-          class="bg-card rounded-lg px-4 py-3"
-        >
-          <div class="flex items-center gap-3 mb-2">
-            <span
-              class="size-10 rounded-xl flex items-center justify-center shrink-0"
-              :style="{ background: (item.category_color ?? '#888') + '20' }"
-            >
-              <component
-                v-if="item.category_icon && findIcon(item.category_icon)"
-                :is="findIcon(item.category_icon)!.component"
-                :size="20"
-                :style="{ color: item.category_color ?? '#888' }"
-              />
-              <span v-else class="text-[13px] font-bold" :style="{ color: item.category_color ?? '#888' }">
-                {{ item.category_name?.charAt(0) ?? '?' }}
-              </span>
-            </span>
-
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-medium text-foreground truncate">{{ item.category_name }}</p>
-              <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
-                {{ formatCurrency(item.spent) }} / {{ formatCurrency(item.amount) }}
-              </p>
-            </div>
-
-            <div class="text-right shrink-0">
-              <p
-                class="text-[13px] font-semibold tabular-nums"
-                :class="item.status === 'exceeded' ? 'text-destructive' : item.status === 'warning' ? 'text-warning' : 'text-muted-foreground'"
-              >
-                {{ item.spent_percentage.toFixed(0) }}%
-              </p>
-              <span v-if="item.status === 'warning'" class="text-[10px] text-warning">⚠</span>
-              <span v-else-if="item.status === 'exceeded'" class="text-[10px] text-destructive">!</span>
-            </div>
-          </div>
-
-          <div class="h-1 rounded-full bg-muted overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all duration-700"
-              :class="barColor(item.status)"
-              :style="{ width: `${Math.min(100, item.spent_percentage)}%` }"
+    <!-- Desktop: month summary on the left, the categories on the right (as on Visão Geral) -->
+    <div class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] lg:gap-5 xl:gap-6 lg:items-start">
+      <div class="mb-4 lg:mb-0 space-y-3">
+        <!-- Month card -->
+        <div class="bg-card rounded-lg p-4">
+          <div class="flex justify-center mb-3">
+            <MonthNavigator
+              :month="monthKey"
+              :is-current-month="isCurrentMonth"
+              @prev="prevMonth"
+              @next="nextMonth"
+              @reset="resetMonth"
+              @select-month="selectMonth"
             />
           </div>
-        </div>
 
-        <!-- Botão adicionar categoria -->
-        <button
-          type="button"
-          class="w-full flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-border text-[13px] text-muted-foreground hover:text-primary transition-colors"
-          @click="configSheetOpen = true"
-        >
-          <Plus :size="16" />
-          Adicionar categoria
-        </button>
-      </div>
+          <!-- Loading -->
+          <div v-if="store.loadingBudget" class="grid grid-cols-3 gap-2">
+            <div v-for="i in 3" :key="i" class="flex flex-col items-center gap-1.5">
+              <Skeleton class="h-2.5 w-14" />
+              <Skeleton class="h-5 w-20" />
+            </div>
+          </div>
 
-      <!-- Seção: Metas (read-only) -->
-      <template v-if="hasGoalsItems">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
-            Metas
-          </p>
-          <button
-            type="button"
-            class="text-[12px] text-primary hover:text-primary transition-colors"
-            @click="router.push({ name: ROUTES.FINANCE_GOALS })"
-          >
-            Ver metas →
-          </button>
-        </div>
-
-        <div class="space-y-2">
-          <div
-            v-for="goalItem in budget.goals_items"
-            :key="goalItem.id"
-            class="bg-card rounded-lg px-4 py-3 flex items-center gap-3"
-          >
-            <span
-              class="size-10 rounded-xl flex items-center justify-center shrink-0"
-              :style="{ background: (goalItem.color ?? '#34d399') + '20' }"
-            >
-              <Flag :size="20" :style="{ color: goalItem.color ?? '#34d399' }" />
-            </span>
-
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-medium text-foreground truncate">{{ goalItem.name }}</p>
-              <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">
-                {{ formatCurrency(goalItem.amount) }} / mês
-              </p>
+          <template v-else-if="budget">
+            <!-- Base · orçado · livre -->
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="min-w-0">
+                <p class="text-[10px] text-muted-foreground uppercase tracking-widest leading-tight h-[26px] flex items-end justify-center">Valor base</p>
+                <p class="text-[15px] min-[400px]:text-[17px] font-semibold tabular-nums whitespace-nowrap mt-1">
+                  {{ formatCurrency(budget.summary.base_amount) }}
+                </p>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] text-muted-foreground uppercase tracking-widest leading-tight h-[26px] flex items-end justify-center">Orçado</p>
+                <p class="text-[15px] min-[400px]:text-[17px] font-semibold tabular-nums whitespace-nowrap mt-1">
+                  {{ formatCurrency(budget.summary.total_budgeted) }}
+                </p>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] text-muted-foreground uppercase tracking-widest leading-tight h-[26px] flex items-end justify-center">Livre</p>
+                <p
+                  class="text-[15px] min-[400px]:text-[17px] font-semibold tabular-nums whitespace-nowrap mt-1"
+                  :class="budget.summary.free_amount >= 0 ? 'text-success' : 'text-destructive'"
+                >
+                  {{ formatCurrency(budget.summary.free_amount) }}
+                </p>
+                <p class="text-[10.5px] text-muted-foreground tabular-nums leading-tight mt-0.5">
+                  {{ formatPercent(budget.summary.free_percentage) }} da base
+                </p>
+              </div>
             </div>
 
-            <p class="text-[13px] font-semibold tabular-nums text-muted-foreground shrink-0">
-              {{ goalItem.percentage.toFixed(1) }}%
-            </p>
-          </div>
+            <!-- Spent against what was budgeted -->
+            <div class="mt-4">
+              <div class="flex items-start justify-between gap-3 text-[11px] text-muted-foreground mb-1.5">
+                <span>Gasto do orçado</span>
+                <span class="tabular-nums text-right">
+                  <span class="font-medium text-foreground whitespace-nowrap">
+                    {{ formatCurrency(budget.summary.total_spent) }} de {{ formatCurrency(budget.summary.total_budgeted) }}
+                  </span>
+                  <span class="block">{{ totalSpentPercent }}%</span>
+                </span>
+              </div>
+              <div class="h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-700"
+                  :class="totalBarColor"
+                  :style="{ width: `${Math.min(100, totalSpentPercent)}%` }"
+                />
+              </div>
+            </div>
+
+            <!-- Where the base goes, and spending the budget does not cover (D-36) -->
+            <div class="mt-3 rounded-md bg-muted px-3 py-2 space-y-1 text-[12px]">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-muted-foreground">Categorias</span>
+                <span class="tabular-nums font-medium whitespace-nowrap">
+                  {{ formatCurrency(budget.summary.total_from_categories) }} · {{ formatPercent(budget.summary.categories_percentage) }}
+                </span>
+              </div>
+              <div v-if="hasGoalsItems" class="flex items-center justify-between gap-3">
+                <span class="text-muted-foreground">Metas</span>
+                <span class="tabular-nums font-medium whitespace-nowrap">
+                  {{ formatCurrency(budget.summary.total_from_goals) }} · {{ formatPercent(budget.summary.goals_percentage) }}
+                </span>
+              </div>
+              <div v-if="budget.summary.unbudgeted_spent" class="flex items-center justify-between gap-3">
+                <span class="text-muted-foreground">Gasto fora do orçamento</span>
+                <span class="tabular-nums font-medium whitespace-nowrap">{{ formatCurrency(budget.summary.unbudgeted_spent) }}</span>
+              </div>
+              <div v-if="budget.summary.uncategorized_spent" class="flex items-center justify-between gap-3">
+                <span class="text-warning">Gasto sem categoria</span>
+                <span class="tabular-nums font-medium text-warning whitespace-nowrap">{{ formatCurrency(budget.summary.uncategorized_spent) }}</span>
+              </div>
+            </div>
+          </template>
+
+          <!-- No budget -->
+          <p v-else class="text-center text-[13px] text-muted-foreground py-2">
+            Nenhum orçamento para {{ monthLabel.toLowerCase() }}.
+          </p>
         </div>
-      </template>
 
-    </template>
+        <!-- No budget: copy last month's or create one -->
+        <template v-if="!budget && !store.loadingBudget">
+          <button
+            v-if="previousBudget"
+            type="button"
+            :disabled="copyingPrevious"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-card text-left transition-colors hover:bg-muted/50 disabled:opacity-40"
+            @click="copyFromPrevious"
+          >
+            <span class="size-9 rounded-lg bg-muted grid place-items-center shrink-0">
+              <Copy :size="16" class="text-primary" />
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-foreground">Copiar orçamento de {{ prevMonthLabel.toLowerCase() }}</p>
+              <p class="text-[12px] text-muted-foreground mt-0.5">Mesmo valor base e mesmas categorias</p>
+            </div>
+            <ChevronRight :size="14" class="text-muted-foreground shrink-0" />
+          </button>
 
+          <button
+            type="button"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-card text-left transition-colors hover:bg-muted/50"
+            @click="configSheetOpen = true"
+          >
+            <span class="size-9 rounded-lg bg-muted grid place-items-center shrink-0">
+              <Plus :size="16" class="text-muted-foreground" />
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-foreground">Criar novo orçamento</p>
+              <p class="text-[12px] text-muted-foreground mt-0.5">Definir valor base e limites por categoria</p>
+            </div>
+            <ChevronRight :size="14" class="text-muted-foreground shrink-0" />
+          </button>
+        </template>
+      </div>
+
+      <div v-if="budget && !store.loadingBudget" class="space-y-3">
+        <!-- Categories: one card, rows like the Visão Geral lists -->
+        <section class="bg-card rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Categorias</p>
+            <span class="text-[11px] text-muted-foreground">
+              {{ budget.items.length }} categoria{{ budget.items.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+          <ul class="divide-y divide-border">
+            <li v-for="item in budget.items" :key="item.category_id" class="px-4 py-2.5">
+              <div class="flex items-center gap-3">
+                <span
+                  class="size-8 rounded-lg grid place-items-center shrink-0"
+                  :style="{ background: (item.category_color ?? '#888888') + '26', color: item.category_color ?? '#888888' }"
+                >
+                  <component
+                    v-if="item.category_icon && findIcon(item.category_icon)"
+                    :is="findIcon(item.category_icon)!.component"
+                    :size="15"
+                    :stroke-width="1.9"
+                    aria-hidden="true"
+                  />
+                  <span v-else class="text-[12px] font-semibold">{{ item.category_name?.charAt(0) ?? '?' }}</span>
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[14px] font-medium text-foreground truncate">{{ item.category_name }}</p>
+                  <p class="text-[12px] text-muted-foreground tabular-nums truncate mt-0.5">
+                    {{ formatCurrency(item.spent) }} de {{ formatCurrency(item.amount) }}
+                  </p>
+                </div>
+                <span
+                  class="text-[14px] font-semibold tabular-nums shrink-0"
+                  :class="item.status === 'exceeded' ? 'text-destructive' : item.status === 'warning' ? 'text-warning' : 'text-muted-foreground'"
+                >
+                  {{ Math.round(item.spent_percentage) }}%
+                </span>
+              </div>
+              <div class="mt-2 ml-11 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-700"
+                  :class="barColor(item.status)"
+                  :style="{ width: `${Math.min(100, item.spent_percentage)}%` }"
+                />
+              </div>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="w-full inline-flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-medium text-primary hover:bg-muted/50 transition-colors"
+                @click="configSheetOpen = true"
+              >
+                <Plus :size="14" />
+                Adicionar categoria
+              </button>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Goals in the budget (read-only) -->
+        <section v-if="hasGoalsItems" class="bg-card rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Metas</p>
+            <button
+              type="button"
+              class="inline-flex items-center gap-0.5 text-[12px] font-medium text-primary"
+              @click="router.push({ name: ROUTES.FINANCE_GOALS })"
+            >
+              Ver metas
+              <ChevronRight :size="14" />
+            </button>
+          </div>
+          <ul class="divide-y divide-border">
+            <li v-for="goalItem in budget.goals_items" :key="goalItem.id" class="flex items-center gap-3 px-4 py-2.5">
+              <span
+                class="size-8 rounded-lg grid place-items-center shrink-0"
+                :style="{ background: (goalItem.color ?? '#34d399') + '26', color: goalItem.color ?? '#34d399' }"
+              >
+                <Flag :size="15" :stroke-width="1.9" aria-hidden="true" />
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-medium text-foreground truncate">{{ goalItem.name }}</p>
+                <p class="text-[12px] text-muted-foreground tabular-nums mt-0.5">{{ formatCurrency(goalItem.amount) }} por mês</p>
+              </div>
+              <span class="text-[14px] font-semibold tabular-nums text-muted-foreground shrink-0">
+                {{ formatPercent(goalItem.percentage) }}
+              </span>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
   </AppPageContainer>
 
   <BudgetConfigSheet

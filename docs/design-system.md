@@ -20,7 +20,7 @@ Quando a Visão Geral mudar, atualize este arquivo no mesmo commit.
 | Card de resumo com caixa interna e barra | `src/features/finance/components/CreditCardCard.vue` (modo `compact`) |
 | Lista compacta com barra e "Ver todas" | `src/features/finance/components/CategoryBreakdownList.vue` (`boxed compact selectable`) |
 | Lista agrupada por dia, blocos recolhíveis | `src/features/finance/components/TransactionList.vue` + `TransactionCard.vue` |
-| Navegação de mês | `src/features/finance/components/MonthNavigator.vue` |
+| Navegação de mês (toda tela com mês usa este, nunca setas feitas à mão) | `src/features/finance/components/MonthNavigator.vue` |
 | Sub-navegação do módulo (mobile) | `src/features/finance/components/FinanceSubNav.vue` |
 | Cabeçalho de página | `src/components/shared/PageHeader.vue` (`compact-mobile`) |
 | Container de página | `src/components/shared/AppPageContainer.vue` |
@@ -110,6 +110,7 @@ Fonte Inter Variable. Os tamanhos são fixos em px (classes `text-[Npx]`), como 
 | Título de sheet / descrição | `text-[15px]` / `text-[12px]` |
 
 - Todo valor monetário usa `formatCurrency()` (`@/utils/currency`) e `tabular-nums`.
+- Percentual com casa decimal usa `formatPercent()` ("39,6%", vírgula pt-BR); nunca `toFixed()` direto na tela. Percentual inteiro: `Math.round(x)%`.
 - Valores não quebram linha: `whitespace-nowrap`.
 
 ---
@@ -319,7 +320,7 @@ No estilo escuro, caixas internas usam `bg-card`; os campos continuam `bg-muted 
 | Visão Geral (`FinancePage.vue`) | Referência |
 | Contas (`AccountsPage.vue`) | No padrão (2026-10-29) |
 | Cartões (`CardsPage.vue`) | No padrão (2026-10-29) |
-| Orçamento (`BudgetPage.vue`) | A revisar |
+| Orçamento (`BudgetPage.vue`) | No padrão (2026-10-29) |
 | Metas (`GoalsPage.vue`) | A revisar |
 | Categorias (`CategoriesPage.vue`) | A revisar |
 | Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | A revisar |

@@ -4,6 +4,7 @@ import { Sheet, SheetContent } from '@ui/sheet'
 import { ArrowLeft, Loader2, Plus, X } from 'lucide-vue-next'
 import { isAxiosError } from 'axios'
 import { findIcon } from '@/lib/icons'
+import { formatPercent } from '@/utils/currency'
 import { useToast } from '@/composables/useToast'
 import { useFinanceStore } from '@/stores/finance'
 import type { Budget, BudgetItem } from '@/types/finance'
@@ -78,7 +79,7 @@ const totalAllocatedPercentage = computed(() =>
 
 const percentageOverflowError = computed(() =>
   totalAllocatedPercentage.value > 100
-    ? `Total alocado excede 100% do valor base (${totalAllocatedPercentage.value.toFixed(1)}%). Reduza os limites antes de salvar.`
+    ? `Total alocado excede 100% do valor base (${formatPercent(totalAllocatedPercentage.value)}). Reduza os limites antes de salvar.`
     : null,
 )
 
@@ -284,7 +285,7 @@ async function submit() {
                 </p>
                 <p class="text-[11px] text-muted-foreground tabular-nums">
                   R$ {{ item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                  · {{ baseAmount > 0 ? ((item.amount / baseAmount) * 100).toFixed(1) : '0.0' }}%
+                  · {{ formatPercent(baseAmount > 0 ? (item.amount / baseAmount) * 100 : 0) }}
                 </p>
               </div>
 
@@ -313,10 +314,10 @@ async function submit() {
 
           <button
             type="button"
-            class="w-full flex items-center justify-center gap-2 h-10 rounded-lg border border-dashed border-border text-[13px] text-muted-foreground hover:text-primary transition-colors"
+            class="w-full flex items-center justify-center gap-1.5 h-10 rounded-lg bg-card text-[12px] font-medium text-primary hover:brightness-110 transition-colors"
             @click="openAddItem"
           >
-            <Plus :size="16" />
+            <Plus :size="14" />
             Adicionar categoria
           </button>
         </div>
@@ -330,7 +331,7 @@ async function submit() {
             <div class="flex items-center justify-between">
               <span class="text-[12px] text-muted-foreground">Categorias</span>
               <span class="text-[12px] tabular-nums text-foreground">
-                {{ itemsPercentageTotal.toFixed(1) }}%
+                {{ formatPercent(itemsPercentageTotal) }}
               </span>
             </div>
             <div
@@ -339,7 +340,7 @@ async function submit() {
             >
               <span class="text-[12px] text-muted-foreground">Metas</span>
               <span class="text-[12px] tabular-nums text-foreground">
-                {{ goalsPercentageTotal.toFixed(1) }}%
+                {{ formatPercent(goalsPercentageTotal) }}
               </span>
             </div>
             <div class="border-t border-border pt-1.5 flex items-center justify-between">
@@ -348,13 +349,13 @@ async function submit() {
                 class="text-[12px] font-semibold tabular-nums"
                 :class="totalAllocatedPercentage > 100 ? 'text-destructive' : 'text-foreground'"
               >
-                {{ totalAllocatedPercentage.toFixed(1) }}%
+                {{ formatPercent(totalAllocatedPercentage) }}
               </span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-[12px] text-success">Livre</span>
               <span class="text-[12px] tabular-nums text-success">
-                {{ Math.max(0, 100 - totalAllocatedPercentage).toFixed(1) }}%
+                {{ formatPercent(Math.max(0, 100 - totalAllocatedPercentage)) }}
               </span>
             </div>
           </div>

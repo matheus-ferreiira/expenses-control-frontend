@@ -26,6 +26,7 @@ export function parseCurrency(value: string): number {
   return parseFloat(cleaned) || 0
 }
 
+/** "39,6%" — pt-BR decimal comma */
 export function formatPercent(value: number, decimals = 1): string {
-  return `${value.toFixed(decimals)}%`
+  return `${value.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}%`
 }

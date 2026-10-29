@@ -108,7 +108,7 @@ export const tasksApi = {
   paginada de transações no front.
 - Ao trocar de mês ou filtro, descarte respostas atrasadas (compare com o valor pedido antes de aplicar).
 - Datas locais: montar com `new Date(ano, mês - 1, dia)`; `new Date('2026-10-01')` é UTC e cai no dia anterior no Brasil.
-- Moeda sempre com `formatCurrency()`.
+- Moeda sempre com `formatCurrency()`; percentual decimal com `formatPercent()` (vírgula pt-BR).
 
 ### Barrel Exports
 Todo diretório com múltiplos arquivos compartilhados precisa de `index.ts`:
