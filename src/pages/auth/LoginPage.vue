@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, nextTick } from 'vue'
+import { computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import { Input } from '@ui/input'
@@ -16,6 +16,13 @@ const auth = useAuthStore()
 const { form, errors, validate } = useLoginForm()
 
 onMounted(() => nextTick(() => (document.getElementById('email') as HTMLInputElement)?.focus()))
+
+/** The Google sign-in redirects here with ?error= when it cannot log in */
+const redirectError = computed(() => {
+  if (route.query.error === 'registration_closed') return 'Esta conta Google não tem acesso. O cadastro de novas contas está fechado.'
+  if (route.query.error === 'google_auth_failed') return 'Não foi possível entrar com o Google. Tente de novo.'
+  return null
+})
 
 async function handleLogin() {
   if (!validate()) return
@@ -109,12 +116,12 @@ async function handleLogin() {
         <p v-if="errors.password" class="text-[11px] text-destructive">{{ errors.password }}</p>
       </div>
 
-      <!-- Backend error -->
+      <!-- Backend error, or why the Google sign-in came back here -->
       <div
-        v-if="auth.error"
-        class="rounded-md bg-destructive/[0.07] px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
+        v-if="auth.error || redirectError"
+        class="rounded-md bg-muted px-3.5 py-2.5 text-[12px] leading-snug text-destructive"
       >
-        {{ auth.error }}
+        {{ auth.error ?? redirectError }}
       </div>
 
       <!-- Submit -->
@@ -128,16 +135,7 @@ async function handleLogin() {
       </button>
     </form>
 
-    <!-- Sign up link -->
-    <p class="text-center text-[12px] text-muted-foreground">
-      Não tem conta?
-      <RouterLink
-        :to="{ name: ROUTES.REGISTER }"
-        class="font-semibold text-primary hover:text-primary transition-colors"
-      >
-        Criar conta
-      </RouterLink>
-    </p>
+    <!-- No sign-up link: registration is closed in the backend (AUTH_REGISTRATION_ENABLED) -->
 
   </div>
 </template>
