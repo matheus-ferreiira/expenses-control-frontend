@@ -254,6 +254,9 @@ Alvos de toque de navegação têm no mínimo 44px (`min-h-[44px] min-w-[44px]`)
 - Ver mais / Ver todas: botão em largura total `py-2.5 text-[12px] font-medium text-primary hover:bg-muted/50`.
 - Lista dentro de card com padding (`p-4`): use margem negativa para encostar nas bordas (`-mx-4 -mb-4 border-t border-border`).
 - Grupo de itens com subtotal (ex.: Disponível / Guardado em Contas): um card por grupo, cabeçalho **dentro** do card (`px-4 py-3 border-b border-border`, rótulo em caixa alta à esquerda, subtotal `text-[12px] tabular-nums text-muted-foreground` à direita).
+- Linha editável: a linha inteira abre a edição; ações destrutivas (excluir, arquivar) ficam num menu `⋯` (`size-10`, `MoreHorizontal :size="15"`) no fim da linha, nunca como botões sempre à mostra.
+- Adicionar item a uma lista: última linha do card, `py-2.5 text-[12px] font-medium text-primary` com `Plus :size="14"`. Nunca botão com borda tracejada.
+- Valor secundário de um item vai num subtítulo que diz o que é ("Meta de R$ 300,00 por mês"), não solto ao lado do nome.
 - Itens inativos/arquivados: bloco recolhível no fim (como "Agendadas"), com texto e ícone em `text-muted-foreground`. Nunca deixar a linha semitransparente.
 
 ### Bottom sheet
@@ -323,7 +326,7 @@ No estilo escuro, caixas internas usam `bg-card`; os campos continuam `bg-muted 
 | Cartões (`CardsPage.vue`) | No padrão (2026-10-29) |
 | Orçamento (`BudgetPage.vue`) | No padrão (2026-10-29) |
 | Metas (`GoalsPage.vue`) | No padrão (2026-10-29) |
-| Categorias (`CategoriesPage.vue`) | A revisar |
+| Categorias (`CategoriesPage.vue`) | No padrão (2026-10-29) |
 | Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | A revisar |
 
 Atualize esta tabela no commit que trouxer uma tela para o padrão.

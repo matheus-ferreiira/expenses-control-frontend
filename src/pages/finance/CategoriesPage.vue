@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted } from 'vue'
-import { AppPageContainer, PageHeader } from '@/components/shared'
+import { AppPageContainer, ConfirmDialog, EmptyState, PageHeader } from '@/components/shared'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
 import { Skeleton } from '@ui/skeleton'
 import {
-  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
-} from '@ui/alert-dialog'
-import { Plus, Pencil, Trash2, Loader2, Tags, Tag } from 'lucide-vue-next'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@ui/dropdown-menu'
+import { MoreHorizontal, Pencil, Plus, Tags, Trash2 } from 'lucide-vue-next'
 import { findIcon } from '@/lib/icons'
 import { formatCurrency } from '@/utils/currency'
 import CategoryFormSheet from '@/features/finance/components/CategoryFormSheet.vue'
@@ -23,7 +26,7 @@ const loading = ref(false)
 const formOpen = ref(false)
 const editingCategory = ref<TransactionCategory | null>(null)
 const defaultFormType = ref<'expense' | 'income'>('expense')
-const deletingId = ref<string | null>(null)
+const deleting = ref(false)
 const deleteDialogOpen = ref(false)
 const categoryToDelete = ref<TransactionCategory | null>(null)
 
@@ -45,6 +48,11 @@ const incomeCategories = computed(() =>
   store.categories.filter((c) => c.type === 'income'),
 )
 
+const groups = computed(() => [
+  { type: 'expense' as const, label: 'Despesas', categories: expenseCategories.value, empty: 'Nenhuma categoria de despesa.' },
+  { type: 'income' as const, label: 'Receitas', categories: incomeCategories.value, empty: 'Nenhuma categoria de receita.' },
+])
+
 function openCreate(type: 'expense' | 'income' = 'expense') {
   editingCategory.value = null
   defaultFormType.value = type
@@ -64,17 +72,17 @@ function openDelete(category: TransactionCategory) {
 async function confirmDelete() {
   if (!categoryToDelete.value) return
   const id = categoryToDelete.value.id
-  deletingId.value = id
-  deleteDialogOpen.value = false
+  deleting.value = true
   try {
     await financeApi.categories.delete(id)
     store.categories = store.categories.filter((c) => c.id !== id)
     toast.success('Categoria removida')
+    deleteDialogOpen.value = false
+    categoryToDelete.value = null
   } catch {
     toast.error('Erro ao remover categoria')
   } finally {
-    deletingId.value = null
-    categoryToDelete.value = null
+    deleting.value = false
   }
 }
 </script>
@@ -82,201 +90,122 @@ async function confirmDelete() {
 <template>
   <AppPageContainer>
     <FinanceSubNav />
-    <!-- Header -->
-    <PageHeader title="Categorias" subtitle="Organize despesas e receitas por categoria">
+    <PageHeader title="Categorias" subtitle="Organize despesas e receitas por categoria." compact-mobile>
       <template #actions>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors shrink-0"
+          class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors shrink-0"
           @click="openCreate()"
         >
-          <Plus :size="14" :stroke-width="2.5" />
+          <Plus class="size-3.5" />
           Nova categoria
         </button>
       </template>
     </PageHeader>
 
-    <!-- Loading -->
-    <div v-if="loading" class="space-y-3">
-      <Skeleton v-for="i in 6" :key="i" class="h-[68px] w-full rounded-lg" />
+    <!-- Loading: list-shaped, two columns on desktop -->
+    <div v-if="loading" class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-5 xl:gap-6 lg:items-start">
+      <div v-for="i in 2" :key="i" class="bg-card rounded-lg overflow-hidden">
+        <div class="px-4 py-3 border-b border-border"><Skeleton class="h-2.5 w-20" /></div>
+        <div v-for="j in 4" :key="j" class="flex items-center gap-3 px-4 py-2.5">
+          <Skeleton class="size-8 rounded-lg shrink-0" />
+          <Skeleton class="h-3 w-1/3" />
+        </div>
+      </div>
     </div>
 
-    <template v-else>
+    <EmptyState
+      v-else-if="!expenseCategories.length && !incomeCategories.length"
+      :icon="Tags"
+      title="Nenhuma categoria ainda"
+      description="Crie categorias para organizar suas transações."
+      cta-label="Criar primeira categoria"
+      @cta="openCreate()"
+    />
 
-      <!-- Empty state -->
-      <div
-        v-if="!expenseCategories.length && !incomeCategories.length"
-        class="flex flex-col items-center justify-center py-16 text-center"
-      >
-        <Tags :size="40" class="text-muted-foreground mb-4" />
-        <p class="text-[15px] font-semibold text-foreground">Nenhuma categoria ainda</p>
-        <p class="text-[13px] text-muted-foreground mt-1 mb-5">
-          Crie categorias para organizar suas transações
-        </p>
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-          @click="openCreate()"
-        >
-          <Plus :size="14" />
-          Criar primeira categoria
-        </button>
-      </div>
+    <!-- Despesas and Receitas side by side on desktop -->
+    <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-5 xl:gap-6 lg:items-start">
+      <section v-for="group in groups" :key="group.type" class="bg-card rounded-lg overflow-hidden">
+        <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{{ group.label }}</p>
+          <span v-if="group.categories.length" class="text-[11px] text-muted-foreground">
+            {{ group.categories.length }} categoria{{ group.categories.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
 
-      <div v-else class="space-y-6">
+        <ul class="divide-y divide-border">
+          <li v-if="!group.categories.length" class="px-4 py-3 text-[12px] text-muted-foreground">{{ group.empty }}</li>
 
-        <!-- Despesas -->
-        <section>
-          <div class="bg-card rounded-lg overflow-hidden">
-            <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                DESPESAS
-              </p>
-              <button
-                type="button"
-                class="text-[12px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                @click="openCreate('expense')"
-              >
-                + Adicionar
-              </button>
-            </div>
-            <!-- Per-section empty state -->
-            <div v-if="!expenseCategories.length" class="border-t border-border px-4 py-6 flex flex-col items-center gap-3">
-              <Tag :size="16" class="text-muted-foreground" />
-              <p class="text-[13px] text-muted-foreground">Nenhuma categoria de despesa criada.</p>
-              <button
-                type="button"
-                class="h-8 px-3 rounded-lg text-[12px] text-muted-foreground hover:bg-muted transition-colors"
-                @click="openCreate('expense')"
-              >
-                Adicionar
-              </button>
-            </div>
-            <div
-              v-for="cat in expenseCategories"
-              :key="cat.id"
-              class="border-t border-border flex items-center gap-3 px-4 h-[52px]"
+          <!-- Tap the row to edit; delete stays in the menu -->
+          <li v-for="cat in group.categories" :key="cat.id" class="flex items-center">
+            <button
+              type="button"
+              class="flex-1 min-w-0 flex items-center gap-3 pl-4 py-2.5 text-left hover:bg-muted/50 transition-colors"
+              :aria-label="`Editar categoria ${cat.name}`"
+              @click="openEdit(cat)"
             >
               <span
-                class="size-8 rounded-lg flex items-center justify-center shrink-0"
-                :style="{ background: (cat.color ?? 'hsl(var(--destructive))') + '22', color: cat.color ?? 'hsl(var(--destructive))' }"
+                class="size-8 rounded-lg grid place-items-center shrink-0"
+                :style="{
+                  background: (cat.color ?? (group.type === 'expense' ? '#FF6F5C' : '#34d399')) + '26',
+                  color: cat.color ?? (group.type === 'expense' ? '#FF6F5C' : '#34d399'),
+                }"
               >
                 <component
                   v-if="cat.icon && findIcon(cat.icon)"
                   :is="findIcon(cat.icon)!.component"
                   :size="15"
-                  :stroke-width="1.8"
+                  :stroke-width="1.9"
                   aria-hidden="true"
                 />
-                <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
+                <span v-else class="text-[12px] font-semibold">{{ cat.name.charAt(0) }}</span>
               </span>
-
               <div class="flex-1 min-w-0">
-                <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
+                <p class="text-[14px] font-medium text-foreground truncate">{{ cat.name }}</p>
+                <p v-if="cat.monthly_limit" class="text-[12px] text-muted-foreground tabular-nums truncate mt-0.5">
+                  Meta de {{ formatCurrency(cat.monthly_limit) }} por mês
+                </p>
               </div>
+            </button>
 
-              <span v-if="cat.monthly_limit" class="text-[12px] text-muted-foreground shrink-0">
-                {{ formatCurrency(cat.monthly_limit) }}
-              </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <button
+                  type="button"
+                  :aria-label="`Opções da categoria ${cat.name}`"
+                  class="size-10 mr-1 grid place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+                >
+                  <MoreHorizontal :size="15" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" class="w-36">
+                <DropdownMenuItem @click="openEdit(cat)">
+                  <Pencil :size="12" class="mr-2" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem class="text-destructive focus:text-destructive" @click="openDelete(cat)">
+                  <Trash2 :size="12" class="mr-2" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </li>
 
-              <button
-                type="button"
-                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                @click="openEdit(cat)"
-              >
-                <Pencil :size="14" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                :disabled="deletingId === cat.id"
-                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
-                @click="openDelete(cat)"
-              >
-                <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
-                <Trash2 v-else :size="14" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Receitas -->
-        <section>
-          <div class="bg-card rounded-lg overflow-hidden">
-            <div class="flex items-center justify-between px-4 pt-4 pb-2">
-              <p class="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                RECEITAS
-              </p>
-              <button
-                type="button"
-                class="text-[12px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                @click="openCreate('income')"
-              >
-                + Adicionar
-              </button>
-            </div>
-            <!-- Per-section empty state -->
-            <div v-if="!incomeCategories.length" class="border-t border-border px-4 py-6 flex flex-col items-center gap-3">
-              <Tag :size="16" class="text-muted-foreground" />
-              <p class="text-[13px] text-muted-foreground">Nenhuma categoria de receita criada.</p>
-              <button
-                type="button"
-                class="h-8 px-3 rounded-lg text-[12px] text-muted-foreground hover:bg-muted transition-colors"
-                @click="openCreate('income')"
-              >
-                Adicionar
-              </button>
-            </div>
-            <div
-              v-for="cat in incomeCategories"
-              :key="cat.id"
-              class="border-t border-border flex items-center gap-3 px-4 h-[52px]"
+          <li>
+            <button
+              type="button"
+              class="w-full inline-flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-medium text-primary hover:bg-muted/50 transition-colors"
+              @click="openCreate(group.type)"
             >
-              <span
-                class="size-8 rounded-lg flex items-center justify-center shrink-0"
-                :style="{ background: (cat.color ?? 'hsl(var(--success))') + '22', color: cat.color ?? 'hsl(var(--success))' }"
-              >
-                <component
-                  v-if="cat.icon && findIcon(cat.icon)"
-                  :is="findIcon(cat.icon)!.component"
-                  :size="15"
-                  :stroke-width="1.8"
-                  aria-hidden="true"
-                />
-                <span v-else class="text-[13px] font-bold">{{ cat.name.charAt(0) }}</span>
-              </span>
+              <Plus :size="14" />
+              Adicionar categoria
+            </button>
+          </li>
+        </ul>
+      </section>
+    </div>
 
-              <div class="flex-1 min-w-0">
-                <p class="text-[14px] font-medium text-foreground leading-none">{{ cat.name }}</p>
-              </div>
-
-              <span v-if="cat.monthly_limit" class="text-[12px] text-muted-foreground shrink-0">
-                {{ formatCurrency(cat.monthly_limit) }}
-              </span>
-
-              <button
-                type="button"
-                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                @click="openEdit(cat)"
-              >
-                <Pencil :size="14" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                :disabled="deletingId === cat.id"
-                class="size-11 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
-                @click="openDelete(cat)"
-              >
-                <Loader2 v-if="deletingId === cat.id" :size="14" class="animate-spin" />
-                <Trash2 v-else :size="14" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </section>
-
-      </div>
-    </template>
-
-    <!-- Category form sheet -->
     <CategoryFormSheet
       v-model:open="formOpen"
       :category="editingCategory"
@@ -284,26 +213,14 @@ async function confirmDelete() {
       @saved="() => {}"
     />
 
-    <!-- Delete confirmation dialog -->
-    <AlertDialog v-model:open="deleteDialogOpen">
-      <AlertDialogContent class="bg-card border-border">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Excluir categoria</AlertDialogTitle>
-          <AlertDialogDescription>
-            Tem certeza que deseja excluir <strong class="text-foreground">{{ categoryToDelete?.name }}</strong>?
-            As transações vinculadas ficarão sem categoria.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction
-            class="bg-destructive text-destructive-foreground hover:bg-muted"
-            @click="confirmDelete"
-          >
-            Excluir
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      v-model:open="deleteDialogOpen"
+      title="Excluir categoria"
+      :description="`Excluir '${categoryToDelete?.name}'? As transações dela ficam sem categoria.`"
+      confirm-label="Excluir"
+      variant="destructive"
+      :loading="deleting"
+      @confirm="confirmDelete"
+    />
   </AppPageContainer>
 </template>

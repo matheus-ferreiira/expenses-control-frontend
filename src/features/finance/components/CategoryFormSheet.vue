@@ -179,20 +179,22 @@ async function save() {
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium  transition-all"
+              :aria-pressed="type === 'expense'"
+              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium transition-colors"
               :class="type === 'expense'
-                ? 'bg-muted text-primary'
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? 'bg-primary/15 text-primary font-semibold'
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="type = 'expense'"
             >
               Despesa
             </button>
             <button
               type="button"
-              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium  transition-all"
+              :aria-pressed="type === 'income'"
+              class="flex items-center justify-center h-10 rounded-lg text-[13px] font-medium transition-colors"
               :class="type === 'income'
-                ? 'bg-muted text-primary'
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? 'bg-primary/15 text-primary font-semibold'
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="type = 'income'"
             >
               Receita
