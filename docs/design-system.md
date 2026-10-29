@@ -194,7 +194,8 @@ Dentro de um sheet (fundo `bg-card`), a caixa interna é `bg-muted` sem divisore
 </div>
 ```
 
-`bg-primary` normal, `bg-destructive` quando passa de 100%. Legenda acima em `text-[11px]`: rótulo da base à esquerda, "X de Y" e percentuais à direita.
+`bg-primary` normal, `bg-destructive` quando passa de 100% (orçamento) ou `bg-success` ao completar (meta). O preenchimento nunca usa `bg-muted`, que é a cor do trilho e some.
+Em lista, a barra fica abaixo da linha, alinhada com o texto (`mt-2 ml-11`, depois do ícone de 32px). Legenda acima em `text-[11px]`: rótulo da base à esquerda, "X de Y" e percentuais à direita.
 
 ### Status
 
@@ -321,7 +322,7 @@ No estilo escuro, caixas internas usam `bg-card`; os campos continuam `bg-muted 
 | Contas (`AccountsPage.vue`) | No padrão (2026-10-29) |
 | Cartões (`CardsPage.vue`) | No padrão (2026-10-29) |
 | Orçamento (`BudgetPage.vue`) | No padrão (2026-10-29) |
-| Metas (`GoalsPage.vue`) | A revisar |
+| Metas (`GoalsPage.vue`) | No padrão (2026-10-29) |
 | Categorias (`CategoriesPage.vue`) | A revisar |
 | Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | A revisar |
 

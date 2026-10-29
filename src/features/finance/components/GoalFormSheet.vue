@@ -268,10 +268,11 @@ async function submit() {
             <button
               type="button"
               class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-              :class="!form.bank_account_id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
+              :aria-pressed="!form.bank_account_id"
+              :class="!form.bank_account_id ? 'bg-primary/15' : 'bg-muted hover:brightness-110'"
               @click="form.bank_account_id = null"
             >
-              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+              <div class="w-8 h-8 rounded-lg bg-card flex items-center justify-center shrink-0">
                 <Eye :size="14" class="text-muted-foreground" aria-hidden="true" />
               </div>
               <div class="flex-1 text-left min-w-0">
@@ -287,7 +288,8 @@ async function submit() {
               :key="acc.id"
               type="button"
               class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
-              :class="form.bank_account_id === acc.id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
+              :aria-pressed="form.bank_account_id === acc.id"
+              :class="form.bank_account_id === acc.id ? 'bg-primary/15' : 'bg-muted hover:brightness-110'"
               @click="form.bank_account_id = acc.id"
             >
               <span
@@ -302,7 +304,7 @@ async function submit() {
               </div>
               <span
                 class="text-[13px] font-semibold tabular-nums shrink-0"
-                :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'"
+                :class="acc.balance >= 0 ? 'text-foreground' : 'text-destructive'"
               >
                 {{ formatCurrency(acc.balance) }}
               </span>
