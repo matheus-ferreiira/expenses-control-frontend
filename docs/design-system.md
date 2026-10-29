@@ -82,7 +82,7 @@ Superfícies (card, caixa interna, sheet) são **sempre sólidas**. A transparê
 |---|---|
 | Opção selecionada em toggle, botão "Filtros" ativo, pílula de filtro | `bg-primary/15 text-primary` |
 | Hover de linha tocável | `hover:bg-muted/50` (ou `/40`) |
-| Fundo do ícone de categoria | cor da categoria + alfa (`cat.color + '22'` / `'26'`) com o ícone na cor cheia |
+| Fundo do ícone de categoria | cor da categoria + alfa (`cat.color + '22'` / `'26'`) com o ícone na cor cheia. A cor precisa ter 6 dígitos; se puder vir curta (`#888`), use `withAlpha(cor, '26')` de `@/utils/color` |
 | Parte "prevista" de uma barra de progresso | mesma cor da barra com `opacity-40` |
 | Estado desabilitado | `disabled:opacity-40` |
 | Hover de valor tocável | `hover:opacity-80` |
@@ -196,6 +196,14 @@ Dentro de um sheet (fundo `bg-card`), a caixa interna é `bg-muted` sem divisore
 
 `bg-primary` normal, `bg-destructive` quando passa de 100% (orçamento) ou `bg-success` ao completar (meta). O preenchimento nunca usa `bg-muted`, que é a cor do trilho e some.
 Em lista, a barra fica abaixo da linha, alinhada com o texto (`mt-2 ml-11`, depois do ícone de 32px). Legenda acima em `text-[11px]`: rótulo da base à esquerda, "X de Y" e percentuais à direita.
+
+### Gráfico
+
+Card `bg-card rounded-lg p-4` com título em caixa alta 11px e ícone 14 (`PieChart`, `BarChart3`). Cores das séries: `success` (receitas), `destructive` (despesas), cor da categoria (rosca, sempre com `withAlpha`). Eixo de valores em reais curto e sem repetir rótulo ("R$ 2,5k"), `maxTicksLimit: 6`. Legenda da rosca como lista abaixo (dot 8px, nome, `formatPercent`).
+
+### Alternar entre telas irmãs
+
+Duas telas que mostram o mesmo assunto em períodos diferentes (Relatório mensal / anual) usam o toggle segmentado no topo, com a largura da coluna de resumo no desktop (`lg:w-[400px] xl:w-[440px]`). Nunca abas sublinhadas.
 
 ### Status
 
@@ -327,7 +335,7 @@ No estilo escuro, caixas internas usam `bg-card`; os campos continuam `bg-muted 
 | Orçamento (`BudgetPage.vue`) | No padrão (2026-10-29) |
 | Metas (`GoalsPage.vue`) | No padrão (2026-10-29) |
 | Categorias (`CategoriesPage.vue`) | No padrão (2026-10-29) |
-| Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | A revisar |
+| Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | No padrão (2026-10-29) |
 
 Atualize esta tabela no commit que trouxer uma tela para o padrão.
 

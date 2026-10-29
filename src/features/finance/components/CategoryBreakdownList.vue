@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { ChevronRight, Tag } from 'lucide-vue-next'
-import { formatCurrency } from '@/utils/currency'
+import { formatCurrency, formatPercent } from '@/utils/currency'
 import { useFinanceStore } from '@/stores/finance'
 import { findIcon } from '@/lib/icons'
 
@@ -101,7 +101,7 @@ function categoryIcon(item: CategoryBreakdownItem): object {
             <span class="flex-1 text-[13px] text-foreground truncate">{{ cat.category }}</span>
             <div class="text-right shrink-0">
               <span class="block text-[13px] tabular-nums font-medium">{{ formatCurrency(cat.total) }}</span>
-              <span class="block text-[12px] tabular-nums text-muted-foreground">{{ cat.percentage }}% do total</span>
+              <span class="block text-[12px] tabular-nums text-muted-foreground">{{ formatPercent(cat.percentage) }} do total</span>
             </div>
             <ChevronRight v-if="selectable" :size="14" class="shrink-0 text-muted-foreground" aria-hidden="true" />
           </div>

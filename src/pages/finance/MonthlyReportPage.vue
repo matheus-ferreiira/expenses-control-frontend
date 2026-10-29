@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { AppPageContainer, PageHeader } from '@/components/shared'
 import { Skeleton } from '@ui/skeleton'
 import { ROUTES } from '@/constants/routes'
-import {
-  ChevronLeft, ChevronRight, TrendingUp, PieChart,
-  AlertTriangle, Sparkles,
-} from 'lucide-vue-next'
+import { TrendingUp, PieChart, PiggyBank, AlertTriangle, Sparkles } from 'lucide-vue-next'
 import { financeApi } from '@/services/api/finance'
-import { formatCurrency } from '@/utils/currency'
+import { formatCurrency, formatPercent } from '@/utils/currency'
+import { withAlpha } from '@/utils/color'
 import { useFinanceStore } from '@/stores/finance'
 import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
+import CategoryTransactionsSheet from '@/features/finance/components/CategoryTransactionsSheet.vue'
+import MonthNavigator from '@/features/finance/components/MonthNavigator.vue'
+import type { CategoryBreakdownItem } from '@/types/finance'
 
 const router = useRouter()
+const route = useRoute()
 const financeStore = useFinanceStore()
 
 const MONTH_NAMES = [
@@ -30,26 +32,33 @@ const loading = ref(false)
 const report = ref<Awaited<ReturnType<typeof financeApi.monthlyReport>> | null>(null)
 
 const monthLabel = computed(() => `${MONTH_NAMES[month.value - 1]} de ${year.value}`)
+const monthKey = computed(() => `${year.value}-${String(month.value).padStart(2, '0')}`)
 
-const isCurrentMonth = computed(() => {
-  const now = new Date()
-  return year.value === now.getFullYear() && month.value === now.getMonth() + 1
+/** past = closed month · current = in progress · future = forecast (same reading as Visão Geral) */
+const mode = computed<'past' | 'current' | 'future'>(() => {
+  const now = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+  return monthKey.value < now ? 'past' : monthKey.value > now ? 'future' : 'current'
 })
+const modeLabel = computed(() => (mode.value === 'past' ? 'Mês fechado' : mode.value === 'future' ? 'Previsão' : 'Em andamento'))
 
 // ── Donut chart ──────────────────────────────────────────────────────────────
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let chartInstance: any = null
 
+const donutCategories = computed(() =>
+  (report.value?.expenses_by_category ?? []).slice().sort((a, b) => b.total - a.total).slice(0, 8),
+)
+
 async function buildDonut() {
-  if (!canvasRef.value || !report.value?.expenses_by_category?.length) return
+  if (!canvasRef.value || !donutCategories.value.length) return
 
   const { Chart, DoughnutController, ArcElement, Tooltip, Legend } = await import('chart.js')
   Chart.register(DoughnutController, ArcElement, Tooltip, Legend)
 
   if (chartInstance) { chartInstance.destroy(); chartInstance = null }
 
-  const cats = report.value.expenses_by_category.sort((a, b) => b.total - a.total).slice(0, 8)
+  const cats = donutCategories.value
 
   chartInstance = new Chart(canvasRef.value, {
     type: 'doughnut',
@@ -57,7 +66,8 @@ async function buildDonut() {
       labels: cats.map((c) => c.category),
       datasets: [{
         data: cats.map((c) => c.total),
-        backgroundColor: cats.map((c) => c.color + 'cc'),
+        // withAlpha: "#888" + "cc" was an invalid colour and the slice came out black
+        backgroundColor: cats.map((c) => withAlpha(c.color, 'cc')),
         borderColor: cats.map((c) => c.color),
         borderWidth: 1.5,
         hoverOffset: 6,
@@ -73,7 +83,7 @@ async function buildDonut() {
         },
         tooltip: {
           callbacks: {
-            label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.parsed ?? 0)} (${cats[ctx.dataIndex]?.percentage ?? 0}%)`,
+            label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.parsed ?? 0)} (${formatPercent(cats[ctx.dataIndex]?.percentage ?? 0)})`,
           },
           backgroundColor: hsl('--card'),
           borderColor: hsl('--border'),
@@ -111,59 +121,101 @@ function nextMonth() {
   load()
 }
 
+function selectMonth(key: string) {
+  const [y, m] = key.split('-').map(Number)
+  year.value = y!
+  month.value = m!
+  load()
+}
+
+function resetMonth() {
+  year.value = today.getFullYear()
+  month.value = today.getMonth() + 1
+  load()
+}
+
 async function load() {
   loading.value = true
+  const viewed = monthKey.value
   try {
-    report.value = await financeApi.monthlyReport(year.value, month.value)
+    const r = await financeApi.monthlyReport(year.value, month.value)
+    if (monthKey.value === viewed) report.value = r
   } catch {
-    report.value = null
+    if (monthKey.value === viewed) report.value = null
   } finally {
-    loading.value = false
+    if (monthKey.value === viewed) loading.value = false
   }
 }
 
+// ── Summary: entrou · saiu · sobrou, money put away apart (as on Visão Geral) ──
+const columns = computed(() => {
+  const r = report.value
+  if (!r) return []
+  if (mode.value === 'future') {
+    const inc = r.income + r.pending_income
+    const exp = r.expenses + r.pending_expenses
+    const left = Math.round((inc - exp) * 100) / 100
+    return [
+      { label: 'Receita prevista', value: inc, cls: 'text-success' },
+      { label: 'Despesa prevista', value: exp, cls: 'text-destructive' },
+      { label: 'Sobra prevista', value: left, cls: left < 0 ? 'text-destructive' : 'text-foreground' },
+    ]
+  }
+  const current = mode.value === 'current'
+  const left = Math.round((r.income - r.expenses) * 100) / 100
+  return [
+    { label: current ? 'Recebido' : 'Receitas', value: r.income, cls: 'text-success' },
+    { label: current ? 'Gasto' : 'Despesas', value: r.expenses, cls: 'text-destructive' },
+    { label: current ? 'Sobra até hoje' : 'Sobrou', value: left, cls: left < 0 ? 'text-destructive' : 'text-foreground' },
+  ]
+})
+
 /**
- * Narrative banner: every sentence states its numbers and base (D-35). No judgement the data does not
+ * Status line: every sentence states its numbers and base (D-35). No judgement the data does not
  * support ("ótimo mês", "principal fator"); partial, future and empty months are said as such.
  */
 const narrative = computed(() => {
   if (!report.value) return null
-  const { income, expenses, saved, pending_income, pending_expenses, expenses_by_category, transactions_count } = report.value
-  const now = new Date()
-  const isCurrent = year.value === now.getFullYear() && month.value === now.getMonth() + 1
-  const isFuture = year.value > now.getFullYear() || (year.value === now.getFullYear() && month.value > now.getMonth() + 1)
-  const savedNote = saved > 0 ? ` Guardado: ${formatCurrency(saved)}.` : ''
+  const { income, expenses, pending_income, pending_expenses, expenses_by_category, transactions_count } = report.value
   const pendingNote = pending_income > 0 || pending_expenses > 0
     ? ` Ainda previstos: +${formatCurrency(pending_income)} e −${formatCurrency(pending_expenses)}.`
     : ''
   if (transactions_count === 0) {
-    return { tone: 'neutral' as const, icon: Sparkles, text: `Não há lançamentos em ${monthLabel.value}.` }
+    return { tone: 'neutral' as const, icon: Sparkles, text: `Não há lançamentos em ${monthLabel.value.toLowerCase()}.` }
   }
-  if (isFuture) {
+  if (mode.value === 'future') {
     return { tone: 'neutral' as const, icon: Sparkles, text: `${monthLabel.value} ainda não começou.${pendingNote}` }
   }
   const top = expenses_by_category[0]
-  const topNote = top && expenses > 0 ? ` Maior gasto: ${top.category}, ${formatCurrency(top.total)} (${top.percentage}% das despesas).` : ''
-  if (isCurrent) {
-    return {
-      tone: 'neutral' as const,
-      icon: Sparkles,
-      text: `Até hoje (dia ${now.getDate()}): recebido ${formatCurrency(income)}, gasto ${formatCurrency(expenses)}.${pendingNote}${topNote}${savedNote}`,
-    }
+  const topNote = top && expenses > 0 ? ` Maior gasto: ${top.category}, ${formatCurrency(top.total)} (${formatPercent(top.percentage)} das despesas).` : ''
+  if (mode.value === 'current') {
+    return { tone: 'neutral' as const, icon: Sparkles, text: `Até hoje (dia ${today.getDate()}).${pendingNote}${topNote}` }
   }
   const result = Math.round((income - expenses) * 100) / 100
   return {
     tone: result < 0 ? ('danger' as const) : ('ok' as const),
     icon: result < 0 ? AlertTriangle : TrendingUp,
-    text: `Em ${monthLabel.value}: recebido ${formatCurrency(income)}, gasto ${formatCurrency(expenses)}, resultado ${formatCurrency(result)}.${topNote}${savedNote}`,
+    text: result < 0
+      ? `Saiu ${formatCurrency(-result)} a mais do que entrou.${topNote}`
+      : `${income > 0 ? `Sobrou ${Math.round((result / income) * 100)}% do que entrou.` : `Sobrou ${formatCurrency(result)}.`}${topNote}`,
   }
 })
 const narrativeCls = computed(() => {
   if (!narrative.value) return ''
-  if (narrative.value.tone === 'danger') return 'bg-muted text-destructive'
-  if (narrative.value.tone === 'ok') return 'bg-muted text-success'
-  return 'bg-muted text-foreground'
+  if (narrative.value.tone === 'danger') return 'text-destructive'
+  if (narrative.value.tone === 'ok') return 'text-success'
+  return 'text-foreground'
 })
+
+const monthSaved = computed(() => (mode.value === 'future' ? report.value?.pending_saved ?? 0 : report.value?.saved ?? 0))
+
+// ── Category drill-down (same sheet as Visão Geral, read-only here) ─────────
+const categorySheetOpen = ref(false)
+const selectedCategory = ref<CategoryBreakdownItem | null>(null)
+function openCategory(category: CategoryBreakdownItem) {
+  selectedCategory.value = category
+  categorySheetOpen.value = true
+}
 
 function getCSSVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
@@ -176,6 +228,13 @@ function hsl(token: string, alpha = 1): string {
 
 onMounted(() => {
   if (!financeStore.categories.length) financeStore.fetchCategories()
+  // The yearly report opens a month with ?year=&month= (it used to be ignored: always the current month)
+  const qy = Number(route.query.year)
+  const qm = Number(route.query.month)
+  if (Number.isInteger(qy) && qy > 1900 && Number.isInteger(qm) && qm >= 1 && qm <= 12) {
+    year.value = qy
+    month.value = qm
+  }
   load()
 })
 </script>
@@ -183,178 +242,134 @@ onMounted(() => {
 <template>
   <AppPageContainer>
     <FinanceSubNav />
-    <div class="pb-20">
-    <!-- Page header -->
-    <PageHeader title="Relatório mensal" subtitle="Resumo de receitas, despesas e categorias do mês." />
+    <PageHeader title="Relatório mensal" subtitle="Resumo de receitas, despesas e categorias do mês." compact-mobile />
 
-
-
-    <!-- Toggle Mensal / Anual — same pattern as FinanceSubNav -->
-    <div class="-mx-5 px-5 lg:mx-0 lg:px-0 mb-5 overflow-x-auto scrollbar-none">
-      <div class="flex items-center gap-1 w-max border-b border-border">
-        <button class="relative px-3 h-10 text-sm font-medium whitespace-nowrap text-foreground">
-          Mensal
-          <span class="absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-primary" />
-        </button>
-        <button
-          class="relative px-3 h-10 text-[13px] font-medium whitespace-nowrap text-muted-foreground hover:text-foreground transition-colors"
-          @click="router.push({ name: ROUTES.FINANCE_REPORTS_YEARLY })"
-        >
-          Anual
-        </button>
-      </div>
-    </div>
-
-    <!-- Month navigator -->
-    <div class="flex items-center justify-between bg-card rounded-lg px-2 py-1.5 mb-5">
-      <button
-        type="button"
-        class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
-        @click="prevMonth"
-      >
-        <ChevronLeft :size="18" />
+    <!-- Mensal / Anual: segmented toggle, as on Visão Geral -->
+    <div class="flex gap-1 rounded-lg bg-muted p-1 mb-4 lg:w-[400px] xl:w-[440px]" role="group" aria-label="Período do relatório">
+      <button type="button" aria-pressed="true" class="flex-1 h-8 rounded-md text-[12px] bg-primary/15 text-primary font-semibold">
+        Mensal
       </button>
-      <div class="flex items-center gap-2">
-        <span class="text-[15px] font-semibold text-foreground">{{ monthLabel }}</span>
-        <span
-          v-if="isCurrentMonth"
-          class="text-[11px] bg-muted text-primary rounded px-2 py-0.5"
-        >Mês atual</span>
-      </div>
       <button
         type="button"
-        class="min-w-11 h-11 grid place-items-center rounded-md hover:bg-muted text-muted-foreground active:scale-95 transition-all"
-        @click="nextMonth"
+        aria-pressed="false"
+        class="flex-1 h-8 rounded-md text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+        @click="router.push({ name: ROUTES.FINANCE_REPORTS_YEARLY })"
       >
-        <ChevronRight :size="18" />
+        Anual
       </button>
     </div>
 
-    <!-- Narrative banner -->
-    <div
-      v-if="!loading && narrative"
-      :class="['flex items-start gap-2.5 rounded-lg px-3.5 py-3 text-[12.5px] leading-snug font-medium mb-5', narrativeCls]"
-    >
-      <component :is="narrative.icon" :size="16" class="shrink-0 mt-0.5" />
-      <span>{{ narrative.text }}</span>
-    </div>
+    <!-- Desktop: summary and donut on the left, categories on the right -->
+    <div class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] lg:gap-5 xl:gap-6 lg:items-start">
+      <div class="mb-4 lg:mb-0 space-y-3">
+        <!-- Month card -->
+        <div class="bg-card rounded-lg p-4">
+          <div class="flex flex-col items-center mb-3">
+            <MonthNavigator
+              :month="monthKey"
+              :is-current-month="mode === 'current'"
+              @prev="prevMonth"
+              @next="nextMonth"
+              @reset="resetMonth"
+              @select-month="selectMonth"
+            />
+            <p class="text-[11px] text-muted-foreground -mt-0.5">{{ modeLabel }}</p>
+          </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="space-y-3">
-      <div class="grid grid-cols-2 gap-3">
-        <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-lg" />
+          <div v-if="loading" class="grid grid-cols-3 gap-2">
+            <div v-for="i in 3" :key="i" class="flex flex-col items-center gap-1.5">
+              <Skeleton class="h-2.5 w-14" />
+              <Skeleton class="h-5 w-20" />
+            </div>
+          </div>
+
+          <template v-else-if="report">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div v-for="col in columns" :key="col.label" class="min-w-0">
+                <p class="text-[10px] text-muted-foreground uppercase tracking-widest leading-tight h-[26px] flex items-end justify-center">{{ col.label }}</p>
+                <p class="text-[15px] min-[400px]:text-[17px] font-semibold tabular-nums whitespace-nowrap mt-1" :class="col.cls">
+                  {{ formatCurrency(col.value) }}
+                </p>
+              </div>
+            </div>
+
+            <div
+              v-if="narrative"
+              class="mt-3 flex items-start gap-2 rounded-md bg-muted px-2.5 py-2 text-[12px] font-medium leading-snug"
+              :class="narrativeCls"
+            >
+              <component :is="narrative.icon" :size="14" class="shrink-0 mt-px" />
+              <span>{{ narrative.text }}</span>
+            </div>
+
+            <div v-if="monthSaved !== 0" class="mt-3 pt-3 border-t border-border flex items-center justify-between gap-3">
+              <span class="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                <PiggyBank :size="14" class="text-primary" />
+                {{ mode === 'future' ? 'Guardar no mês (previsto)' : 'Guardado no mês' }}
+              </span>
+              <span class="text-[14px] font-semibold tabular-nums text-primary">{{ formatCurrency(monthSaved) }}</span>
+            </div>
+
+            <p class="text-[11px] text-muted-foreground mt-3">
+              {{ report.transactions_count }} transaç{{ report.transactions_count !== 1 ? 'ões' : 'ão' }} no mês
+            </p>
+          </template>
+
+          <div v-else class="text-center py-2">
+            <p class="text-[13px] text-muted-foreground">Erro ao carregar o relatório.</p>
+            <button type="button" class="mt-2 text-[12px] font-medium text-primary" @click="load">Tentar novamente</button>
+          </div>
+        </div>
+
+        <!-- Donut: share of each category in the month's spending -->
+        <div v-if="!loading && donutCategories.length" class="bg-card rounded-lg p-4">
+          <p class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+            <PieChart :size="14" class="shrink-0" />
+            Distribuição das despesas
+          </p>
+          <div class="relative h-[200px] w-full">
+            <canvas ref="canvasRef" />
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <p class="text-[11px] text-muted-foreground">Despesas</p>
+              <p class="text-[17px] font-semibold text-foreground tabular-nums">{{ formatCurrency(report?.expenses ?? 0) }}</p>
+            </div>
+          </div>
+          <ul class="mt-3 space-y-1">
+            <li v-for="cat in donutCategories" :key="cat.category_id ?? cat.category" class="flex items-center gap-2.5 py-1 text-[12px]">
+              <span class="size-2 shrink-0 rounded-full" :style="{ background: cat.color }" />
+              <span class="flex-1 text-foreground truncate">{{ cat.category }}</span>
+              <span class="text-muted-foreground tabular-nums shrink-0">{{ formatPercent(cat.percentage) }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
-      <Skeleton class="h-48 w-full rounded-lg mt-4" />
-      <Skeleton class="h-4 w-32 mt-4" />
-      <div v-for="i in 5" :key="i" class="rounded-lg bg-card p-3.5 space-y-2">
-        <div class="flex justify-between">
-          <Skeleton class="h-3 w-24" />
+
+      <!-- Categories: same card as Visão Geral; a row opens its transactions -->
+      <div v-if="loading" class="bg-card rounded-lg p-4 space-y-3">
+        <Skeleton class="h-2.5 w-24" />
+        <div v-for="i in 4" :key="i" class="flex items-center gap-3">
+          <Skeleton class="size-7 rounded-lg shrink-0" />
+          <Skeleton class="h-3 flex-1" />
           <Skeleton class="h-3 w-16" />
         </div>
-        <Skeleton class="h-1.5 w-full rounded-full" />
       </div>
+      <CategoryBreakdownList
+        v-else-if="report"
+        boxed
+        selectable
+        title="Despesas por categoria"
+        :empty-text="`Nenhuma despesa confirmada em ${monthLabel.toLowerCase()}.`"
+        :categories="report.expenses_by_category"
+        @select="openCategory"
+      />
     </div>
 
-    <!-- Content -->
-    <template v-else-if="report">
-      <!-- Period summary card -->
-      <div class="rounded-lg bg-card p-4 mb-4">
-        <div class="grid gap-2 text-center" :class="report.saved > 0 ? 'grid-cols-4' : 'grid-cols-3'">
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Receitas</p>
-            <p class="text-[18px] font-semibold text-success tabular-nums mt-1">{{ formatCurrency(report.income) }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Gastos</p>
-            <p class="text-[18px] font-semibold text-destructive tabular-nums mt-1">{{ formatCurrency(report.expenses) }}</p>
-          </div>
-          <div v-if="report.saved > 0">
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Guardado</p>
-            <p class="text-[18px] font-semibold text-primary tabular-nums mt-1">{{ formatCurrency(report.saved) }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest">Sobra</p>
-            <p
-              class="text-[18px] font-semibold tabular-nums mt-1"
-              :class="report.income - report.expenses >= 0 ? 'text-success' : 'text-destructive'"
-            >
-              {{ formatCurrency(Math.round((report.income - report.expenses) * 100) / 100) }}
-            </p>
-          </div>
-        </div>
-        <div class="mt-3 pt-3 border-t border-border">
-          <p class="text-[11.5px] text-muted-foreground">
-            {{ report.transactions_count }} transaç{{ report.transactions_count !== 1 ? 'ões' : 'ão' }} no período
-          </p>
-        </div>
-      </div>
-
-      <!-- Donut chart — distribuição por categoria -->
-      <div
-        v-if="report.expenses_by_category.length > 0"
-        class="rounded-lg bg-card p-4 mb-4"
-      >
-        <div class="flex items-center gap-2 mb-3">
-          <PieChart :size="13" class="text-muted-foreground" />
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Distribuição por categoria
-          </p>
-        </div>
-
-        <!-- Donut — full width, tall enough on mobile -->
-        <div class="relative h-[240px] w-full">
-          <canvas ref="canvasRef" />
-          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <p class="text-[11px] text-muted-foreground">Despesas</p>
-            <p class="text-[17px] font-semibold text-foreground tabular-nums">
-              {{ formatCurrency(report.expenses) }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Legend — below donut, full width -->
-        <div class="mt-4">
-          <div
-            v-for="cat in report.expenses_by_category.slice().sort((a, b) => b.total - a.total).slice(0, 8)"
-            :key="cat.category"
-            class="flex items-center gap-2.5 h-9"
-          >
-            <span class="size-2 shrink-0 rounded-full" :style="{ background: cat.color }" />
-            <span class="flex-1 text-[13px] text-foreground truncate">{{ cat.category }}</span>
-            <span class="text-[13px] text-muted-foreground shrink-0 tabular-nums">{{ cat.percentage }}%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Category breakdown with mini-bars -->
-      <div v-if="report.expenses_by_category.length > 0">
-        <CategoryBreakdownList :categories="report.expenses_by_category" />
-      </div>
-
-      <!-- Empty expenses -->
-      <div
-        v-else
-        class="flex flex-col items-center justify-center py-12 text-center"
-      >
-        <PieChart :size="32" class="text-muted-foreground mb-3" />
-        <p class="text-[13px] font-medium text-foreground">Nenhuma despesa registrada</p>
-        <p class="text-[11px] text-muted-foreground mt-0.5">
-          Nenhuma transação de despesa em {{ monthLabel }}.
-        </p>
-      </div>
-    </template>
-
-    <!-- Error -->
-    <div v-else class="flex flex-col items-center justify-center py-16 text-center">
-      <p class="text-[13px] font-medium text-foreground">Erro ao carregar relatório</p>
-      <button
-        type="button"
-        class="text-[13px] font-medium text-primary underline-offset-2 hover:underline mt-3"
-        @click="load"
-      >
-        Tentar novamente
-      </button>
-    </div>
-    </div>
+    <CategoryTransactionsSheet
+      v-model:open="categorySheetOpen"
+      :category="selectedCategory"
+      type="expense"
+      :month="monthKey"
+      readonly
+    />
   </AppPageContainer>
 </template>

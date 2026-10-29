@@ -13,6 +13,8 @@ const props = defineProps<{
   category: CategoryBreakdownItem | null
   type: 'income' | 'expense'
   month: string
+  /** Rows open the transaction (Visão Geral); off where there is no detail sheet to open (reports) */
+  readonly?: boolean
 }>()
 const emit = defineEmits<{
   'update:open': [open: boolean]
@@ -78,10 +80,12 @@ onBeforeUnmount(() => { requestId++ })
       <div class="overflow-y-auto min-h-0 border-t border-border pb-5" :aria-busy="loading">
         <ul class="divide-y divide-border">
           <li v-for="transaction in transactions" :key="transaction.id">
-            <button
-              type="button"
-              class="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
-              @click="emit('select', transaction)"
+            <component
+              :is="readonly ? 'div' : 'button'"
+              :type="readonly ? undefined : 'button'"
+              class="w-full flex items-center gap-3 px-5 py-3 text-left"
+              :class="readonly ? '' : 'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary'"
+              @click="!readonly && emit('select', transaction)"
             >
               <span class="flex-1 min-w-0">
                 <span class="block text-[13px] font-medium truncate">{{ transaction.description }}</span>
@@ -90,8 +94,8 @@ onBeforeUnmount(() => { requestId++ })
               <span class="text-[13px] font-medium tabular-nums shrink-0" :class="type === 'income' ? 'text-success' : 'text-destructive'">
                 {{ formatCurrency((transaction.economic_effect?.[type] ?? 0) / 100) }}
               </span>
-              <ChevronRight :size="14" class="text-muted-foreground shrink-0" aria-hidden="true" />
-            </button>
+              <ChevronRight v-if="!readonly" :size="14" class="text-muted-foreground shrink-0" aria-hidden="true" />
+            </component>
           </li>
         </ul>
         <div v-if="loading" role="status" class="flex items-center justify-center gap-2 p-5 text-[12px] text-muted-foreground">
