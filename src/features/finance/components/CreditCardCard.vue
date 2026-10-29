@@ -63,8 +63,8 @@ const money = (cents: number) => formatCurrency(cents / 100)
 </script>
 
 <template>
-  <div class="rounded-lg bg-card flex flex-col" :class="!card.is_active ? 'opacity-50' : ''">
-    <div class="p-3.5 flex flex-col gap-3 flex-1">
+  <div class="rounded-lg bg-card flex flex-col">
+    <div class="p-4 flex flex-col gap-3 flex-1">
       <!-- Header: avatar + name + menu -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
@@ -214,7 +214,7 @@ const money = (cents: number) => formatCurrency(cents / 100)
               v-for="s in overview.upcoming.slice(0, 4)"
               :key="s.cycle"
               type="button"
-              class="h-8 px-2.5 rounded-md bg-muted text-[12px] tabular-nums text-foreground hover:brightness-110"
+              class="h-8 px-3 rounded-full bg-muted text-[12px] font-medium tabular-nums text-foreground hover:brightness-110 transition-colors"
               @click="emit('statement', card, s.cycle)"
             >
               {{ cycleLabel(s.cycle) }} · {{ money(s.charges_cents) }}

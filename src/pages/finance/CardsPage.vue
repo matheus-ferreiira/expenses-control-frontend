@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
-import { AppBreadcrumbs } from '@/components/shared'
 import { onMounted, ref } from 'vue'
-import { AppPageContainer, ConfirmDialog, EmptyState } from '@/components/shared'
+import { AppPageContainer, ConfirmDialog, EmptyState, PageHeader } from '@/components/shared'
 import CreditCardCard from '@/features/finance/components/CreditCardCard.vue'
 import CreditCardFormDialog from '@/features/finance/components/CreditCardFormDialog.vue'
 import CardStatementSheet from '@/features/finance/components/CardStatementSheet.vue'
 import { Skeleton } from '@ui/skeleton'
-import { Plus, CreditCard, ChevronDown, ChevronRight } from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@ui/dropdown-menu'
+import { Plus, CreditCard, ChevronRight, Archive, ArchiveRestore, MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { financeApi } from '@/services/api/finance'
@@ -131,53 +137,35 @@ onMounted(async () => {
 })
 </script>
 
+
 <template>
   <AppPageContainer>
     <FinanceSubNav />
-    <!-- Header -->
-    <div class="flex items-start justify-between mb-4">
-      <div>
-        <AppBreadcrumbs />
-        <div class="flex items-center gap-2 mb-1.5">
-          <h1 class="text-[22px] lg:text-[18px] font-semibold tracking-tight text-foreground leading-none">
-            Cartões
-          </h1>
-          <!-- Archived badge -->
-          <span
-            v-if="!loading && store.archivedCards.length > 0"
-            class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground "
-          >
-            {{ store.archivedCards.length }} arquivado{{ store.archivedCards.length !== 1 ? 's' : '' }}
-          </span>
-        </div>
-        <p class="text-[12px] text-muted-foreground">
-          {{ store.activeCards.length }} cart{{ store.activeCards.length !== 1 ? 'ões' : 'ão' }} ativo{{ store.activeCards.length !== 1 ? 's' : '' }}
-        </p>
-      </div>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors mt-1"
-        @click="openCreate"
-      >
-        <Plus :size="14" />
-        Novo cartão
-      </button>
-    </div>
-
-
+    <PageHeader title="Cartões" subtitle="Fatura a pagar, fatura aberta e limite de cada cartão." compact-mobile>
+      <template #actions>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          @click="openCreate"
+        >
+          <Plus class="size-3.5" />
+          Novo cartão
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- Loading -->
-    <div v-if="loading" class="grid grid-cols-1 gap-3">
-      <div v-for="i in 3" :key="i" class="rounded-lg bg-card p-3.5 space-y-2.5">
+    <div v-if="loading" class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-5 xl:gap-6 lg:items-start">
+      <div v-for="i in 2" :key="i" class="rounded-lg bg-card p-4 space-y-3">
         <div class="flex items-center gap-2.5">
-          <Skeleton class="h-4 w-4 rounded shrink-0" />
+          <Skeleton class="size-9 rounded-lg shrink-0" />
           <div class="space-y-1.5 flex-1">
             <Skeleton class="h-3.5 w-20" />
             <Skeleton class="h-2.5 w-28" />
           </div>
         </div>
-        <Skeleton class="h-5 w-28 mt-2" />
-        <Skeleton class="h-1 w-full rounded-full" />
+        <Skeleton class="h-16 w-full rounded-md" />
+        <Skeleton class="h-1.5 w-full rounded-full" />
       </div>
     </div>
 
@@ -192,8 +180,8 @@ onMounted(async () => {
     />
 
     <template v-else>
-      <!-- Active cards grid -->
-      <div class="grid grid-cols-1 gap-3">
+      <!-- Desktop: two columns, each card as wide as a Visão Geral column -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-5 xl:gap-6 lg:items-start">
         <CreditCardCard
           v-for="card in store.activeCards"
           :key="card.id"
@@ -208,28 +196,59 @@ onMounted(async () => {
         />
       </div>
 
-      <!-- Archived cards — collapsible -->
-      <div v-if="store.archivedCards.length > 0" class="mt-6">
+      <!-- Archived cards: collapsed block with one muted row each, like archived accounts -->
+      <section
+        v-if="store.archivedCards.length > 0"
+        class="mt-3 lg:mt-5 bg-card rounded-lg overflow-hidden lg:w-[calc(50%-0.625rem)] xl:w-[calc(50%-0.75rem)]"
+      >
         <button
           type="button"
-          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground hover:text-muted-foreground transition-colors mb-3"
+          class="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+          :aria-expanded="showArchived"
           @click="showArchived = !showArchived"
         >
-          <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
-          <span>{{ showArchived ? 'Ocultar' : 'Ver' }} cartões arquivados ({{ store.archivedCards.length }})</span>
+          <ChevronRight :size="14" class="text-muted-foreground shrink-0 transition-transform" :class="showArchived ? 'rotate-90' : ''" />
+          <Archive :size="14" class="text-muted-foreground shrink-0" />
+          <span class="text-[13px] font-medium text-foreground">Arquivados ({{ store.archivedCards.length }})</span>
         </button>
-        <div v-if="showArchived" class="grid grid-cols-1 gap-3">
-          <CreditCardCard
-            v-for="card in store.archivedCards"
-            :key="card.id"
-            :card="card"
-            @edit="openEdit"
-            @delete="openDelete"
-            @archive="requestArchive"
-            @unarchive="unarchiveCard"
-          />
-        </div>
-      </div>
+        <ul v-if="showArchived" class="border-t border-border divide-y divide-border">
+          <li v-for="card in store.archivedCards" :key="card.id" class="flex items-center gap-3 pl-4 pr-1 py-2.5">
+            <span class="size-8 rounded-lg grid place-items-center shrink-0 bg-muted text-[11px] font-semibold text-muted-foreground">
+              {{ card.name.substring(0, 2).toUpperCase() }}
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-muted-foreground truncate">{{ card.name }}</p>
+              <p class="text-[12px] text-muted-foreground mt-0.5">Fecha dia {{ card.closing_day }} · Vence dia {{ card.due_day }}</p>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <button
+                  type="button"
+                  :aria-label="`Opções do cartão ${card.name}`"
+                  class="size-10 grid place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+                >
+                  <MoreHorizontal :size="15" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" class="w-40">
+                <DropdownMenuItem @click="unarchiveCard(card)">
+                  <ArchiveRestore :size="12" class="mr-2" />
+                  Desarquivar
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="openEdit(card)">
+                  <Pencil :size="12" class="mr-2" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem class="text-destructive focus:text-destructive" @click="openDelete(card.id)">
+                  <Trash2 :size="12" class="mr-2" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </li>
+        </ul>
+      </section>
     </template>
   </AppPageContainer>
 

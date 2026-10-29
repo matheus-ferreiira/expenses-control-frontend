@@ -137,6 +137,7 @@ Ordem dos cards da Visão Geral (mobile e coluna esquerda no desktop):
 7. **Transações** (coluna direita no desktop): busca, toggle Todas/Receitas/Despesas, "Filtros", bloco "Agendadas" recolhido, lista por dia.
 
 Ao criar uma tela nova, siga a mesma lógica: cards de resumo em cima/à esquerda, lista principal embaixo/à direita.
+Quando a tela é uma coleção de cards grandes do mesmo tipo (ex.: Cartões), use `lg:grid-cols-2` com o mesmo gap: cada card fica com a largura de uma coluna, nunca esticado na tela inteira.
 
 ---
 
@@ -276,7 +277,14 @@ Detalhes, filtros, confirmação e drill-down abrem como bottom sheet (não como
 - Campo dentro de sheet: `h-11 rounded-lg bg-muted px-3 text-[14px]` com `focus-visible:ring-2 focus-visible:ring-primary` (campo com prefixo "R$": `flex items-center gap-2` no container e `focus-within:ring-2`). Rótulo em caixa alta 11px acima.
 - Diálogo centralizado (`ConfirmDialog`) só para confirmar uma ação destrutiva (excluir, arquivar).
 
-**Formulários de criação/edição** (`TransactionFormDialog`, `AccountFormDialog`, `CreditCardFormDialog`…) usam uma variante própria de sheet: fundo `bg-background`, `border-t-2 border-primary`, cabeçalho com seta de voltar e rodapé fixo. Opções exclusivas dentro deles (tipo de conta etc.) seguem a seleção da Visão Geral: ativa `bg-primary/15 text-primary font-semibold`, inativa `bg-muted text-muted-foreground`, com `aria-pressed`.
+**Dois estilos de bottom sheet** — escolha pelo conteúdo:
+
+| Estilo | Quando | Exemplos |
+|---|---|---|
+| **Cinza** — `bg-card`, sem borda (o modelo acima) | Escolhas, filtros, listas e ações curtas | Filtros, transações da categoria, "Conferir saldo", "Saldo em uma data" |
+| **Escuro com borda verde** — `bg-background`, `border-t-2 border-primary`, cabeçalho próprio | Formulário de criação/edição e detalhe de um item | `TransactionFormDialog`, `AccountFormDialog`, `CreditCardFormDialog`, `TransactionDetailSheet`, `BalanceDetailSheet`, `CardStatementSheet` |
+
+No estilo escuro, caixas internas usam `bg-card`; os campos continuam `bg-muted h-11`. Opções exclusivas em qualquer sheet (tipo de conta, conta que pagou a fatura…) seguem a seleção da Visão Geral: ativa `bg-primary/15 text-primary font-semibold`, inativa `bg-muted text-muted-foreground`, com `aria-pressed`. Rótulos de campo em caixa alta 11px.
 
 ### Ícone de página e de módulo
 
@@ -310,7 +318,7 @@ Detalhes, filtros, confirmação e drill-down abrem como bottom sheet (não como
 |---|---|
 | Visão Geral (`FinancePage.vue`) | Referência |
 | Contas (`AccountsPage.vue`) | No padrão (2026-10-29) |
-| Cartões (`CardsPage.vue`) | A revisar |
+| Cartões (`CardsPage.vue`) | No padrão (2026-10-29) |
 | Orçamento (`BudgetPage.vue`) | A revisar |
 | Metas (`GoalsPage.vue`) | A revisar |
 | Categorias (`CategoriesPage.vue`) | A revisar |

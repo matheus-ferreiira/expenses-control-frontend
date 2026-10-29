@@ -189,16 +189,16 @@ async function submitPayment() {
             <Skeleton class="h-4 w-48" />
           </div>
           <template v-else-if="statement">
-            <p class="text-[12px] text-muted-foreground">Total da fatura</p>
-            <p class="text-2xl font-bold tabular-nums text-foreground">{{ money(statement.charges_cents) }}</p>
-            <div class="mt-2 grid grid-cols-2 gap-2 text-[12px]">
+            <p class="text-[12px] text-muted-foreground mb-1">Total da fatura</p>
+            <p class="text-[20px] font-semibold tabular-nums leading-none whitespace-nowrap text-foreground">{{ money(statement.charges_cents) }}</p>
+            <div class="mt-3 grid grid-cols-2 gap-3">
               <div>
-                <p class="text-muted-foreground">Pago</p>
-                <p class="font-semibold tabular-nums text-foreground">{{ statement.historical ? 'Quitada na renegociação' : money(statement.paid_cents) }}</p>
+                <p class="text-[12px] text-muted-foreground mb-1">Pago</p>
+                <p class="text-[16px] font-semibold tabular-nums leading-tight text-foreground">{{ statement.historical ? 'Quitada na renegociação' : money(statement.paid_cents) }}</p>
               </div>
               <div>
-                <p class="text-muted-foreground">Falta pagar</p>
-                <p class="font-semibold tabular-nums" :class="statement.remaining_cents > 0 ? 'text-warning' : 'text-success'">{{ money(statement.remaining_cents) }}</p>
+                <p class="text-[12px] text-muted-foreground mb-1">Falta pagar</p>
+                <p class="text-[16px] font-semibold tabular-nums leading-tight whitespace-nowrap" :class="statement.remaining_cents > 0 ? 'text-warning' : 'text-success'">{{ money(statement.remaining_cents) }}</p>
               </div>
             </div>
             <p v-if="statement.difference_cents" class="mt-2 text-[12px] text-warning">
@@ -223,14 +223,15 @@ async function submitPayment() {
               </button>
               <div v-else class="mt-3 bg-card rounded-lg p-3 space-y-3">
                 <div>
-                  <p class="text-[12px] font-medium text-muted-foreground mb-1.5">Pago com</p>
+                  <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Pago com</p>
                   <div class="space-y-1">
                     <button
                       v-for="acc in store.activeAccounts"
                       :key="acc.id"
                       type="button"
                       class="w-full flex items-center justify-between gap-3 px-3 h-11 rounded-lg text-[13px] transition-colors"
-                      :class="payAccountId === acc.id ? 'bg-primary text-primary-foreground font-semibold' : 'bg-muted text-muted-foreground hover:text-foreground'"
+                      :aria-pressed="payAccountId === acc.id"
+                      :class="payAccountId === acc.id ? 'bg-primary/15 text-primary font-semibold' : 'bg-muted text-muted-foreground hover:text-foreground'"
                       @click="payAccountId = acc.id"
                     >
                       <span class="truncate">{{ acc.name }}</span>
@@ -240,21 +241,21 @@ async function submitPayment() {
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                   <label class="block">
-                    <span class="text-[12px] font-medium text-muted-foreground">Valor (R$)</span>
-                    <input v-model="payAmount" type="text" inputmode="decimal" class="mt-1 w-full h-11 px-3 rounded-lg bg-muted text-[14px] text-foreground outline-none tabular-nums" />
+                    <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Valor (R$)</span>
+                    <input v-model="payAmount" type="text" inputmode="decimal" class="mt-2 w-full h-11 px-3 rounded-lg bg-muted text-[14px] text-foreground outline-none tabular-nums focus-visible:ring-2 focus-visible:ring-primary" />
                   </label>
                   <label class="block">
-                    <span class="text-[12px] font-medium text-muted-foreground">Data do pagamento</span>
-                    <input v-model="payDate" type="date" :max="todayStr" class="mt-1 w-full h-11 px-3 rounded-lg bg-muted text-[14px] text-foreground outline-none" />
+                    <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Data</span>
+                    <input v-model="payDate" type="date" :max="todayStr" class="mt-2 w-full h-11 px-3 rounded-lg bg-muted text-[14px] text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary" />
                   </label>
                 </div>
                 <div class="flex gap-2">
-                  <button type="button" class="flex-1 h-11 rounded-lg text-[13px] bg-muted text-muted-foreground" :disabled="paying" @click="payPanelOpen = false">
+                  <button type="button" class="flex-1 h-11 rounded-lg text-[14px] font-medium bg-muted text-foreground" :disabled="paying" @click="payPanelOpen = false">
                     Cancelar
                   </button>
                   <button
                     type="button"
-                    class="flex-1 h-11 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground flex items-center justify-center gap-1.5 disabled:opacity-40"
+                    class="flex-1 h-11 rounded-lg text-[14px] font-medium bg-primary text-primary-foreground flex items-center justify-center gap-1.5 disabled:opacity-40"
                     :disabled="!payValid || paying"
                     @click="submitPayment"
                   >
@@ -271,7 +272,7 @@ async function submitPayment() {
         <div class="flex-1 overflow-y-auto">
           <div v-if="loading" class="p-4 space-y-3">
             <div v-for="i in 4" :key="i" class="flex items-center gap-3">
-              <Skeleton class="size-10 rounded-xl shrink-0" />
+              <Skeleton class="size-8 rounded-lg shrink-0" />
               <div class="flex-1 space-y-1.5">
                 <Skeleton class="h-3 w-1/2" />
                 <Skeleton class="h-2.5 w-1/4" />
@@ -285,8 +286,8 @@ async function submitPayment() {
           </div>
           <div v-else>
             <template v-for="group in groups" :key="group.date">
-              <div class="sticky top-0 z-10 bg-background px-4 pt-2.5 pb-1 flex items-center justify-between gap-2">
-                <span class="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">{{ group.label }}</span>
+              <div class="sticky top-0 z-10 bg-background px-4 pt-3 pb-1 flex items-center justify-between gap-2">
+                <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{{ group.label }}</span>
               </div>
               <ul class="divide-y divide-border">
                 <TransactionCard
