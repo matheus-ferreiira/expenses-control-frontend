@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DashboardCardHeader from './DashboardCardHeader.vue'
 import { Skeleton } from '@ui/skeleton'
 import { CreditCard } from 'lucide-vue-next'
 import type { UpcomingBill } from '../types'
@@ -25,10 +26,7 @@ function dueLabelClass(days: number): string {
 
 <template>
   <div class="rounded-lg bg-card">
-    <div class="flex items-center gap-2 px-4 py-3 border-b border-border">
-      <CreditCard :size="13" class="text-muted-foreground" />
-      <span class="text-sm font-medium text-foreground">Contas a vencer</span>
-    </div>
+    <DashboardCardHeader title="Contas a vencer" :icon="CreditCard" />
 
     <!-- Loading -->
     <div v-if="loading" class="p-4 space-y-3">

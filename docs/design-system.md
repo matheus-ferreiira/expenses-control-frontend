@@ -23,6 +23,7 @@ Quando a Visão Geral mudar, atualize este arquivo no mesmo commit.
 | Navegação de mês (toda tela com mês usa este, nunca setas feitas à mão) | `src/features/finance/components/MonthNavigator.vue` |
 | Sub-navegação do módulo (mobile) | `src/features/finance/components/FinanceSubNav.vue` |
 | Cabeçalho de página | `src/components/shared/PageHeader.vue` (`compact-mobile`) |
+| Cabeçalho de card de lista (título, contador, "Ver") | `src/features/dashboard/components/DashboardCardHeader.vue` |
 | Container de página | `src/components/shared/AppPageContainer.vue` |
 | Bottom sheet de detalhe | `src/features/finance/components/BalanceDetailSheet.vue`, `TransactionDetailSheet.vue` |
 | Bottom sheet de filtros | sheet "Filtros" dentro de `FinancePage.vue` |
@@ -327,7 +328,7 @@ Rodapé de formulário: `h-11 rounded-lg text-[14px] font-medium`, Cancelar `bg-
 
 ---
 
-## 9. Telas do módulo Finanças no padrão
+## 9. Telas no padrão
 
 | Tela | Situação |
 |---|---|
@@ -338,6 +339,9 @@ Rodapé de formulário: `h-11 rounded-lg text-[14px] font-medium`, Cancelar `bg-
 | Metas (`GoalsPage.vue`) | No padrão (2026-10-29) |
 | Categorias (`CategoriesPage.vue`) | No padrão (2026-10-29) |
 | Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | No padrão (2026-10-29) |
+| Formulários de Finanças (`TransactionFormDialog` e os demais) | No padrão (2026-10-29) |
+
+Fora de Finanças: **Hoje** (`DashboardPage.vue`) no padrão desde 2026-10-29. Os outros módulos (Tarefas, Hábitos, Agenda, Notas, Bookmarks, Preços, Compras) ainda não foram revisados; seus formulários mantêm os botões de 52px até a revisão de cada módulo.
 
 Atualize esta tabela no commit que trouxer uma tela para o padrão.
 

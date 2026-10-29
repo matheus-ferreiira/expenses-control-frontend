@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import DashboardCardHeader from './DashboardCardHeader.vue'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { Skeleton } from '@ui/skeleton'
-import { Flame, ArrowRight } from 'lucide-vue-next'
+import { Flame } from 'lucide-vue-next'
 import type { Habit } from '@/types/habits'
 import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { ROUTES } from '@/constants/routes'
@@ -12,7 +12,6 @@ const props = defineProps<{
   loading?: boolean
 }>()
 
-const router = useRouter()
 
 const completedCount = computed(() => props.habits.filter(isCompletedToday).length)
 const totalCount = computed(() => props.habits.length)
@@ -47,18 +46,7 @@ const weekDots = computed(() => {
 
 <template>
   <div class="rounded-lg bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-      <div class="flex items-center gap-2">
-        <Flame :size="13" class="text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">Consistência Semanal</span>
-      </div>
-      <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
-        @click="router.push({ name: ROUTES.HABITS })"
-      >
-        Ver <ArrowRight :size="10" />
-      </button>
-    </div>
+    <DashboardCardHeader title="Consistência semanal" :icon="Flame" :to="ROUTES.HABITS" />
 
     <!-- Loading -->
     <div v-if="loading" class="px-4 py-4 space-y-3">

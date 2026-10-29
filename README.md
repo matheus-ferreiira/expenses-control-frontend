@@ -86,7 +86,7 @@ Detalhes e padrões: [`CLAUDE.md`](CLAUDE.md) e [`docs/frontend-conventions.md`]
 | Módulo | Rota | Descrição |
 |--------|------|-----------|
 | Auth | `/login`, `/forgot-password`, `/reset-password` | Autenticação (e-mail/senha e Google). Cadastro fechado no backend; `/register` mostra o aviso |
-| Hoje (Dashboard) | `/dashboard` | Resumo do dia: tarefas, hábitos, finanças, agenda |
+| Hoje (Dashboard) | `/dashboard` | Resumo do dia: finanças (saldo, guardado, mês), contas a vencer, metas, tarefas, agenda, hábitos e transações recentes |
 | **Finanças** | `/finance` | **Visão Geral** (mês, saldo, a confirmar, cartões, categorias, transações) |
 | | `/finance/accounts` | Contas (disponível e guardado, conferência de saldo) |
 | | `/finance/cards` | Cartões, faturas e limite |

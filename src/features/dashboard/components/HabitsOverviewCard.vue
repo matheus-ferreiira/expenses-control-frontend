@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import DashboardCardHeader from './DashboardCardHeader.vue'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Skeleton } from '@ui/skeleton'
-import { Check, Flame, ArrowRight, Loader2 } from 'lucide-vue-next'
+import { Check, Flame, Loader2 } from 'lucide-vue-next'
 import type { Habit } from '@/types/habits'
 import { isCompletedToday, getWeeklyDots } from '@/features/habits/utils/habitHelpers'
 import { ROUTES } from '@/constants/routes'
@@ -41,24 +42,7 @@ function handleLog(id: string) {
 <template>
   <div class="rounded-lg bg-card">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-      <div class="flex items-center gap-2">
-        <Flame :size="13" class="text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">Hábitos</span>
-        <span
-          v-if="!loading && habits.length > 0"
-          class="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full tabular-nums"
-        >
-          {{ completedCount }}/{{ habits.length }}
-        </span>
-      </div>
-      <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
-        @click="router.push({ name: ROUTES.HABITS })"
-      >
-        Ver todos <ArrowRight :size="10" />
-      </button>
-    </div>
+    <DashboardCardHeader title="Hábitos" :icon="Flame" :count="!loading && habits.length ? `${completedCount}/${habits.length}` : null" action-label="Ver todos" :to="ROUTES.HABITS" />
 
     <!-- Progress bar -->
     <div v-if="!loading && habits.length > 0" class="px-4 pt-3 pb-1">

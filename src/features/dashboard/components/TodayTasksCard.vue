@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Skeleton } from '@ui/skeleton'
-import { Check, ArrowRight, Loader2, ClipboardList } from 'lucide-vue-next'
+import { Check, Loader2, ClipboardList } from 'lucide-vue-next'
+import DashboardCardHeader from './DashboardCardHeader.vue'
 import type { Task } from '@/types/tasks'
 import { ROUTES } from '@/constants/routes'
 
@@ -41,39 +42,24 @@ function priorityDotClass(priority: Task['priority']): string {
   return PRIORITY_DOT[priority] ?? 'bg-border'
 }
 
+/** "14:30" — 24-hour clock, as everywhere else in the app (it used to read "2:30 PM") */
 function timeLabel(task: Task): string {
   if (!task.due_time) return ''
   const [h, m] = task.due_time.split(':')
   if (!h || !m) return ''
-  const hour = parseInt(h)
-  const min = m
-  const period = hour >= 12 ? 'PM' : 'AM'
-  const display = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
-  return `${display}:${min} ${period}`
+  return `${h.padStart(2, '0')}:${m}`
 }
 </script>
 
 <template>
   <div class="rounded-lg bg-card">
-    <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-      <div class="flex items-center gap-2">
-        <ClipboardList :size="13" class="text-muted-foreground" />
-        <span class="text-[14px] font-medium text-foreground">Tarefas de hoje</span>
-        <span
-          v-if="!loading && tasks.length > 0"
-          class="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full tabular-nums"
-        >
-          {{ tasks.filter(t => t.status === 'completed').length }}/{{ tasks.length }}
-        </span>
-      </div>
-      <button
-        class="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-base"
-        @click="router.push({ name: ROUTES.TASKS })"
-      >
-        Ver todas <ArrowRight :size="10" />
-      </button>
-    </div>
+    <DashboardCardHeader
+      title="Tarefas de hoje"
+      :icon="ClipboardList"
+      :count="!loading && tasks.length ? `${tasks.filter(t => t.status === 'completed').length}/${tasks.length}` : null"
+      action-label="Ver todas"
+      :to="ROUTES.TASKS"
+    />
 
     <!-- Loading -->
     <div v-if="loading" class="divide-y divide-border">
@@ -101,15 +87,15 @@ function timeLabel(task: Task): string {
       <div
         v-for="task in shown"
         :key="task.id"
-        class="group flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-base"
+        class="group flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-base"
       >
         <!-- Toggle circle -->
         <button
           :class="[
             'shrink-0 h-[18px] w-[18px] rounded-full border flex items-center justify-center transition-all',
             task.status === 'completed'
-              ? 'bg-muted text-primary-foreground'
-              : 'border-border hover:bg-muted',
+              ? 'bg-primary border-primary text-primary-foreground'
+              : 'border-muted-foreground hover:bg-muted',
           ]"
           :disabled="togglingIds.has(task.id)"
           @click="handleToggle(task.id)"
@@ -123,7 +109,7 @@ function timeLabel(task: Task): string {
           <div class="flex items-baseline gap-1.5">
             <span
               :class="[
-                'text-[13px] leading-none truncate',
+                'text-[14px] font-medium leading-tight truncate',
                 task.status === 'completed'
                   ? 'line-through text-muted-foreground'
                   : 'text-foreground',
@@ -137,7 +123,7 @@ function timeLabel(task: Task): string {
             v-if="task.labels.length > 0 || timeLabel(task)"
             class="flex items-center gap-1.5 mt-0.5"
           >
-            <span v-if="timeLabel(task)" class="text-[10px] text-muted-foreground leading-none">
+            <span v-if="timeLabel(task)" class="text-[12px] text-muted-foreground tabular-nums leading-none">
               {{ timeLabel(task) }}
             </span>
             <span
@@ -159,14 +145,14 @@ function timeLabel(task: Task): string {
       </div>
 
       <!-- More row -->
-      <div v-if="hasMore" class="px-4 py-2.5 text-center">
-        <button
-          class="text-[11px] text-muted-foreground hover:text-foreground transition-base"
-          @click="router.push({ name: ROUTES.TASKS })"
-        >
-          + {{ tasks.length - MAX_SHOWN }} mais
-        </button>
-      </div>
+      <button
+        v-if="hasMore"
+        type="button"
+        class="w-full py-2.5 text-[12px] font-medium text-primary hover:bg-muted/50 transition-colors"
+        @click="router.push({ name: ROUTES.TASKS })"
+      >
+        Ver mais {{ tasks.length - MAX_SHOWN }}
+      </button>
     </div>
   </div>
 </template>

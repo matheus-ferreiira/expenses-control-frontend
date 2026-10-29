@@ -9,7 +9,7 @@ import { isCompletedToday } from '@/features/habits/utils/habitHelpers'
 import { isToday, toISODate } from '@/utils/date'
 import { cycleLabel, daysUntil } from '@/features/finance/utils/financeHelpers'
 import type { Transaction } from '@/types/finance'
-import type { CashflowPeriod, CashflowPoint, UpcomingBill } from '../types'
+import type { UpcomingBill } from '../types'
 
 export function useDashboard() {
   const taskStore = useTaskStore()
@@ -101,40 +101,6 @@ export function useDashboard() {
 
   const recentTransactions = computed(() => recentTxs.value.filter((t) => t.type !== 'transfer').slice(0, 5))
 
-  // Chart series per period, loaded once from the backend (economic, confirmed only)
-  const cashflowCache = ref<Partial<Record<CashflowPeriod, CashflowPoint[]>>>({})
-  const cashflowLoading = new Set<CashflowPeriod>()
-
-  async function loadCashflow(period: CashflowPeriod): Promise<void> {
-    if (cashflowLoading.has(period)) return
-    cashflowLoading.add(period)
-    const now = new Date()
-    const byDay = period === '1S' || period === '1M'
-    const start = byDay
-      ? new Date(now.getFullYear(), now.getMonth(), now.getDate() - (period === '1S' ? 6 : 29))
-      : new Date(now.getFullYear(), now.getMonth() - (period === '6M' ? 5 : 11), 1)
-    try {
-      const rows = await financeApi.reportSeries(toISODate(start), toISODate(now), byDay ? 'day' : 'month')
-      cashflowCache.value = {
-        ...cashflowCache.value,
-        [period]: rows.map((r) => {
-          const [y, m, d] = r.period.split('-').map(Number)
-          const date = new Date(y!, m! - 1, d ?? 1)
-          const label = byDay
-            ? date.toLocaleDateString('pt-BR', period === '1S' ? { weekday: 'short' } : { day: '2-digit', month: 'short' }).replace('.', '')
-            : date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-          return { label, income: r.income, expense: r.expenses, net: Math.round((r.income - r.expenses) * 100) / 100 }
-        }),
-      }
-    } catch {
-      cashflowLoading.delete(period)
-    }
-  }
-
-  function computeCashflow(period: CashflowPeriod): CashflowPoint[] {
-    if (!cashflowCache.value[period]) void loadCashflow(period)
-    return cashflowCache.value[period] ?? []
-  }
   // ── Calendar ──────────────────────────────────────────────────────────────
 
   const todayEvents = computed(() => {
@@ -196,8 +162,6 @@ export function useDashboard() {
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
-  const cashflowPeriod = ref<CashflowPeriod>('1M')
-
   async function load(): Promise<void> {
     dashboardLoading.value = true
     try {
@@ -216,12 +180,6 @@ export function useDashboard() {
           recentTxs.value = res.data
         })
         .catch(() => {})
-      // On a reload, drop the cached series; on the first load keep the request already in flight
-      if (Object.keys(cashflowCache.value).length) {
-        cashflowCache.value = {}
-        cashflowLoading.clear()
-      }
-
       await Promise.allSettled([
         taskStore.fetchTasks(),
         habitStore.fetchHabits(),
@@ -257,8 +215,6 @@ export function useDashboard() {
     monthIncome,
     monthExpenses,
     recentTransactions,
-    computeCashflow,
-    cashflowPeriod,
     // calendar
     todayEvents,
     // bills

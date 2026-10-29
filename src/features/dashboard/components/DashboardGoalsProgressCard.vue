@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import DashboardCardHeader from './DashboardCardHeader.vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Skeleton } from '@ui/skeleton'
-import { Target, ArrowRight } from 'lucide-vue-next'
+import { Target } from 'lucide-vue-next'
 import type { FinanceGoal } from '@/types/finance'
 import { ROUTES } from '@/constants/routes'
 
@@ -36,18 +37,7 @@ function pctColor(goal: FinanceGoal) {
 
 <template>
   <div class="rounded-lg bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-      <div class="flex items-center gap-2">
-        <Target :size="13" class="text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">Metas em Progresso</span>
-      </div>
-      <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
-        @click="router.push({ name: ROUTES.FINANCE_GOALS })"
-      >
-        Ver tudo <ArrowRight :size="10" />
-      </button>
-    </div>
+    <DashboardCardHeader title="Metas" :icon="Target" action-label="Ver todas" :to="ROUTES.FINANCE_GOALS" />
 
     <!-- Loading -->
     <div v-if="loading" class="p-4 space-y-3">

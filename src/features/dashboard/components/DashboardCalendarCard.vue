@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import DashboardCardHeader from './DashboardCardHeader.vue'
 import { Skeleton } from '@ui/skeleton'
-import { Calendar, ArrowRight } from 'lucide-vue-next'
+import { Calendar } from 'lucide-vue-next'
 import type { CalendarEvent } from '@/types/calendar'
 import { ROUTES } from '@/constants/routes'
 
@@ -10,7 +10,6 @@ defineProps<{
   loading?: boolean
 }>()
 
-const router = useRouter()
 
 const EVENT_COLORS: Record<string, string> = {
   blue:   'hsl(var(--primary))',           // no blue token — maps to brand green
@@ -37,18 +36,7 @@ function eventEndTime(event: CalendarEvent): string {
 
 <template>
   <div class="rounded-lg bg-card">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-      <div class="flex items-center gap-2">
-        <Calendar :size="13" class="text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">Agenda de hoje</span>
-      </div>
-      <button
-        class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-base"
-        @click="router.push({ name: ROUTES.CALENDAR })"
-      >
-        Ver <ArrowRight :size="10" />
-      </button>
-    </div>
+    <DashboardCardHeader title="Agenda de hoje" :icon="Calendar" :to="ROUTES.CALENDAR" />
 
     <!-- Loading -->
     <div v-if="loading" class="p-4 space-y-2.5">
