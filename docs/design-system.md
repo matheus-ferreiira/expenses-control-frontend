@@ -163,6 +163,11 @@ Ao criar uma tela nova, siga a mesma lógica: cards de resumo em cima/à esquerd
 
 Para: resultado previsto, status do mês, faturas descontadas, guardado, fatura a pagar. Linha interna: `flex items-center justify-between gap-3`, rótulo `text-muted-foreground truncate`, valor `tabular-nums font-medium shrink-0`.
 
+Caixa interna tocável (atalho para um sheet ou outra tela, ex.: "Guardado" na Visão Geral, "Saldo em uma data" em Contas):
+`mt-3 w-full flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2 text-[12px] hover:opacity-80`, com ícone 14 à esquerda e `ChevronRight :size="14"` à direita.
+
+Dentro de um sheet (fundo `bg-card`), a caixa interna é `bg-muted` sem divisores (`px-3 py-1`, linhas `py-2`); o divisor `border-border` tem a mesma cor do `bg-muted` e não aparece.
+
 ### Métricas lado a lado
 
 - 2 valores: `grid grid-cols-2 gap-3`, cada um com rótulo `text-[12px]` em cima e valor `text-[20px]`.
@@ -245,6 +250,8 @@ Alvos de toque de navegação têm no mínimo 44px (`min-h-[44px] min-w-[44px]`)
 - Indicador de pendente: dot `w-2 h-2 rounded-full bg-warning`. Parcela: badge `h-4 px-1.5 rounded text-[10px] bg-muted`.
 - Ver mais / Ver todas: botão em largura total `py-2.5 text-[12px] font-medium text-primary hover:bg-muted/50`.
 - Lista dentro de card com padding (`p-4`): use margem negativa para encostar nas bordas (`-mx-4 -mb-4 border-t border-border`).
+- Grupo de itens com subtotal (ex.: Disponível / Guardado em Contas): um card por grupo, cabeçalho **dentro** do card (`px-4 py-3 border-b border-border`, rótulo em caixa alta à esquerda, subtotal `text-[12px] tabular-nums text-muted-foreground` à direita).
+- Itens inativos/arquivados: bloco recolhível no fim (como "Agendadas"), com texto e ícone em `text-muted-foreground`. Nunca deixar a linha semitransparente.
 
 ### Bottom sheet
 
@@ -264,7 +271,12 @@ Alvos de toque de navegação têm no mínimo 44px (`min-h-[44px] min-w-[44px]`)
 </Sheet>
 ```
 
-Detalhes, filtros, confirmação e drill-down abrem como bottom sheet. O botão de ação diz o resultado ("Ver 12 transações").
+Detalhes, filtros, confirmação e drill-down abrem como bottom sheet (não como diálogo centralizado). O botão de ação diz o resultado ("Ver 12 transações", "Registrar conferência").
+
+- Campo dentro de sheet: `h-11 rounded-lg bg-muted px-3 text-[14px]` com `focus-visible:ring-2 focus-visible:ring-primary` (campo com prefixo "R$": `flex items-center gap-2` no container e `focus-within:ring-2`). Rótulo em caixa alta 11px acima.
+- Diálogo centralizado (`ConfirmDialog`) só para confirmar uma ação destrutiva (excluir, arquivar).
+
+**Formulários de criação/edição** (`TransactionFormDialog`, `AccountFormDialog`, `CreditCardFormDialog`…) usam uma variante própria de sheet: fundo `bg-background`, `border-t-2 border-primary`, cabeçalho com seta de voltar e rodapé fixo. Opções exclusivas dentro deles (tipo de conta etc.) seguem a seleção da Visão Geral: ativa `bg-primary/15 text-primary font-semibold`, inativa `bg-muted text-muted-foreground`, com `aria-pressed`.
 
 ### Ícone de página e de módulo
 
@@ -292,7 +304,23 @@ Detalhes, filtros, confirmação e drill-down abrem como bottom sheet. O botão 
 
 ---
 
-## 9. Checklist para uma tela nova ou refeita
+## 9. Telas do módulo Finanças no padrão
+
+| Tela | Situação |
+|---|---|
+| Visão Geral (`FinancePage.vue`) | Referência |
+| Contas (`AccountsPage.vue`) | No padrão (2026-10-29) |
+| Cartões (`CardsPage.vue`) | A revisar |
+| Orçamento (`BudgetPage.vue`) | A revisar |
+| Metas (`GoalsPage.vue`) | A revisar |
+| Categorias (`CategoriesPage.vue`) | A revisar |
+| Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | A revisar |
+
+Atualize esta tabela no commit que trouxer uma tela para o padrão.
+
+---
+
+## 10. Checklist para uma tela nova ou refeita
 
 - [ ] Abri a Visão Geral e usei os mesmos padrões de card, tipografia e cor.
 - [ ] Cards `bg-card rounded-lg p-4`, sem borda nem sombra; caixas internas `bg-muted rounded-md`.

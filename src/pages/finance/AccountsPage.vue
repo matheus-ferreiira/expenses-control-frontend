@@ -7,23 +7,13 @@ import { AppPageContainer, ConfirmDialog, EmptyState, PageHeader } from '@/compo
 import AccountCard from '@/features/finance/components/AccountCard.vue'
 import AccountFormDialog from '@/features/finance/components/AccountFormDialog.vue'
 import { Skeleton } from '@ui/skeleton'
-import { Plus, Landmark, ChevronDown, ChevronRight, CalendarDays } from 'lucide-vue-next'
+import { Plus, Landmark, ChevronRight, CalendarDays, PiggyBank, Archive } from 'lucide-vue-next'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { useFinanceStore } from '@/stores/finance'
 import { useToast } from '@/composables/useToast'
 import { formatCurrency } from '@/utils/currency'
 import type { BalanceObservation, BankAccount } from '@/types/finance'
 import { financeApi } from '@/services/api/finance'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 
 const store = useFinanceStore()
 const toast = useToast()
@@ -239,6 +229,7 @@ onMounted(async () => {
 })
 </script>
 
+
 <template>
   <AppPageContainer>
     <FinanceSubNav />
@@ -246,49 +237,34 @@ onMounted(async () => {
       <template #actions>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
+          class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13px] font-medium bg-primary text-primary-foreground hover:brightness-110 transition-colors"
           @click="openCreate"
         >
-          <Plus :size="14" />
+          <Plus class="size-3.5" />
           Nova conta
         </button>
       </template>
     </PageHeader>
 
-    <!-- Summary: what is available to spend, what is put away -->
-    <div v-if="!loading && store.activeAccounts.length" class="mb-4 rounded-lg bg-card p-4">
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Disponível</p>
-      <p class="text-[26px] font-semibold tabular-nums leading-tight mt-1" :class="totalBalance < 0 ? 'text-destructive' : 'text-foreground'">
-        {{ formatCurrency(totalBalance) }}
-      </p>
-      <div class="mt-2 flex items-center justify-between gap-3">
-        <p class="text-[12px] text-muted-foreground">
-          <template v-if="store.reserveAccounts.length">
-            <span class="whitespace-nowrap">Guardado <span class="text-primary font-medium tabular-nums">{{ formatCurrency(store.reserveBalance) }}</span></span> ·
-          </template>
-          <span class="whitespace-nowrap">{{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }}</span>
-        </p>
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[12px] font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
-          @click="openDatedBalances"
-        >
-          <CalendarDays :size="13" />
-          Saldo em uma data
-        </button>
-      </div>
-    </div>
-
-    <div v-if="loading" class="grid grid-cols-1 gap-3">
-      <div v-for="i in 3" :key="i" class="rounded-lg bg-card p-3.5 space-y-2.5">
-        <div class="flex items-center gap-2.5">
-          <Skeleton class="h-4 w-4 rounded shrink-0" />
-          <div class="space-y-1.5 flex-1">
-            <Skeleton class="h-3.5 w-24" />
-            <Skeleton class="h-2.5 w-14" />
-          </div>
+    <!-- Loading: same two columns as the loaded page -->
+    <div v-if="loading" class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] lg:gap-5 xl:gap-6 lg:items-start">
+      <div class="mb-4 lg:mb-0 bg-card rounded-lg p-4">
+        <Skeleton class="h-2.5 w-14 mb-3" />
+        <div class="grid grid-cols-2 gap-3">
+          <Skeleton class="h-10 w-full" />
+          <Skeleton class="h-10 w-full" />
         </div>
-        <Skeleton class="h-5 w-28 mt-2" />
+      </div>
+      <div class="bg-card rounded-lg overflow-hidden">
+        <div class="px-4 py-3 border-b border-border"><Skeleton class="h-2.5 w-20" /></div>
+        <div v-for="i in 3" :key="i" class="flex items-center gap-3 px-4 py-2.5">
+          <Skeleton class="size-8 rounded-lg shrink-0" />
+          <div class="flex-1 space-y-1.5">
+            <Skeleton class="h-3 w-1/3" />
+            <Skeleton class="h-2.5 w-1/4" />
+          </div>
+          <Skeleton class="h-3.5 w-20 shrink-0" />
+        </div>
       </div>
     </div>
 
@@ -302,52 +278,104 @@ onMounted(async () => {
       @cta="openCreate"
     />
 
-    <template v-else>
-      <!-- Disponível and Guardado, each with its subtotal -->
-      <section v-for="group in accountGroups" :key="group.key" class="mb-4">
-        <div class="flex items-center justify-between px-1 mb-1.5">
-          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{{ group.label }}</p>
-          <p class="text-[12px] tabular-nums text-muted-foreground">{{ formatCurrency(group.total) }}</p>
-        </div>
-        <div class="rounded-lg bg-card divide-y divide-border overflow-hidden">
-          <AccountCard
-            v-for="account in group.accounts"
-            :key="account.id"
-            :account="account"
-            :movement="movementFor(account.id)"
-            @view="viewStatement"
-            @edit="openEdit"
-            @adjust="openAdjust"
-            @delete="openDelete"
-            @archive="requestArchive"
-            @unarchive="unarchiveAccount"
-          />
-        </div>
-      </section>
+    <!-- Desktop: summary on the left, the accounts on the right (as on Visão Geral) -->
+    <div v-else class="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] lg:gap-5 xl:gap-6 lg:items-start">
+      <!-- Saldo: what is available to spend and what is put away -->
+      <div class="mb-4 lg:mb-0">
+        <div v-if="store.activeAccounts.length" class="bg-card rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Saldo</p>
+            <span class="text-[11px] text-muted-foreground">
+              {{ store.activeAccounts.length }} conta{{ store.activeAccounts.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
 
-      <!-- Archived accounts — collapsible section -->
-      <div v-if="store.archivedAccounts.length > 0" class="mt-6">
-        <button
-          type="button"
-          class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors mb-3"
-          @click="showArchived = !showArchived"
-        >
-          <component :is="showArchived ? ChevronDown : ChevronRight" :size="14" />
-          <span>{{ showArchived ? 'Ocultar' : 'Ver' }} contas arquivadas ({{ store.archivedAccounts.length }})</span>
-        </button>
-        <div v-if="showArchived" class="rounded-lg bg-card divide-y divide-border overflow-hidden opacity-60">
-          <AccountCard
-            v-for="account in store.archivedAccounts"
-            :key="account.id"
-            :account="account"
-            @edit="openEdit"
-            @delete="openDelete"
-            @archive="requestArchive"
-            @unarchive="unarchiveAccount"
-          />
+          <div class="grid gap-3" :class="store.reserveAccounts.length ? 'grid-cols-2' : 'grid-cols-1'">
+            <div>
+              <p class="text-[12px] text-muted-foreground mb-1">Disponível</p>
+              <p
+                class="text-[20px] font-semibold tabular-nums leading-none whitespace-nowrap"
+                :class="totalBalance >= 0 ? 'text-success' : 'text-destructive'"
+              >{{ formatCurrency(totalBalance) }}</p>
+            </div>
+            <div v-if="store.reserveAccounts.length">
+              <p class="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground mb-1">
+                <PiggyBank :size="14" class="text-primary shrink-0" />
+                Guardado
+              </p>
+              <p class="text-[20px] font-semibold tabular-nums leading-none whitespace-nowrap text-primary">
+                {{ formatCurrency(store.reserveBalance) }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="mt-3 w-full flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2 text-[12px] hover:opacity-80 transition-opacity"
+            @click="openDatedBalances"
+          >
+            <span class="inline-flex items-center gap-1.5 text-muted-foreground">
+              <CalendarDays :size="14" class="shrink-0" />
+              Saldo em uma data
+            </span>
+            <ChevronRight :size="14" class="text-muted-foreground shrink-0" />
+          </button>
+
+          <p class="text-[11px] text-muted-foreground leading-snug mt-3">
+            Toque numa conta para ver as transações dela. O guardado fica fora do disponível.
+          </p>
         </div>
       </div>
-    </template>
+
+      <div class="space-y-3">
+        <!-- Disponível and Guardado, each a card with its subtotal -->
+        <section v-for="group in accountGroups" :key="group.key" class="bg-card rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{{ group.label }}</p>
+            <p class="text-[12px] tabular-nums text-muted-foreground">{{ formatCurrency(group.total) }}</p>
+          </div>
+          <div class="divide-y divide-border">
+            <AccountCard
+              v-for="account in group.accounts"
+              :key="account.id"
+              :account="account"
+              :movement="movementFor(account.id)"
+              @view="viewStatement"
+              @edit="openEdit"
+              @adjust="openAdjust"
+              @delete="openDelete"
+              @archive="requestArchive"
+              @unarchive="unarchiveAccount"
+            />
+          </div>
+        </section>
+
+        <!-- Archived accounts: collapsed block, like "Agendadas" on Visão Geral -->
+        <section v-if="store.archivedAccounts.length > 0" class="bg-card rounded-lg overflow-hidden">
+          <button
+            type="button"
+            class="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+            :aria-expanded="showArchived"
+            @click="showArchived = !showArchived"
+          >
+            <ChevronRight :size="14" class="text-muted-foreground shrink-0 transition-transform" :class="showArchived ? 'rotate-90' : ''" />
+            <Archive :size="14" class="text-muted-foreground shrink-0" />
+            <span class="text-[13px] font-medium text-foreground">Arquivadas ({{ store.archivedAccounts.length }})</span>
+          </button>
+          <div v-if="showArchived" class="border-t border-border divide-y divide-border">
+            <AccountCard
+              v-for="account in store.archivedAccounts"
+              :key="account.id"
+              :account="account"
+              @edit="openEdit"
+              @delete="openDelete"
+              @archive="requestArchive"
+              @unarchive="unarchiveAccount"
+            />
+          </div>
+        </section>
+      </div>
+    </div>
   </AppPageContainer>
 
   <AccountFormDialog
@@ -363,26 +391,41 @@ onMounted(async () => {
         <SheetTitle class="text-[15px]">Saldo em uma data</SheetTitle>
         <SheetDescription class="text-[12px]">Quanto havia em cada conta no fim do dia escolhido.</SheetDescription>
       </SheetHeader>
-      <div class="px-5 pb-6 mt-4">
-        <input
-          v-model="balanceDate"
-          type="date"
-          :max="new Date().toLocaleDateString('en-CA')"
-          aria-label="Data"
-          class="w-full h-11 rounded-lg bg-muted px-3 text-[14px] text-foreground outline-none"
-          @change="checkBalances"
-        />
-        <div class="mt-4 rounded-lg bg-card divide-y divide-border" :class="checkingBalances ? 'opacity-50' : ''">
-          <div v-for="b in datedBalances" :key="b.id" class="flex items-center justify-between gap-3 px-3 py-2.5 text-[13px]">
-            <span class="truncate">{{ b.name }}<span v-if="b.reserve" class="text-muted-foreground"> · guardado</span></span>
-            <span v-if="b.balance_cents === null" class="text-[12px] text-muted-foreground shrink-0">sem saldo conferido nessa data</span>
-            <span v-else class="tabular-nums font-medium shrink-0" :class="b.balance_cents < 0 ? 'text-destructive' : 'text-foreground'">{{ formatCurrency(b.balance_cents / 100) }}</span>
+      <div class="px-5 pb-6 space-y-5 mt-4">
+        <section>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Data</p>
+          <input
+            v-model="balanceDate"
+            type="date"
+            :max="new Date().toLocaleDateString('en-CA')"
+            aria-label="Data"
+            class="w-full h-11 rounded-lg bg-muted px-3 text-[14px] text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            @change="checkBalances"
+          />
+        </section>
+
+        <section>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Contas</p>
+          <div class="rounded-md bg-muted px-3 py-1">
+            <template v-if="checkingBalances">
+              <div v-for="a in store.activeAccounts" :key="a.id" class="flex items-center justify-between gap-3 py-2">
+                <Skeleton class="h-3 w-24 bg-card" />
+                <Skeleton class="h-3 w-16 bg-card" />
+              </div>
+            </template>
+            <template v-else>
+              <div v-for="b in datedBalances" :key="b.id" class="flex items-center justify-between gap-3 py-2 text-[13px]">
+                <span class="truncate">{{ b.name }}<span v-if="b.reserve" class="text-muted-foreground"> · guardado</span></span>
+                <span v-if="b.balance_cents === null" class="text-[12px] text-muted-foreground shrink-0">não conferida</span>
+                <span v-else class="tabular-nums font-medium shrink-0" :class="b.balance_cents < 0 ? 'text-destructive' : 'text-foreground'">{{ formatCurrency(b.balance_cents / 100) }}</span>
+              </div>
+            </template>
           </div>
-          <div v-if="datedKnown" class="flex items-center justify-between px-3 py-2.5 text-[13px] font-semibold">
+          <div v-if="datedKnown && !checkingBalances" class="flex items-center justify-between gap-3 px-3 pt-3 text-[13px] font-semibold">
             <span>Disponível<span v-if="datedMissing" class="font-normal text-muted-foreground"> (só contas conferidas)</span></span>
-            <span class="tabular-nums">{{ formatCurrency(datedAvailableTotal) }}</span>
+            <span class="tabular-nums whitespace-nowrap">{{ formatCurrency(datedAvailableTotal) }}</span>
           </div>
-        </div>
+        </section>
       </div>
     </SheetContent>
   </Sheet>
@@ -408,65 +451,74 @@ onMounted(async () => {
     @confirm="confirmDelete"
   />
 
-  <!-- Ajustar saldo -->
-  <AlertDialog v-model:open="adjustOpen">
-    <AlertDialogContent class="max-w-sm">
-      <AlertDialogHeader>
-        <AlertDialogTitle class="text-[15px]">Conferir saldo — {{ adjustTarget?.name }}</AlertDialogTitle>
-        <AlertDialogDescription class="text-[13px]">
-          Informe o saldo real da conta. A conferência será registrada; diferenças ficarão pendentes de conciliação.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
+  <!-- Conferir saldo: dated check, no transaction created -->
+  <Sheet v-model:open="adjustOpen">
+    <SheetContent side="bottom" class="rounded-t-2xl p-0 max-w-lg mx-auto max-h-[85vh] overflow-y-auto">
+      <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-border" />
+      <SheetHeader class="text-left px-5 pt-3">
+        <SheetTitle class="text-[15px]">Conferir saldo · {{ adjustTarget?.name }}</SheetTitle>
+        <SheetDescription class="text-[12px]">
+          Informe quanto há na conta agora, como aparece no banco. A conferência fica registrada; uma diferença fica pendente de conciliação.
+        </SheetDescription>
+      </SheetHeader>
 
-      <div class="mt-1">
-        <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-2">
-          Saldo real (R$)
-        </p>
-        <div class="flex items-center gap-2 h-10 px-3 rounded-lg bg-card transition-colors">
-          <span class="text-[12px] text-muted-foreground shrink-0">R$</span>
-          <input
-            :value="adjustDisplay"
-            type="text"
-            inputmode="numeric"
-            placeholder="0,00"
-            class="flex-1 bg-transparent text-[13px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
-            @input="onAdjustInput"
-          />
-        </div>
-        <p v-if="adjustDiff !== 0" class="text-[11px] mt-1.5" :class="adjustDiff > 0 ? 'text-success' : 'text-destructive'">
-          Diferença de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }} em relação ao saldo calculado pelo app
-        </p>
-        <p v-if="adjustTarget && adjustTarget.balance_verified === false" class="text-[11px] mt-1.5 text-muted-foreground">
-          Esta conta ainda não tem saldo conferido: o valor informado vira o saldo inicial dela.
-        </p>
+      <div class="px-5 pb-6 space-y-5 mt-4">
+        <section>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Saldo real</p>
+          <div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-muted focus-within:ring-2 focus-within:ring-primary">
+            <span class="text-[13px] text-muted-foreground shrink-0">R$</span>
+            <input
+              :value="adjustDisplay"
+              type="text"
+              inputmode="numeric"
+              placeholder="0,00"
+              aria-label="Saldo real em reais"
+              class="flex-1 bg-transparent text-[14px] text-foreground outline-none tabular-nums placeholder:text-muted-foreground"
+              @input="onAdjustInput"
+            />
+          </div>
+          <p v-if="adjustDiff !== 0" class="text-[11px] leading-snug mt-1.5" :class="adjustDiff > 0 ? 'text-success' : 'text-destructive'">
+            Diferença de {{ adjustDiff > 0 ? '+' : '' }}{{ formatCurrency(adjustDiff) }} em relação ao saldo calculado pelo app
+          </p>
+          <p v-if="adjustTarget && adjustTarget.balance_verified === false" class="text-[11px] leading-snug mt-1.5 text-muted-foreground">
+            Esta conta ainda não tem saldo conferido: o valor informado vira o saldo inicial dela.
+          </p>
+        </section>
 
         <!-- History (D-42) -->
-        <div v-if="adjustHistory.length" class="mt-4">
-          <p class="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-1.5">Conferências anteriores</p>
-          <div v-for="h in adjustHistory" :key="h.id" class="flex items-center justify-between py-1.5 border-b border-border last:border-0 text-[12px]">
-            <span class="text-muted-foreground">{{ formatDay(h.observed_on) }} · {{ h.kind === 'opening' ? 'saldo inicial' : 'conferência' }}</span>
-            <span class="tabular-nums text-foreground">
-              {{ formatCurrency(h.observed_cents / 100) }}
-              <span v-if="h.difference_cents" :class="h.difference_cents > 0 ? 'text-success' : 'text-destructive'">
-                ({{ h.difference_cents > 0 ? '+' : '' }}{{ formatCurrency(h.difference_cents / 100) }})
+        <section v-if="adjustHistory.length">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Conferências anteriores</p>
+          <div class="rounded-md bg-muted px-3 py-1">
+            <div v-for="h in adjustHistory" :key="h.id" class="flex items-center justify-between gap-3 py-1.5 text-[12px]">
+              <span class="text-muted-foreground">{{ formatDay(h.observed_on) }} · {{ h.kind === 'opening' ? 'saldo inicial' : 'conferência' }}</span>
+              <span class="tabular-nums text-foreground whitespace-nowrap">
+                {{ formatCurrency(h.observed_cents / 100) }}
+                <span v-if="h.difference_cents" :class="h.difference_cents > 0 ? 'text-success' : 'text-destructive'">
+                  ({{ h.difference_cents > 0 ? '+' : '' }}{{ formatCurrency(h.difference_cents / 100) }})
+                </span>
               </span>
-            </span>
+            </div>
           </div>
+        </section>
+
+        <div class="flex gap-2 pt-1">
+          <button
+            type="button"
+            class="flex-1 h-11 rounded-lg text-[14px] font-medium bg-muted text-foreground"
+            @click="adjustOpen = false"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="flex-1 h-11 rounded-lg text-[14px] font-medium bg-primary text-primary-foreground disabled:opacity-40"
+            :disabled="adjustParsed === null || adjusting"
+            @click="confirmAdjust"
+          >
+            Registrar conferência
+          </button>
         </div>
       </div>
-
-      <AlertDialogFooter class="gap-2">
-        <AlertDialogCancel class="flex-1 h-[52px] rounded-xl text-[15px] bg-muted text-muted-foreground">
-          Cancelar
-        </AlertDialogCancel>
-        <AlertDialogAction
-          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] bg-primary text-primary-foreground"
-          :disabled="adjustParsed === null || adjusting"
-          @click="confirmAdjust"
-        >
-          Registrar conferência
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+    </SheetContent>
+  </Sheet>
 </template>

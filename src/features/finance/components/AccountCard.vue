@@ -51,9 +51,9 @@ const hasMovement = computed(() => !!props.movement && (props.movement.in > 0 ||
 </script>
 
 <template>
+  <!-- Same row as the Visão Geral transaction list; an archived account reads muted, not translucent -->
   <div
-    class="flex items-center gap-3 pl-4 pr-1 py-3 cursor-pointer hover:bg-muted/40 transition-colors"
-    :class="!account.is_active ? 'opacity-50' : ''"
+    class="flex items-center gap-3 pl-4 pr-1 py-2.5 cursor-pointer hover:bg-muted/50 transition-colors"
     role="button"
     tabindex="0"
     :aria-label="`Ver transações de ${account.name}`"
@@ -61,19 +61,22 @@ const hasMovement = computed(() => !!props.movement && (props.movement.in > 0 ||
     @keydown.enter="emit('view', account)"
   >
     <span
-      class="flex items-center justify-center size-9 rounded-lg shrink-0"
+      class="flex items-center justify-center size-8 rounded-lg shrink-0"
       :style="{
-        background: account.is_active ? (account.color ?? '#6b7280') + '33' : 'hsl(var(--muted))',
+        background: account.is_active ? (account.color ?? '#6b7280') + '26' : 'hsl(var(--muted))',
         color: account.is_active ? (account.color ?? '#6b7280') : 'hsl(var(--muted-foreground))',
       }"
     >
-      <component :is="ACCOUNT_TYPE_ICONS[account.type]" :size="16" />
+      <component :is="ACCOUNT_TYPE_ICONS[account.type]" :size="15" :stroke-width="1.9" />
     </span>
 
     <div class="flex-1 min-w-0">
       <div class="flex items-baseline justify-between gap-2">
-        <p class="text-[14px] font-medium text-foreground truncate">{{ account.name }}</p>
-        <p class="text-[15px] font-semibold tabular-nums whitespace-nowrap" :class="account.balance < 0 ? 'text-destructive' : 'text-foreground'">
+        <p class="text-[14px] font-medium truncate" :class="account.is_active ? 'text-foreground' : 'text-muted-foreground'">{{ account.name }}</p>
+        <p
+          class="text-[14px] font-semibold tabular-nums whitespace-nowrap"
+          :class="!account.is_active ? 'text-muted-foreground' : account.balance < 0 ? 'text-destructive' : 'text-foreground'"
+        >
           {{ formatCurrency(account.balance) }}
         </p>
       </div>

@@ -168,10 +168,11 @@ async function submit() {
               v-for="t in accountTypes"
               :key="t"
               type="button"
-              class="h-10 rounded-lg text-[13px] font-medium  transition-all flex items-center justify-center gap-2"
+              :aria-pressed="form.type === t"
+              class="h-10 rounded-lg text-[13px] font-medium transition-colors flex items-center justify-center gap-2"
               :class="form.type === t
-                ? 'bg-muted text-primary'
-                : 'bg-muted text-muted-foreground hover:bg-muted'"
+                ? 'bg-primary/15 text-primary font-semibold'
+                : 'bg-muted text-muted-foreground hover:text-foreground'"
               @click="form.type = t"
             >
               <component :is="TYPE_ICONS[t]" :size="14" aria-hidden="true" />
