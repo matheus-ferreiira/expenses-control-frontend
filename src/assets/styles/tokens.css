@@ -4,8 +4,9 @@
    Values are HSL triplets (no hsl() wrapper) — base.css wraps them
    via @theme inline:  --color-primary: hsl(var(--primary))
 
-   Design system: Revolut/Nubank-inspired dark premium.
-   Primary accent: #34d399 (emerald). No blue or violet anywhere.
+   Design reference: the Visão Geral screen (src/pages/finance/FinancePage.vue);
+   usage rules in docs/design-system.md.
+   Primary accent: #34d399 (emerald) — actions, selection, positive values.
    ===================================================================== */
 
 /* -----------------------------------------------------------------------
@@ -26,15 +27,18 @@
 
 /* -----------------------------------------------------------------------
    DARK MODE (DEFAULT)
-   Paleta FECHADA — 4 cores sólidas, sem opacidade em lugar nenhum:
+   Paleta FECHADA — 4 cores sólidas (superfícies sempre sólidas):
      #09090b  preto      → fundo do sistema (background, sidebar)
      #18181b  cinza esc. → card / box / sheet (superfície nível 1)
      #27272a  cinza claro→ box-dentro-de-box, controles, hover, divisor,
                            popover, muted, secondary, input, border (nível 2)
      #34d399  verde      → ação, seleção, foco, success
-   Exceções funcionais SÓLIDAS (nunca /N): destructive (vermelho), warning (âmbar).
+   Cores funcionais: destructive (vermelho), warning (âmbar).
    Texto: 2 níveis sólidos — foreground (claro) + muted-foreground (apagado).
-   Cores de módulo (accent-*) seguem só em ícone/dot/gráfico, sempre sólidas.
+   Cores de módulo (accent-*) só em ícone/dot/gráfico.
+   Transparência só nos usos da Visão Geral: seleção suave (primary/15), hover
+   (muted/50), fundo de ícone de categoria, parte prevista de barra, desabilitado.
+   Regras completas em docs/design-system.md.
    ----------------------------------------------------------------------- */
 :root {
   /* --- Surfaces — 2 cinzas sólidos sobre o preto ---
@@ -109,7 +113,7 @@
   --tone-info:              187  66% 55%;  /* ciano */
 
   /* --- Cores de identidade de módulo ---
-     Uso permitido: chip de ícone (bg cor/12 + ícone na cor), dot de status,
+     Uso permitido: ícone (chip bg-muted + ícone na cor), dot de status,
      série de gráfico, ícone de navegação. PROIBIDO em botões e CTAs.
   */
   --accent-blue:            210  88% 66%;  /* #5CA8F5 — Tarefas */

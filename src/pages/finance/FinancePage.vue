@@ -765,7 +765,7 @@ onMounted(async () => {
     </div>
     </div>
 
-    <!-- Transactions — Lovable-style self-contained container -->
+    <!-- Transactions — self-contained list card -->
         <div class="bg-card rounded-lg overflow-hidden">
 
           <!-- Header row: title + month nav + search -->

@@ -1,106 +1,140 @@
-# CLAUDE.md — Frontend (Vue 3)
+# CLAUDE.md — Frontend (VaultOS, Vue 3)
+
+SPA + PWA do VaultOS: finanças pessoais (módulo principal), tarefas, hábitos, agenda, notas,
+bookmarks, preços e compras. API em `../expenses-control-backend`.
+
+## Regra de documentação (obrigatória)
+
+**Todo commit atualiza a documentação que ficou desatualizada por ele, no mesmo commit.**
+Antes de commitar, confira:
+
+- `CLAUDE.md` (este arquivo) — estrutura, padrões, comandos
+- `docs/design-system.md` — padrões visuais (sempre que a Visão Geral ou um padrão visual mudar)
+- `docs/frontend-conventions.md` — convenções de código
+- `README.md` — módulos, rotas, instalação
+- `../README.md` e `../CLAUDE.md` (pasta principal, fora do Git) — quando mudar algo do workspace
+- Se o commit também mexe no backend: docs do backend (`../expenses-control-backend/CLAUDE.md`, `README.md`, `docs/`)
+
+## Referência de design: a tela Visão Geral
+
+**A tela Visão Geral de Finanças (`/finance`, `src/pages/finance/FinancePage.vue`) é a referência
+de design, organização e visual do projeto.** Telas novas ou refeitas seguem os padrões dela.
+Não existe outro site de referência; menções antigas a outro site estão obsoletas.
+
+Guia completo: **[`docs/design-system.md`](docs/design-system.md)**. Resumo:
+
+- **Mobile primeiro**, cards empilhados (`space-y-3`); no desktop, grid
+  `lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)]` (resumo à esquerda, lista à direita).
+- **Card:** `bg-card rounded-lg p-4`, sem borda e sem sombra. **Caixa interna:** `rounded-md bg-muted px-3 py-2 text-[12px]`.
+- **Título de seção:** `text-[11px] font-semibold uppercase tracking-widest text-muted-foreground`.
+- **Valores:** `formatCurrency()` + `tabular-nums` + `whitespace-nowrap`; destaque `text-[20px] font-semibold`.
+- **Cores:** fundo `#09090b` → card `#18181b` → muted `#27272a`; `primary` verde `#34d399` (ação, seleção,
+  positivo); `destructive` `#FF6F5C`; `warning` `#F5A623`. Texto sobre `bg-primary` é `text-primary-foreground` (preto).
+- **Seleção:** toggle segmentado `bg-muted p-1` com opção ativa `bg-primary/15 text-primary font-semibold`;
+  pílulas ativas `bg-primary text-primary-foreground`.
+- **Superfícies sólidas.** Transparência só para seleção suave (`bg-primary/15`), hover (`hover:bg-muted/50`),
+  fundo de ícone de categoria (cor + alfa), parte prevista de barra (`opacity-40`) e desabilitado.
+- **Borda só como divisor interno** (`border-b border-border`, `divide-y divide-border`).
+- **Cor de módulo** (`accent-*`, `constants/modules.ts`) só em ícone/dot/gráfico, nunca em botão ou seleção.
+- **Detalhes e filtros em bottom sheet** (`rounded-t-2xl`, alça, `px-5`, ações `h-11` no rodapé).
+- **Números do backend**, nunca somados da lista paginada. Nada baseado em ritmo diário.
+- Textos curtos em português do dia a dia ("Nas contas", "No fim do mês", "Sobrou", "A confirmar").
+
+Valores de cor: só em `src/assets/styles/tokens.css` (o `base.css` não define cores).
+
+### Componentes de referência
+
+| Se criar | Ler primeiro |
+|---|---|
+| Página com cards de resumo + lista | `src/pages/finance/FinancePage.vue` |
+| Card com métricas | `src/features/finance/components/MonthSummaryCard.vue` |
+| Card com lista e ação rápida | `src/features/finance/components/PendingThisWeekCard.vue` |
+| Lista compacta (top N + "Ver todas") | `src/features/finance/components/CategoryBreakdownList.vue` |
+| Lista agrupada / linha de item | `src/features/finance/components/TransactionList.vue`, `TransactionCard.vue` |
+| Sheet de filtros | sheet "Filtros" em `FinancePage.vue` |
+| Sheet de detalhe | `src/features/finance/components/TransactionDetailSheet.vue`, `BalanceDetailSheet.vue` |
+| Formulário em sheet | `src/features/finance/components/TransactionFormDialog.vue`, `CreditCardFormDialog.vue` |
+| Cabeçalho de página | `src/components/shared/PageHeader.vue` (`compact-mobile`) |
+
+O antigo `TransactionSummaryCard.vue` foi removido; o card de métricas de referência é o `MonthSummaryCard.vue`.
 
 ## Stack
-- **Vue 3.5** (Composition API, `<script setup lang="ts">`) | **TypeScript 5.9** | **Pinia 3** | **Vue Router 4**
-- Build: **Vite 7** + **@tailwindcss/vite** (Tailwind CSS v4)
-- UI: **shadcn-vue** (reka-ui/radix-vue) | Ícones: **lucide-vue-next**
+
+- **Vue 3.5** (`<script setup lang="ts">`) | **TypeScript 5.9** | **Pinia 3** (Setup API) | **Vue Router 4**
+- Build: **Vite 7** + **@tailwindcss/vite** (Tailwind CSS v4) + **vite-plugin-pwa** (app instalável "VaultOS")
+- UI: **shadcn-vue** (reka-ui) em `components/ui` | Ícones: **lucide-vue-next** | Toasts: **vue-sonner**
+- Formulários: **vee-validate + zod** | Gráficos: **chart.js + vue-chartjs** | Drag: **vue-draggable-plus**
 - HTTP: **Axios** com envelope unwrapping
 - Testes: Vitest + Vue Test Utils + Cypress | Lint: ESLint + Prettier
 
-## Estrutura Implementada
+## Estrutura
 
 ```
 src/
 ├── assets/styles/
-│   ├── tokens.css          Design tokens — todas as CSS custom properties (cores, radius)
-│   └── base.css            Tailwind v4 entry point — importa tokens.css + @theme inline
+│   ├── tokens.css          Valores de cor/raio/motion (CSS custom properties, HSL)
+│   └── base.css            Entrada do Tailwind v4: @theme inline + utilitários (col-label, num, animações)
 ├── components/
-│   ├── ui/                 shadcn-vue components (npx shadcn-vue@latest add <name>)
-│   └── shared/             AppSidebar, AppHeader
-├── composables/
-│   ├── useToast.ts         Toast state manager
-│   ├── useDebounce.ts      Reactive debounce
-│   ├── usePagination.ts    Pagination state + helpers
-│   └── useKeyboardShortcut.ts  G+D/T/H/A/F/M/R navigation
-├── constants/
-│   ├── routes.ts           ROUTES typed const
-│   └── api.ts              API_ENDPOINTS typed const
-├── layouts/
-│   ├── AuthLayout.vue      Centered card (login/register)
-│   └── AppLayout.vue       Sidebar + Header + <RouterView>
-├── lib/
-│   └── utils.ts            cn() helper (clsx + tailwind-merge)
-├── pages/
-│   ├── auth/               LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage
-│   ├── tasks/              TasksPage, TaskDetailPage
-│   ├── habits/             HabitsPage, HabitDetailPage
-│   ├── finance/            FinancePage, TransactionsPage, AccountsPage, CardsPage, MonthlyReportPage, YearlyReportPage
-│   ├── goals/              GoalsPage, GoalDetailPage
-│   ├── calendar/           CalendarPage
-│   ├── DashboardPage.vue
-│   └── ReportsPage.vue
-├── router/
-│   ├── index.ts
-│   ├── guards.ts           Auth guard + guest guard
-│   └── routes/
-│       ├── auth.ts         requiresGuest routes
-│       └── app.ts          requiresAuth routes (nested in AppLayout)
-├── services/api/
-│   ├── client.ts           Axios instance + Bearer token + 401 redirect + unwrap()
-│   ├── auth.ts             login, register, logout, me, forgot/reset
-│   ├── tasks.ts            CRUD + archive/reorder + subtasks + labels
-│   ├── habits.ts           CRUD + log/unlog/stats/heatmap/today
-│   ├── finance.ts          accounts, cards, transactions, categories, reports
-│   ├── goals.ts            CRUD + progress patch
-│   ├── calendar.ts         CRUD + upcoming
-│   └── dashboard.ts        aggregate dashboard
-├── stores/
-│   ├── auth.ts             token (localStorage), user, isAuthenticated
-│   ├── ui.ts               sidebar open, global loading
-│   ├── tasks.ts            + pendingTasks/overdueTasks computed
-│   ├── habits.ts           + todayHabits, log/unlog
-│   ├── finance.ts          accounts, cards, transactions, categories
-│   ├── goals.ts            + activeGoals/completedGoals computed
-│   └── calendar.ts         events + upcoming
-├── types/
-│   ├── api.ts              ApiResponse<T>, PaginatedResponse<T>, PaginationMeta
-│   ├── auth.ts             User, LoginCredentials, RegisterPayload, AuthTokenResponse
-│   ├── tasks.ts            Task, Subtask, TaskLabel, TaskStatus, TaskPriority + LABELS
-│   ├── habits.ts           Habit, HabitLog, HabitStats, HabitFrequency + LABELS
-│   ├── finance.ts          Transaction, BankAccount, CreditCard, Category + LABELS
-│   ├── goals.ts            Goal, GoalType, GoalStatus + LABELS
-│   └── calendar.ts         CalendarEvent, EventColor, EventSource
-└── utils/
-    ├── date.ts             formatDate, formatRelative, isOverdue, isToday, weekdayName
-    └── currency.ts         formatCurrency (BRL), parseCurrency, formatPercent
+│   ├── ui/                 shadcn-vue (npx shadcn-vue@latest add <name>)
+│   └── shared/             AppSidebar, CommandPalette, QuickAddDialog, PageHeader, AppPageContainer,
+│                           AppBreadcrumbs, SectionHeader, EmptyState, LoadingState, ConfirmDialog, pickers…
+├── composables/            useToast, useDebounce, usePagination, useKeyboardShortcut, usePwaUpdate,
+│                           useTransactionFormLauncher
+├── constants/              routes.ts (ROUTES), api.ts (API_ENDPOINTS), modules.ts (ícone + cor por módulo)
+├── features/<módulo>/      components/, composables/, types/, utils/, views/ — código de cada módulo
+│                           (auth, bookmarks, calendar, dashboard, finance, habits, notes, prices,
+│                           purchases, reports, tasks)
+├── layouts/                AuthLayout, AppLayout (sidebar desktop + barra inferior mobile + "+" global)
+├── lib/                    utils.ts (cn), icons.ts (findIcon)
+├── pages/                  Páginas roteáveis (finance/, prices/, tasks/, habits/, calendar/, notes/,
+│                           purchases/, auth/, DashboardPage, ReportsPage, SettingsPage, VaultPage…)
+├── router/                 index.ts, guards.ts, routes/auth.ts, routes/app.ts
+├── services/api/           client.ts (axios + Bearer + 401 + unwrap) e um arquivo por domínio
+├── stores/                 Pinia por domínio (finance, tasks, habits, calendar, notes, bookmarks, prices…)
+├── types/                  Interfaces espelhando o backend
+└── utils/                  date.ts, currency.ts (formatCurrency BRL), color.ts
 ```
+
+### Módulo Finanças (principal)
+
+| Tela | Rota | Página |
+|---|---|---|
+| **Visão Geral** (referência de design) | `/finance` | `pages/finance/FinancePage.vue` |
+| Contas | `/finance/accounts` | `AccountsPage.vue` |
+| Cartões | `/finance/cards` | `CardsPage.vue` |
+| Orçamento | `/finance/budget` | `BudgetPage.vue` |
+| Metas | `/finance/goals` | `GoalsPage.vue` |
+| Categorias | `/finance/categories` | `CategoriesPage.vue` |
+| Relatórios (mensal / anual) | `/finance/reports`, `/finance/reports/yearly` | `MonthlyReportPage.vue`, `YearlyReportPage.vue` |
+
+`/finance/transactions` redireciona para a Visão Geral (a antiga tela Transações foi fundida nela).
+No mobile, `FinanceSubNav` dá acesso a todas as telas do módulo em 1 toque; no desktop, a sidebar.
+
+Conceitos usados nas telas:
+- **Disponível × Guardado:** contas do tipo `investment` são reserva (caixinhas). Ficam fora de "Nas contas"
+  e do saldo previsto, e aparecem à parte como "Guardado" (`store.availableBalance` / `store.reserveBalance`).
+- **Modo do mês** (`past` / `current` / `future`): muda rótulos, cards visíveis e cálculos da Visão Geral.
+- **Pendente × confirmado:** previsões (`status: pending`) são confirmadas com valor e data reais
+  ("Paguei / Recebi", `ConfirmTransactionSheet`).
+- **Cartões:** fatura a pagar, fatura aberta e limite livre vêm de `GET /finance/cards/{id}/overview`.
+- **Saldo no fim do mês:** `GET /finance/balance/historical` (saldo + previstos − faturas que vencem até lá).
 
 ## Path Aliases
 
 ```typescript
-'@'           → src/
-'@ui'         → src/components/ui/
-'@shared'     → src/components/shared/
-'@composables' → src/composables/
-'@stores'     → src/stores/
-'@services'   → src/services/
-'@types'      → src/types/
-'@utils'      → src/utils/
-'@layouts'    → src/layouts/
-'@pages'      → src/pages/
-'@constants'  → src/constants/
-'@lib'        → src/lib/
+'@' → src/   '@ui' → src/components/ui/   '@shared' → src/components/shared/
+'@composables' '@stores' '@services' '@types' '@utils' '@layouts' '@pages' '@constants' '@lib'
 ```
 
-## Padrões Obrigatórios
+## Padrões de código
 
 ### Composition API (sempre `<script setup lang="ts">`)
 ```vue
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useTaskStore } from '@stores/tasks'
+import { useFinanceStore } from '@/stores/finance'
 
-const store = useTaskStore()
+const store = useFinanceStore()
 </script>
 ```
 
@@ -126,36 +160,35 @@ export const useTaskStore = defineStore('tasks', () => {
 ```typescript
 export const tasksApi = {
   list: (filters?: TaskFilters) =>
-    client.get<PaginatedResponse<Task>>(API_ENDPOINTS.TASKS.BASE, { params: filters })
-      .then(unwrap),
-
+    client.get<PaginatedResponse<Task>>(API_ENDPOINTS.TASKS.BASE, { params: filters }).then(unwrap),
   create: (payload: CreateTaskPayload) =>
     client.post<ApiResponse<Task>>(API_ENDPOINTS.TASKS.BASE, payload).then(unwrap),
 }
 ```
 
+### Respostas fora de ordem
+Ao trocar de mês/filtro, ignore respostas antigas: guarde o valor pedido e só aplique o resultado se ele
+ainda for o atual (ver `loadCurrentMonthSummary` em `FinancePage.vue`).
+
 ### Adicionando shadcn-vue components
 ```bash
-npx shadcn-vue@latest add button card badge input dialog dropdown-menu separator avatar
-# Componente é copiado para src/components/ui/
-# Adicionar ao barrel src/components/ui/index.ts
+npx shadcn-vue@latest add <nome>   # copiado para src/components/ui/ — adicionar ao barrel index.ts
 ```
 
 ### Nomenclatura
 - Páginas: `PascalCase + Page` → `TasksPage.vue`
 - Componentes: `PascalCase` → `TaskCard.vue`
 - Composables: `use + camelCase` → `useToast.ts`
-- Stores (arquivo): `camelCase` → `tasks.ts`
-- Stores (função): `use + PascalCase + Store` → `useTaskStore()`
+- Stores: arquivo `camelCase` (`tasks.ts`), função `use + PascalCase + Store` (`useTaskStore()`)
 - Services: `camelCase + Api` → `tasksApi`
 - Types: `PascalCase` → `interface Task {}`
 - Constantes: `UPPER_SNAKE_CASE` → `ROUTES.TASKS`
 
-## Comandos de Desenvolvimento
+## Comandos
 
 ```bash
-npm run dev            # servidor Vite
-npm run build          # build produção
+npm run dev            # Vite (local: npm run dev -- --host localhost --port 5176 --strictPort)
+npm run build          # type-check + build de produção
 npm run preview        # preview do build
 npm run test:unit      # Vitest
 npm run test:e2e:dev   # Cypress em dev
@@ -167,88 +200,31 @@ npm run format         # Prettier
 ## Variáveis de Ambiente
 
 ```env
-VITE_API_URL=http://localhost:8000
-VITE_APP_NAME=Productivity Control
+# .env.local (desenvolvimento) — backend local
+VITE_API_URL=http://localhost:8001
+# .env (build de produção)
+VITE_API_URL=https://vault-api.matheus-dev.com
 ```
 
-## Design System
+`VITE_API_URL` é só o host: os caminhos em `constants/api.ts` já começam com `/api/v1`.
 
-Dark frio zinc **near-black premium** (jul/2026). **Paleta FECHADA — 4 cores sólidas, ZERO opacidade (`/N`):**
+## Deploy
 
-| Cor | Hex | Token / classe | Papel |
-|-----|-----|----------------|-------|
-| Preto | `#09090b` | `--background` / `bg-background` | fundo do sistema (+ sidebar) |
-| Cinza escuro | `#18181b` | `--card` `--sheet` / `bg-card` | card / box / sheet (nível 1) |
-| Cinza claro | `#27272a` | `--muted` `--popover` `--input` `--border` / `bg-muted` | box-em-box, controles, botões, hover, divisor (nível 2) |
-| Verde | `#34d399` | `--primary` `--success` / `bg-primary` | ação, seleção, foco, success |
-
-Exceções funcionais SÓLIDAS (nunca `/N`, nunca decorativas): `--destructive` #FF6F5C (excluir/despesa), `--warning` #F5A623 (alerta).
-Texto: 2 níveis sólidos — `text-foreground` (#E4E4E7) e `text-muted-foreground` (#A1A1AA). Sem `/50`,`/60`,`/70`.
-**`--primary-foreground` é PRETO** — botões `bg-primary` usam `text-primary-foreground`, nunca `text-white`.
-
-**A fonte de verdade canônica das regras de design é o CLAUDE.md da RAIZ do monorepo** (paleta, filosofia de bordas, seleção, tipografia). `tokens.css` é a fonte de verdade dos valores. Este bloco é só um resumo.
-
-Regras inegociáveis:
-- **Zero opacidade `/N`** em cor — toda cor é sólida (escolher o token certo)
-- **Sem borda em volta de box/card** — separação vem da cor de fundo (escada de cinza). Borda só como divisor interno sólido (`border-b border-border`)
-- **Elevação por cor**, nunca por sombra/opacidade/borda
-- Cor de módulo (`accent-*`) só em ícone/dot/gráfico, sólida, nunca em botão/CTA/seleção
-- **Chip de ícone**: `size-9 rounded-lg grid place-items-center bg-muted text-accent-X` + lucide `:size="18"` — chip cinza sólido, cor do módulo só no ícone. Entidade com cor própria → cor dinâmica no ícone via `:style`
-
-### Cores de identidade de módulo
-Tarefas `accent-blue` #5CA8F5 · Hábitos `accent-orange` #FB923C · Agenda `accent-violet` #A78BFA ·
-Preços `accent-cyan` #3ECFDB · Notas `accent-amber` #F5A623 · Bookmarks `accent-rose` #F472B6 ·
-Compras `accent-lime` #A3D65C · Dashboard/Finanças/Metas = `primary`.
-
-Para alterar o design system, edite apenas `tokens.css`. O `base.css` não deve conter valores de cores.
-
-## Referências canônicas de componente
-
-Antes de criar qualquer componente visual, ler o canônico correspondente:
-
-| Se criar | Ler primeiro |
-|---|---|
-| Card com dados/métricas | `src/features/finance/components/TransactionSummaryCard.vue` |
-| Formulário em sheet | `src/features/finance/components/CreditCardFormDialog.vue` |
-| Sheet de seleção | `src/components/shared/QuickAddDialog.vue` |
-| Sheet de detalhe | `src/features/finance/components/TransactionDetailSheet.vue` |
-
-## Padrão de KPI Visual — Card Único
-
-**Regra:** Múltiplas métricas relacionadas devem usar **um card único** com valores internos, não múltiplos boxes separados.
-
-```
-┌──────────────────────────────────────────┐
-│  RECEITAS      DESPESAS      SALDO       │
-│  R$ 7.705      R$ 8.173    -R$ 468       │
-│──────────────────────────────────────────│
-│  [linha de contexto: saldo atual, etc.]  │
-└──────────────────────────────────────────┘
-```
-
-**Componente de referência:** `TransactionSummaryCard.vue`
-- Aceita `month`, `income`, `expenses`, `totalBalance`, `pendingIncome`, `pendingExpenses`
-- Emite `prev`, `next`, `reset` para navegação de mês
-- Inclui MonthNavigator integrado
-- Linha de contexto dinâmica: "Saldo atual" (mês atual), "Saldo previsto" (mês futuro), "Saldo final do mês" (mês passado, calculado via API)
-- **Cálculo de saldo histórico:** busca transações confirmadas após o mês e reverte do saldo atual
-
-**Exceção:** máx 2 métricas com destaque individual direto (ex: Saldo Atual vs Saldo Previsto) podem usar 2 cards lado a lado.
-
-**Não use** `grid grid-cols-2 gap-3` para múltiplos KPI boxes — consolide em 1 card.
+Imagem Docker (`Dockerfile`) com build Vite servido por nginx (`nginx.conf`). `nixpacks.toml` não é usado.
+O PWA busca uma versão nova ao voltar para o app, ao ganhar foco, ao voltar a ficar online e a cada 5 minutos
+(`usePwaUpdate`); a chamada à API nunca é cacheada.
 
 ## Regras de Qualidade
 
-- Sempre `lang="ts"` em `<script setup>`
-- Nunca `any` — criar tipos explícitos
-- Props: `defineProps<{...}>()`
-- Emits: `defineEmits<{ event: [payload: Type] }>()`
-- Barrel exports em todos os diretórios com múltiplos arquivos
-- `npm run type-check` + `npm run build` antes de commitar
+- Sempre `lang="ts"` em `<script setup>`; nunca `any`
+- Props: `defineProps<{...}>()` · Emits: `defineEmits<{ event: [payload: Type] }>()`
+- Barrel exports em diretórios com vários arquivos
+- Antes de commitar: `npm run type-check`, `npm run lint`, `npm run build`, `npm run test:unit`
+  **e a documentação atualizada** (ver topo deste arquivo)
 
 ## Credenciais de Teste (Playwright)
 
-Conta criada no banco local para validação visual com Playwright:
+Conta no banco **local** para validação visual:
 
 ```
 Email:  dev@vault.test
@@ -256,6 +232,4 @@ Senha:  VaultDev2026!
 Nome:   Playwright Dev
 ```
 
-Usar quando precisar acessar páginas protegidas (`requiresAuth`) no Playwright.
-O `App.vue` chama `fetchMe()` no mount — token fake é limpo ao receber 401.
-Com essa conta, o login via formulário funciona normalmente.
+O `App.vue` chama `fetchMe()` no mount — token falso é limpo ao receber 401.

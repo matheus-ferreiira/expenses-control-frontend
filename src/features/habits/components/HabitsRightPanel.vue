@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const activeHabits = computed(() => props.habits.filter((h) => h.is_active))
 
-// Category config matching Lovable exactly
+// Category config
 const CATEGORY_CONFIG = [
   { key: 'Saúde',      icon: Heart,    color: 'hsl(var(--destructive))',     bg: 'hsl(var(--destructive) / 0.12)',  border: 'hsl(var(--destructive) / 0.3)' },
   { key: 'Mente',      icon: Brain,    color: 'hsl(217 91% 68%)',            bg: 'hsl(217 91% 60% / 0.12)',         border: 'hsl(217 91% 60% / 0.3)' },

@@ -49,7 +49,7 @@ const weeklyDots = computed(() => getWeeklyDots(props.habit))
 const categoryIcon = computed(() => CATEGORY_ICON[props.habit.category ?? ''] ?? Target)
 const categoryIconColor = computed(() => CATEGORY_COLOR[props.habit.category ?? ''] ?? 'hsl(var(--muted-foreground))')
 
-// Meta badge uses category color (matching Lovable's CategoryBadge)
+// Meta badge uses the category color
 const badgeStyle = computed(() => {
   const color = categoryIconColor.value
   return `background: color-mix(in oklab, ${color} 12%, transparent); color: ${color}; border-color: color-mix(in oklab, ${color} 30%, transparent)`
@@ -171,7 +171,7 @@ async function handleLog() {
       <span v-else class="text-[12px]" style="color: hsl(var(--muted-foreground) / 0.25)">—</span>
     </div>
 
-    <!-- Check today — 24px, solid fill when done, semi-transparent border when not (Lovable) -->
+    <!-- Check today — 24px, solid fill when done, semi-transparent border when not -->
     <div class="shrink-0" @click.stop>
       <button
         class="grid place-items-center h-6 w-6 rounded-md border transition-all active:scale-90"
