@@ -297,7 +297,9 @@ Detalhes, filtros, confirmação e drill-down abrem como bottom sheet (não como
 | **Cinza** — `bg-card`, sem borda (o modelo acima) | Escolhas, filtros, listas e ações curtas | Filtros, transações da categoria, "Conferir saldo", "Saldo em uma data" |
 | **Escuro com borda verde** — `bg-background`, `border-t-2 border-primary`, cabeçalho próprio | Formulário de criação/edição e detalhe de um item | `TransactionFormDialog`, `AccountFormDialog`, `CreditCardFormDialog`, `TransactionDetailSheet`, `BalanceDetailSheet`, `CardStatementSheet` |
 
-No estilo escuro, caixas internas usam `bg-card`; os campos continuam `bg-muted h-11`. Opções exclusivas em qualquer sheet (tipo de conta, conta que pagou a fatura…) seguem a seleção da Visão Geral: ativa `bg-primary/15 text-primary font-semibold`, inativa `bg-muted text-muted-foreground`, com `aria-pressed`. Rótulos de campo em caixa alta 11px.
+No estilo escuro (fundo `bg-background`), subir um nível é `bg-card`: caixas internas, campos (`bg-card h-10`) e o fundo de toggle segmentado. Opções exclusivas em qualquer sheet (tipo de transação, tipo de conta, conta que pagou…) seguem a seleção da Visão Geral: ativa `bg-primary/15 text-primary font-semibold`, inativa `bg-muted text-muted-foreground` (ou sem fundo dentro de um toggle), com `aria-pressed`. Rótulos de campo em caixa alta 11px. Saldos de conta numa lista de escolha ficam na cor normal do texto (vermelho só se negativo).
+
+Rodapé de formulário: `h-11 rounded-lg text-[14px] font-medium`, Cancelar `bg-muted text-foreground`, ação `bg-primary text-primary-foreground` — **sempre verde, qualquer que seja o tipo** (nunca vermelho para despesa: o vermelho é de excluir). Desabilitado com `opacity-40` até o formulário estar válido.
 
 ### Ícone de página e de módulo
 

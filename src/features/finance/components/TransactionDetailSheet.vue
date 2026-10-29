@@ -256,7 +256,7 @@ const amountClass = computed(() => {
           <div v-if="transaction.status === 'pending'" class="px-4 pt-1">
             <button
               type="button"
-              class="w-full h-[52px] rounded-xl bg-success text-background text-[13px] font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
+              class="w-full h-11 rounded-lg bg-primary text-primary-foreground text-[14px] font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-60 mb-3"
               @click="handleConfirm"
             >
               <CheckCircle2 :size="16" />

@@ -162,7 +162,7 @@ async function create() {
       <div class="px-4 pt-2 pb-5 shrink-0">
         <button
           type="button"
-          class="w-full h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-background"
+          class="w-full h-11 rounded-lg font-medium text-[14px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-background"
           :class="[
             type === 'expense' ? 'bg-destructive' : 'bg-success',
             (!name.trim() || saving) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90',

@@ -216,7 +216,7 @@ async function submit() {
       <div class="px-4 pt-3 pb-8 border-t border-border shrink-0 flex gap-2">
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl text-[15px] transition-colors bg-muted text-muted-foreground"
+          class="flex-1 h-11 rounded-lg text-[14px] font-medium transition-colors bg-muted text-foreground"
           :disabled="submitting"
           @click="close"
         >
@@ -224,7 +224,7 @@ async function submit() {
         </button>
         <button
           type="button"
-          class="flex-1 h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+          class="flex-1 h-11 rounded-lg font-medium text-[14px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           :disabled="!isFormValid || submitting"
           @click="submit"
         >

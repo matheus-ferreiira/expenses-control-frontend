@@ -276,7 +276,6 @@ const TYPE_CONFIG = {
     colorClass: 'text-destructive',
     bgClass: 'bg-muted text-destructive',
     activeBg: 'bg-muted',
-    saveBg: 'bg-destructive',
     saveText: 'Salvar Despesa',
     amountColor: 'text-destructive',
     pillBg: 'bg-muted text-destructive hover:bg-muted',
@@ -287,7 +286,6 @@ const TYPE_CONFIG = {
     colorClass: 'text-success',
     bgClass: 'bg-muted text-success',
     activeBg: 'bg-muted',
-    saveBg: 'bg-success',
     saveText: 'Salvar Receita',
     amountColor: 'text-success',
     pillBg: 'bg-muted text-success hover:bg-muted',
@@ -298,7 +296,6 @@ const TYPE_CONFIG = {
     colorClass: 'text-muted-foreground',
     bgClass: 'bg-muted text-foreground',
     activeBg: 'bg-muted',
-    saveBg: 'bg-primary',
     saveText: 'Salvar Transferência',
     amountColor: 'text-foreground',
     pillBg: 'bg-muted text-muted-foreground hover:bg-muted border-border',
@@ -436,17 +433,18 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
           </div>
         </div>
 
-        <!-- ── Type tabs — underline style ───────────────── -->
-        <div class="flex px-4">
+        <!-- ── Type: segmented toggle, as on Visão Geral (bg-card inside the dark sheet) ── -->
+        <div class="mx-4 mb-3 flex gap-1 rounded-lg bg-card p-1" role="group" aria-label="Tipo de transação">
           <button
             v-for="([t, cfg]) in (Object.entries(TYPE_CONFIG) as [TransactionType, typeof TYPE_CONFIG[TransactionType]][])"
             :key="t"
             type="button"
             :disabled="locked && form.type !== t"
-            class="flex-1 h-10 flex items-center justify-center gap-1.5 text-[13px] transition-colors border-b-2 disabled:opacity-40"
+            :aria-pressed="form.type === t"
+            class="flex-1 h-8 rounded-md flex items-center justify-center gap-1.5 text-[12px] transition-colors disabled:opacity-40"
             :class="form.type === t
-              ? [t === 'expense' ? 'border-destructive text-destructive' : t === 'income' ? 'border-success text-success' : 'border-foreground text-foreground', 'font-semibold']
-              : 'border-border text-muted-foreground hover:text-muted-foreground font-medium'"
+              ? 'bg-primary/15 text-primary font-semibold'
+              : 'text-muted-foreground hover:text-foreground font-medium'"
             @click="form.type = t"
           >
             <component :is="cfg.icon" :size="14" />
@@ -667,7 +665,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.destination_account_id"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.account_id === acc.id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
+                  :aria-pressed="form.account_id === acc.id"
+                  :class="form.account_id === acc.id ? 'bg-primary/15' : 'bg-muted hover:brightness-110'"
                   @click="form.account_id = form.account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -680,7 +679,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
                     <p class="text-[11px] text-muted-foreground capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                   </div>
-                  <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
+                  <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-foreground' : 'text-destructive'">
                     {{ formatCurrency(acc.balance) }}
                   </span>
                   <Check v-if="form.account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
@@ -701,7 +700,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   type="button"
                   :disabled="acc.id === form.account_id"
                   class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
-                  :class="form.destination_account_id === acc.id ? 'bg-muted' : 'bg-muted hover:bg-muted'"
+                  :aria-pressed="form.destination_account_id === acc.id"
+                  :class="form.destination_account_id === acc.id ? 'bg-primary/15' : 'bg-muted hover:brightness-110'"
                   @click="form.destination_account_id = form.destination_account_id === acc.id ? '' : acc.id"
                 >
                   <span
@@ -714,7 +714,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                     <p class="text-[13px] font-medium text-foreground truncate">{{ acc.name }}</p>
                     <p class="text-[11px] text-muted-foreground capitalize">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }}</p>
                   </div>
-                  <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
+                  <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-foreground' : 'text-destructive'">
                     {{ formatCurrency(acc.balance) }}
                   </span>
                   <Check v-if="form.destination_account_id === acc.id" :size="14" class="text-primary shrink-0" aria-hidden="true" />
@@ -734,8 +734,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                 v-for="acc in store.activeAccounts"
                 :key="acc.id"
                 type="button"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted transition-colors duration-150 outline-none active:scale-[0.99]"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
                 :aria-pressed="form.account_id === acc.id"
+                :class="form.account_id === acc.id ? 'bg-primary/15' : 'bg-muted hover:brightness-110'"
                 @click="selectAccount(acc.id)"
               >
                 <span
@@ -748,7 +749,7 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   <p class="text-[13px] font-medium truncate" :class="form.account_id === acc.id ? 'text-primary' : 'text-foreground'">{{ acc.name }}</p>
                   <p class="text-[11px] text-muted-foreground">{{ ACCOUNT_TYPE_LABELS[acc.type] ?? acc.type }} · {{ form.type === 'income' ? 'entra no saldo agora' : 'sai do saldo agora' }}</p>
                 </div>
-                <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-success' : 'text-destructive'">
+                <span class="text-[13px] font-semibold tabular-nums shrink-0" :class="acc.balance >= 0 ? 'text-foreground' : 'text-destructive'">
                   {{ formatCurrency(acc.balance) }}
                 </span>
                 <Check v-if="form.account_id === acc.id" :size="16" class="text-primary shrink-0" aria-hidden="true" />
@@ -759,8 +760,9 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
                   v-for="c in store.activeCards"
                   :key="c.id"
                   type="button"
-                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted transition-colors duration-150 outline-none active:scale-[0.99]"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150 outline-none active:scale-[0.99]"
                   :aria-pressed="form.card_id === c.id"
+                  :class="form.card_id === c.id ? 'bg-primary/15' : 'bg-muted hover:brightness-110'"
                   @click="selectCard(c.id)"
                 >
                   <span
@@ -1042,8 +1044,8 @@ async function doSubmit(scope?: RecurrenceUpdateScope) {
       <div class="sticky bottom-0 px-5 pt-3 pb-6 shrink-0 bg-background">
         <button
           type="button"
-          class="w-full h-[52px] rounded-xl text-[15px] font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-          :class="[(!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90', typeConfig.saveBg, 'text-background']"
+          class="w-full h-11 rounded-lg text-[14px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          :class="[(!isFormValid || submitting) ? 'opacity-40 cursor-not-allowed' : 'hover:brightness-110', 'bg-primary text-primary-foreground']"
           :disabled="submitting || !isFormValid"
           @click="submit"
         >
