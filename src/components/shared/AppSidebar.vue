@@ -12,7 +12,7 @@ import {
   Wallet, FileText, Bookmark, ShoppingCart,
   Settings, Search, Plus, Moon, Sun,
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
-  Landmark, CreditCard, PieChart, Tag, Flag,
+  Landmark, CreditCard, PieChart, Tag, Flag, PlugZap,
   Package, ShoppingBag,
   MessageCircle,
 } from 'lucide-vue-next'
@@ -62,6 +62,7 @@ const FINANCE_CHILDREN: NavChildItem[] = [
   { label: 'Visão Geral',  icon: LayoutDashboard, route: ROUTES.FINANCE },
   { label: 'Contas',       icon: Landmark,          route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões',      icon: CreditCard,        route: ROUTES.FINANCE_CARDS },
+  { label: 'Conexões',     icon: PlugZap,           route: ROUTES.FINANCE_CONNECTIONS },
   { label: 'Orçamento',    icon: PieChart,          route: ROUTES.FINANCE_BUDGET },
   { label: 'Metas',        icon: Flag,              route: ROUTES.FINANCE_GOALS },
   { label: 'Categorias',   icon: Tag,               route: ROUTES.FINANCE_CATEGORIES },

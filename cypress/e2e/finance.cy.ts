@@ -82,6 +82,21 @@ describe('Finanças', () => {
     cy.contains(/Ano fechado|Em andamento|Previsão/, { timeout: 20000 }).should('be.visible')
   })
 
+  it('Bancos conectados abre (sem chamar a Pluggy)', () => {
+    visit('/finance/connections')
+    // Com ou sem credenciais da Pluggy no backend local, a tela explica o estado
+    cy.contains(/Como conectar|Conexão bancária desativada/, { timeout: 20000 }).should('be.visible')
+    cy.get('body').then(($body) => {
+      if ($body.text().includes('Como conectar')) cy.contains('button', 'Conectar banco').should('be.visible')
+    })
+  })
+
+  it('A lançar (bancos conectados) abre', () => {
+    visit('/finance/connections/review')
+    // Sem banco ligado a lista vem vazia; com banco ligado, vem o botão de lançar
+    cy.contains(/Nada para lançar|Lançar \d+ marcada/, { timeout: 30000 }).should('be.visible')
+  })
+
   it('Metas: edita e conclui uma meta', () => {
     const name = `E2E meta ${stamp}`
     api('POST', 'finance/goals', { name, target_amount: 1000, color: '#5CA8F5' }).then((r) => {

@@ -25,6 +25,8 @@ const LEAF_LABELS: Record<string, string> = {
   [ROUTES.FINANCE_CARDS]: 'Cartões',
   [ROUTES.FINANCE_BUDGET]: 'Orçamento',
   [ROUTES.FINANCE_GOALS]: 'Metas',
+  [ROUTES.FINANCE_CONNECTIONS]: 'Bancos conectados',
+  [ROUTES.FINANCE_CONNECTIONS_REVIEW]: 'A lançar',
   [ROUTES.FINANCE_REPORTS]: 'Relatório mensal',
   [ROUTES.FINANCE_REPORTS_YEARLY]: 'Relatório anual',
   [ROUTES.FINANCE_CATEGORIES]: 'Categorias',

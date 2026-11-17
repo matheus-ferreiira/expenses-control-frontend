@@ -141,10 +141,11 @@ Ordem dos cards da Visão Geral (mobile e coluna esquerda no desktop):
 1. **Card do mês** (`MonthSummaryCard`): navegação de mês, modo do mês, 3 colunas (entrou · saiu · sobrou), resultado previsto, barra contra orçamento/receita prevista, status, comparação com o mês anterior, guardado no mês.
 2. **Saldo** (mês atual e futuros): "Nas contas" e "No fim do mês", faturas descontadas, guardado, nota de cálculo, aviso de contas não conferidas.
 3. **A confirmar** (só mês atual): pendentes vencidos e da semana, confirmação em 1 toque.
-4. **Cartões** em versão compacta (só mês atual): fatura a pagar, fatura aberta e limite livre.
-5. **Categorias**: toggle Despesas/Receitas, top 5 com "Ver todas".
-6. Alerta de categoria acima da meta (quando houver).
-7. **Transações** (coluna direita no desktop): busca, toggle Todas/Receitas/Despesas, "Filtros", bloco "Agendadas" recolhido, lista por dia.
+4. **Do banco** (só mês atual e só quando houver): uma linha-card com quantas transações dos bancos conectados faltam no app; toque abre "A lançar" (`BankReviewCard`, número de `GET /finance/bank-connections/status`).
+5. **Cartões** em versão compacta (só mês atual): fatura a pagar, fatura aberta e limite livre.
+6. **Categorias**: toggle Despesas/Receitas, top 5 com "Ver todas".
+7. Alerta de categoria acima da meta (quando houver).
+8. **Transações** (coluna direita no desktop): busca, toggle Todas/Receitas/Despesas, "Filtros", bloco "Agendadas" recolhido, lista por dia.
 
 Ao criar uma tela nova, siga a mesma lógica: cards de resumo em cima/à esquerda, lista principal embaixo/à direita.
 Quando a tela é uma coleção de cards grandes do mesmo tipo (ex.: Cartões), use `lg:grid-cols-2` com o mesmo gap: cada card fica com a largura de uma coluna, nunca esticado na tela inteira.
@@ -345,6 +346,8 @@ Rodapé de formulário: `h-11 rounded-lg text-[14px] font-medium`, Cancelar `bg-
 | Cartões (`CardsPage.vue`) | No padrão (2026-10-29) |
 | Orçamento (`BudgetPage.vue`) | No padrão (2026-10-29) |
 | Metas (`GoalsPage.vue`) | No padrão (2026-10-29) |
+| Bancos conectados (`BankConnectionsPage.vue`) | No padrão desde a criação (2026-11-17): resumo "No banco" (com atalho "a lançar") + "Como conectar" à esquerda, um card por banco com linhas de conta à direita; transações da conta e "Ligar ao app" em bottom sheet |
+| A lançar (`BankReviewPage.vue`) | No padrão desde a criação (2026-11-17): resumo com o botão "Lançar N marcadas" à esquerda, lista por dia à direita com seleção (quadrado `bg-primary` marcado), edição do item em bottom sheet (toggle segmentado do tipo, chips de categoria, "Minha parte" na despesa dividida) |
 | Categorias (`CategoriesPage.vue`) | No padrão (2026-10-29) |
 | Relatórios (`MonthlyReportPage.vue`, `YearlyReportPage.vue`) | No padrão (2026-10-29) |
 | Formulários de Finanças (`TransactionFormDialog` e os demais) | No padrão (2026-10-29) |

@@ -8,6 +8,7 @@ import MonthSummaryCard, { type MonthMode } from '@/features/finance/components/
 import CategoryBreakdownList from '@/features/finance/components/CategoryBreakdownList.vue'
 import CategoryTransactionsSheet from '@/features/finance/components/CategoryTransactionsSheet.vue'
 import PendingThisWeekCard from '@/features/finance/components/PendingThisWeekCard.vue'
+import BankReviewCard from '@/features/finance/components/BankReviewCard.vue'
 import FinanceSubNav from '@/features/finance/components/FinanceSubNav.vue'
 import TransactionList from '@/features/finance/components/TransactionList.vue'
 import TransactionFormDialog, { type TransactionPrefill } from '@/features/finance/components/TransactionFormDialog.vue'
@@ -708,6 +709,9 @@ onMounted(async () => {
 
       <!-- A confirmar: vencidos e da semana, confirmação 1-toque (só no mês em andamento) -->
       <PendingThisWeekCard v-if="monthMode === 'current'" @confirmed="onWeeklyPendingConfirmed" />
+
+      <!-- Do banco: transações dos bancos conectados que ainda não estão no app (só aparece se houver) -->
+      <BankReviewCard v-if="monthMode === 'current'" />
 
       <!-- Cartões, versão compacta: fatura a pagar, fatura aberta e limite livre (só no mês em andamento) -->
       <template v-if="monthMode === 'current'">

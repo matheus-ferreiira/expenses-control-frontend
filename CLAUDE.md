@@ -110,6 +110,8 @@ src/
 | **Visão Geral** (referência de design) | `/finance` | `pages/finance/FinancePage.vue` |
 | Contas | `/finance/accounts` | `AccountsPage.vue` |
 | Cartões | `/finance/cards` | `CardsPage.vue` |
+| Bancos conectados (Pluggy) | `/finance/connections` | `BankConnectionsPage.vue` |
+| A lançar (do banco) | `/finance/connections/review` | `BankReviewPage.vue` |
 | Orçamento | `/finance/budget` | `BudgetPage.vue` |
 | Metas | `/finance/goals` | `GoalsPage.vue` |
 | Categorias | `/finance/categories` | `CategoriesPage.vue` |
@@ -126,6 +128,11 @@ Conceitos usados nas telas:
   ("Paguei / Recebi", `ConfirmTransactionSheet`).
 - **Cartões:** fatura a pagar, fatura aberta e limite livre vêm de `GET /finance/cards/{id}/overview`.
 - **Saldo no fim do mês:** `GET /finance/balance/historical` (saldo + previstos − faturas que vencem até lá).
+- **Bancos conectados:** cópia do que o banco informa via Pluggy/MeuPluggy (`services/api/bankConnections.ts`,
+  `types/bankConnections.ts`). Cada conta do banco é ligada a uma conta/cartão do app; o que falta aparece em
+  **A lançar** com sugestão e só entra no app quando o usuário aprova (card "Do banco" na Visão Geral). O widget
+  (`pluggy-connect-sdk`, carregado sob demanda em `usePluggyConnect.ts`) recebe só um connect token do
+  backend; credenciais da Pluggy nunca vão para o frontend. Guia: `../expenses-control-backend/docs/BANK_SYNC.md`.
 
 ## Path Aliases
 

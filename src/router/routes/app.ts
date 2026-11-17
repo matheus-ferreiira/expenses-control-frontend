@@ -93,6 +93,16 @@ export const appRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/finance/GoalsPage.vue'),
       },
       {
+        path: 'finance/connections',
+        name: ROUTES.FINANCE_CONNECTIONS,
+        component: () => import('@/pages/finance/BankConnectionsPage.vue'),
+      },
+      {
+        path: 'finance/connections/review',
+        name: ROUTES.FINANCE_CONNECTIONS_REVIEW,
+        component: () => import('@/pages/finance/BankReviewPage.vue'),
+      },
+      {
         path: 'reports',
         name: ROUTES.REPORTS,
         component: () => import('@/pages/ReportsPage.vue'),

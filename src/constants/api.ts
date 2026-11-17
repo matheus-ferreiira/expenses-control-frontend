@@ -70,6 +70,18 @@ export const API_ENDPOINTS = {
     FINANCE_GOAL_DETAIL: (id: string) => `${API_BASE}/finance/goals/${id}`,
     FINANCE_GOAL_COMPLETE: (id: string) => `${API_BASE}/finance/goals/${id}/complete`,
   },
+  BANK_CONNECTIONS: {
+    BASE: `${API_BASE}/finance/bank-connections`,
+    STATUS: `${API_BASE}/finance/bank-connections/status`,
+    CONNECT_TOKEN: `${API_BASE}/finance/bank-connections/connect-token`,
+    DETAIL: (id: string) => `${API_BASE}/finance/bank-connections/${id}`,
+    SYNC: (id: string) => `${API_BASE}/finance/bank-connections/${id}/sync`,
+    ACCOUNT_TRANSACTIONS: (accountId: string) =>
+      `${API_BASE}/finance/bank-connections/accounts/${accountId}/transactions`,
+    ACCOUNT: (accountId: string) => `${API_BASE}/finance/bank-connections/accounts/${accountId}`,
+    REVIEW: `${API_BASE}/finance/bank-connections/review`,
+    REVIEW_UNDO: (id: string) => `${API_BASE}/finance/bank-connections/review/${id}/undo`,
+  },
   REPORTS: {
     HABITS_LOG_COUNT: `${API_BASE}/reports/habits-log-count`,
     WEEKLY_PRODUCTIVITY: `${API_BASE}/reports/weekly-productivity`,

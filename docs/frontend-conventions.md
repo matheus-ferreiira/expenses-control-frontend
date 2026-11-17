@@ -9,6 +9,21 @@ Texto do modelo usa interpolação Vue; nunca `v-html`. `proposalRows` formata v
 deslocar datas pelo fuso. Preview mostra valores anteriores, exclusões, fuso e status.
 Aprovação envia `confirmed: true` com ID da mensagem salva; nunca ações editáveis pelo cliente.
 
+## Conexão bancária (Pluggy)
+
+`BankConnectionsPage.vue`, `bankConnectionsApi` e `openPluggyConnect()` (`features/finance/composables/
+usePluggyConnect.ts`). O SDK `pluggy-connect-sdk` (versão fixada) é carregado com `import()` só ao abrir
+o widget. O frontend nunca vê credenciais da Pluggy: pede um connect token ao backend, abre o widget e
+envia só o `item.id` de volta. Erros do widget não fecham a promessa (o widget deixa tentar de novo);
+só o fechamento sem sucesso mostra o último erro. Totais vêm de `GET /finance/bank-connections`.
+Os dados do banco não alimentam a store de Finanças: entram no app só pela tela **A lançar**
+(`BankReviewPage.vue`, `BankReviewItemSheet.vue`). Ela mantém a decisão de cada item no estado da página
+(começa pela sugestão do backend), marca só as que têm sugestão completa e envia as marcadas de uma vez
+(`bankConnectionsApi.applyReview`); o que o backend recusar volta em `skipped` e continua na lista com as
+edições do usuário. Ignorar é imediato. Ligar conta: `LinkBankAccountSheet.vue`; desfazer: na lista da
+conta (`BankAccountTransactionsSheet.vue`). O card da Visão Geral (`BankReviewCard.vue`) usa só o contador
+de `GET /finance/bank-connections/status`.
+
 Convenções de código do frontend. Padrões visuais ficam em [`design-system.md`](design-system.md)
 (referência: a tela **Visão Geral** de Finanças, `src/pages/finance/FinancePage.vue`).
 

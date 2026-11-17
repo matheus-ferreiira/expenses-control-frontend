@@ -97,6 +97,8 @@ Detalhes e padrões: [`CLAUDE.md`](CLAUDE.md) e [`docs/frontend-conventions.md`]
 | **Finanças** | `/finance` | **Visão Geral** (mês, saldo, a confirmar, cartões, categorias, transações) |
 | | `/finance/accounts` | Contas (disponível e guardado, conferência de saldo) |
 | | `/finance/cards` | Cartões, faturas e limite |
+| | `/finance/connections` | Bancos conectados (Pluggy/MeuPluggy): saldos e transações lidos do banco, ligação de cada conta a uma conta do app |
+| | `/finance/connections/review` | A lançar: o que o banco mostra e ainda não está no app, com sugestão; entra só com aprovação |
 | | `/finance/budget` | Orçamento do mês |
 | | `/finance/goals` | Metas financeiras |
 | | `/finance/categories` | Categorias |

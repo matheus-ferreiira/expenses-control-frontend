@@ -13,6 +13,7 @@ const ITEMS: { label: string; route: string }[] = [
   { label: 'Visão', route: ROUTES.FINANCE },
   { label: 'Contas', route: ROUTES.FINANCE_ACCOUNTS },
   { label: 'Cartões', route: ROUTES.FINANCE_CARDS },
+  { label: 'Conexões', route: ROUTES.FINANCE_CONNECTIONS },
   { label: 'Orçamento', route: ROUTES.FINANCE_BUDGET },
   { label: 'Metas', route: ROUTES.FINANCE_GOALS },
   { label: 'Categorias', route: ROUTES.FINANCE_CATEGORIES },
@@ -22,6 +23,9 @@ const ITEMS: { label: string; route: string }[] = [
 function isActive(name: string): boolean {
   if (name === ROUTES.FINANCE_REPORTS) {
     return route.name === ROUTES.FINANCE_REPORTS || route.name === ROUTES.FINANCE_REPORTS_YEARLY
+  }
+  if (name === ROUTES.FINANCE_CONNECTIONS) {
+    return route.name === ROUTES.FINANCE_CONNECTIONS || route.name === ROUTES.FINANCE_CONNECTIONS_REVIEW
   }
   return route.name === name
 }
