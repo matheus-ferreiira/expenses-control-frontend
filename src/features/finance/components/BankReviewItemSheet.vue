@@ -137,7 +137,7 @@ function save() {
 
         <p v-else-if="draft.action === 'match'" class="rounded-md bg-muted px-3 py-2 text-[12px] leading-snug">
           Já está no app como <span class="font-medium">{{ item.suggestion.description }}</span> (ex.: assinatura do cartão).
-          Só liga os dois; nada novo é criado.
+          Liga os dois e o lançamento fica com o valor e a data do banco (no cartão, também a fatura). Nada novo é criado.
         </p>
 
         <p v-else-if="draft.action === 'pay_card'" class="rounded-md bg-muted px-3 py-2 text-[12px] leading-snug">
