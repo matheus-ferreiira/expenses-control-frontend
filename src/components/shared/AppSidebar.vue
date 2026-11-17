@@ -14,6 +14,7 @@ import {
   PanelLeftClose, PanelLeftOpen, ChevronDown, X,
   Landmark, CreditCard, PieChart, Tag, Flag,
   Package, ShoppingBag,
+  MessageCircle,
 } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{ open: boolean; mobile?: boolean }>(), { mobile: false })
@@ -102,6 +103,7 @@ const ALL_NAV_SECTIONS: NavSection[] = [
     label: null,
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, route: ROUTES.DASHBOARD, shortcut: 'G D', module: null },
+      { label: 'Assistente', icon: MessageCircle, route: ROUTES.ASSISTANT, shortcut: '', module: null },
     ],
   },
   {

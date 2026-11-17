@@ -25,6 +25,7 @@ import {
   ShoppingCart,
   Lock,
   Settings,
+  MessageCircle,
 } from 'lucide-vue-next'
 
 const ui = useUiStore()
@@ -40,6 +41,7 @@ const navGroups = [
     heading: 'Produtividade',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, route: ROUTES.DASHBOARD, shortcut: 'G D' },
+      { label: 'Assistente', icon: MessageCircle, route: ROUTES.ASSISTANT, shortcut: '' },
       { label: 'Tarefas', icon: CheckSquare, route: ROUTES.TASKS, shortcut: 'G T' },
       { label: 'Hábitos', icon: Flame, route: ROUTES.HABITS, shortcut: 'G H' },
       { label: 'Agenda', icon: CalendarDays, route: ROUTES.CALENDAR, shortcut: 'G A' },

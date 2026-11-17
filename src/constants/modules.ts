@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   BarChart3,
   Settings,
+  MessageCircle,
 } from 'lucide-vue-next'
 import { ROUTES } from './routes'
 
@@ -31,6 +32,7 @@ export interface ModuleDef {
 }
 
 export const MODULES: ModuleDef[] = [
+  { prefix: 'assistant', label: 'Assistente', root: ROUTES.ASSISTANT, icon: MessageCircle, colorClass: 'text-primary' },
   { prefix: 'finance',   label: 'Finanças',  root: ROUTES.FINANCE,   icon: Wallet,          colorClass: 'text-primary' },
   { prefix: 'prices',    label: 'Preços',    root: ROUTES.PRICES,    icon: Tag,             colorClass: 'text-accent-cyan' },
   { prefix: 'task',      label: 'Tarefas',   root: ROUTES.TASKS,     icon: CheckSquare,     colorClass: 'text-accent-blue' },

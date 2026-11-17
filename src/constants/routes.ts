@@ -5,6 +5,7 @@ export const ROUTES = {
   RESET_PASSWORD: 'reset-password',
 
   DASHBOARD: 'dashboard',
+  ASSISTANT: 'assistant',
 
   TASKS: 'tasks',
   TASK_DETAIL: 'task-detail',

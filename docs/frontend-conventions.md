@@ -1,5 +1,14 @@
 # Frontend Conventions — VaultOS
 
+## Chat e propostas
+
+`AssistantPage.vue`, `assistantApi` e `AssistantProposal.vue`: histórico no backend, carregado por
+seleção. Solicitações bloqueiam troca de conversa/envio/aprovação para evitar respostas fora de ordem.
+Reenvios da mesma mensagem preservam UUID. Falhas mostram erro e atualização explícita do histórico.
+Texto do modelo usa interpolação Vue; nunca `v-html`. `proposalRows` formata valores locais sem
+deslocar datas pelo fuso. Preview mostra valores anteriores, exclusões, fuso e status.
+Aprovação envia `confirmed: true` com ID da mensagem salva; nunca ações editáveis pelo cliente.
+
 Convenções de código do frontend. Padrões visuais ficam em [`design-system.md`](design-system.md)
 (referência: a tela **Visão Geral** de Finanças, `src/pages/finance/FinancePage.vue`).
 

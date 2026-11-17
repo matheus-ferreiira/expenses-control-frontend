@@ -57,6 +57,7 @@ const mobileHeaderTitle = computed(() => {
   const name = String(route.name)
   if (name.startsWith('finance')) return 'Finanças'
   if (name === ROUTES.DASHBOARD) return 'Hoje'
+  if (name === ROUTES.ASSISTANT) return 'Assistente'
   if (name.startsWith('task')) return 'Tarefas'
   if (name.startsWith('habit')) return 'Mais'
   if (name === ROUTES.CALENDAR) return 'Calendário'

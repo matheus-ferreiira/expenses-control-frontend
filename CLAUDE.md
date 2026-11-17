@@ -1,5 +1,13 @@
 # CLAUDE.md — Frontend (VaultOS, Vue 3)
 
+## Assistente de rotina
+
+`/assistant` → `pages/AssistantPage.vue`, propostas em `features/assistant/components/AssistantProposal.vue`.
+API: `services/api/assistant.ts`; tipos: `types/assistant.ts`. Renderizar texto do modelo sem HTML.
+Mostrar alterações/valores anteriores antes de **Aprovar e aplicar**. O cliente envia confirmação,
+nunca ações. Reenvios preservam `request_id`; botões bloqueados durante solicitações.
+A chave da OpenAI é exclusiva do backend. Sem chave, mostrar ativação pendente.
+
 SPA + PWA do VaultOS: finanças pessoais (módulo principal), tarefas, hábitos, agenda, notas,
 bookmarks, preços e compras. API em `../expenses-control-backend`.
 

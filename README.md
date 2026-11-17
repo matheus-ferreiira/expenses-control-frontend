@@ -1,5 +1,12 @@
 # VaultOS — Frontend
 
+## Assistente
+
+`/assistant` (menu **Assistente**) oferece chat com histórico, data de planejamento e propostas
+revisáveis para tarefas, hábitos e agenda. **Aprovar e aplicar** executa; escrever no chat permite
+revisar. Disponível no menu mobile e na busca. A chave da OpenAI fica exclusivamente no backend;
+ativação em [`docs/ASSISTANT.md` do backend](../expenses-control-backend/docs/ASSISTANT.md).
+
 SPA Vue 3 (instalável como PWA) para finanças pessoais, tarefas, hábitos, agenda, notas, bookmarks,
 preços e compras. Consome a API Laravel de [`../expenses-control-backend`](../expenses-control-backend/README.md).
 

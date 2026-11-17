@@ -1,5 +1,13 @@
 # Design System — VaultOS
 
+## Assistente (`/assistant`)
+
+Segue os cards sólidos e tipografia da Visão Geral: histórico/contexto à esquerda no desktop e
+empilhado no mobile. Mensagens usam texto simples; propostas mostram cada ação em `bg-muted`,
+valores anteriores nas edições e exclusões com texto `destructive`. CTA **Aprovar e aplicar** usa
+`primary`, altura 44px. Status diferencia pendente, aplicado, descartado, substituído e expirado.
+Carregamento, erro, vazio e configuração pendente têm estados explícitos. Nada é gravado só por conversar.
+
 > **Referência de design: a tela Visão Geral de Finanças** (`/finance`, `src/pages/finance/FinancePage.vue`).
 > Organização, visual, tipografia, cores, espaçamento, textos e comportamento de qualquer tela nova
 > ou refeita seguem o que a Visão Geral faz hoje. Em caso de dúvida, abra a Visão Geral e copie o padrão.

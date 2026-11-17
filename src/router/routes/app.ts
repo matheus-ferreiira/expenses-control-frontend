@@ -18,6 +18,11 @@ export const appRoutes: RouteRecordRaw[] = [
       },
       // Produtividade
       {
+        path: 'assistant',
+        name: ROUTES.ASSISTANT,
+        component: () => import('@/pages/AssistantPage.vue'),
+      },
+      {
         path: 'tasks',
         name: ROUTES.TASKS,
         component: () => import('@/pages/tasks/TasksPage.vue'),
