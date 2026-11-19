@@ -353,8 +353,8 @@ function accountSubtitle(a: BankConnectionAccount): string {
             <li>Confira em <span class="font-medium">A lançar</span> o que falta e aprove.</li>
           </ol>
           <p class="mt-3 text-[11px] text-muted-foreground leading-snug">
-            O Meu Pluggy lê o banco uma vez por dia e o VaultOS busca os dados às 6h e às 18h; o que for novo aparece em
-            "A lançar". A autorização vale 1 ano. Sua senha do banco nunca passa pelo VaultOS.
+            O Meu Pluggy lê o banco uma vez por dia e o VaultOS confere de hora em hora; o que for novo aparece em
+            "A lançar" até uma hora depois. A autorização vale 1 ano. Sua senha do banco nunca passa pelo VaultOS.
           </p>
         </div>
       </div>
